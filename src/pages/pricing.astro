@@ -1,81 +1,121 @@
 ---
-import Layout from "@/layouts/Layout.astro";
 import Container from "@/components/container.astro";
-import Sectionhead from "@/components/sectionhead.astro";
-import PricingCard from "@/components/pricing.astro";
-
-const pricing = [
-  {
-    name: "Personal",
-    price: "Free",
-    popular: false,
-    features: [
-      "Lifetime free",
-      "Up to 3 users",
-      "Unlimited Pages",
-      "Astro Sub domain",
-      "Basic Integrations",
-      "Community Support",
-    ],
-    button: {
-      text: "Get Started",
-      link: "/",
-    },
-  },
-  {
-    name: "Startup",
-    price: {
-      monthly: "$19",
-      annual: "$16",
-      discount: "10%",
-      original: "$24",
-    },
-    popular: true,
-    features: [
-      "All Free Features",
-      "Up to 20 users",
-      "20 Custom domains",
-      "Unlimited Collaborators",
-      "Advanced Integrations",
-      "Priority Support",
-    ],
-    button: {
-      text: "Get Started",
-      link: "#",
-    },
-  },
-  {
-    name: "Enterprise",
-    price: "Custom",
-    popular: false,
-    features: [
-      "All Pro Features",
-      "Unlimited Custom domains",
-      "99.99% Uptime SLA",
-      "SAML & SSO Integration",
-      "Dedicated Account Manager",
-      "24/7 Phone Support",
-    ],
-    button: {
-      text: "Contact us",
-      link: "/contact",
-    },
-  },
-];
+import Layout from "@/layouts/Layout.astro";
 ---
 
-<Layout title="Pricing">
+<Layout title="Paquetes y precios — U Link">
   <Container>
-    <Sectionhead>
-      <Fragment slot="title">Pricing</Fragment>
-      <Fragment slot="desc">
-        Simple & Predictable pricing. No Surprises.
-      </Fragment>
-    </Sectionhead>
+    <!-- Hero -->
+    <section class="py-12 md:py-16">
+      <div class="max-w-3xl mx-auto px-4 text-center">
+        <h1 class="text-4xl md:text-5xl font-bold tracking-tight">Paquetes y precios</h1>
+        <p class="mt-3 text-slate-600">
+          Precios claros, sin sorpresas. Elige el plan que mejor se adapta a tu operación.
+        </p>
+      </div>
+    </section>
 
-    <div
-      class="grid md:grid-cols-3 gap-10 mx-auto max-w-(--breakpoint-lg) mt-12">
-      {pricing.map((item) => <PricingCard plan={item} />)}
-    </div>
+    <!-- Incluye siempre -->
+    <section class="pb-6">
+      <div class="max-w-5xl mx-auto px-4">
+        <div class="rounded-2xl border border-slate-200 p-5">
+          <div class="font-semibold">📦 Nuestros planes incluyen siempre:</div>
+          <ul class="mt-3 grid sm:grid-cols-2 gap-2 text-slate-700 list-none">
+            <li>✅ Diseño e implementación del chatbot</li>
+            <li>✅ Conexión a tus canales activos</li>
+            <li>✅ Agendamiento automático</li>
+            <li>✅ Soporte continuo</li>
+            <li>✅ Ajustes incluidos según tu plan</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Planes -->
+    <section class="py-6 md:py-10">
+      <div class="max-w-5xl mx-auto px-4 grid gap-6 md:grid-cols-3">
+        <!-- Esencial -->
+        <div class="rounded-2xl border border-slate-200 p-6 flex flex-col">
+          <div class="text-sm uppercase tracking-wide text-slate-500">🥉 Plan Esencial</div>
+          <h3 class="mt-1 text-xl font-semibold">Negocios unipersonales</h3>
+          <div class="mt-4">
+            <div class="text-3xl font-bold">$2,500 MXN <span class="text-base font-medium text-slate-500">setup</span></div>
+            <div class="text-slate-600">+ $899 MXN / mes</div>
+          </div>
+          <p class="mt-3 text-slate-600">1 canal WhatsApp + atención automatizada 24/7.</p>
+          <ul class="mt-4 space-y-2 text-slate-700 list-none text-sm">
+            <li>• Respuestas a preguntas frecuentes</li>
+            <li>• Agendamiento básico</li>
+            <li>• Aviso para atención en vivo</li>
+          </ul>
+          <a href="https://wa.me/5219993519475?text=Hola%2C%20me%20interesa%20el%20Plan%20Esencial"
+             class="mt-6 inline-flex justify-center rounded-xl border border-slate-300 px-4 py-2 font-medium hover:bg-slate-50">
+            Empezar por WhatsApp
+          </a>
+        </div>
+
+        <!-- Profesional (destacado) -->
+        <div class="rounded-2xl border-2 border-slate-900 p-6 flex flex-col shadow-sm">
+          <div class="text-sm uppercase tracking-wide text-slate-500">🥈 Plan Profesional</div>
+          <h3 class="mt-1 text-xl font-semibold">Negocios en crecimiento</h3>
+          <div class="mt-4">
+            <div class="text-3xl font-bold">$4,500 MXN <span class="text-base font-medium text-slate-500">setup</span></div>
+            <div class="text-slate-600">+ $1,499 MXN / mes</div>
+          </div>
+          <p class="mt-3 text-slate-600">WhatsApp + Instagram + seguimiento automático.</p>
+          <ul class="mt-4 space-y-2 text-slate-700 list-none text-sm">
+            <li>• Calificación de prospectos</li>
+            <li>• Seguimiento y recordatorios</li>
+            <li>• Reporte básico de actividad</li>
+          </ul>
+          <a href="https://wa.me/5219993519475?text=Hola%2C%20me%20interesa%20el%20Plan%20Profesional"
+             class="mt-6 inline-flex justify-center rounded-xl bg-slate-900 px-4 py-2 font-medium text-white hover:opacity-90">
+            Elegir Profesional
+          </a>
+          <div class="mt-2 text-xs text-slate-500">Más popular</div>
+        </div>
+
+        <!-- Total -->
+        <div class="rounded-2xl border border-slate-200 p-6 flex flex-col">
+          <div class="text-sm uppercase tracking-wide text-slate-500">🥇 Plan Total</div>
+          <h3 class="mt-1 text-xl font-semibold">Negocios consolidados o con equipo</h3>
+          <div class="mt-4">
+            <div class="text-3xl font-bold">$8,000 MXN <span class="text-base font-medium text-slate-500">setup</span></div>
+            <div class="text-slate-600">+ $2,499 MXN / mes</div>
+          </div>
+          <p class="mt-3 text-slate-600">3 canales + usuarios adicionales para tu equipo + reportes mensuales.</p>
+          <ul class="mt-4 space-y-2 text-slate-700 list-none text-sm">
+            <li>• WhatsApp, Instagram y Facebook</li>
+            <li>• Multiusuario para tu equipo</li>
+            <li>• Reportes y mejoras continuas</li>
+          </ul>
+          <a href="https://wa.me/5219993519475?text=Hola%2C%20me%20interesa%20el%20Plan%20Total"
+             class="mt-6 inline-flex justify-center rounded-xl border border-slate-300 px-4 py-2 font-medium hover:bg-slate-50">
+            Solicitar propuesta
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Condiciones -->
+    <section class="py-10">
+      <div class="max-w-5xl mx-auto px-4">
+        <div class="rounded-2xl border border-slate-200 p-5">
+          <ul class="grid sm:grid-cols-2 gap-2 text-slate-700 list-none">
+            <li>💵 Pagos: TDC, efectivo o transferencia bancaria</li>
+            <li>📄 Facturación disponible</li>
+            <li>🔓 Sin contratos de permanencia forzosa</li>
+            <li>💳 3 meses sin intereses en Setup</li>
+          </ul>
+          <p class="mt-3 text-xs text-slate-500">⚠️ Precios más IVA. Se desglosa en factura.</p>
+        </div>
+
+        <div class="mt-8 text-center">
+          <a href="/#contacto" class="inline-flex items-center justify-center rounded-xl bg-slate-900 px-5 py-3 text-white font-medium hover:opacity-90">
+            Agendar una demo
+          </a>
+        </div>
+      </div>
+    </section>
   </Container>
 </Layout>
