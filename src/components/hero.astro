@@ -1,49 +1,56 @@
 ---
-import { Picture } from "astro:assets";
-import heroImage from "@/assets/hero.png";
-import Link from "@/components/ui/link.astro";
 import { Icon } from "astro-icon/components";
 ---
 
-<main
-  class="grid lg:grid-cols-2 place-items-center pt-16 pb-8 md:pt-12 md:pb-24">
+<main class="grid lg:grid-cols-2 place-items-center pt-16 pb-8 md:pt-12 md:pb-20">
   <div class="py-6 md:order-1 hidden md:block">
-    <Picture
-      src={heroImage}
-      alt="Astronaut in the air"
-      widths={[200, 400, 600]}
-      sizes="(max-width: 800px) 100vw, 620px"
-      loading="eager"
-      format="avif"
-    />
+    <slot name="illustration" />
   </div>
+
   <div>
-    <h1
-      class="text-5xl lg:text-6xl xl:text-7xl font-bold lg:tracking-tight xl:tracking-tighter">
-      Automatiza tu WhatsApp, Facebook e Instagram para no perder prospectos — y sin contratar más personal.
+    <!-- NUEVO BLOQUE (arriba) -->
+    <h1 class="text-4xl lg:text-5xl xl:text-6xl font-bold tracking-tight">
+      Todo lo que necesitas para no perder citas
     </h1>
     <p class="text-lg mt-4 text-slate-600 max-w-xl">
-      Agenda, reagenda y confirma desde el chat con disponibilidad en tiempo real. Enviamos recordatorios y guardamos todo en tu CRM/Sheets.
+      Automatiza la gestión por WhatsApp, Facebook e Instagram sin contratar más personal.
     </p>
+    <ul class="mt-4 space-y-2 text-slate-700 list-none">
+      <li>• <strong>Disponibilidad en tiempo real</strong> — Muestra horarios reales del calendario y evita cruces o dobles reservas.</li>
+      <li>• <strong>Reagenda y cancela en el chat</strong> — Tus clientes mueven o cancelan desde WhatsApp, Messenger o Instagram sin fricción.</li>
+      <li>• <strong>Recordatorios + CRM/Sheets</strong> — Enviamos recordatorios automáticos y guardamos cada cita en tu CRM u hoja de cálculo.</li>
+      <li>• <strong>Works with your technologies</strong></li>
+    </ul>
+
     <div class="mt-6 flex flex-col sm:flex-row gap-3">
-      <Link
-        href="https://cal.com/ulink/60min"
-        target="_blank"
-        class="flex gap-1 items-center justify-center"
-        rel="noopener">
-        <Icon class="text-white w-5 h-5" name="bx:bxs-calendar" />
+      <a href="https://wa.me/5219993519475?text=Hola%2C%20quiero%20agendar%20mi%20diagn%C3%B3stico"
+         class="rounded-xl bg-slate-900 px-5 py-3 text-white text-center font-medium hover:opacity-90">
         Agenda ahora mismo tu cita
-      </Link>
-      <Link
-        size="lg"
-        style="outline"
-        rel="noopener"
-        href="https://wa.me/5219996187124"
-        class="flex gap-1 items-center justify-center"
-        target="_blank">
-        <Icon class="text-black w-4 h-4" name="bx:bxl-whatsapp" />
-        Escríbenos por WhatsApp
-      </Link>
+      </a>
+      <a href="/pricing"
+         class="rounded-xl border border-slate-300 px-5 py-3 text-center font-medium hover:bg-slate-50">
+        Ver planes
+      </a>
     </div>
+    <!-- /NUEVO BLOQUE -->
+
+    <!-- TEXTO EXISTENTE (debajo) -->
+    <h2 class="mt-10 text-2xl lg:text-3xl font-semibold tracking-tight">
+      Deja de perder prospectos por no contestar a tiempo
+    </h2>
+    <p class="text-lg mt-3 text-slate-600 max-w-xl">
+      Agenda, reagenda y confirma desde WhatsApp, Facebook e Instagram con disponibilidad en tiempo real, recordatorios y registro en tu CRM/Sheets.
+    </p>
+
+    <div class="mt-6 flex flex-col sm:flex-row gap-3">
+      <a href="/#contacto"
+         class="rounded-xl bg-slate-900 px-5 py-3 text-white text-center font-medium hover:opacity-90">
+        ¿Listo para no perder más prospectos? Agenda tu diagnóstico
+      </a>
+    </div>
+
+    <p class="mt-10 text-xs text-slate-500">
+      © 2026 U Link · Chatbots. Todos los derechos reservados.
+    </p>
   </div>
 </main>
