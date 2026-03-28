@@ -1,34 +1,29 @@
----
 import { Icon } from "astro-icon/components";
 import Link from "@/components/ui/link.astro";
 ---
-
 <main class="grid lg:grid-cols-2 place-items-center pt-16 pb-8 md:pt-12 md:pb-20">
   <div class="py-6 md:order-1 hidden md:block">
     <slot />
   </div>
-
   <div>
     <h1 class="text-5xl lg:text-6xl xl:text-7xl font-bold lg:tracking-tight xl:tracking-tighter">
-      Todo lo que necesitas para no perder citas
+      Tu negocio responde, vende y agenda mientras tú descansas
     </h1>
     <p class="text-lg mt-4 text-slate-600 max-w-xl">
-      Automatiza la gestión por WhatsApp, Facebook e Instagram sin contratar más personal.
+      Automatiza conversaciones por WhatsApp, Facebook e Instagram sin contratar más personal.
     </p>
-
     <ul class="mt-5 space-y-2 text-slate-700 list-disc pl-5">
-      <li><strong>Disponibilidad en tiempo real:</strong> muestra horarios reales del calendario y evita cruces o dobles reservas.</li>
-      <li><strong>Reagenda y cancela en el chat:</strong> tus clientes mueven o cancelan desde WhatsApp, Messenger o Instagram sin fricción.</li>
-      <li><strong>Recordatorios + CRM/Sheets:</strong> enviamos recordatorios automáticos y guardamos cada cita en tu CRM u hoja de cálculo.</li>
-      <li><strong>Works with your technologies</strong></li>
+      <li><strong>Siempre disponible:</strong> tu chatbot atiende al instante, a cualquier hora, en los canales donde ya están tus clientes.</li>
+      <li><strong>Tus clientes se atienden solos:</strong> consultan, reagendan o cancelan directo desde WhatsApp, Messenger o Instagram sin que nadie de tu equipo intervenga.</li>
+      <li><strong>Sin clientes olvidados:</strong> enviamos recordatorios automáticos para que tus clientes lleguen, respondan y compren sin seguimiento manual.</li>
+      <li><strong>Funciona con las herramientas que ya tienes</strong></li>
     </ul>
-
     <div class="mt-6 flex flex-col sm:flex-row gap-3">
       <Link
         href="https://wa.me/5219993519475?text=Hola%2C%20quiero%20agendar%20mi%20diagn%C3%B3stico"
         class="flex gap-1 items-center justify-center"
         rel="noopener">
-        Agenda ahora mismo tu cita
+        Agenda una demo gratuita
       </Link>
       <Link
         size="lg"
@@ -39,17 +34,16 @@ import Link from "@/components/ui/link.astro";
         Ver planes
       </Link>
     </div>
-
     <div class="mt-10 border-t border-slate-200 pt-6">
       <h2 class="text-2xl lg:text-3xl font-semibold tracking-tight">
-        Deja de perder prospectos por no contestar a tiempo
+        Deja de perder clientes por no contestar a tiempo
       </h2>
       <p class="text-lg mt-3 text-slate-600 max-w-xl">
-        Agenda, reagenda y confirma desde WhatsApp, Facebook e Instagram con disponibilidad en tiempo real, recordatorios y registro en tu CRM/Sheets.
+        Responde, califica y cierra ventas desde WhatsApp, Facebook e Instagram con automatización en tiempo real y recordatorios automáticos.
       </p>
       <div class="mt-5">
         <Link href="/#contacto" style="primary" size="lg">
-          ¿Listo para no perder más prospectos? Agenda tu diagnóstico
+          Agenda tu diagnóstico gratuito
         </Link>
       </div>
       <p class="mt-8 text-xs text-slate-500">
