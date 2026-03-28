@@ -1,1 +1,40 @@
-
+import Contactform from "@/components/contactform.astro";
+import Container from "@/components/container.astro";
+import Sectionhead from "@/components/sectionhead.astro";
+import Layout from "@/layouts/Layout.astro";
+import { Icon } from "astro-icon/components";
+---
+<Layout title="Contacto">
+  <Container>
+    <Sectionhead>
+      <Fragment slot="title">Contáctanos</Fragment>
+      <Fragment slot="desc">Cuéntanos sobre tu negocio y te decimos cómo podemos automatizarlo.</Fragment>
+    </Sectionhead>
+    <div class="grid md:grid-cols-2 gap-10 mx-auto max-w-4xl mt-16">
+      <div>
+        <h2 class="font-medium text-2xl text-gray-800">Habla con U Link Chatbots</h2>
+        <p class="text-lg leading-relaxed text-slate-500 mt-3">
+          ¿Tienes dudas o quieres saber si la automatización es para tu negocio? Escríbenos, llámanos o llena el formulario y te respondemos a la brevedad.
+        </p>
+        <div class="mt-5">
+          <div class="flex items-center mt-2 space-x-2 text-gray-600">
+            <Icon class="text-gray-400 w-4 h-4" name="uil:map-marker" />
+            <span>Mérida, Yucatán, México</span>
+          </div><div class="flex items-center mt-2 space-x-2 text-gray-600">
+            <Icon class="text-gray-400 w-4 h-4" name="uil:envelope" /><a
+              href="mailto:contacto@menendez.lat"
+              >contacto@menendez.lat</a
+            >
+          </div><div class="flex items-center mt-2 space-x-2 text-gray-600">
+            <Icon class="text-gray-400 w-4 h-4" name="uil:phone" /><a
+              href="tel:+529993519475">+52 (999) 351 9475</a
+            >
+          </div>
+        </div>
+      </div>
+      <div>
+        <Contactform />
+      </div>
+    </div>
+  </Container>
+</Layout>
