@@ -1,25 +1,19 @@
 ---
-// @ts-ignore
-import { Icon } from "astro-icon/components";
-
 const features = [
   {
     title: "Siempre disponible",
-    description:
-      "Tu chatbot responde al instante, a cualquier hora, en los canales donde ya están tus clientes.",
-    icon: "bx:bxs-calendar-check",
+    description: "Tu chatbot responde al instante, a cualquier hora, en los canales donde ya están tus clientes.",
+    emoji: "⚡",
   },
   {
     title: "De la consulta al cierre solo",
-    description:
-      "Califica prospectos, envía información, agenda citas o toma pedidos — sin que intervenga nadie de tu equipo.",
-    icon: "bx:bxs-message-square-dots",
+    description: "Califica prospectos, envía información, agenda citas o toma pedidos — sin que intervenga nadie de tu equipo.",
+    emoji: "🤖",
   },
   {
     title: "Todo queda registrado",
-    description:
-      "(En planes Profesional y Total) Cada conversación se guarda en tu CRM automáticamente, listo para dar seguimiento cuando tú decidas.",
-    icon: "bx:bxs-data",
+    description: "Cada conversación se guarda en tu CRM automáticamente, listo para dar seguimiento cuando tú decidas.",
+    emoji: "📊",
   },
 ];
 ---
@@ -34,17 +28,15 @@ const features = [
 </div>
 
 <div class="grid sm:grid-cols-2 md:grid-cols-3 mt-16 gap-16">
-  {
-    features.map((item) => (
-      <div class="flex gap-4 items-start">
-        <div class="mt-1 bg-black rounded-full  p-2 w-8 h-8 shrink-0">
-          <Icon class="text-white" name={item.icon} />
-        </div>
-        <div>
-          <h3 class="font-semibold text-lg">{item.title}</h3>{" "}
-          <p class="text-slate-500 mt-2 leading-relaxed">{item.description}</p>
-        </div>
+  {features.map((item) => (
+    <div class="flex gap-4 items-start">
+      <div class="mt-1 bg-black rounded-full p-2 w-8 h-8 shrink-0 flex items-center justify-center">
+        <span class="text-sm">{item.emoji}</span>
       </div>
-    ))
-  }
+      <div>
+        <h3 class="font-semibold text-lg">{item.title}</h3>
+        <p class="text-slate-500 mt-2 leading-relaxed">{item.description}</p>
+      </div>
+    </div>
+  ))}
 </div>
