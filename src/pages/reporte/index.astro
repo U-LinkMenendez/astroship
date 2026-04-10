@@ -40,13 +40,14 @@
       .badge-ok { background: #e6f7f0; color: #2db88a; }
       .badge-mal { background: #fde8f1; color: #E8317A; }
       .badge-neu { background: #f0f4f8; color: #8a97a8; }
-      .barra-wrap { position: relative; margin: 8px 0 22px; }
-      .barra-track { position: relative; height: 10px; border-radius: 6px; background: #e8edf5; overflow: hidden; }
-      .barra-normal { position: absolute; height: 100%; }
-      .barra-fill { position: absolute; left: 0; height: 100%; border-radius: 6px; }
-      .barra-sep { position: absolute; top: -2px; width: 2px; height: 14px; background: rgba(255,255,255,.8); }
-      .barra-labels { position: relative; height: 14px; margin-top: 4px; font-size: 9px; color: #9aa5b4; }
-      .barra-labels span { position: absolute; transform: translateX(-50%); }
+      .barra-wrap { position: relative; margin: 8px 0 28px; }
+      .barra-track { position: relative; height: 12px; border-radius: 8px; background: #e8edf5; overflow: visible; }
+      .barra-track-inner { position: relative; height: 12px; border-radius: 8px; overflow: hidden; }
+      .barra-normal { position: absolute; top: 0; height: 100%; }
+      .barra-fill { position: absolute; left: 0; top: 0; height: 100%; border-radius: 8px; }
+      .barra-sep { position: absolute; top: -3px; width: 2px; height: 18px; background: rgba(255,255,255,.9); z-index: 2; }
+      .barra-labels { position: relative; height: 16px; margin-top: 5px; font-size: 9px; color: #9aa5b4; }
+      .barra-labels span { position: absolute; transform: translateX(-50%); white-space: nowrap; }
       .desc { font-size: 11px; color: #9aa5b4; line-height: 1.6; margin-bottom: 10px; }
       .chart-wrap { background: linear-gradient(135deg,#fdf8fc,#fef5f9); border-radius: 12px; padding: 12px 10px 6px; margin-top: 8px; }
       .equil-badge { display: inline-block; padding: 8px 24px; border-radius: 24px; background: linear-gradient(135deg,#fde8f1,#fef3e2); color: #E8317A; font-weight: 700; font-size: 15px; font-family: 'Playfair Display', Georgia, serif; border: 1.5px solid #E8317A; }
@@ -293,11 +294,13 @@
         el.innerHTML = `
           <div class="barra-wrap">
             <div class="barra-track">
-              <div class="barra-normal" style="left:${nAp}%;width:${nBp-nAp}%;background:${bgN}"></div>
-              <div class="barra-fill" style="width:${pct}%;background:${fill}"></div>
+              <div class="barra-track-inner">
+                <div class="barra-normal" style="left:${nAp}%;width:${nBp-nAp}%;background:${bgN}"></div>
+                <div class="barra-fill" style="width:${pct}%;background:${fill}"></div>
+              </div>
+              <div class="barra-sep" style="left:${nAp}%"></div>
+              <div class="barra-sep" style="left:${nBp}%"></div>
             </div>
-            <div class="barra-sep" style="left:${nAp}%"></div>
-            <div class="barra-sep" style="left:${nBp}%"></div>
             <div class="barra-labels">
               <span style="left:${nAp/2}%">Bajo</span>
               <span style="left:${(nAp+nBp)/2}%;font-weight:700;color:${colorTipo==='v'?'#2DB88A':'#E8317A'}">Normal</span>
