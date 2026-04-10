@@ -1,134 +1,449 @@
 ---
-// Página estática — el ID del paciente se lee desde ?id= en el URL via JS
+// Página estática — el ID del paciente se lee desde ?id= en la URL via JS
 ---
 <!doctype html>
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Reporte InBody — Iratxe Menéndez Nutrición</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+    <style>
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body { font-family: 'DM Sans', Arial, sans-serif; background: #fdf5f9; color: #1a2535; padding-bottom: 48px; }
+      .header { background: linear-gradient(135deg, #1a2535 0%, #2d3748 100%); position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 20px rgba(0,0,0,.2); }
+      .header-inner { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; max-width: 640px; margin: 0 auto; }
+      .logo-text { color: #fff; }
+      .logo-name { font-family: 'Playfair Display', Georgia, serif; font-size: 15px; font-weight: 700; }
+      .logo-sub { font-size: 9px; color: rgba(255,255,255,.6); letter-spacing: .5px; margin-top: 2px; }
+      .accent-bar { height: 4px; background: linear-gradient(90deg, #E8317A, #F5A623); }
+      .score-box { text-align: right; }
+      .score-val { font-family: 'Playfair Display', Georgia, serif; font-size: 28px; font-weight: 700; color: #fff; }
+      .score-lbl { font-size: 9px; color: rgba(255,255,255,.6); letter-spacing: .5px; margin-top: 2px; }
+      .pac-band { background: linear-gradient(135deg,#fff,#fdf5f9); padding: 14px 18px; border-bottom: 1px solid #f0e8f4; max-width: 640px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+      .pac-nombre { font-family: 'Playfair Display', Georgia, serif; font-size: 17px; font-weight: 700; color: #E8317A; }
+      .pac-info { font-size: 11px; color: #9aa5b4; margin-top: 3px; }
+      .pac-fecha { text-align: right; font-size: 11px; color: #9aa5b4; }
+      .pac-fecha strong { display: block; font-size: 13px; color: #1a2535; font-weight: 600; }
+      .content { max-width: 640px; margin: 0 auto; padding: 16px; }
+      .card { background: #fff; border-radius: 20px; padding: 20px 18px; margin-bottom: 16px; box-shadow: 0 4px 24px rgba(232,49,122,.06); border: 1px solid rgba(232,49,122,.08); }
+      .card-title { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; padding-bottom: 12px; border-bottom: 2px solid #fde8f1; font-family: 'Playfair Display', Georgia, serif; font-size: 14px; font-weight: 700; color: #1a2535; }
+      .metrica { border-bottom: 1px solid #f0f4f8; padding-bottom: 16px; margin-bottom: 16px; }
+      .metrica:last-child { border-bottom: none; padding-bottom: 0; margin-bottom: 0; }
+      .metrica-label { font-size: 10px; color: #9aa5b4; font-weight: 600; letter-spacing: .5px; text-transform: uppercase; margin-bottom: 4px; }
+      .metrica-row { display: flex; align-items: baseline; gap: 8px; margin-bottom: 6px; }
+      .metrica-val { font-family: 'Playfair Display', Georgia, serif; font-size: 28px; font-weight: 700; color: #1a2535; }
+      .metrica-uni { font-size: 12px; color: #9aa5b4; font-weight: 500; }
+      .badge { font-size: 10px; padding: 2px 8px; border-radius: 20px; font-weight: 700; }
+      .badge-ok { background: #e6f7f0; color: #2db88a; }
+      .badge-mal { background: #fde8f1; color: #E8317A; }
+      .badge-neu { background: #f0f4f8; color: #8a97a8; }
+      .barra-wrap { position: relative; margin: 8px 0 22px; }
+      .barra-track { position: relative; height: 10px; border-radius: 6px; background: #e8edf5; overflow: hidden; }
+      .barra-normal { position: absolute; height: 100%; }
+      .barra-fill { position: absolute; left: 0; height: 100%; border-radius: 6px; }
+      .barra-sep { position: absolute; top: -2px; width: 2px; height: 14px; background: rgba(255,255,255,.8); }
+      .barra-labels { position: relative; height: 14px; margin-top: 4px; font-size: 9px; color: #9aa5b4; }
+      .barra-labels span { position: absolute; transform: translateX(-50%); }
+      .desc { font-size: 11px; color: #9aa5b4; line-height: 1.6; margin-bottom: 10px; }
+      .chart-wrap { background: linear-gradient(135deg,#fdf8fc,#fef5f9); border-radius: 12px; padding: 12px 10px 6px; margin-top: 8px; }
+      .equil-badge { display: inline-block; padding: 8px 24px; border-radius: 24px; background: linear-gradient(135deg,#fde8f1,#fef3e2); color: #E8317A; font-weight: 700; font-size: 15px; font-family: 'Playfair Display', Georgia, serif; border: 1.5px solid #E8317A; }
+      .footer { text-align: center; padding: 16px 18px 8px; font-size: 10px; color: #c8a8b8; }
+      .state { text-align: center; padding: 60px 20px; }
+      .state-icon { font-size: 40px; margin-bottom: 12px; }
+      .wa-btn { display: inline-block; margin-top: 16px; background: #25D366; color: #fff; border-radius: 12px; padding: 10px 20px; font-weight: 600; font-size: 13px; text-decoration: none; }
+      .hidden { display: none !important; }
+    </style>
   </head>
-  <body class="antialiased bg-slate-50 text-slate-900 min-h-screen">
+  <body>
 
-    <header class="bg-white border-b border-slate-200 sticky top-0 z-10">
-      <div class="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
-        <div>
-          <p class="font-bold text-sm leading-tight">Iratxe Menéndez</p>
-          <p class="text-xs text-slate-500">Nutrición & Composición Corporal</p>
+    <div class="header">
+      <div class="header-inner">
+        <div class="logo-text">
+          <div class="logo-name">Iratxe Menéndez</div>
+          <div class="logo-sub">NUTRICIONISTA · CÉD. PROF. EN TRÁMITE</div>
         </div>
-        <a href="https://wa.me/5219996690192" class="text-xs bg-green-500 text-white rounded-full px-3 py-1.5 font-medium">
-          📱 Contactar
-        </a>
+        <div class="score-box">
+          <div class="score-lbl">PUNTUACIÓN INBODY</div>
+          <div class="score-val" id="score">—</div>
+        </div>
       </div>
-    </header>
+      <div class="accent-bar"></div>
+    </div>
 
-    <main class="max-w-2xl mx-auto px-4 py-8">
-
-      <div id="loading" class="text-center py-20">
-        <div class="text-4xl mb-4">⏳</div>
-        <p class="text-slate-500">Cargando tu reporte...</p>
+    <div class="pac-band">
+      <div>
+        <div class="pac-nombre" id="pac-nombre">—</div>
+        <div class="pac-info" id="pac-info">—</div>
       </div>
-
-      <div id="error" class="hidden text-center py-20">
-        <div class="text-4xl mb-4">🔍</div>
-        <p class="text-slate-700 font-semibold">Reporte no encontrado</p>
-        <p class="text-slate-500 text-sm mt-2">El enlace puede haber expirado o no es válido.</p>
-        <a href="https://wa.me/5219996690192?text=Hola%20Iratxe%2C%20necesito%20mi%20reporte%20InBody"
-           class="mt-6 inline-block bg-green-500 text-white rounded-xl px-5 py-2.5 font-medium text-sm">
-          Solicitar reporte por WhatsApp
-        </a>
+      <div class="pac-fecha">
+        <span>Medición</span>
+        <strong id="pac-fecha">—</strong>
       </div>
+    </div>
 
-      <div id="report-data" class="hidden space-y-6">
-        <div class="bg-white rounded-2xl border border-slate-200 p-5">
-          <div class="flex items-start justify-between">
-            <div>
-              <h1 class="text-xl font-bold" id="patient-name">—</h1>
-              <p class="text-sm text-slate-500" id="report-date">—</p>
+    <!-- Estado: cargando -->
+    <div id="st-loading" class="state">
+      <div class="state-icon">⏳</div>
+      <p style="color:#9aa5b4">Cargando tu reporte...</p>
+    </div>
+
+    <!-- Estado: error -->
+    <div id="st-error" class="state hidden">
+      <div class="state-icon">🔍</div>
+      <p style="font-weight:600">Reporte no encontrado</p>
+      <p style="font-size:12px;color:#9aa5b4;margin-top:6px">El enlace puede haber expirado o no es válido.</p>
+      <a href="https://wa.me/5219996690192?text=Hola%20Iratxe%2C%20necesito%20mi%20reporte%20InBody" class="wa-btn">Solicitar reporte por WhatsApp</a>
+    </div>
+
+    <!-- Contenido del reporte -->
+    <div id="st-report" class="hidden">
+      <div class="content">
+
+        <!-- Músculo-Grasa -->
+        <div class="card">
+          <div class="card-title"><span>💪</span> Análisis Músculo-Grasa</div>
+          <div class="metrica">
+            <div class="metrica-label">Peso corporal</div>
+            <div class="metrica-row">
+              <span class="metrica-val" id="v-peso">—</span>
+              <span class="metrica-uni">kg</span>
+              <span class="badge" id="b-peso"></span>
             </div>
-            <div class="text-right">
-              <p class="text-xs text-slate-400 uppercase tracking-wide">Evaluación</p>
-              <p class="font-semibold text-slate-700" id="evaluation-number">—</p>
+            <div id="bar-peso"></div>
+            <p class="desc">Suma total de agua corporal, proteínas, minerales y grasa.</p>
+            <div class="chart-wrap"><canvas id="c-peso" height="80"></canvas></div>
+          </div>
+          <div class="metrica">
+            <div class="metrica-label">Músculo esquelético</div>
+            <div class="metrica-row">
+              <span class="metrica-val" id="v-mus">—</span>
+              <span class="metrica-uni">kg</span>
+              <span class="badge" id="b-mus"></span>
             </div>
+            <div id="bar-mus"></div>
+            <p class="desc">Único tejido muscular que aumenta con el ejercicio de fuerza.</p>
+            <div class="chart-wrap"><canvas id="c-mus" height="80"></canvas></div>
+          </div>
+          <div class="metrica">
+            <div class="metrica-label">Grasa corporal</div>
+            <div class="metrica-row">
+              <span class="metrica-val" id="v-grasa">—</span>
+              <span class="metrica-uni">kg</span>
+              <span class="badge" id="b-grasa"></span>
+            </div>
+            <div id="bar-grasa"></div>
+            <p class="desc">Incluye grasa subcutánea, visceral e intramuscular.</p>
+            <div class="chart-wrap"><canvas id="c-grasa" height="80"></canvas></div>
           </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-3">
-          <div class="bg-white rounded-2xl border border-slate-200 p-4 text-center">
-            <p class="text-xs text-slate-400 uppercase tracking-wide">Peso</p>
-            <p class="text-3xl font-bold mt-1" id="weight">—</p>
-            <p class="text-xs text-slate-400">kg</p>
+        <!-- Obesidad -->
+        <div class="card">
+          <div class="card-title"><span>⚖️</span> Análisis de Obesidad</div>
+          <div class="metrica">
+            <div class="metrica-label">IMC</div>
+            <div class="metrica-row">
+              <span class="metrica-val" id="v-imc">—</span>
+              <span class="metrica-uni">kg/m²</span>
+              <span class="badge" id="b-imc"></span>
+            </div>
+            <div id="bar-imc"></div>
+            <p class="desc">Clasifica la obesidad por peso y altura, sin distinguir músculo de grasa.</p>
+            <div class="chart-wrap"><canvas id="c-imc" height="80"></canvas></div>
           </div>
-          <div class="bg-white rounded-2xl border border-slate-200 p-4 text-center">
-            <p class="text-xs text-slate-400 uppercase tracking-wide">% Grasa</p>
-            <p class="text-3xl font-bold mt-1" id="fat-percent">—</p>
-            <p class="text-xs text-slate-400">%</p>
-          </div>
-          <div class="bg-white rounded-2xl border border-slate-200 p-4 text-center">
-            <p class="text-xs text-slate-400 uppercase tracking-wide">Masa muscular</p>
-            <p class="text-3xl font-bold mt-1" id="muscle-mass">—</p>
-            <p class="text-xs text-slate-400">kg</p>
-          </div>
-          <div class="bg-white rounded-2xl border border-slate-200 p-4 text-center">
-            <p class="text-xs text-slate-400 uppercase tracking-wide">IMC</p>
-            <p class="text-3xl font-bold mt-1" id="bmi">—</p>
-            <p class="text-xs text-slate-400">kg/m²</p>
+          <div class="metrica">
+            <div class="metrica-label">Porcentaje de Grasa Corporal</div>
+            <div class="metrica-row">
+              <span class="metrica-val" id="v-pgc">—</span>
+              <span class="metrica-uni">%</span>
+              <span class="badge" id="b-pgc"></span>
+            </div>
+            <div id="bar-pgc"></div>
+            <p class="desc">Rango saludable: 10–20% en hombres · 18–28% en mujeres.</p>
+            <div class="chart-wrap"><canvas id="c-pgc" height="80"></canvas></div>
           </div>
         </div>
 
-        <div class="bg-white rounded-2xl border border-slate-200 p-5">
-          <p class="text-xs text-slate-400 uppercase tracking-wide font-semibold mb-3">📝 Notas de tu nutrióloga</p>
-          <p class="text-slate-700 text-sm leading-relaxed" id="notes">—</p>
+        <!-- Obesidad abdominal -->
+        <div class="card">
+          <div class="card-title"><span>📏</span> Obesidad Abdominal</div>
+          <div class="metrica">
+            <div class="metrica-label">Relación Cintura-Cadera</div>
+            <div class="metrica-row">
+              <span class="metrica-val" id="v-cc">—</span>
+              <span class="metrica-uni"></span>
+              <span class="badge" id="b-cc"></span>
+            </div>
+            <div id="bar-cc"></div>
+            <p class="desc">Riesgo cardiovascular elevado: ICC > 0.90 ♂ · > 0.85 ♀.</p>
+            <div class="chart-wrap"><canvas id="c-cc" height="80"></canvas></div>
+          </div>
+          <div class="metrica">
+            <div class="metrica-label">Grasa Visceral</div>
+            <div class="metrica-row">
+              <span class="metrica-val" id="v-visc">—</span>
+              <span class="metrica-uni">Nivel</span>
+              <span class="badge" id="b-visc"></span>
+            </div>
+            <div id="bar-visc"></div>
+            <p class="desc">Se recomienda mantener el nivel de grasa visceral por debajo de 10.</p>
+            <div class="chart-wrap"><canvas id="c-visc" height="80"></canvas></div>
+          </div>
         </div>
 
-        <div class="bg-slate-900 rounded-2xl p-5 text-center text-white">
-          <p class="font-semibold">¿Tienes dudas sobre tu reporte?</p>
-          <a href="https://wa.me/5219996690192?text=Hola%20Iratxe%2C%20tengo%20dudas%20sobre%20mi%20reporte%20InBody"
-             class="mt-3 inline-block bg-white text-slate-900 rounded-xl px-5 py-2.5 font-semibold text-sm">
-            Hablar con Iratxe por WhatsApp
-          </a>
+        <!-- Análisis Total -->
+        <div class="card">
+          <div class="card-title"><span>🔥</span> Análisis Total</div>
+          <div class="metrica">
+            <div class="metrica-label">Tasa Metabólica Basal</div>
+            <div class="metrica-row">
+              <span class="metrica-val" id="v-tmb">—</span>
+              <span class="metrica-uni">kcal</span>
+              <span class="badge" id="b-tmb"></span>
+            </div>
+            <p class="desc">Calorías mínimas para sostener funciones vitales en reposo. Aumenta con más músculo.</p>
+            <div class="chart-wrap"><canvas id="c-tmb" height="80"></canvas></div>
+          </div>
+          <div class="metrica">
+            <div class="metrica-label">Masa Magra</div>
+            <div class="metrica-row">
+              <span class="metrica-val" id="v-magra">—</span>
+              <span class="metrica-uni">kg</span>
+              <span class="badge" id="b-magra"></span>
+            </div>
+            <div id="bar-magra"></div>
+            <div class="chart-wrap"><canvas id="c-magra" height="80"></canvas></div>
+          </div>
         </div>
+
+        <!-- Equilibrio -->
+        <div class="card">
+          <div class="card-title"><span>⚖️</span> Equilibrio Corporal</div>
+          <div style="text-align:center;padding:8px 0">
+            <div style="font-size:10px;color:#9aa5b4;margin-bottom:10px;letter-spacing:.5px;text-transform:uppercase">Distribución superior-inferior</div>
+            <span class="equil-badge" id="v-equil">—</span>
+          </div>
+        </div>
+
+        <div class="footer">
+          Consultorio Nutriológico Iratxe Menéndez · Cédula Profesional en trámite<br>
+          Reporte generado desde menendez.lat · Uso exclusivo del paciente
+        </div>
+
       </div>
-    </main>
+    </div>
 
     <script>
-      // Lee el ID desde ?id=XXX en la URL
-      const params = new URLSearchParams(window.location.search);
-      const reportId = params.get('id');
-
-      // URL del Apps Script de Iratxe — pendiente desplegar
-      // Reemplazar con la URL real al activar el Web App en Google Apps Script
       const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzI5DX8gdNz_rEpaOFXpjlACUbj4-M6h2ADuVDsljhtw20rCCF9Ssxt3jlZjIckBr9H/exec';
 
+      const params   = new URLSearchParams(window.location.search);
+      const reportId = params.get('id');
+
+      // ── Rangos por sexo y edad ──────────────────────────────────────────────
+      function getRangos(sexo, edad) {
+        const F = sexo === 'F';
+        const e = edad || 25;
+        const tablaM = [
+          [10,17,{min:15,max:25},{min:4,max:14},{min:8,max:18},{min:38,max:70}],
+          [18,29,{min:29,max:37},{min:6,max:18},{min:10,max:20},{min:62,max:82}],
+          [30,39,{min:28,max:36},{min:7,max:20},{min:11,max:21},{min:63,max:84}],
+          [40,49,{min:26,max:34},{min:8,max:22},{min:12,max:22},{min:64,max:86}],
+          [50,59,{min:24,max:32},{min:9,max:24},{min:13,max:24},{min:63,max:85}],
+          [60,69,{min:22,max:30},{min:10,max:26},{min:14,max:26},{min:61,max:83}],
+          [70,99,{min:20,max:28},{min:10,max:27},{min:15,max:27},{min:58,max:80}],
+        ];
+        const tablaF = [
+          [10,17,{min:12,max:20},{min:8,max:20},{min:14,max:24},{min:35,max:62}],
+          [18,29,{min:18,max:24},{min:10,max:22},{min:18,max:28},{min:50,max:68}],
+          [30,39,{min:17,max:23},{min:11,max:24},{min:19,max:29},{min:51,max:70}],
+          [40,49,{min:16,max:22},{min:12,max:26},{min:20,max:30},{min:52,max:72}],
+          [50,59,{min:15,max:21},{min:13,max:28},{min:22,max:32},{min:52,max:73}],
+          [60,69,{min:14,max:20},{min:13,max:29},{min:23,max:33},{min:51,max:72}],
+          [70,99,{min:13,max:19},{min:13,max:30},{min:24,max:34},{min:49,max:70}],
+        ];
+        const tabla = F ? tablaF : tablaM;
+        const g = tabla.find(r => e >= r[0] && e <= r[1]) || tabla[tabla.length-1];
+        return {
+          musculo:       { normalMin: g[2].min, normalMax: g[2].max, max: F?38:55 },
+          grasa:         { normalMin: g[3].min, normalMax: g[3].max, max: 50 },
+          pgc:           { normalMin: g[4].min, normalMax: g[4].max, max: 50 },
+          peso:          { normalMin: g[5].min, normalMax: g[5].max, max: F?120:140 },
+          masaMagra:     { normalMin: F?38:50,  normalMax: F?52:65,  max: F?80:100 },
+          imc:           { normalMin: 18.5,     normalMax: 25,       max: 45 },
+          cinturaCadera: F ? { normalMin:.70, normalMax:.85, max:1.3 }
+                           : { normalMin:.75, normalMax:.90, max:1.3 },
+        };
+      }
+
+      // ── Barra de rango ──────────────────────────────────────────────────────
+      function renderBarra(containerId, val, rango, colorTipo) {
+        const el = document.getElementById(containerId);
+        if (!el || val === null || val === undefined) return;
+        const pct  = Math.min((val / rango.max) * 100, 100);
+        const nAp  = (rango.normalMin / rango.max) * 100;
+        const nBp  = (rango.normalMax / rango.max) * 100;
+        const fill = colorTipo === 'v'
+          ? 'linear-gradient(90deg,#4ecba0,#2db88a)'
+          : 'linear-gradient(90deg,#F5A623,#E8317A)';
+        const bgN  = colorTipo === 'v' ? '#c8ede0' : '#fde8f1';
+        el.innerHTML = `
+          <div class="barra-wrap">
+            <div class="barra-track">
+              <div class="barra-normal" style="left:${nAp}%;width:${nBp-nAp}%;background:${bgN}"></div>
+              <div class="barra-fill" style="width:${pct}%;background:${fill}"></div>
+            </div>
+            <div class="barra-sep" style="left:${nAp}%"></div>
+            <div class="barra-sep" style="left:${nBp}%"></div>
+            <div class="barra-labels">
+              <span style="left:${nAp/2}%">Bajo</span>
+              <span style="left:${(nAp+nBp)/2}%;font-weight:700;color:${colorTipo==='v'?'#2DB88A':'#E8317A'}">Normal</span>
+              <span style="left:${(nBp+100)/2}%">Alto</span>
+            </div>
+          </div>`;
+      }
+
+      // ── Badge delta ─────────────────────────────────────────────────────────
+      function setBadge(id, val, prev, buenBaja) {
+        const el = document.getElementById(id);
+        if (!el || prev === null || prev === undefined || val === null) { el && (el.textContent = ''); return; }
+        const d = +(val - prev).toFixed(1);
+        const txt = d > 0 ? '+'+d : String(d);
+        const bueno = buenBaja ? d < 0 : d > 0;
+        el.textContent = txt;
+        el.className = 'badge ' + (d === 0 ? 'badge-neu' : bueno ? 'badge-ok' : 'badge-mal');
+      }
+
+      // ── Chart.js mini gráfica ────────────────────────────────────────────────
+      function miniChart(id, labels, data, color) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const vals = data.map(v => v === null || v === undefined ? NaN : v);
+        const valid = vals.filter(v => !isNaN(v));
+        if (valid.length === 0) return;
+        const mn = Math.min(...valid) - 1;
+        const mx = Math.max(...valid) + 1;
+        new Chart(el.getContext('2d'), {
+          type: 'line',
+          data: { labels, datasets: [{
+            data: vals, borderColor: color, borderWidth: 2.5,
+            pointBackgroundColor: color, pointRadius: 4, pointHoverRadius: 6,
+            tension: .35, fill: true, spanGaps: false,
+            backgroundColor: (() => {
+              const g = el.getContext('2d').createLinearGradient(0,0,0,80);
+              const hex = color.replace('#','');
+              const r = parseInt(hex.slice(0,2),16), gv = parseInt(hex.slice(2,4),16), b = parseInt(hex.slice(4,6),16);
+              g.addColorStop(0, `rgba(${r},${gv},${b},0.18)`);
+              g.addColorStop(1, `rgba(${r},${gv},${b},0)`);
+              return g;
+            })()
+          }]},
+          options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                backgroundColor: '#fff', titleColor: '#9aa5b4',
+                bodyColor: '#1a2535', borderColor: '#f0e8f4',
+                borderWidth: 1, padding: 8, cornerRadius: 8,
+                titleFont: { size: 9 }, bodyFont: { size: 12, weight: 'bold' }
+              }
+            },
+            scales: {
+              x: { grid: { display: false }, ticks: { font: { size: 8 }, color: '#9aa5b4', maxRotation: 0 }, border: { display: false } },
+              y: { min: mn, max: mx, grid: { color: '#f5edf8' }, ticks: { font: { size: 8 }, color: '#9aa5b4' }, border: { display: false } }
+            }
+          }
+        });
+      }
+
+      // ── Cargar reporte ───────────────────────────────────────────────────────
       async function loadReport() {
-        if (!reportId) {
-          document.getElementById('loading').classList.add('hidden');
-          document.getElementById('error').classList.remove('hidden');
-          return;
-        }
+        if (!reportId) { showError(); return; }
         try {
           const res = await fetch(`${APPS_SCRIPT_URL}?id=${encodeURIComponent(reportId)}`);
-          if (!res.ok) throw new Error('not found');
           const data = await res.json();
-          if (!data || data.error) throw new Error('not found');
+          if (!data || data.error || !data.mediciones || data.mediciones.length === 0) { showError(); return; }
 
-          document.getElementById('patient-name').textContent = data.nombre || '—';
-          document.getElementById('report-date').textContent = data.fecha || '—';
-          document.getElementById('evaluation-number').textContent = `Evaluación #${data.evaluacion || '—'}`;
-          document.getElementById('weight').textContent = data.peso || '—';
-          document.getElementById('fat-percent').textContent = data.grasaPct || '—';
-          document.getElementById('muscle-mass').textContent = data.masaMuscular || '—';
-          document.getElementById('bmi').textContent = data.imc || '—';
-          document.getElementById('notes').textContent = data.notas || 'Sin notas adicionales.';
+          const meds    = data.mediciones;
+          const ultima  = meds[meds.length - 1];
+          const prev    = meds.length > 1 ? meds[meds.length - 2] : null;
+          const rangos  = getRangos(data.sexo, data.edad);
+          const labels  = meds.map(m => m.fechaISO);
+          const sexoTxt = data.sexo === 'F' ? 'Femenino' : 'Masculino';
 
-          document.getElementById('loading').classList.add('hidden');
-          document.getElementById('report-data').classList.remove('hidden');
-        } catch {
-          document.getElementById('loading').classList.add('hidden');
-          document.getElementById('error').classList.remove('hidden');
+          // Header
+          document.getElementById('score').textContent     = ultima.score || '—';
+          document.getElementById('pac-nombre').textContent = data.nombre;
+          document.getElementById('pac-info').textContent   = `${sexoTxt} · ${data.edad} años · InBody H30`;
+          document.getElementById('pac-fecha').textContent  = ultima.fecha;
+
+          // Función helper para set valor
+          function setVal(id, val) {
+            document.getElementById(id).textContent = val !== null && val !== undefined ? val : '—';
+          }
+
+          // Valores
+          setVal('v-peso',  ultima.peso);
+          setVal('v-mus',   ultima.musculo);
+          setVal('v-grasa', ultima.grasa);
+          setVal('v-imc',   ultima.imc);
+          setVal('v-pgc',   ultima.pgc);
+          setVal('v-cc',    ultima.cc);
+          setVal('v-visc',  ultima.visceral);
+          setVal('v-tmb',   ultima.tmb);
+          setVal('v-magra', ultima.masaMagra);
+          document.getElementById('v-equil').textContent = ultima.equil || 'En equilibrio';
+
+          // Badges
+          const p = prev;
+          setBadge('b-peso',  ultima.peso,      p?.peso,      true);
+          setBadge('b-mus',   ultima.musculo,   p?.musculo,   false);
+          setBadge('b-grasa', ultima.grasa,     p?.grasa,     true);
+          setBadge('b-imc',   ultima.imc,       p?.imc,       true);
+          setBadge('b-pgc',   ultima.pgc,       p?.pgc,       true);
+          setBadge('b-cc',    ultima.cc,        p?.cc,        true);
+          setBadge('b-visc',  ultima.visceral,  p?.visceral,  true);
+          setBadge('b-tmb',   ultima.tmb,       p?.tmb,       false);
+          setBadge('b-magra', ultima.masaMagra, p?.masaMagra, false);
+
+          // Barras
+          renderBarra('bar-peso',  ultima.peso,      rangos.peso,          'r');
+          renderBarra('bar-mus',   ultima.musculo,   rangos.musculo,       'v');
+          renderBarra('bar-grasa', ultima.grasa,     rangos.grasa,         'r');
+          renderBarra('bar-imc',   ultima.imc,       rangos.imc,           'r');
+          renderBarra('bar-pgc',   ultima.pgc,       rangos.pgc,           'r');
+          renderBarra('bar-cc',    ultima.cc,        rangos.cinturaCadera, 'r');
+          renderBarra('bar-visc',  ultima.visceral,  { normalMin:1, normalMax:10, max:20 }, 'r');
+          renderBarra('bar-magra', ultima.masaMagra, rangos.masaMagra,     'v');
+
+          // Gráficas
+          const ROSA  = '#E8317A', NAR = '#F5A623', VERDE = '#2DB88A';
+          miniChart('c-peso',  labels, meds.map(m => m.peso),      ROSA);
+          miniChart('c-mus',   labels, meds.map(m => m.musculo),   VERDE);
+          miniChart('c-grasa', labels, meds.map(m => m.grasa),     ROSA);
+          miniChart('c-imc',   labels, meds.map(m => m.imc),       NAR);
+          miniChart('c-pgc',   labels, meds.map(m => m.pgc),       ROSA);
+          miniChart('c-cc',    labels, meds.map(m => m.cc),        NAR);
+          miniChart('c-visc',  labels, meds.map(m => m.visceral),  ROSA);
+          miniChart('c-tmb',   labels, meds.map(m => m.tmb),       VERDE);
+          miniChart('c-magra', labels, meds.map(m => m.masaMagra), VERDE);
+
+          // Mostrar
+          document.getElementById('st-loading').classList.add('hidden');
+          document.getElementById('st-report').classList.remove('hidden');
+
+        } catch (err) {
+          console.error(err);
+          showError();
         }
+      }
+
+      function showError() {
+        document.getElementById('st-loading').classList.add('hidden');
+        document.getElementById('st-error').classList.remove('hidden');
       }
 
       loadReport();
