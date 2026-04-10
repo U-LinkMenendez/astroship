@@ -499,30 +499,22 @@
         else                    { zX = xL2;   zW2 = (padL + gW) - xL2; }
 
         const zones = [
-          // row 1 (imc >= 25)
-          { x: padL, y: padT, w: xL1-padL, h: yL1-padT, label: 'Figura
-Atlética', fs: 8 },
+          { x: padL, y: padT, w: xL1-padL, h: yL1-padT, label: 'Figura|Atlética', fs: 8 },
           { x: xL1,  y: padT, w: xL2-xL1,  h: yL1-padT, label: 'Sobrepeso', fs: 8 },
           { x: xL2,  y: padT, w: padL+gW-xL2, h: yL1-padT, label: 'Obesidad', fs: 9 },
-          // row 2 (18.5-25)
-          { x: padL, y: yL1, w: xL1-padL, h: yL2-yL1, label: 'Figura
-Musculosa', fs: 7.5 },
+          { x: padL, y: yL1, w: xL1-padL, h: yL2-yL1, label: 'Figura|Musculosa', fs: 7.5 },
           { x: xL1,  y: yL1, w: xL2-xL1,  h: yL2-yL1, label: 'Promedio', fs: 8 },
-          { x: xL2,  y: yL1, w: padL+gW-xL2, h: yL2-yL1, label: 'Obesidad
-leve', fs: 7.5 },
-          // row 3 (< 18.5)
-          { x: padL, y: yL2, w: xL1-padL, h: padT+gH-yL2, label: 'Esbelto
-Musculoso', fs: 7 },
+          { x: xL2,  y: yL1, w: padL+gW-xL2, h: yL2-yL1, label: 'Obesidad|leve', fs: 7.5 },
+          { x: padL, y: yL2, w: xL1-padL, h: padT+gH-yL2, label: 'Esbelto|Musculoso', fs: 7 },
           { x: xL1,  y: yL2, w: xL2-xL1,  h: padT+gH-yL2, label: 'Esbelto', fs: 8 },
-          { x: xL2,  y: yL2, w: padL+gW-xL2, h: padT+gH-yL2, label: 'Obesidad
-Sarco.', fs: 7 },
+          { x: xL2,  y: yL2, w: padL+gW-xL2, h: padT+gH-yL2, label: 'Obesidad|Sarco.', fs: 7 },
         ];
 
         let svgZones = '';
         zones.forEach(function(z) {
           const isActive = (z.x === Math.round(zX) || Math.abs(z.x - zX) < 2);
           svgZones += '<rect x="' + z.x.toFixed(1) + '" y="' + z.y.toFixed(1) + '" width="' + z.w.toFixed(1) + '" height="' + z.h.toFixed(1) + '" fill="#f0f4f8" rx="3" stroke="#fff" stroke-width="2"/>';
-          const lines = z.label.split('\n');
+          const lines = z.label.split('|');
           const cy = z.y + z.h / 2;
           lines.forEach(function(line, li) {
             const ly = cy + (li - (lines.length - 1) / 2) * (z.fs + 2);
