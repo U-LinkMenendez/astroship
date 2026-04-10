@@ -10,7 +10,6 @@ import Layout from "@/layouts/Layout.astro";
 <Layout title="Automatiza tu negocio en WhatsApp, Facebook e Instagram">
   <Container>
     <Hero>
-      <!-- Chat mockup para hero derecho -->
       <div class="relative max-w-sm mx-auto">
         <div class="rounded-2xl border bg-white shadow-xl p-5">
           <div class="flex items-center gap-3 border-b pb-3 mb-4">
@@ -33,111 +32,127 @@ import Layout from "@/layouts/Layout.astro";
       </div>
     </Hero>
 
-    <!-- ¿Qué es un chatbot? -->
-    <section id="que-es" class="py-16 scroll-mt-24">
-      <div class="max-w-3xl mx-auto px-4">
+    <!-- Dolor específico -->
+    <section class="py-16 scroll-mt-24 border-t border-slate-100">
+      <div class="max-w-4xl mx-auto px-4">
         <h2 class="text-3xl md:text-4xl font-bold tracking-tight">
-          ¿Qué es un chatbot?
+          ¿Alguno de estos escenarios te suena familiar?
         </h2>
-        <p class="mt-4 text-slate-600">
-          🤖 Un <em>chatbot</em> es un asistente virtual que responde mensajes automáticamente en
-          <strong>WhatsApp, Instagram y Facebook</strong>, 24/7.
-        </p>
-        <p class="mt-4 text-slate-600">
-          Mientras duermes, atiendes clientes o te enfocas en tu negocio, tu chatbot:
-        </p>
-        <ul class="mt-4 space-y-2 text-slate-700 list-none">
-          <li>✅ Responde preguntas frecuentes al instante</li>
-          <li>✅ Agenda citas y reservaciones automáticamente</li>
-          <li>✅ Califica prospectos antes de que lleguen a ti</li>
-          <li>✅ Da seguimiento a clientes que no han respondido</li>
-          <li>✅ Cierra ventas sin que estés presente</li>
-        </ul>
-        <p class="mt-4 text-slate-600">
-          Y lo mejor: <strong>no reemplaza tu trato personal</strong>. Cuando el cliente necesita hablar contigo,
-          el chatbot te avisa al instante.
-        </p>
-        <p class="mt-4 text-slate-600 italic">
-          ¡No esperes más para probar un chatbot de U Link en acción! 😉
-        </p>
+        <div class="mt-8 grid sm:grid-cols-2 gap-4">
+          {[
+            "Te llegan mensajes de noche o fin de semana y nadie los contesta",
+            "Respondes las mismas preguntas una y otra vez: precio, horarios, disponibilidad",
+            "Pierdes citas porque el cliente no recibe confirmación a tiempo",
+            "Tienes prospectos en WhatsApp que nunca terminan de agendar",
+            "Quieres atender más clientes pero no puedes contratar más personal",
+            "Tu equipo pierde tiempo en seguimiento que podría ser automático",
+          ].map((pain) => (
+            <div class="flex items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4">
+              <span class="text-red-500 mt-0.5 shrink-0">✗</span>
+              <p class="text-slate-700 text-sm">{pain}</p>
+            </div>
+          ))}
+        </div>
+        <div class="mt-8 p-5 rounded-2xl bg-slate-900 text-white">
+          <p class="font-semibold text-lg">Cada mensaje sin contestar a tiempo es un cliente que se va con la competencia.</p>
+          <p class="mt-2 text-slate-300 text-sm">Un chatbot de U Link atiende, califica y agenda por ti — en WhatsApp, Instagram y Facebook — mientras tú te enfocas en lo que importa.</p>
+        </div>
       </div>
     </section>
-    <!-- /¿Qué es un chatbot? -->
 
     <Features />
     <Logos />
 
     <!-- Casos de éxito -->
     <section id="casos" class="py-16 scroll-mt-24">
-      <div class="max-w-3xl mx-auto px-4">
+      <div class="max-w-4xl mx-auto px-4">
         <h2 class="text-3xl md:text-4xl font-bold tracking-tight">
-          🏆 Casos de éxito
+          🏆 Casos de éxito en Mérida
         </h2>
-        <p class="mt-4 text-slate-600">
-          Actualmente trabajamos con tres negocios piloto donde nuestros chatbots operan en tiempo real:
-        </p>
-        <ul class="mt-6 space-y-5 text-slate-700">
-          <li>
-            <div class="font-semibold">🎨 Estudio Artístico Blanco Terés — Mérida</div>
-            <p class="text-slate-600">
-              Chatbot en WhatsApp, Facebook e Instagram (3 canales) para brindar información, captar alumnos y agendar clases muestra.
-            </p>
-          </li>
-          <li>
-            <div class="font-semibold">🥗 Consultorio Nutriológico Iratxe Menéndez — Mérida</div>
-            <p class="text-slate-600">
-              Chatbot en WhatsApp (1 canal) para dar información, agendar citas con Cal.com y dar seguimiento a pacientes.
-            </p>
-          </li>
-          <li>
-            <div class="font-semibold">🤖 U Link Chatbots — Mérida</div>
-            <p class="text-slate-600">
-              Nuestro propio bot atiende por WhatsApp, Facebook e Instagram: comparte información, agenda citas y avisa para atención en vivo.
-            </p>
-          </li>
-        </ul>
-        <p class="mt-6 text-slate-600">
-          ¿Quieres ver cómo funciona uno de estos bots en vivo? Te hacemos una demostración personalizada para tu tipo de negocio.
-        </p>
-      </div>
-    </section>
-    <!-- /Casos de éxito -->
-
-    <!-- ¿Es para mi negocio? -->
-    <section id="para-quien" class="py-16 scroll-mt-24">
-      <div class="max-w-3xl mx-auto px-4">
-        <h2 class="text-3xl md:text-4xl font-bold tracking-tight">
-          🎯 ¿Es para mi negocio?
-        </h2>
-        <p class="mt-4 text-slate-600">
-          Un chatbot de U Link funciona especialmente bien si tu negocio cumple al menos una de estas condiciones:
-        </p>
-        <ul class="mt-4 space-y-2 text-slate-700 list-none">
-          <li>📱 Recibes más de 10 mensajes al día por WhatsApp (clientes o prospectos)</li>
-          <li>🕐 Te escriben fuera de horario o en fines de semana</li>
-          <li>🔁 Respondes las mismas preguntas una y otra vez</li>
-          <li>📅 Pierdes citas o ventas por no responder a tiempo</li>
-          <li>👥 Quieres atender más clientes sin contratar más personal</li>
-        </ul>
-        <p class="mt-4 text-slate-600">
-          Si respondiste <strong>sí</strong> a una de estas, un chatbot puede transformar tu operación.
-        </p>
-        <div class="mt-8">
-          <h3 class="text-xl font-semibold">Sectores con mayor impacto</h3>
-          <ul class="mt-3 grid sm:grid-cols-2 gap-2 text-slate-700 list-none">
-            <li>🏥 Salud — consultorios, clínicas, dentistas…</li>
-            <li>🎨 Educación — escuelas, talleres, cursos, congresos…</li>
-            <li>🛍️ Comercio — ventas por WhatsApp</li>
-            <li>🍽️ Restaurantes — pedidos, reservaciones, promos</li>
-            <li>💼 Servicios profesionales — abogados, contadores, coaches…</li>
-          </ul>
-          <p class="mt-4 text-slate-600">
-            ¿Tu negocio es de otro giro? No te preocupes. Si vendes o atiendes por WhatsApp, tenemos una solución para ti.
-          </p>
+        <p class="mt-3 text-slate-500">Tres negocios en Mérida donde nuestros chatbots operan en tiempo real hoy mismo.</p>
+        <div class="mt-8 grid sm:grid-cols-3 gap-5">
+          <div class="rounded-2xl border border-slate-200 p-5">
+            <div class="text-2xl mb-2">🎨</div>
+            <div class="font-semibold">Taller Creativo Blanco Terés</div>
+            <p class="text-slate-500 text-sm mt-2">Chatbot en WhatsApp, Facebook e Instagram. Informa, capta alumnos y agenda clases muestra automáticamente en 3 canales.</p>
+          </div>
+          <div class="rounded-2xl border border-slate-200 p-5">
+            <div class="text-2xl mb-2">🥗</div>
+            <div class="font-semibold">Consultorio Nutriológico Iratxe Menéndez</div>
+            <p class="text-slate-500 text-sm mt-2">Chatbot en WhatsApp. Agenda citas con Cal.com, da seguimiento a pacientes y entrega reportes de composición corporal automáticamente.</p>
+          </div>
+          <div class="rounded-2xl border border-slate-200 p-5">
+            <div class="text-2xl mb-2">🤖</div>
+            <div class="font-semibold">U Link Chatbots</div>
+            <p class="text-slate-500 text-sm mt-2">Nuestro propio bot atiende por WhatsApp, Facebook e Instagram: comparte información, agenda demos y avisa para atención en vivo.</p>
+          </div>
         </div>
       </div>
     </section>
-    <!-- /¿Es para mi negocio? -->
+
+    <!-- ¿Es para mi negocio? -->
+    <section id="para-quien" class="py-16 scroll-mt-24 border-t border-slate-100">
+      <div class="max-w-4xl mx-auto px-4">
+        <h2 class="text-3xl md:text-4xl font-bold tracking-tight">
+          🎯 ¿Es para mi negocio?
+        </h2>
+        <p class="mt-3 text-slate-600">Un chatbot de U Link funciona especialmente bien si tu negocio cumple al menos una de estas condiciones:</p>
+        <ul class="mt-5 space-y-2 text-slate-700 list-none">
+          <li>📱 Recibes más de 10 mensajes al día por WhatsApp o redes sociales</li>
+          <li>🕐 Te escriben fuera de horario o en fines de semana</li>
+          <li>🔁 Respondes las mismas preguntas repetidamente</li>
+          <li>📅 Pierdes citas o ventas por no responder a tiempo</li>
+          <li>👥 Quieres atender más clientes sin contratar más personal</li>
+        </ul>
+        <div class="mt-8">
+          <h3 class="text-xl font-semibold">Sectores con mayor impacto</h3>
+          <ul class="mt-3 grid sm:grid-cols-2 gap-2 text-slate-700 list-none text-sm">
+            <li>🏥 Salud — consultorios, clínicas, dentistas, nutriólogos</li>
+            <li>🎨 Educación — talleres, escuelas, cursos, congresos</li>
+            <li>🛍️ Comercio — ventas por WhatsApp e Instagram</li>
+            <li>🍽️ Restaurantes — pedidos, reservaciones, promociones</li>
+            <li>💼 Servicios profesionales — coaches, contadores, abogados</li>
+            <li>🎟️ Eventos — expos, ferias, conciertos, festivales</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="py-16 scroll-mt-24 border-t border-slate-100">
+      <div class="max-w-3xl mx-auto px-4">
+        <h2 class="text-3xl font-bold tracking-tight text-center">Preguntas frecuentes</h2>
+        <div class="mt-8 space-y-5">
+          {[
+            {
+              q: "¿El chatbot reemplaza la atención humana?",
+              a: "No. El bot maneja lo repetitivo (preguntas frecuentes, agendamiento, recordatorios). Cuando un cliente necesita atención personal, el bot te avisa en tiempo real y transfiere la conversación."
+            },
+            {
+              q: "¿Cuánto tiempo tarda la implementación?",
+              a: "Entre 3 y 7 días hábiles dependiendo del plan. Diseñamos el flujo, conectamos tus canales y hacemos pruebas antes de activarlo."
+            },
+            {
+              q: "¿Necesito saber de tecnología para administrarlo?",
+              a: "No. Te entregamos todo funcionando y te enseñamos a usar el panel de control. Ajustes menores están incluidos en tu plan."
+            },
+            {
+              q: "¿Funciona con mi WhatsApp actual?",
+              a: "Usamos WhatsApp Business API, que es diferente a la app normal. Te guiamos en el proceso de activación — en la mayoría de los casos puedes conservar tu número."
+            },
+            {
+              q: "¿Puedo cancelar en cualquier momento?",
+              a: "Sí. No hay contratos de permanencia forzosa. Si decides cancelar, te apoyamos con la transición sin costo adicional."
+            },
+          ].map((faq) => (
+            <div class="rounded-xl border border-slate-200 p-5">
+              <p class="font-semibold text-slate-800">{faq.q}</p>
+              <p class="mt-2 text-slate-500 text-sm">{faq.a}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
 
     <Cta />
   </Container>

@@ -1,57 +1,97 @@
 ---
-import { getCollection } from "astro:content";
-import { Picture } from "astro:assets";
 import Layout from "@/layouts/Layout.astro";
 import Container from "@/components/container.astro";
-import Sectionhead from "@/components/sectionhead.astro";
-
-// Filter team entries with 'draft: false' & date before current date
-const publishedTeamMembers = await getCollection("team", ({ data }) => {
-  return !data.draft && data.publishDate < new Date();
-});
+import Link from "@/components/ui/link.astro";
 ---
 
-<Layout title="About">
+<Layout title="Acerca de U Link Chatbots">
   <Container>
-    <Sectionhead>
-      <Fragment slot="title">About</Fragment>
-      <Fragment slot="desc">We are a small passionate team.</Fragment>
-    </Sectionhead>
+    <section class="py-16 max-w-4xl mx-auto px-4">
 
-    <div class="flex flex-col gap-3 mx-auto max-w-4xl mt-16">
-      <h2 class="font-bold text-3xl text-gray-800">
-        Empowering the world with Astro.
-      </h2>
-      <p class="text-lg leading-relaxed text-slate-500">
-        We're a multi-cultural team from around the world! We come from diverse
-        backgrounds, bringing different personalities, experiences and skills to
-        the job. This is what makes our team so special.
-      </p>
-    </div>
-    <div class="grid md:grid-cols-3 gap-10 mx-auto max-w-4xl mt-12">
-      {
-        publishedTeamMembers.map((teamMemberEntry) => (
-          <div class="group">
-            <div class="w-full aspect-square">
-              <Picture
-                src={teamMemberEntry.data.avatar.src}
-                alt={teamMemberEntry.data.avatar.alt}
-                sizes="(max-width: 800px) 100vw, 400px"
-                width={400}
-                height={400}
-                class="w-full rounded-sm transition group-hover:-translate-y-1 group-hover:shadow-xl bg-white object-cover object-center aspect-square"
-              />
-            </div>
+      <!-- Header -->
+      <div class="text-center mb-12">
+        <h1 class="text-4xl md:text-5xl font-bold tracking-tight">Acerca de U Link Chatbots</h1>
+        <p class="mt-4 text-lg text-slate-500 max-w-xl mx-auto">Un solo operador. Servicio directo. Sin intermediarios.</p>
+      </div>
 
-            <div class="mt-4 text-center">
-              <h2 class="text-lg text-gray-800">{teamMemberEntry.data.name}</h2>
-              <h3 class="text-sm text-slate-500">
-                {teamMemberEntry.data.title}
-              </h3>
-            </div>
+      <!-- Historia -->
+      <div class="grid md:grid-cols-2 gap-10 items-start">
+        <div>
+          <h2 class="text-2xl font-bold tracking-tight">Por qué existe U Link</h2>
+          <p class="mt-4 text-slate-600">
+            Vi de cerca cómo negocios en Mérida —talleristas, consultorios, emprendedores— perdían clientes
+            todos los días por la misma razón: nadie contestaba WhatsApp a tiempo.
+          </p>
+          <p class="mt-4 text-slate-600">
+            No por falta de ganas. Por falta de tiempo, de personal, o simplemente porque el mensaje llegó
+            a las 11 de la noche y para las 8 de la mañana el cliente ya agendó con la competencia.
+          </p>
+          <p class="mt-4 text-slate-600">
+            U Link nació para resolver exactamente eso: automatizar la atención en los canales donde ya
+            están tus clientes, sin que tengas que contratar más personal ni aprender tecnología compleja.
+          </p>
+        </div>
+
+        <!-- Credenciales / Datos reales -->
+        <div class="space-y-4">
+          <div class="rounded-2xl border border-slate-200 bg-slate-50 p-5">
+            <div class="font-semibold text-slate-700">🗺️ Con sede en Mérida, Yucatán</div>
+            <p class="text-sm text-slate-500 mt-1">Atendemos clientes en Mérida y en toda la República Mexicana de forma remota.</p>
           </div>
-        ))
-      }
-    </div>
+          <div class="rounded-2xl border border-slate-200 bg-slate-50 p-5">
+            <div class="font-semibold text-slate-700">🔧 Stack probado en producción</div>
+            <p class="text-sm text-slate-500 mt-1">Kommo CRM · WhatsApp Business API · Make · Cal.com · n8n. Las mismas herramientas que usamos en nuestros propios negocios piloto.</p>
+          </div>
+          <div class="rounded-2xl border border-slate-200 bg-slate-50 p-5">
+            <div class="font-semibold text-slate-700">👤 Servicio directo con el fundador</div>
+            <p class="text-sm text-slate-500 mt-1">No hay agentes de soporte ni intermediarios. Ulises Menéndez diseña, implementa y da seguimiento a cada proyecto personalmente.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pilotos en producción -->
+      <div class="mt-16">
+        <h2 class="text-2xl font-bold tracking-tight">Proyectos activos hoy mismo</h2>
+        <p class="mt-2 text-slate-500">Estos no son casos hipotéticos. Son negocios reales en Mérida con chatbots operando en producción.</p>
+        <div class="mt-6 grid sm:grid-cols-3 gap-5">
+          <div class="rounded-2xl border border-slate-200 p-5">
+            <div class="text-2xl mb-2">🎨</div>
+            <div class="font-semibold">Taller Creativo Blanco Terés</div>
+            <p class="text-xs text-slate-400 uppercase tracking-wide mt-1">3 canales activos</p>
+            <p class="text-sm text-slate-500 mt-2">WhatsApp, Facebook e Instagram. Capta alumnos y agenda clases muestra automáticamente.</p>
+          </div>
+          <div class="rounded-2xl border border-slate-200 p-5">
+            <div class="text-2xl mb-2">🥗</div>
+            <div class="font-semibold">Consultorio Nutriológico Iratxe Menéndez</div>
+            <p class="text-xs text-slate-400 uppercase tracking-wide mt-1">WhatsApp activo</p>
+            <p class="text-sm text-slate-500 mt-2">Agendamiento automático con Cal.com, seguimiento de pacientes y reportes de composición corporal.</p>
+          </div>
+          <div class="rounded-2xl border border-slate-200 p-5">
+            <div class="text-2xl mb-2">🤖</div>
+            <div class="font-semibold">U Link Chatbots</div>
+            <p class="text-xs text-slate-400 uppercase tracking-wide mt-1">3 canales activos</p>
+            <p class="text-sm text-slate-500 mt-2">El propio bot de U Link atiende prospectos, comparte info y agenda demos en WhatsApp, Facebook e Instagram.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Compromiso / Diferenciador -->
+      <div class="mt-16 rounded-2xl bg-slate-900 text-white p-8 md:p-10">
+        <h2 class="text-2xl font-bold">Lo que puedes esperar trabajando con U Link</h2>
+        <ul class="mt-6 space-y-3 text-slate-300">
+          <li class="flex items-start gap-3"><span class="text-green-400 mt-0.5 shrink-0">✓</span><span>Implementación en días, no en semanas</span></li>
+          <li class="flex items-start gap-3"><span class="text-green-400 mt-0.5 shrink-0">✓</span><span>Comunicación directa conmigo — sin tickets ni agentes intermediarios</span></li>
+          <li class="flex items-start gap-3"><span class="text-green-400 mt-0.5 shrink-0">✓</span><span>Ajustes incluidos en tu plan — el bot mejora con el tiempo</span></li>
+          <li class="flex items-start gap-3"><span class="text-green-400 mt-0.5 shrink-0">✓</span><span>Sin permanencia forzosa — me gano tu confianza mes a mes</span></li>
+          <li class="flex items-start gap-3"><span class="text-green-400 mt-0.5 shrink-0">✓</span><span>Precios transparentes sin sorpresas — lo que ves en pricing es lo que pagas</span></li>
+        </ul>
+        <div class="mt-8">
+          <Link href="https://wa.me/5219996187124?text=Hola%2C%20quiero%20agendar%20una%20demo%20de%20U%20Link%20Chatbots" rel="noopener">
+            Agendar demo gratuita
+          </Link>
+        </div>
+      </div>
+
+    </section>
   </Container>
 </Layout>
