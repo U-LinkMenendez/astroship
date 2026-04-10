@@ -16,14 +16,12 @@ import Layout from "@/layouts/Layout.astro";
     <!-- Incluye siempre -->
     <section class="pb-6">
       <div class="max-w-5xl mx-auto px-4">
-        <div class="rounded-2xl border border-slate-200 p-5">
-          <div class="font-semibold">📦 Nuestros planes incluyen siempre:</div>
-          <ul class="mt-3 grid sm:grid-cols-2 gap-2 text-slate-700 list-none">
+        <div class="rounded-2xl border border-slate-200 bg-slate-50 p-5">
+          <div class="font-semibold text-slate-700">📦 Nuestros planes incluyen siempre:</div>
+          <ul class="mt-3 grid sm:grid-cols-3 gap-2 text-slate-700 list-none text-sm">
             <li>✅ Diseño e implementación del chatbot</li>
             <li>✅ Conexión a tus canales activos</li>
-            <li>✅ Agendamiento automático</li>
-            <li>✅ Soporte continuo</li>
-            <li>✅ Ajustes incluidos según tu plan</li>
+            <li>✅ Soporte continuo + ajustes incluidos</li>
           </ul>
         </div>
       </div>
@@ -31,89 +29,114 @@ import Layout from "@/layouts/Layout.astro";
 
     <!-- Planes -->
     <section class="py-6 md:py-10">
-      <div class="max-w-5xl mx-auto px-4 grid gap-6 md:grid-cols-3">
-        <!-- Esencial -->
+      <div class="max-w-5xl mx-auto px-4 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+
+        <!-- Plan Semilla -->
         <div class="rounded-2xl border border-slate-200 p-6 flex flex-col">
-          <div class="text-sm uppercase tracking-wide text-slate-500">🥉 Plan Esencial</div>
-          <h3 class="mt-1 text-xl font-semibold">Negocios unipersonales</h3>
+          <div class="text-xs uppercase tracking-wide text-slate-400 font-semibold">🌱 Plan Semilla</div>
+          <h3 class="mt-1 text-lg font-semibold leading-snug">Para negocios que quieren orden</h3>
           <div class="mt-4">
-            <div class="text-3xl font-bold">$2,500 MXN <span class="text-base font-medium text-slate-500">setup</span></div>
-            <div class="text-slate-600">+ $899 MXN / mes</div>
+            <div class="text-2xl font-bold">$1,500 <span class="text-sm font-medium text-slate-400">MXN setup</span></div>
+            <div class="text-slate-600 text-sm mt-0.5">+ $799 MXN / mes</div>
           </div>
-          <p class="mt-3 text-slate-600">1 canal WhatsApp + atención automatizada 24/7.</p>
-          <ul class="mt-4 space-y-2 text-slate-700 list-none text-sm">
-            <li>• Respuestas a preguntas frecuentes</li>
-            <li>• Agendamiento básico</li>
-            <li>• Aviso para atención en vivo</li>
+          <ul class="mt-4 space-y-1.5 text-slate-600 list-none text-sm flex-1">
+            <li>• Pipeline 3 etapas en CRM</li>
+            <li>• Chatbot básico</li>
+            <li>• Recordatorios automáticos</li>
+            <li>• WhatsApp + Instagram</li>
+            <li>• Reporte semanal</li>
           </ul>
-          <a href="https://wa.me/5219996187124?text=Hola%2C%20me%20interesa%20el%20Plan%20Esencial"
-             class="mt-6 inline-flex justify-center rounded-xl border border-slate-300 px-4 py-2 font-medium hover:bg-slate-50">
+          <a href="https://wa.me/5219996187124?text=Hola%2C%20me%20interesa%20el%20Plan%20Semilla"
+             class="mt-6 inline-flex justify-center rounded-xl border border-slate-300 px-4 py-2 text-sm font-medium hover:bg-slate-50">
             Empezar por WhatsApp
           </a>
         </div>
 
-        <!-- Profesional (destacado) -->
-        <div class="rounded-2xl border-2 border-slate-900 p-6 flex flex-col shadow-sm">
-          <div class="text-sm uppercase tracking-wide text-slate-500">🥈 Plan Profesional</div>
-          <h3 class="mt-1 text-xl font-semibold">Negocios en crecimiento</h3>
+        <!-- Plan Profesional (destacado) -->
+        <div class="rounded-2xl border-2 border-slate-900 p-6 flex flex-col shadow-sm relative">
+          <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-xs font-semibold px-3 py-1 rounded-full">Más popular</div>
+          <div class="text-xs uppercase tracking-wide text-slate-400 font-semibold">🥈 Plan Profesional</div>
+          <h3 class="mt-1 text-lg font-semibold leading-snug">Para negocios en crecimiento</h3>
           <div class="mt-4">
-            <div class="text-3xl font-bold">$4,500 MXN <span class="text-base font-medium text-slate-500">setup</span></div>
-            <div class="text-slate-600">+ $1,499 MXN / mes</div>
+            <div class="text-2xl font-bold">$3,500 <span class="text-sm font-medium text-slate-400">MXN setup</span></div>
+            <div class="text-slate-600 text-sm mt-0.5">+ $1,499 MXN / mes</div>
           </div>
-          <p class="mt-3 text-slate-600">WhatsApp + Instagram + seguimiento automático.</p>
-          <ul class="mt-4 space-y-2 text-slate-700 list-none text-sm">
-            <li>• Calificación de prospectos</li>
-            <li>• Seguimiento y recordatorios</li>
-            <li>• Reporte básico de actividad</li>
+          <ul class="mt-4 space-y-1.5 text-slate-600 list-none text-sm flex-1">
+            <li>• Todo Plan Semilla</li>
+            <li>• 2 canales simultáneos</li>
+            <li>• Agenda automática</li>
+            <li>• Bot ampliado</li>
           </ul>
           <a href="https://wa.me/5219996187124?text=Hola%2C%20me%20interesa%20el%20Plan%20Profesional"
-             class="mt-6 inline-flex justify-center rounded-xl bg-slate-900 px-4 py-2 font-medium text-white hover:opacity-90">
+             class="mt-6 inline-flex justify-center rounded-xl bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:opacity-90">
             Elegir Profesional
           </a>
-          <div class="mt-2 text-xs text-slate-500">Más popular</div>
         </div>
 
-        <!-- Total -->
+        <!-- Plan Total -->
         <div class="rounded-2xl border border-slate-200 p-6 flex flex-col">
-          <div class="text-sm uppercase tracking-wide text-slate-500">🥇 Plan Total</div>
-          <h3 class="mt-1 text-xl font-semibold">Negocios consolidados o con equipo</h3>
+          <div class="text-xs uppercase tracking-wide text-slate-400 font-semibold">🥇 Plan Total</div>
+          <h3 class="mt-1 text-lg font-semibold leading-snug">Para equipos y negocios consolidados</h3>
           <div class="mt-4">
-            <div class="text-3xl font-bold">$8,000 MXN <span class="text-base font-medium text-slate-500">setup</span></div>
-            <div class="text-slate-600">+ $2,499 MXN / mes</div>
+            <div class="text-2xl font-bold">$6,500 <span class="text-sm font-medium text-slate-400">MXN setup</span></div>
+            <div class="text-slate-600 text-sm mt-0.5">+ $2,499 MXN / mes</div>
           </div>
-          <p class="mt-3 text-slate-600">3 canales + usuarios adicionales para tu equipo + reportes mensuales.</p>
-          <ul class="mt-4 space-y-2 text-slate-700 list-none text-sm">
-            <li>• WhatsApp, Instagram y Facebook</li>
-            <li>• Multiusuario para tu equipo</li>
-            <li>• Reportes y mejoras continuas</li>
+          <ul class="mt-4 space-y-1.5 text-slate-600 list-none text-sm flex-1">
+            <li>• Todo Plan Profesional</li>
+            <li>• 3 canales activos</li>
+            <li>• Usuarios adicionales</li>
+            <li>• Reportes mensuales</li>
           </ul>
           <a href="https://wa.me/5219996187124?text=Hola%2C%20me%20interesa%20el%20Plan%20Total"
-             class="mt-6 inline-flex justify-center rounded-xl border border-slate-300 px-4 py-2 font-medium hover:bg-slate-50">
-            Solicitar propuesta
+             class="mt-6 inline-flex justify-center rounded-xl border border-slate-300 px-4 py-2 text-sm font-medium hover:bg-slate-50">
+            Solicitar Total
           </a>
         </div>
+
+        <!-- Plan Empresa -->
+        <div class="rounded-2xl border border-slate-200 bg-slate-900 text-white p-6 flex flex-col">
+          <div class="text-xs uppercase tracking-wide text-slate-400 font-semibold">🏢 Plan Empresa</div>
+          <h3 class="mt-1 text-lg font-semibold leading-snug">A la medida de tu operación</h3>
+          <div class="mt-4">
+            <div class="text-2xl font-bold">Según diagnóstico</div>
+            <div class="text-slate-400 text-sm mt-0.5">Setup y mensualidad personalizada</div>
+          </div>
+          <ul class="mt-4 space-y-1.5 text-slate-300 list-none text-sm flex-1">
+            <li>• Integraciones complejas</li>
+            <li>• Flujos a la medida</li>
+            <li>• Equipo dedicado</li>
+            <li>• Soporte prioritario</li>
+          </ul>
+          <a href="https://wa.me/5219996690192?text=Hola%20Ulises%2C%20me%20interesa%20el%20Plan%20Empresa%2C%20%C2%BFpodemos%20hablar%3F"
+             class="mt-6 inline-flex justify-center rounded-xl bg-white text-slate-900 px-4 py-2 text-sm font-medium hover:opacity-90">
+            Hablar con Ulises
+          </a>
+        </div>
+
       </div>
     </section>
 
     <!-- Condiciones de pago -->
-    <section class="py-10">
+    <section class="py-8">
       <div class="max-w-5xl mx-auto px-4">
         <div class="rounded-2xl border border-slate-200 p-5">
-          <ul class="grid sm:grid-cols-2 gap-2 text-slate-700 list-none">
+          <ul class="grid sm:grid-cols-2 gap-2 text-slate-700 list-none text-sm">
             <li>💵 Pagos: TDC, efectivo o transferencia bancaria</li>
             <li>📄 Facturación disponible</li>
             <li>🔓 Sin contratos de permanencia forzosa</li>
-            <li>💳 3 meses sin intereses en Setup</li>
+            <li>💳 Setup en 3 meses sin intereses</li>
           </ul>
           <p class="mt-3 text-xs text-slate-500">⚠️ Precios más IVA. Se desglosa en factura.</p>
         </div>
 
         <div class="mt-8 text-center">
-          <a href="/#contacto" class="inline-flex items-center justify-center rounded-xl bg-slate-900 px-5 py-3 text-white font-medium hover:opacity-90">
-            Agendar una demo
+          <a href="https://wa.me/5219996187124?text=Hola%2C%20quiero%20agendar%20una%20demo%20de%20U%20Link%20Chatbots"
+             class="inline-flex items-center justify-center rounded-xl bg-slate-900 px-5 py-3 text-white font-medium hover:opacity-90">
+            Agendar una demo gratuita
           </a>
         </div>
       </div>
     </section>
+
   </Container>
 </Layout>
