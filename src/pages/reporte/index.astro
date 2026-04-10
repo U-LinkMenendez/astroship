@@ -117,6 +117,7 @@
             <div id="bar-peso"></div>
             <p class="desc">Suma total de agua corporal, proteínas, minerales y grasa.</p>
             <div class="chart-wrap"><canvas id="c-peso" height="80"></canvas></div>
+          <div id="pct-peso"></div>
           </div>
           <div class="metrica">
             <div class="metrica-label">Músculo esquelético</div>
@@ -128,6 +129,7 @@
             <div id="bar-mus"></div>
             <p class="desc">Único tejido muscular que aumenta con el ejercicio de fuerza.</p>
             <div class="chart-wrap"><canvas id="c-mus" height="80"></canvas></div>
+          <div id="pct-mus"></div>
           </div>
           <div class="metrica">
             <div class="metrica-label">Grasa corporal</div>
@@ -139,6 +141,7 @@
             <div id="bar-grasa"></div>
             <p class="desc">Incluye grasa subcutánea, visceral e intramuscular.</p>
             <div class="chart-wrap"><canvas id="c-grasa" height="80"></canvas></div>
+          <div id="pct-grasa"></div>
           </div>
         </div>
 
@@ -155,6 +158,7 @@
             <div id="bar-imc"></div>
             <p class="desc">Clasifica la obesidad por peso y altura, sin distinguir músculo de grasa.</p>
             <div class="chart-wrap"><canvas id="c-imc" height="80"></canvas></div>
+          <div id="pct-imc"></div>
           </div>
           <div class="metrica">
             <div class="metrica-label">Porcentaje de Grasa Corporal</div>
@@ -166,7 +170,18 @@
             <div id="bar-pgc"></div>
             <p class="desc">Rango saludable: 10–20% en hombres · 18–28% en mujeres.</p>
             <div class="chart-wrap"><canvas id="c-pgc" height="80"></canvas></div>
+          <div id="pct-pgc"></div>
           </div>
+        </div>
+
+
+        <!-- Tipo de cuerpo -->
+        <div class="card">
+          <div class="card-title"><span>🧬</span> Coordenada de Tipo de Cuerpo</div>
+          <div id="body-grid-label" style="font-size:11px;color:#9aa5b4;margin-bottom:4px">Clasificación</div>
+          <div id="body-grid-title" style="font-family:'Playfair Display',Georgia,serif;font-size:17px;font-weight:700;color:#1a2535;margin-bottom:14px">—</div>
+          <div id="body-grid"></div>
+          <p style="font-size:10px;color:#9aa5b4;margin-top:10px;line-height:1.5" id="cid-desc"></p>
         </div>
 
         <!-- Obesidad abdominal -->
@@ -364,6 +379,181 @@
         });
       }
 
+
+      // ── Error function (para CDF normal) ───────────────────────────────────
+      function erf(x) {
+        const s = x >= 0 ? 1 : -1;
+        x = Math.abs(x);
+        const t = 1 / (1 + 0.3275911 * x);
+        const y = 1 - (((((1.061405429*t - 1.453152027)*t + 1.421413741)*t - 0.284496736)*t + 0.254829592)*t) * Math.exp(-x*x);
+        return s * y;
+      }
+
+      // ── Histograma de distribución percentil ────────────────────────────────
+      function renderPercentil(containerId, val, rango, sexo, edad, color) {
+        const el = document.getElementById(containerId);
+        if (!el || val === null || val === undefined) return;
+
+        const mean = (rango.normalMin + rango.normalMax) / 2;
+        const sd   = Math.max((rango.normalMax - rango.normalMin) / 3, 0.01);
+        const z    = (val - mean) / sd;
+        const pct  = Math.round(Math.max(0.1, Math.min(99.9,
+                       0.5 * (1 + erf(z / Math.sqrt(2))) * 100)) * 10) / 10;
+
+        const N = 15;
+        const rMin = mean - 3.5 * sd;
+        const step = (7 * sd) / N;
+
+        const heights = [];
+        for (let i = 0; i < N; i++) {
+          const x = rMin + (i + 0.5) * step;
+          heights.push(Math.exp(-0.5 * ((x - mean) / sd) ** 2));
+        }
+        const maxH = Math.max(...heights);
+        const patIdx = Math.min(N - 1, Math.max(0, Math.floor((val - rMin) / step)));
+
+        const sexoTxt = sexo === 'F' ? 'Femenino' : 'Masculino';
+
+        let barsHTML = '';
+        for (let i = 0; i < N; i++) {
+          const h    = (heights[i] / maxH) * 72;
+          const isP  = i === patIdx;
+          const bc   = isP ? color : '#dde3ea';
+          const dot  = (i <= 1 || i >= N - 2) ? 'border-radius:50%;width:6px;height:6px;' : 'border-radius:2px 2px 0 0;';
+          barsHTML +=
+            '<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:88px;position:relative">' +
+            (isP ? '<div style="font-size:9px;font-weight:700;color:' + color + ';margin-bottom:2px;white-space:nowrap">' + pct + '%</div>' : '') +
+            (i <= 1 || i >= N - 2
+              ? '<div style="width:6px;height:6px;border-radius:50%;background:' + bc + ';margin-bottom:' + (72 - h) + 'px"></div>'
+              : '<div style="width:70%;background:' + bc + ';height:' + h + 'px;min-height:3px;border-radius:2px 2px 0 0"></div>'
+            ) +
+            '</div>';
+        }
+
+        el.innerHTML =
+          '<div style="background:#fafbfc;border-radius:12px;padding:12px 10px 8px;margin-top:8px;border:1px solid #f0f0f4">' +
+          '<div style="display:flex;align-items:flex-end;gap:1px">' + barsHTML + '</div>' +
+          '<div style="display:flex;justify-content:space-between;margin-top:6px;font-size:9px;color:#9aa5b4">' +
+          '<span>Bajo</span>' +
+          '<span style="font-weight:600;color:#1a2535">' + edad + ' · ' + sexoTxt + '</span>' +
+          '<span>Alto</span>' +
+          '</div></div>';
+      }
+
+      // ── Grid de tipo de cuerpo ───────────────────────────────────────────────
+      function renderBodyGrid(imc, pgc, sexo) {
+        const el    = document.getElementById('body-grid');
+        const title = document.getElementById('body-grid-title');
+        const desc  = document.getElementById('cid-desc');
+        if (!el || imc === null || pgc === null) return;
+
+        const F = sexo === 'F';
+        const pgcLo = F ? 18 : 10;
+        const pgcHi = F ? 28 : 20;
+        const imcHi = 25, imcLo = 18.5;
+
+        // Determinar zona
+        let zone, zoneColor, zoneDesc;
+        if (imc >= imcHi) {
+          if (pgc < pgcLo)      { zone = 'Figura Atlética';        zoneColor = '#e8f2fc'; zoneDesc = 'IMC elevado por masa muscular. Mantén el entrenamiento de fuerza y cuida la nutrición.'; }
+          else if (pgc < pgcHi) { zone = 'Sobrepeso';              zoneColor = '#fef3e2'; zoneDesc = 'Peso por encima del rango con grasa moderada. Se recomienda reducir grasa manteniendo músculo.'; }
+          else                  { zone = 'Obesidad';               zoneColor = '#fde8f1'; zoneDesc = 'Todos los parámetros por encima del rango. Alta probabilidad de masa muscular metabólicamente inactiva. Reducir grasa y activar músculo con ejercicio.'; }
+        } else if (imc >= imcLo) {
+          if (pgc < pgcLo)      { zone = 'Figura Musculosa';       zoneColor = '#e6f7f0'; zoneDesc = 'Buena masa muscular con bajo porcentaje de grasa. Continúa con tu rutina actual.'; }
+          else if (pgc < pgcHi) { zone = 'Promedio';               zoneColor = '#f0f4f8'; zoneDesc = 'Composición corporal dentro de rangos normales. Mantén hábitos saludables.'; }
+          else                  { zone = 'Obesidad leve';          zoneColor = '#fef3e2'; zoneDesc = 'IMC normal pero grasa elevada. Recomendable reducir grasa corporal e incrementar actividad física.'; }
+        } else {
+          if (pgc < pgcLo)      { zone = 'Esbelto Musculoso';      zoneColor = '#e6f7f0'; zoneDesc = 'Bajo IMC con buena masa muscular. Considera aumentar peso con músculo de forma controlada.'; }
+          else if (pgc < pgcHi) { zone = 'Esbelto';                zoneColor = '#f0f4f8'; zoneDesc = 'Bajo peso con composición equilibrada. Incrementa la ingesta calórica de forma saludable.'; }
+          else                  { zone = 'Obesidad Sarcopénica';   zoneColor = '#fde8f1'; zoneDesc = 'Bajo peso con exceso de grasa y poca masa muscular. Requiere atención nutricional prioritaria.'; }
+        }
+
+        if (title) title.textContent = zone;
+        if (desc)  desc.textContent  = zoneDesc;
+
+        // Construir SVG del grid
+        const W = 280, H = 220;
+        const padL = 30, padB = 28, padR = 10, padT = 10;
+        const gW = W - padL - padR;
+        const gH = H - padT - padB;
+
+        // Posición del punto del paciente
+        const pgcMin = F ? 10 : 5,  pgcMax = F ? 40 : 35;
+        const imcMin = 15,            imcMax = 35;
+        const dotX = padL + ((pgc - pgcMin) / (pgcMax - pgcMin)) * gW;
+        const dotY = padT + (1 - (imc - imcMin) / (imcMax - imcMin)) * gH;
+
+        // Líneas de separación en el grid
+        const xL1 = padL + ((pgcLo - pgcMin) / (pgcMax - pgcMin)) * gW;
+        const xL2 = padL + ((pgcHi - pgcMin) / (pgcMax - pgcMin)) * gW;
+        const yL1 = padT + (1 - (imcHi - imcMin) / (imcMax - imcMin)) * gH;
+        const yL2 = padT + (1 - (imcLo - imcMin) / (imcMax - imcMin)) * gH;
+
+        // Zona destacada del paciente
+        let zX, zY, zW2, zH2;
+        if (imc >= imcHi)       { zY = padT;  zH2 = yL1 - padT; }
+        else if (imc >= imcLo)  { zY = yL1;   zH2 = yL2 - yL1; }
+        else                    { zY = yL2;   zH2 = (padT + gH) - yL2; }
+        if (pgc < pgcLo)        { zX = padL;  zW2 = xL1 - padL; }
+        else if (pgc < pgcHi)   { zX = xL1;   zW2 = xL2 - xL1; }
+        else                    { zX = xL2;   zW2 = (padL + gW) - xL2; }
+
+        const zones = [
+          // row 1 (imc >= 25)
+          { x: padL, y: padT, w: xL1-padL, h: yL1-padT, label: 'Figura
+Atlética', fs: 8 },
+          { x: xL1,  y: padT, w: xL2-xL1,  h: yL1-padT, label: 'Sobrepeso', fs: 8 },
+          { x: xL2,  y: padT, w: padL+gW-xL2, h: yL1-padT, label: 'Obesidad', fs: 9 },
+          // row 2 (18.5-25)
+          { x: padL, y: yL1, w: xL1-padL, h: yL2-yL1, label: 'Figura
+Musculosa', fs: 7.5 },
+          { x: xL1,  y: yL1, w: xL2-xL1,  h: yL2-yL1, label: 'Promedio', fs: 8 },
+          { x: xL2,  y: yL1, w: padL+gW-xL2, h: yL2-yL1, label: 'Obesidad
+leve', fs: 7.5 },
+          // row 3 (< 18.5)
+          { x: padL, y: yL2, w: xL1-padL, h: padT+gH-yL2, label: 'Esbelto
+Musculoso', fs: 7 },
+          { x: xL1,  y: yL2, w: xL2-xL1,  h: padT+gH-yL2, label: 'Esbelto', fs: 8 },
+          { x: xL2,  y: yL2, w: padL+gW-xL2, h: padT+gH-yL2, label: 'Obesidad
+Sarco.', fs: 7 },
+        ];
+
+        let svgZones = '';
+        zones.forEach(function(z) {
+          const isActive = (z.x === Math.round(zX) || Math.abs(z.x - zX) < 2);
+          svgZones += '<rect x="' + z.x.toFixed(1) + '" y="' + z.y.toFixed(1) + '" width="' + z.w.toFixed(1) + '" height="' + z.h.toFixed(1) + '" fill="#f0f4f8" rx="3" stroke="#fff" stroke-width="2"/>';
+          const lines = z.label.split('\n');
+          const cy = z.y + z.h / 2;
+          lines.forEach(function(line, li) {
+            const ly = cy + (li - (lines.length - 1) / 2) * (z.fs + 2);
+            svgZones += '<text x="' + (z.x + z.w/2).toFixed(1) + '" y="' + ly.toFixed(1) + '" text-anchor="middle" font-size="' + z.fs + '" fill="#8a97a8" font-family="DM Sans,Arial,sans-serif" dominant-baseline="middle">' + line + '</text>';
+          });
+        });
+
+        const svgStr =
+          '<svg width="100%" viewBox="0 0 ' + W + ' ' + H + '" xmlns="http://www.w3.org/2000/svg">' +
+          svgZones +
+          // highlight active zone
+          '<rect x="' + zX.toFixed(1) + '" y="' + zY.toFixed(1) + '" width="' + zW2.toFixed(1) + '" height="' + zH2.toFixed(1) + '" fill="' + zoneColor + '" rx="3" stroke="' + (zone.includes('Obes') ? '#E8317A' : '#2DB88A') + '" stroke-width="1.5" opacity="0.9"/>' +
+          // grid lines
+          '<line x1="' + xL1.toFixed(1) + '" y1="' + padT + '" x2="' + xL1.toFixed(1) + '" y2="' + (padT+gH) + '" stroke="#d0d8e0" stroke-width="1"/>' +
+          '<line x1="' + xL2.toFixed(1) + '" y1="' + padT + '" x2="' + xL2.toFixed(1) + '" y2="' + (padT+gH) + '" stroke="#d0d8e0" stroke-width="1"/>' +
+          '<line x1="' + padL + '" y1="' + yL1.toFixed(1) + '" x2="' + (padL+gW) + '" y2="' + yL1.toFixed(1) + '" stroke="#d0d8e0" stroke-width="1"/>' +
+          '<line x1="' + padL + '" y1="' + yL2.toFixed(1) + '" x2="' + (padL+gW) + '" y2="' + yL2.toFixed(1) + '" stroke="#d0d8e0" stroke-width="1"/>' +
+          // axis labels
+          '<text x="' + (padL-4) + '" y="' + yL1.toFixed(1) + '" text-anchor="end" font-size="8" fill="#9aa5b4" dominant-baseline="middle">' + imcHi + '</text>' +
+          '<text x="' + (padL-4) + '" y="' + yL2.toFixed(1) + '" text-anchor="end" font-size="8" fill="#9aa5b4" dominant-baseline="middle">' + imcLo + '</text>' +
+          '<text x="' + xL1.toFixed(1) + '" y="' + (padT+gH+12) + '" text-anchor="middle" font-size="8" fill="#9aa5b4">' + pgcLo + '</text>' +
+          '<text x="' + xL2.toFixed(1) + '" y="' + (padT+gH+12) + '" text-anchor="middle" font-size="8" fill="#9aa5b4">' + pgcHi + '</text>' +
+          '<text x="' + (padL+gW) + '" y="' + (padT+gH+12) + '" text-anchor="end" font-size="8" fill="#9aa5b4">PGC</text>' +
+          '<text x="' + (padL-8) + '" y="' + (padT+gH/2) + '" text-anchor="middle" font-size="8" fill="#9aa5b4" transform="rotate(-90,' + (padL-8) + ',' + (padT+gH/2) + ')">IMC</text>' +
+          // dot
+          '<circle cx="' + dotX.toFixed(1) + '" cy="' + dotY.toFixed(1) + '" r="6" fill="#E8317A" stroke="#fff" stroke-width="2"/>' +
+          '</svg>';
+
+        el.innerHTML = svgStr;
+      }
+
       // ── Cargar reporte ───────────────────────────────────────────────────────
       async function loadReport() {
         if (!reportId) { showError(); return; }
@@ -435,6 +625,17 @@
           miniChart('c-visc',  labels, meds.map(m => m.visceral),  ROSA);
           miniChart('c-tmb',   labels, meds.map(m => m.tmb),       VERDE);
           miniChart('c-magra', labels, meds.map(m => m.masaMagra), VERDE);
+
+
+          // Percentiles
+          renderPercentil('pct-peso',  ultima.peso,      rangos.peso,          data.sexo, data.edad, '#E8317A');
+          renderPercentil('pct-mus',   ultima.musculo,   rangos.musculo,       data.sexo, data.edad, '#2DB88A');
+          renderPercentil('pct-grasa', ultima.grasa,     rangos.grasa,         data.sexo, data.edad, '#E8317A');
+          renderPercentil('pct-imc',   ultima.imc,       rangos.imc,           data.sexo, data.edad, '#F5A623');
+          renderPercentil('pct-pgc',   ultima.pgc,       rangos.pgc,           data.sexo, data.edad, '#E8317A');
+
+          // Grid de tipo de cuerpo
+          renderBodyGrid(ultima.imc, ultima.pgc, data.sexo);
 
           // Mostrar
           document.getElementById('st-loading').classList.add('hidden');
