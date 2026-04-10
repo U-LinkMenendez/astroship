@@ -1,40 +1,42 @@
-import Contactform from "@/components/contactform.astro";
-import Container from "@/components/container.astro";
-import Sectionhead from "@/components/sectionhead.astro";
-import Layout from "@/layouts/Layout.astro";
-import { Icon } from "astro-icon/components";
----
-<Layout title="Contacto">
-  <Container>
-    <Sectionhead>
-      <Fragment slot="title">Contáctanos</Fragment>
-      <Fragment slot="desc">Cuéntanos sobre tu negocio y te decimos cómo podemos automatizarlo.</Fragment>
-    </Sectionhead>
-    <div class="grid md:grid-cols-2 gap-10 mx-auto max-w-4xl mt-16">
-      <div>
-        <h2 class="font-medium text-2xl text-gray-800">Habla con U Link Chatbots</h2>
-        <p class="text-lg leading-relaxed text-slate-500 mt-3">
-          ¿Tienes dudas o quieres saber si la automatización es para tu negocio? Escríbenos, llámanos o llena el formulario y te respondemos a la brevedad.
-        </p>
-        <div class="mt-5">
-          <div class="flex items-center mt-2 space-x-2 text-gray-600">
-            <Icon class="text-gray-400 w-4 h-4" name="uil:map-marker" />
-            <span>Mérida, Yucatán, México</span>
-          </div><div class="flex items-center mt-2 space-x-2 text-gray-600">
-            <Icon class="text-gray-400 w-4 h-4" name="uil:envelope" /><a
-              href="mailto:contacto@menendez.lat"
-              >contacto@menendez.lat</a
-            >
-          </div><div class="flex items-center mt-2 space-x-2 text-gray-600">
-            <Icon class="text-gray-400 w-4 h-4" name="uil:phone" /><a
-              href="tel:+529993519475">+52 (999) 351 9475</a
-            >
-          </div>
-        </div>
-      </div>
-      <div>
-        <Contactform />
-      </div>
-    </div>
-  </Container>
-</Layout>
+<form
+  action="https://wa.me/5219993519475"
+  method="get"
+  target="_blank"
+  class="needs-validation"
+  novalidate>
+  <input type="hidden" name="text" value="Hola, me interesa una demo de U Link Chatbots" />
+
+  <div class="mb-5">
+    <input
+      type="text"
+      placeholder="Nombre completo"
+      autocomplete="name"
+      class="w-full px-4 py-3 border-2 placeholder:text-gray-800 rounded-md outline-none focus:ring-4 border-gray-300 focus:border-gray-600 ring-gray-100"
+      name="name"
+    />
+  </div>
+  <div class="mb-5">
+    <input
+      type="tel"
+      placeholder="WhatsApp (con lada)"
+      autocomplete="tel"
+      class="w-full px-4 py-3 border-2 placeholder:text-gray-800 rounded-md outline-none focus:ring-4 border-gray-300 focus:border-gray-600 ring-gray-100"
+      name="phone"
+    />
+  </div>
+  <div class="mb-5">
+    <textarea
+      placeholder="¿Qué automatizarías primero en tu negocio?"
+      class="w-full px-4 py-3 border-2 placeholder:text-gray-800 rounded-md outline-none h-36 focus:ring-4 border-gray-300 focus:border-gray-600 ring-gray-100"
+      name="message"
+    ></textarea>
+  </div>
+  <button
+    type="submit"
+    class="w-full px-4 py-4 font-semibold text-white bg-slate-900 rounded-md hover:opacity-90 focus:outline-none focus:ring-offset-2 focus:ring focus:ring-slate-500">
+    Enviar por WhatsApp
+  </button>
+  <p class="text-xs text-slate-500 mt-3 text-center">
+    Te abre WhatsApp con tu mensaje listo. Sin spam.
+  </p>
+</form>
