@@ -291,22 +291,23 @@
           ? 'linear-gradient(90deg,#4ecba0,#2db88a)'
           : 'linear-gradient(90deg,#F5A623,#E8317A)';
         const bgN  = colorTipo === 'v' ? '#c8ede0' : '#fde8f1';
-        el.innerHTML = `
-          <div class="barra-wrap">
-            <div class="barra-track">
-              <div class="barra-track-inner">
-                <div class="barra-normal" style="left:${nAp}%;width:${nBp-nAp}%;background:${bgN}"></div>
-                <div class="barra-fill" style="width:${pct}%;background:${fill}"></div>
-              </div>
-              <div class="barra-sep" style="left:${nAp}%"></div>
-              <div class="barra-sep" style="left:${nBp}%"></div>
-            </div>
-            <div class="barra-labels">
-              <span style="left:${nAp/2}%">Bajo</span>
-              <span style="left:${(nAp+nBp)/2}%;font-weight:700;color:${colorTipo==='v'?'#2DB88A':'#E8317A'}">Normal</span>
-              <span style="left:${(nBp+100)/2}%">Alto</span>
-            </div>
-          </div>`;
+        const labelColor = colorTipo === 'v' ? '#2DB88A' : '#E8317A';
+        el.innerHTML =
+          '<div style="position:relative;margin:10px 0 28px">' +
+            '<div style="position:relative;height:12px;border-radius:8px;background:#e8edf5">' +
+              '<div style="position:absolute;top:0;left:0;width:100%;height:100%;border-radius:8px;overflow:hidden">' +
+                '<div style="position:absolute;top:0;left:' + nAp + '%;width:' + (nBp-nAp) + '%;height:100%;background:' + bgN + '"></div>' +
+                '<div style="position:absolute;top:0;left:0;width:' + pct + '%;height:100%;background:' + fill + ';border-radius:8px"></div>' +
+              '</div>' +
+              '<div style="position:absolute;top:-3px;left:' + nAp + '%;width:2px;height:18px;background:rgba(255,255,255,.9);z-index:2"></div>' +
+              '<div style="position:absolute;top:-3px;left:' + nBp + '%;width:2px;height:18px;background:rgba(255,255,255,.9);z-index:2"></div>' +
+            '</div>' +
+            '<div style="position:relative;height:16px;margin-top:5px;font-size:9px;color:#9aa5b4">' +
+              '<span style="position:absolute;left:' + (nAp/2) + '%;transform:translateX(-50%)">Bajo</span>' +
+              '<span style="position:absolute;left:' + ((nAp+nBp)/2) + '%;transform:translateX(-50%);font-weight:700;color:' + labelColor + '">Normal</span>' +
+              '<span style="position:absolute;left:' + ((nBp+100)/2) + '%;transform:translateX(-50%)">Alto</span>' +
+            '</div>' +
+          '</div>';
       }
 
       // ── Badge delta ─────────────────────────────────────────────────────────
