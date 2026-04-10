@@ -9,7 +9,7 @@ const menuitems = [
     title: "Presentación",
     path: "#",
     children: [
-      { title: "¿Qué es un chatbot?", path: "/#que-es" },
+      { title: "¿Por qué U Link?", path: "/#para-quien" },
       { title: "Casos de Éxito", path: "/#casos" },
       { title: "¿Es para mi negocio?", path: "/#para-quien" },
     ],
@@ -20,6 +20,7 @@ const menuitems = [
 ];
 ---
 
+<div class="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-slate-100">
 <Container>
   <header class="flex flex-col lg:flex-row justify-between items-center my-5">
     <Astronav>
@@ -59,18 +60,38 @@ const menuitems = [
           }
         </ul>
         <div class="lg:hidden flex items-center mt-3 gap-4">
-          <Link href="https://wa.me/5219996187124?text=Hola%2C%20quiero%20agendar%20una%20demo%20de%20U%20Link%20Chatbots" size="md" block target="_blank" rel="noopener">
-            Agendar diagnóstico
+          <Link href="https://wa.me/5219996187124?text=Hola%2C%20me%20gustar%C3%ADa%20conocer%20su%20chatbot%20en%20acci%C3%B3n" size="md" block target="_blank" rel="noopener">
+            Conoce nuestro Chatbot
           </Link>
         </div>
       </MenuItems>
     </Astronav>
     <div>
       <div class="hidden lg:flex items-center gap-4">
-        <Link href="https://wa.me/5219996187124?text=Hola%2C%20quiero%20agendar%20una%20demo%20de%20U%20Link%20Chatbots" size="md" target="_blank" rel="noopener">
-          Agendar diagnóstico
+        <Link href="https://wa.me/5219996187124?text=Hola%2C%20me%20gustar%C3%ADa%20conocer%20su%20chatbot%20en%20acci%C3%B3n" size="md" target="_blank" rel="noopener">
+          Conoce nuestro Chatbot
         </Link>
       </div>
     </div>
   </header>
 </Container>
+</div>
+
+<script>
+// Fix 9: close dropdown when clicking outside
+document.addEventListener('click', (e) => {
+  const dropdowns = document.querySelectorAll('.astronav-dropdown');
+  dropdowns.forEach(d => {
+    if (!d.contains(e.target)) {
+      d.classList.remove('open');
+      d.removeAttribute('open');
+      d.setAttribute('aria-expanded', 'false');
+      const toggle = d.querySelector('.dropdown-toggle');
+      if (toggle) {
+        toggle.classList.add('hidden');
+        toggle.setAttribute('aria-expanded', 'false');
+      }
+    }
+  });
+});
+</script>
