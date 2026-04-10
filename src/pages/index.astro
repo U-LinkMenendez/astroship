@@ -9,7 +9,29 @@ import Layout from "@/layouts/Layout.astro";
 
 <Layout title="Automatiza tu negocio en WhatsApp, Facebook e Instagram">
   <Container>
-    <Hero />
+    <Hero>
+      <!-- Chat mockup para hero derecho -->
+      <div class="relative max-w-sm mx-auto">
+        <div class="rounded-2xl border bg-white shadow-xl p-5">
+          <div class="flex items-center gap-3 border-b pb-3 mb-4">
+            <div class="w-9 h-9 rounded-full bg-slate-900 flex items-center justify-center text-white text-xs font-bold">UL</div>
+            <div>
+              <p class="font-semibold text-sm leading-tight">U Link Bot</p>
+              <p class="text-xs text-green-500">● en línea</p>
+            </div>
+          </div>
+          <div class="space-y-3 text-sm">
+            <div class="max-w-[80%] rounded-2xl rounded-tl-sm bg-slate-100 px-3 py-2">¡Hola! ¿En qué te puedo ayudar?</div>
+            <div class="max-w-[80%] ml-auto rounded-2xl rounded-tr-sm bg-slate-900 text-white px-3 py-2">Quiero agendar una cita</div>
+            <div class="max-w-[80%] rounded-2xl rounded-tl-sm bg-slate-100 px-3 py-2">Claro, tengo disponibilidad mañana a las 4:30 y 6:00 pm. ¿Cuál te queda mejor?</div>
+            <div class="max-w-[80%] ml-auto rounded-2xl rounded-tr-sm bg-slate-900 text-white px-3 py-2">Las 6:00 pm perfecto</div>
+            <div class="max-w-[80%] rounded-2xl rounded-tl-sm bg-slate-100 px-3 py-2">✅ Listo, agendado. Te mando recordatorio 1 hora antes.</div>
+          </div>
+        </div>
+        <div class="absolute -bottom-3 -left-3 bg-white border rounded-xl px-3 py-1.5 shadow text-xs text-slate-600 font-medium">📅 Disponibilidad en tiempo real</div>
+        <div class="absolute -top-3 -right-3 bg-white border rounded-xl px-3 py-1.5 shadow text-xs text-slate-600 font-medium">🔔 Recordatorios automáticos</div>
+      </div>
+    </Hero>
 
     <!-- ¿Qué es un chatbot? -->
     <section id="que-es" class="py-16 scroll-mt-24">
