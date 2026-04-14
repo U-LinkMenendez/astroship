@@ -22,16 +22,6 @@ h1 {
   margin-bottom: 20px;
 }
 
-.categoria {
-  margin-top: 25px;
-}
-
-h2 {
-  font-size: 16px;
-  color: #666;
-  margin-bottom: 10px;
-}
-
 .card {
   background: white;
   border-radius: 12px;
@@ -41,6 +31,12 @@ h2 {
   gap: 10px;
   align-items: center;
   box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+  transition: 0.2s;
+}
+
+.card.selected {
+  border: 2px solid #c8a96a;
+  background: #fffdf7;
 }
 
 .card img {
@@ -118,7 +114,10 @@ button {
 <div id="menu"></div>
 
 <div class="carrito">
-  <div id="total">Total: $0</div>
+  <div>
+    <div id="total">Total: $0</div>
+    <small id="lista"></small>
+  </div>
   <button onclick="abrirAgenda()">Agendar</button>
 </div>
 
@@ -127,49 +126,73 @@ button {
   <div class="modal-content">
     <h3>Confirmar</h3>
     <p id="resumen"></p>
-    <button onclick="irAgenda()">Confirmar y agendar</button>
+    <button onclick="irAgenda()">Confirmar</button>
   </div>
 </div>
 
 <script>
 
 const servicios = [
-  {nombre:"Botox 50u", precio:4500, img:"https://via.placeholder.com/60"},
+  {nombre:"Botox (50u)", precio:4500, img:"https://via.placeholder.com/60"},
   {nombre:"Medio Botox", precio:2500, img:"https://via.placeholder.com/60"},
   {nombre:"Relleno labios", precio:4000, img:"https://via.placeholder.com/60"},
   {nombre:"Rinomodelación", precio:4000, img:"https://via.placeholder.com/60"},
-  {nombre:"CO2 rostro", precio:10000, img:"https://via.placeholder.com/60"},
+  {nombre:"CO2 rostro", precio:10000, img:"https://via.placeholder.com/60"}
 ];
 
 let carrito = [];
 
+/* RENDER */
 function render(){
   let html = "";
+
   servicios.forEach((s,i)=>{
+
+    let seleccionado = carrito.find(x => x.nombre === s.nombre);
+
     html += `
-      <div class="card">
+      <div class="card ${seleccionado ? 'selected' : ''}">
         <img src="${s.img}">
         <div class="info">
           <div>${s.nombre}</div>
           <div class="precio">$${s.precio}</div>
         </div>
-        <button onclick="agregar(${i})">Agregar</button>
+        <button onclick="agregar(${i})">
+          ${seleccionado ? 'Quitar' : 'Agregar'}
+        </button>
       </div>
     `;
   });
+
   document.getElementById("menu").innerHTML = html;
 }
 
+/* TOGGLE */
 function agregar(i){
-  carrito.push(servicios[i]);
+
+  let servicio = servicios[i];
+  let index = carrito.findIndex(s => s.nombre === servicio.nombre);
+
+  if(index > -1){
+    carrito.splice(index, 1);
+  } else {
+    carrito.push(servicio);
+  }
+
   actualizarTotal();
+  render();
 }
 
+/* TOTAL */
 function actualizarTotal(){
   let total = carrito.reduce((acc,s)=>acc+s.precio,0);
   document.getElementById("total").innerText = "Total: $" + total;
+
+  let nombres = carrito.map(s=>s.nombre).join(", ");
+  document.getElementById("lista").innerText = nombres;
 }
 
+/* MODAL */
 function abrirAgenda(){
   if(carrito.length==0){
     alert("Selecciona al menos un servicio");
@@ -181,26 +204,29 @@ function abrirAgenda(){
   document.getElementById("modal").style.display = "flex";
 }
 
+/* FLUJO HÍBRIDO */
 function irAgenda(){
 
   let serviciosTxt = carrito.map(s=>s.nombre).join(", ");
   let params = new URLSearchParams(window.location.search);
-  let desdeWA = params.get("from") === "wa";
+  let desdeWA = params.get("from");
 
-  if(desdeWA){
-    // 🔁 REGRESA A WHATSAPP
+  if(desdeWA && desdeWA.toLowerCase() === "wa"){
+
     let numero = "5219996690192";
 
-    let mensaje = "Hola, me interesan los siguientes servicios: " 
-                  + serviciosTxt + ". ¿Podrían apoyarme con disponibilidad?";
+    let mensaje = "Hola, ya revisé el catálogo y me interesan: "
+                  + serviciosTxt + ". ¿Qué disponibilidad tienen?";
 
     let url = "https://wa.me/" + numero + "?text=" + encodeURIComponent(mensaje);
+
     window.location.href = url;
 
   } else {
-    // 📅 MANDA A AGENDA
+
     let url = "https://cal.com/ulink/60min?servicios=" + encodeURIComponent(serviciosTxt);
     window.open(url, "_blank");
+
   }
 }
 
