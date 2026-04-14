@@ -1,1 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Opciones disponibles</title>
 
+<style>
+body { font-family: Arial; background:#f5f5f5; padding:15px; }
+h1 { text-align:center; font-size:20px; }
+.categoria { margin-top:25px; }
+.card {
+  background:white; padding:15px; margin:10px 0;
+  border-radius:10px; box-shadow:0 2px 5px rgba(0,0,0,0.08);
+}
+button {
+  background:black; color:white; border:none;
+  padding:10px; border-radius:6px; width:100%; margin-top:10px;
+}
+.precio { font-weight:bold; margin-top:5px; }
+</style>
+</head>
+
+<body>
+
+<h1>Selecciona una opción</h1>
+
+<!-- REJUVENECIMIENTO -->
+<div class="categoria">
+<h2>💉 Rejuvenecimiento facial</h2>
+
+<div class="card">
+<h3>Botox (50 unidades)</h3>
+<p>Suaviza líneas de expresión.</p>
+<div class="precio">$4,500</div>
+<button onclick="enviar('Botox 50 unidades')">Agendar</button>
+</div>
+
+<div class="card">
+<h3>Medio Botox (25 unidades)</h3>
+<div class="precio">$2,500</div>
+<button onclick="enviar('Medio Botox')">Agendar</button>
+</div>
+
+<div class="card">
+<h3>MesoBotox</h3>
+<div class="precio">$5,500</div>
+<button onclick="enviar('MesoBotox')">Agendar</button>
+</div>
+
+<div class="card">
+<h3>SCULPTRA</h3>
+<div class="precio">$12,000</div>
+<button onclick="enviar('Sculptra')">Agendar</button>
+</div>
+
+<div class="card">
+<h3>Radiesse</h3>
+<div class="precio">$8,000</div>
+<button onclick="enviar('Radiesse')">Agendar</button>
+</div>
+
+</div>
+
+<!-- ARMONIZACIÓN -->
+<div class="categoria">
+<h2>💋 Armonización facial</h2>
+
+<div class="card">
+<h3>Relleno de labios</h3>
+<div class="precio">$4,000</div>
+<button onclick="enviar('Relleno labios')">Agendar</button>
+</div>
+
+<div class="card">
+<h3>Rinomodelación</h3>
+<div class="precio">$4,000</div>
+<button onclick="enviar('Rinomodelacion')">Agendar</button>
+</div>
+
+<div class="card">
+<h3>Ácido hialurónico</h3>
+<div class="precio">$3,500</div>
+<button onclick="enviar('Acido hialuronico')">Agendar</button>
+</div>
+
+</div>
+
+<!-- PIEL -->
+<div class="categoria">
+<h2>💆‍♀️ Calidad de piel</h2>
+
+<div class="card">
+<h3>NCTF</h3>
+<div class="precio">$3,500</div>
+<button onclick="enviar('NCTF')">Agendar</button>
+</div>
+
+<div class="card">
+<h3>CQ Styler</h3>
+<div class="precio">$4,000</div>
+<button onclick="enviar('CQ Styler')">Agendar</button>
+</div>
+
+<div class="card">
+<h3>Liposucción enzimática</h3>
+<div class="precio">$2,500</div>
+<button onclick="enviar('Liposuccion enzimatica')">Agendar</button>
+</div>
+
+</div>
+
+<!-- LASER -->
+<div class="categoria">
+<h2>🔥 Láser CO2</h2>
+
+<div class="card"><h3>Alrededor de ojos</h3><div class="precio">$4,000</div><button onclick="enviar('CO2 ojos')">Agendar</button></div>
+<div class="card"><h3>Mejillas</h3><div class="precio">$5,000</div><button onclick="enviar('CO2 mejillas')">Agendar</button></div>
+<div class="card"><h3>Rostro completo</h3><div class="precio">$10,000</div><button onclick="enviar('CO2 rostro')">Agendar</button></div>
+<div class="card"><h3>Rostro y cuello</h3><div class="precio">$15,000</div><button onclick="enviar('CO2 rostro cuello')">Agendar</button></div>
+<div class="card"><h3>Rostro, cuello y escote</h3><div class="precio">$20,000</div><button onclick="enviar('CO2 completo')">Agendar</button></div>
+
+</div>
+
+<!-- HILOS -->
+<div class="categoria">
+<h2>🧵 Hilos tensores</h2>
+
+<div class="card"><h3>Hilos en cara (8)</h3><div class="precio">$12,000</div><button onclick="enviar('Hilos cara')">Agendar</button></div>
+<div class="card"><h3>Hilos en cuello (8)</h3><div class="precio">$12,000</div><button onclick="enviar('Hilos cuello')">Agendar</button></div>
+<div class="card"><h3>Hilos en cejas (4)</h3><div class="precio">$6,000</div><button onclick="enviar('Hilos cejas')">Agendar</button></div>
+<div class="card"><h3>Punta de nariz</h3><div class="precio">$4,000</div><button onclick="enviar('Hilos nariz')">Agendar</button></div>
+
+</div>
+
+<!-- ESPECIAL -->
+<div class="categoria">
+<h2>🔍 Evaluación</h2>
+
+<div class="card">
+<h3>Eliminación de lunares</h3>
+<p>Requiere valoración previa (puedes enviar foto).</p>
+<button onclick="window.open('https://wa.me/521999XXXXXXX','_blank')">Consultar</button>
+</div>
+
+</div>
+
+<script>
+function enviar(servicio){
+  var base = "https://cal.com/ulink/60min";
+  var url = base + "?service=" + encodeURIComponent(servicio);
+  window.open(url, "_blank");
+}
+</script>
+
+</body>
+</html>
