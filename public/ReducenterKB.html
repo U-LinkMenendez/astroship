@@ -170,24 +170,40 @@ const servicios = [
 let carrito = [];
 
 function render(){
+
+  const categorias = {
+    "💉 Rejuvenecimiento facial": servicios.filter(s => ["Botox (50u)","Medio Botox","MesoBotox","Sculptra","Radiesse"].includes(s.nombre)),
+    "💋 Armonización facial": servicios.filter(s => ["Relleno de labios","Rinomodelación","Ácido hialurónico"].includes(s.nombre)),
+    "💆‍♀️ Calidad de piel": servicios.filter(s => ["NCTF","CQ Styler","Liposucción enzimática"].includes(s.nombre)),
+    "🔥 Láser CO2": servicios.filter(s => s.nombre.includes("CO2")),
+    "🧵 Hilos tensores": servicios.filter(s => s.nombre.includes("Hilos"))
+  };
+
   let html = "";
 
-  servicios.forEach((s,i)=>{
+  Object.keys(categorias).forEach(cat => {
 
-    let seleccionado = carrito.find(x => x.nombre === s.nombre);
+    html += `<h2 style="margin-top:25px;">${cat}</h2>`;
 
-    html += `
-      <div class="card ${seleccionado ? 'selected' : ''}">
-        <img src="${s.img}">
-        <div class="info">
-          <div class="nombre">${s.nombre}</div>
-          <div class="precio">$${s.precio}</div>
+    categorias[cat].forEach(s => {
+
+      let i = servicios.findIndex(x => x.nombre === s.nombre);
+      let seleccionado = carrito.find(x => x.nombre === s.nombre);
+
+      html += `
+        <div class="card ${seleccionado ? 'selected' : ''}">
+          <img src="${s.img}">
+          <div class="info">
+            <div class="nombre">${s.nombre}</div>
+            <div class="precio">$${s.precio}</div>
+          </div>
+          <button onclick="agregar(${i})">
+            ${seleccionado ? 'Quitar' : 'Agregar'}
+          </button>
         </div>
-        <button onclick="agregar(${i})">
-          ${seleccionado ? 'Quitar' : 'Agregar'}
-        </button>
-      </div>
-    `;
+      `;
+    });
+
   });
 
   document.getElementById("menu").innerHTML = html;
