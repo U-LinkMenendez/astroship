@@ -388,6 +388,16 @@
         return s * y;
       }
 
+      function calcScore(masaMagra, grasa, alturaCm, sexo) {
+        if (!alturaCm || alturaCm < 100) return null;
+        const h = alturaCm / 100;
+        const pesoStd = h * h * (sexo === 'F' ? 21.5 : 22);
+        const lbmStd  = pesoStd * (sexo === 'F' ? 0.77 : 0.85);
+        const bfmStd  = pesoStd * (sexo === 'F' ? 0.23 : 0.15);
+        const score = Math.round(80 + (masaMagra - lbmStd) * 2 - (grasa - bfmStd) * 2);
+        return Math.max(0, Math.min(100, score));
+      }
+
       // ── Histograma de distribución percentil ────────────────────────────────
       function renderPercentil(containerId, val, rango, sexo, edad, color, tipo) {
   const el = document.getElementById(containerId);
@@ -571,7 +581,10 @@
           const sexoTxt = data.sexo === 'F' ? 'Femenino' : 'Masculino';
 
           // Header
-          document.getElementById('score').textContent     = ultima.score || '—';
+          const scoreCalc = data.altura
+            ? calcScore(ultima.masaMagra, ultima.grasa, data.altura, data.sexo)
+            : null;
+          document.getElementById('score').textContent = scoreCalc ?? ultima.score ?? '—';
           document.getElementById('pac-nombre').textContent = data.nombre;
           document.getElementById('pac-info').textContent   = `${sexoTxt} · ${data.edad} años · InBody H30`;
           document.getElementById('pac-fecha').textContent  = ultima.fecha;
