@@ -394,25 +394,30 @@
   if (!el || val === null || val === undefined) return;
 
   const range = rango.normalMax - rango.normalMin;
+  const mid = (rango.normalMin + rango.normalMax) / 2;
 
   let mean, sd;
 
   if (tipo === 'muscle') {
-    mean = rango.normalMax;
-    sd = Math.max(range / 3, 0.01);
+    mean = mid + (rango.normalMax - mid) * 0.6;
+    sd = Math.max(range / 4, 0.01);
+  } else if (tipo === 'fat') {
+    mean = mid + (rango.normalMax - mid) * 0.3;
+    sd = Math.max(range / 2, 0.01);
   } else if (tipo === 'imc') {
-    mean = rango.normalMax;
-    sd = Math.max(range / 1.5, 0.01);
+    mean = mid + (rango.normalMax - mid) * 0.4;
+    sd = Math.max(range / 3, 0.01);
   } else {
-    mean = rango.normalMax;
-    sd = Math.max(range, 0.01);
+    mean = mid;
+    sd = Math.max(range / 3, 0.01);
   }
 
-  // cálculo z-score
   const z = (val - mean) / sd;
 
-  // distribución normal aproximada
-  const percentile = Math.max(0, Math.min(100, 50 * (1 + erf(z / Math.sqrt(2)))));
+  let percentile = 50 * (1 + erf(z / Math.sqrt(2)));
+
+  // clamp inteligente
+  percentile = Math.max(1, Math.min(99, percentile));
 
   el.innerHTML = `
     <div style="text-align:center; font-size:11px; color:#9aa5b4;">
