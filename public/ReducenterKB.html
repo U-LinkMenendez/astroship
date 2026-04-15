@@ -232,30 +232,35 @@ const servicios = [
   {
     nombre:"Botox (50 unidades)",
     precio:4500,
+    categoria:"rejuvenecimiento",
     img:"/img/botox.webp",
     desc:"Relaja los músculos faciales para disminuir líneas de expresión."
   },
   {
     nombre:"Medio Botox (25 unidades)",
     precio:2500,
+    categoria:"rejuvenecimiento",
     img:"/img/medio-botox.webp",
     desc:"Aplicación localizada para tratar zonas específicas."
   },
   {
     nombre:"MesoBotox",
     precio:5500,
+    categoria:"rejuvenecimiento",
     img:"/img/mesobotox.webp",
     desc:"Mejora textura y luminosidad combinando botox con activos."
   },
   {
     nombre:"Sculptra",
     precio:12000,
+    categoria:"rejuvenecimiento",
     img:"/img/sculptra.webp",
     desc:"Estimula colágeno para rejuvenecimiento progresivo."
   },
   {
     nombre:"Radiesse",
     precio:8000,
+    categoria:"rejuvenecimiento",
     img:"/img/radiesse.webp",
     desc:"Relleno que mejora volumen y firmeza."
   },
@@ -264,18 +269,21 @@ const servicios = [
   {
     nombre:"Relleno de labios",
     precio:4000,
+    categoria:"armonizacion",
     img:"/img/lips.webp",
     desc:"Aporta volumen, definición y armonía a los labios."
   },
   {
     nombre:"Rinomodelación",
     precio:4000,
+    categoria:"armonizacion",
     img:"/img/nose.webp",
     desc:"Mejora la forma de la nariz sin cirugía."
   },
   {
     nombre:"Ácido hialurónico",
     precio:3500,
+    categoria:"armonizacion",
     img:"/img/acido.webp",
     desc:"Hidratación profunda y mejora de volumen facial."
   },
@@ -284,18 +292,21 @@ const servicios = [
   {
     nombre:"NCTF",
     precio:3500,
+    categoria:"piel",
     img:"/img/patient.webp",
     desc:"Revitalización con vitaminas y ácido hialurónico."
   },
   {
     nombre:"CQ Styler",
     precio:4000,
+    categoria:"piel",
     img:"/img/cq.webp",
     desc:"Mejora calidad y firmeza de la piel."
   },
   {
     nombre:"Liposucción enzimática",
     precio:2500,
+    categoria:"piel",
     img:"/img/lipo.webp",
     desc:"Reduce grasa localizada sin cirugía."
   },
@@ -304,30 +315,35 @@ const servicios = [
   {
     nombre:"CO2 ojos",
     precio:4000,
+    categoria:"laser",
     img:"/img/eye.webp",
     desc:"Mejora arrugas finas y textura alrededor de los ojos."
   },
   {
     nombre:"CO2 mejillas",
     precio:5000,
+    categoria:"laser",
     img:"/img/cheek.webp",
     desc:"Renovación de piel en zona media del rostro."
   },
   {
     nombre:"CO2 rostro",
     precio:10000,
+    categoria:"laser",
     img:"/img/face.webp",
     desc:"Rejuvenecimiento completo con láser."
   },
   {
     nombre:"CO2 rostro y cuello",
     precio:15000,
+    categoria:"laser",
     img:"/img/co2-cuello.webp",
     desc:"Tratamiento profundo en rostro y cuello."
   },
   {
     nombre:"CO2 rostro, cuello y escote",
     precio:20000,
+    categoria:"laser",
     img:"/img/co2-escote.webp",
     desc:"Rejuvenecimiento integral de piel."
   },
@@ -336,24 +352,28 @@ const servicios = [
   {
     nombre:"Hilos cara",
     precio:12000,
+    categoria:"hilos",
     img:"/img/eyebrown.webp",
     desc:"Lifting sin cirugía para mejorar firmeza facial."
   },
   {
     nombre:"Hilos cuello",
     precio:12000,
+    categoria:"hilos",
     img:"/img/hilos-cuello.webp",
     desc:"Mejora flacidez en cuello."
   },
   {
     nombre:"Hilos cejas",
     precio:6000,
+    categoria:"hilos",
     img:"/img/hilos-cejas.webp",
     desc:"Eleva y define la zona de las cejas."
   },
   {
     nombre:"Hilos nariz",
     precio:4000,
+    categoria:"hilos",
     img:"/img/hilos-nariz.webp",
     desc:"Mejora la proyección nasal sin cirugía."
   },
@@ -362,6 +382,7 @@ const servicios = [
   {
     nombre:"Eliminación de lunares",
     precio:0,
+    categoria:"otros",
     img:"/img/lunares.webp",
     desc:"Requiere valoración previa para determinar tratamiento."
   }
@@ -383,14 +404,20 @@ function renderCategorias(){
   let html = "";
 
   nombresCategorias.forEach((c, i)=>{
-    html += `<div class="categoria-btn" onclick="scrollToCat(${i})">${c}</div>`;
+    html += `<div class="categoria-btn" id="btn${i}" onclick="scrollToCat(${i})">${c}</div>`;
   });
 
   document.getElementById("categoriasBar").innerHTML = html;
 }
 
 function scrollToCat(i){
-  document.getElementById("cat"+i).scrollIntoView({behavior:"smooth"});
+  let elemento = document.getElementById("cat"+i);
+
+  let offset = 120; // ajusta si quieres
+
+  let y = elemento.getBoundingClientRect().top + window.pageYOffset - offset;
+
+  window.scrollTo({ top: y, behavior: "smooth" });
 }
   
 function render(){
@@ -521,3 +548,23 @@ renderCategorias();
 
 </body>
 </html>
+
+window.addEventListener("scroll", () => {
+
+  let categorias = document.querySelectorAll("h2");
+
+  categorias.forEach((cat, i) => {
+    let rect = cat.getBoundingClientRect();
+
+    if(rect.top >= 0 && rect.top < 150){
+
+      document.querySelectorAll(".categoria-btn").forEach(btn =>
+        btn.classList.remove("active")
+      );
+
+      let btn = document.getElementById("btn"+i);
+      if(btn) btn.classList.add("active");
+    }
+  });
+
+});
