@@ -501,34 +501,52 @@ function agregar(i){
 window.addEventListener("scroll", () => {
 
   let categorias = document.querySelectorAll("h2");
-  let scrollPos = window.scrollY + 150;
+  let scrollPos = window.scrollY + 200;
+
+  let activado = false;
 
   categorias.forEach((cat, i) => {
 
     let offsetTop = cat.offsetTop;
-    let nextOffset = categorias[i+1]?.offsetTop || Infinity;
+    let nextOffset = categorias[i+1]?.offsetTop;
 
-    if(scrollPos >= offsetTop && scrollPos < nextOffset){
+    if(nextOffset){
+      if(scrollPos >= offsetTop && scrollPos < nextOffset){
 
-      document.querySelectorAll(".categoria-btn").forEach(btn =>
-        btn.classList.remove("active")
-      );
-
-      let btn = document.getElementById("btn"+i);
-      if(btn){
-        btn.classList.add("active");
-
-        btn.scrollIntoView({
-          behavior: "smooth",
-          inline: "center",
-          block: "nearest"
-        });
+        activarCategoria(i);
+        activado = true;
       }
     }
 
   });
 
+  // 👇 SI NO ACTIVÓ NADA → ESTÁS AL FINAL
+  if(!activado){
+    activarCategoria(categorias.length - 1);
+  }
+
 });
+
+
+function activarCategoria(i){
+
+  document.querySelectorAll(".categoria-btn").forEach(btn =>
+    btn.classList.remove("active")
+  );
+
+  let btn = document.getElementById("btn"+i);
+
+  if(btn){
+    btn.classList.add("active");
+
+    btn.scrollIntoView({
+      behavior: "smooth",
+      inline: "center",
+      block: "nearest"
+    });
+  }
+
+}
   
 function actualizarTotal(){
   let total = carrito.reduce((acc,s)=>acc+s.precio,0);
