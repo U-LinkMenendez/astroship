@@ -139,10 +139,11 @@ button.alt {
 }
 
 .cover {
-  width: 100%;
-  height: 140px;
+  width: 100vw;
+  height: 22vw; /* proporción 1:4 aprox */
   object-fit: cover;
-  border-radius: 12px;
+  margin-left: -20px;
+  border-radius: 0;
 }
 
 .overlay {
@@ -194,10 +195,8 @@ button.alt {
 
 <body>
 
-<h1>Selecciona tus opciones</h1>
-
 <div class="header">
-  <img src="/img/portada.jpg" class="cover">
+  <img src="https://via.placeholder.com/1200x300" class="cover">
   <div class="overlay">
     <img src="/img/logo.png" class="logo">
     <div class="titulo">Reducenter KB</div>
@@ -227,11 +226,95 @@ button.alt {
 <script>
 
 const servicios = [
-  {nombre:"Botox (50u)", precio:4500, img:"https://images.unsplash.com/photo-1588776814546-ec7eec2e6c1e"},
-  {nombre:"Relleno de labios", precio:4000, img:"https://images.unsplash.com/photo-1603398938378-e54eab446dde"},
-  {nombre:"Rinomodelación", precio:4000, img:"https://images.unsplash.com/photo-1594824804732-ca8dbdf7a6b4"},
-  {nombre:"CO2 rostro", precio:10000, img:"https://images.unsplash.com/photo-1616394584738-fc6e612e71b9"},
-  {nombre:"Sculptra", precio:12000, img:"https://images.unsplash.com/photo-1580281657521-82c3b9c4df34"}
+
+  // REJUVENECIMIENTO
+  {
+    nombre:"Botox (50 unidades)",
+    precio:4500,
+    img:"/img/botox.webp",
+    desc:"Reduce líneas de expresión y arrugas mediante la relajación muscular."
+  },
+  {
+    nombre:"Medio Botox (25 unidades)",
+    precio:2500,
+    img:"/img/medio-botox.webp",
+    desc:"Aplicación parcial para zonas específicas como frente o entrecejo."
+  },
+  {
+    nombre:"MesoBotox",
+    precio:5500,
+    img:"/img/mesobotox.webp",
+    desc:"Mejora la textura de la piel combinando toxina botulínica con vitaminas."
+  },
+  {
+    nombre:"Sculptra",
+    precio:12000,
+    img:"/img/sculptra.webp",
+    desc:"Estimula la producción de colágeno para rejuvenecimiento progresivo."
+  },
+  {
+    nombre:"Radiesse",
+    precio:8000,
+    img:"/img/radiesse.webp",
+    desc:"Relleno que mejora volumen y estimula colágeno."
+  },
+
+  // ARMONIZACIÓN
+  {
+    nombre:"Relleno de labios",
+    precio:4000,
+    img:"/img/labios.webp",
+    desc:"Define y aporta volumen a los labios con resultados naturales."
+  },
+  {
+    nombre:"Rinomodelación",
+    precio:4000,
+    img:"/img/rinomodelacion.webp",
+    desc:"Corrige imperfecciones nasales sin cirugía."
+  },
+  {
+    nombre:"Ácido hialurónico",
+    precio:3500,
+    img:"/img/acido.webp",
+    desc:"Hidratación profunda y mejora del volumen facial."
+  },
+
+  // PIEL
+  {
+    nombre:"NCTF",
+    precio:3500,
+    img:"/img/nctf.webp",
+    desc:"Revitalización intensiva de la piel con vitaminas y ácido hialurónico."
+  },
+  {
+    nombre:"CQ Styler",
+    precio:4000,
+    img:"/img/cq.webp",
+    desc:"Reestructura la piel mejorando firmeza y calidad."
+  },
+  {
+    nombre:"Liposucción enzimática",
+    precio:2500,
+    img:"/img/lipo.webp",
+    desc:"Reduce grasa localizada mediante enzimas."
+  },
+
+  // LÁSER
+  {
+    nombre:"CO2 rostro",
+    precio:10000,
+    img:"/img/co2-rostro.webp",
+    desc:"Renovación profunda de la piel con láser."
+  },
+
+  // HILOS
+  {
+    nombre:"Hilos cara",
+    precio:12000,
+    img:"/img/hilos-cara.webp",
+    desc:"Lifting sin cirugía para mejorar firmeza facial."
+  }
+
 ];
 
 let carrito = [];
@@ -283,9 +366,12 @@ function render(){
         <div class="card ${seleccionado ? 'selected' : ''}">
           <img src="${s.img}">
           <div class="info">
-            <div class="nombre">${s.nombre}</div>
-            <div class="precio">$${s.precio}</div>
-          </div>
+           <div class="nombre">${s.nombre}</div>
+           <div class="precio">$${s.precio}</div>
+           <div style="font-size:11px;color:#777;margin-top:4px;">
+            ${s.desc}
+           </div>
+         </div>
           <button onclick="agregar(${i})">
             ${seleccionado ? 'Quitar' : 'Agregar'}
           </button>
