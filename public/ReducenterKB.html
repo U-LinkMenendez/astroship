@@ -497,6 +497,26 @@ function agregar(i){
   renderCategorias();
 }
 
+window.addEventListener("scroll", () => {
+
+  let categorias = document.querySelectorAll("h2");
+
+  categorias.forEach((cat, i) => {
+    let rect = cat.getBoundingClientRect();
+
+    if(rect.top >= 0 && rect.top < 150){
+
+      document.querySelectorAll(".categoria-btn").forEach(btn =>
+        btn.classList.remove("active")
+      );
+
+      let btn = document.getElementById("btn"+i);
+      if(btn) btn.classList.add("active");
+    }
+  });
+
+});
+  
 function actualizarTotal(){
   let total = carrito.reduce((acc,s)=>acc+s.precio,0);
   document.getElementById("total").innerText = "Total: $" + total;
@@ -548,23 +568,3 @@ renderCategorias();
 
 </body>
 </html>
-
-window.addEventListener("scroll", () => {
-
-  let categorias = document.querySelectorAll("h2");
-
-  categorias.forEach((cat, i) => {
-    let rect = cat.getBoundingClientRect();
-
-    if(rect.top >= 0 && rect.top < 150){
-
-      document.querySelectorAll(".categoria-btn").forEach(btn =>
-        btn.classList.remove("active")
-      );
-
-      let btn = document.getElementById("btn"+i);
-      if(btn) btn.classList.add("active");
-    }
-  });
-
-});
