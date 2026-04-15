@@ -94,10 +94,11 @@ button.alt {
   width: 100%;
   background: white;
   border-top: 1px solid #eee;
-  padding: 12px;
+  padding: 12px 20px; /* 👈 cambio clave */
   display: flex;
   justify-content: space-between;
   align-items: center;
+  box-sizing: border-box; /* 👈 MUY importante */
 }
 
 .total {
@@ -500,19 +501,31 @@ function agregar(i){
 window.addEventListener("scroll", () => {
 
   let categorias = document.querySelectorAll("h2");
+  let scrollPos = window.scrollY + 150;
 
   categorias.forEach((cat, i) => {
-    let rect = cat.getBoundingClientRect();
 
-    if(rect.top >= 0 && rect.top < 150){
+    let offsetTop = cat.offsetTop;
+    let nextOffset = categorias[i+1]?.offsetTop || Infinity;
+
+    if(scrollPos >= offsetTop && scrollPos < nextOffset){
 
       document.querySelectorAll(".categoria-btn").forEach(btn =>
         btn.classList.remove("active")
       );
 
       let btn = document.getElementById("btn"+i);
-      if(btn) btn.classList.add("active");
+      if(btn){
+        btn.classList.add("active");
+
+        btn.scrollIntoView({
+          behavior: "smooth",
+          inline: "center",
+          block: "nearest"
+        });
+      }
     }
+
   });
 
 });
