@@ -492,14 +492,25 @@ html += `<h2 id="cat${index}" style="margin-top:25px;">${cat}</h2>`;
 
 serviciosFiltrados.forEach(s => {
 
-    categorias[cat].forEach(s => {
+  let i = servicios.findIndex(x => x.nombre === s.nombre);
+  let seleccionado = carrito.find(x => x.nombre === s.nombre);
 
-  if(filtro && !(
-    s.nombre.toLowerCase().includes(filtro) ||
-    s.desc.toLowerCase().includes(filtro)
-  )){
-    return;
-  }
+  html += `
+    <div class="card ${seleccionado ? 'selected' : ''}">
+      <img src="${s.img}">
+      <div class="info">
+        <div class="nombre">${s.nombre}</div>
+        <div class="precio">$${s.precio}</div>
+        <div style="font-size:11px;color:#777;margin-top:4px;">
+          ${s.desc}
+        </div>
+      </div>
+      <button onclick="agregar(${i})">
+        ${seleccionado ? 'Quitar' : 'Agregar'}
+      </button>
+    </div>
+  `;
+});
 
       let i = servicios.findIndex(x => x.nombre === s.nombre);
       let seleccionado = carrito.find(x => x.nombre === s.nombre);
