@@ -205,6 +205,23 @@ button.alt {
   </div>
 </div>
 
+<div style="margin-bottom:10px;">
+  <input 
+    type="text" 
+    id="buscador" 
+    placeholder="🔍 Buscar tratamiento..."
+    style="
+      width:100%;
+      padding:10px 14px;
+      border-radius:25px;
+      border:1px solid #ddd;
+      font-size:13px;
+      outline:none;
+    "
+    oninput="filtrarServicios()"
+  >
+</div>
+  
 <div class="categorias-bar" id="categoriasBar"></div>
 
 <div id="menu"></div>
@@ -219,10 +236,19 @@ button.alt {
 
 <div class="modal" id="modal">
   <div class="modal-content">
-    <h3>Confirmar selección</h3>
-    <p id="resumen"></p>
-    <button class="alt" onclick="irAgenda()">Continuar</button>
+  <h3>¿Deseas agendar estos servicios?</h3>
+  <p id="resumen"></p>
+
+  <div style="display:flex; gap:10px; margin-top:15px;">
+    <button onclick="cerrarModal()" style="flex:1; background:#eee; color:#333;">
+      Regresar
+    </button>
+
+    <button class="alt" onclick="irAgenda()" style="flex:1;">
+      Continuar
+    </button>
   </div>
+ </div>
 </div>
 
 <script>
@@ -391,6 +417,7 @@ const servicios = [
 ];
 
 let carrito = [];
+let filtro = "";
 
 const nombresCategorias = [
   "💉 Rejuvenecimiento",
@@ -453,9 +480,26 @@ function render(){
 
   Object.keys(categorias).forEach((cat, index) => {
 
-    html += `<h2 id="cat${index}" style="margin-top:25px;">${cat}</h2>`;
+    let serviciosFiltrados = categorias[cat].filter(s => 
+  !filtro || 
+  s.nombre.toLowerCase().includes(filtro) ||
+  s.desc.toLowerCase().includes(filtro)
+);
+
+if(serviciosFiltrados.length === 0) return;
+
+html += `<h2 id="cat${index}" style="margin-top:25px;">${cat}</h2>`;
+
+serviciosFiltrados.forEach(s => {
 
     categorias[cat].forEach(s => {
+
+  if(filtro && !(
+    s.nombre.toLowerCase().includes(filtro) ||
+    s.desc.toLowerCase().includes(filtro)
+  )){
+    return;
+  }
 
       let i = servicios.findIndex(x => x.nombre === s.nombre);
       let seleccionado = carrito.find(x => x.nombre === s.nombre);
@@ -496,6 +540,13 @@ function agregar(i){
   actualizarTotal();
   render();
   renderCategorias();
+}
+
+function filtrarServicios(){
+  let input = document.getElementById("buscador");
+  filtro = input.value.toLowerCase();
+
+  render();
 }
 
 window.addEventListener("scroll", () => {
@@ -598,6 +649,17 @@ function irAgenda(){
 render();
 renderCategorias();
 
+function cerrarModal(){
+  document.getElementById("modal").style.display = "none";
+}
+
+  window.addEventListener("click", function(e){
+  let modal = document.getElementById("modal");
+  if(e.target === modal){
+    cerrarModal();
+  }
+});
+  
 </script>
 
 </body>
