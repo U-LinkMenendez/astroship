@@ -582,6 +582,8 @@ function actualizarTotal(){
 
   let nombres = carrito.map(s=>s.nombre).join(", ");
   document.getElementById("lista").innerText = nombres;
+
+  localStorage.setItem("carrito", JSON.stringify(carrito));
 }
 
 function abrirAgenda(){
@@ -608,20 +610,31 @@ function irAgenda(){
     let mensaje = "Hola, ya revisé el catálogo y me interesan: "
                   + serviciosTxt + ". ¿Qué disponibilidad tienen?";
 
+    localStorage.removeItem("carrito");
+    
     let url = "https://wa.me/" + numero + "?text=" + encodeURIComponent(mensaje);
 
     window.location.href = url;
 
   } else {
 
+    localStorage.removeItem("carrito");
+    
     let url = "https://cal.com/ulink/60min?servicios=" + encodeURIComponent(serviciosTxt);
     window.open(url, "_blank");
 
   }
 }
 
+let guardado = localStorage.getItem("carrito");
+
+if(guardado){
+  carrito = JSON.parse(guardado);
+}
+
 render();
 renderCategorias();
+actualizarTotal();
 
 function cerrarModal(){
   document.getElementById("modal").style.display = "none";
