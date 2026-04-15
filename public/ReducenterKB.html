@@ -375,6 +375,7 @@ const nombresCategorias = [
   "💆‍♀️ Piel",
   "🔥 Láser",
   "🧵 Hilos"
+  "✨ Otros"
 ];
 
 function renderCategorias(){
@@ -394,12 +395,30 @@ function scrollToCat(i){
 function render(){
 
   const categorias = {
-    "💉 Rejuvenecimiento facial": servicios.filter(s => ["Botox (50u)","Medio Botox","MesoBotox","Sculptra","Radiesse"].includes(s.nombre)),
-    "💋 Armonización facial": servicios.filter(s => ["Relleno de labios","Rinomodelación","Ácido hialurónico"].includes(s.nombre)),
-    "💆‍♀️ Calidad de piel": servicios.filter(s => ["NCTF","CQ Styler","Liposucción enzimática"].includes(s.nombre)),
-    "🔥 Láser CO2": servicios.filter(s => s.nombre.includes("CO2")),
-    "🧵 Hilos tensores": servicios.filter(s => s.nombre.includes("Hilos"))
-  };
+  "💉 Rejuvenecimiento": servicios.filter(s =>
+    ["Botox (50 unidades)","Medio Botox (25 unidades)","MesoBotox","Sculptra","Radiesse"].includes(s.nombre)
+  ),
+
+  "💋 Armonización": servicios.filter(s =>
+    ["Relleno de labios","Rinomodelación","Ácido hialurónico"].includes(s.nombre)
+  ),
+
+  "💆‍♀️ Piel": servicios.filter(s =>
+    ["NCTF","CQ Styler","Liposucción enzimática"].includes(s.nombre)
+  ),
+
+  "🔥 Láser": servicios.filter(s =>
+    s.nombre.includes("CO2")
+  ),
+
+  "🧵 Hilos": servicios.filter(s =>
+    s.nombre.includes("Hilos")
+  ),
+
+  "✨ Otros": servicios.filter(s =>
+    ["Eliminación de lunares"].includes(s.nombre)
+  )
+};
 
   let html = "";
 
