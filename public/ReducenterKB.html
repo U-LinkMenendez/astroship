@@ -451,66 +451,41 @@ function scrollToCat(i){
 function render(){
 
   const categorias = {
-  "💉 Rejuvenecimiento": servicios.filter(s =>
-    ["Botox (50 unidades)","Medio Botox (25 unidades)","MesoBotox","Sculptra","Radiesse"].includes(s.nombre)
-  ),
-
-  "💋 Armonización": servicios.filter(s =>
-    ["Relleno de labios","Rinomodelación","Ácido hialurónico"].includes(s.nombre)
-  ),
-
-  "💆‍♀️ Piel": servicios.filter(s =>
-    ["NCTF","CQ Styler","Liposucción enzimática"].includes(s.nombre)
-  ),
-
-  "🔥 Láser": servicios.filter(s =>
-    s.nombre.includes("CO2")
-  ),
-
-  "🧵 Hilos": servicios.filter(s =>
-    s.nombre.includes("Hilos")
-  ),
-
-  "✨ Otros": servicios.filter(s =>
-    ["Eliminación de lunares"].includes(s.nombre)
-  )
-};
+    "💉 Rejuvenecimiento": servicios.filter(s =>
+      ["Botox (50 unidades)","Medio Botox (25 unidades)","MesoBotox","Sculptra","Radiesse"].includes(s.nombre)
+    ),
+    "💋 Armonización": servicios.filter(s =>
+      ["Relleno de labios","Rinomodelación","Ácido hialurónico"].includes(s.nombre)
+    ),
+    "💆‍♀️ Piel": servicios.filter(s =>
+      ["NCTF","CQ Styler","Liposucción enzimática"].includes(s.nombre)
+    ),
+    "🔥 Láser": servicios.filter(s =>
+      s.nombre.includes("CO2")
+    ),
+    "🧵 Hilos": servicios.filter(s =>
+      s.nombre.includes("Hilos")
+    ),
+    "✨ Otros": servicios.filter(s =>
+      ["Eliminación de lunares"].includes(s.nombre)
+    )
+  };
 
   let html = "";
 
   Object.keys(categorias).forEach((cat, index) => {
 
     let serviciosFiltrados = categorias[cat].filter(s => 
-  !filtro || 
-  s.nombre.toLowerCase().includes(filtro) ||
-  s.desc.toLowerCase().includes(filtro)
-);
+      !filtro || 
+      s.nombre.toLowerCase().includes(filtro) ||
+      s.desc.toLowerCase().includes(filtro)
+    );
 
-if(serviciosFiltrados.length === 0) return;
+    if(serviciosFiltrados.length === 0) return;
 
-html += `<h2 id="cat${index}" style="margin-top:25px;">${cat}</h2>`;
+    html += `<h2 id="cat${index}" style="margin-top:25px;">${cat}</h2>`;
 
-serviciosFiltrados.forEach(s => {
-
-  let i = servicios.findIndex(x => x.nombre === s.nombre);
-  let seleccionado = carrito.find(x => x.nombre === s.nombre);
-
-  html += `
-    <div class="card ${seleccionado ? 'selected' : ''}">
-      <img src="${s.img}">
-      <div class="info">
-        <div class="nombre">${s.nombre}</div>
-        <div class="precio">$${s.precio}</div>
-        <div style="font-size:11px;color:#777;margin-top:4px;">
-          ${s.desc}
-        </div>
-      </div>
-      <button onclick="agregar(${i})">
-        ${seleccionado ? 'Quitar' : 'Agregar'}
-      </button>
-    </div>
-  `;
-});
+    serviciosFiltrados.forEach(s => {
 
       let i = servicios.findIndex(x => x.nombre === s.nombre);
       let seleccionado = carrito.find(x => x.nombre === s.nombre);
@@ -519,12 +494,12 @@ serviciosFiltrados.forEach(s => {
         <div class="card ${seleccionado ? 'selected' : ''}">
           <img src="${s.img}">
           <div class="info">
-           <div class="nombre">${s.nombre}</div>
-           <div class="precio">$${s.precio}</div>
-           <div style="font-size:11px;color:#777;margin-top:4px;">
-            ${s.desc}
-           </div>
-         </div>
+            <div class="nombre">${s.nombre}</div>
+            <div class="precio">$${s.precio}</div>
+            <div style="font-size:11px;color:#777;margin-top:4px;">
+              ${s.desc}
+            </div>
+          </div>
           <button onclick="agregar(${i})">
             ${seleccionado ? 'Quitar' : 'Agregar'}
           </button>
