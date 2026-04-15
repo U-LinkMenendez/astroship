@@ -172,6 +172,7 @@ button.alt {
   top: 0;
   background: #fafafa;
   z-index: 10;
+  margin-top: 10px;
 }
 
 .categoria-btn {
@@ -194,16 +195,6 @@ button.alt {
 <body>
 
 <h1>Selecciona tus opciones</h1>
-
-<div class="header">
-  <img src="/img/portada.jpg" class="cover">
-  <div class="overlay">
-    <img src="/img/logo.png" class="logo">
-    <div class="titulo">Reducenter KB</div>
-  </div>
-</div>
-
-<div class="categorias-bar" id="categoriasBar"></div>
 
 <div class="header">
   <img src="/img/portada.jpg" class="cover">
@@ -368,6 +359,7 @@ function irAgenda(){
 }
 
 render();
+renderCategorias();
 
 </script>
 
