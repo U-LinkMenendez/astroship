@@ -245,6 +245,28 @@ const servicios = [
 
 let carrito = [];
 
+const nombresCategorias = [
+  "💉 Rejuvenecimiento",
+  "💋 Armonización",
+  "💆‍♀️ Piel",
+  "🔥 Láser",
+  "🧵 Hilos"
+];
+
+function renderCategorias(){
+  let html = "";
+
+  nombresCategorias.forEach((c, i)=>{
+    html += `<div class="categoria-btn" onclick="scrollToCat(${i})">${c}</div>`;
+  });
+
+  document.getElementById("categoriasBar").innerHTML = html;
+}
+
+function scrollToCat(i){
+  document.getElementById("cat"+i).scrollIntoView({behavior:"smooth"});
+}
+  
 function render(){
 
   const categorias = {
@@ -257,9 +279,9 @@ function render(){
 
   let html = "";
 
-  Object.keys(categorias).forEach(cat => {
+  Object.keys(categorias).forEach((cat, index) => {
 
-    html += `<h2 style="margin-top:25px;">${cat}</h2>`;
+    html += `<h2 id="cat${index}" style="margin-top:25px;">${cat}</h2>`;
 
     categorias[cat].forEach(s => {
 
@@ -298,6 +320,7 @@ function agregar(i){
 
   actualizarTotal();
   render();
+  renderCategorias();
 }
 
 function actualizarTotal(){
