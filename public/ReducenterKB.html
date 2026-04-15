@@ -501,10 +501,19 @@ function agregar(i){
 window.addEventListener("scroll", () => {
 
   let categorias = document.querySelectorAll("h2");
-  let scrollPos = window.scrollY + 250;
-  // SI QUIERO AJUSTAR EL COLOR DEL ÚLTIMO BOTÓN, +250 ACTIVA ANTES +150 ACTIVA DESPUÉS
-  
-  let activado = false;
+  let scrollTop = window.scrollY;
+  let windowHeight = window.innerHeight;
+  let fullHeight = document.body.scrollHeight;
+
+  // 🔥 DETECTAR FINAL REAL
+  let alFinal = scrollTop + windowHeight >= fullHeight - 5;
+
+  if(alFinal){
+    activarCategoria(categorias.length - 1);
+    return;
+  }
+
+  let scrollPos = scrollTop + 150;
 
   categorias.forEach((cat, i) => {
 
@@ -513,18 +522,11 @@ window.addEventListener("scroll", () => {
 
     if(nextOffset){
       if(scrollPos >= offsetTop && scrollPos < nextOffset){
-
         activarCategoria(i);
-        activado = true;
       }
     }
 
   });
-
-  // 👇 SI NO ACTIVÓ NADA → ESTÁS AL FINAL
-  if(!activado){
-    activarCategoria(categorias.length - 1);
-  }
 
 });
 
