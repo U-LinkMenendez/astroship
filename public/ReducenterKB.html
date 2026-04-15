@@ -15,6 +15,7 @@ body {
   background: #fafafa;
   margin: 0;
   padding: 20px;
+  padding-bottom: 90px;
   color: #222;
 }
 
@@ -395,29 +396,12 @@ function scrollToCat(i){
 function render(){
 
   const categorias = {
-  "💉 Rejuvenecimiento": servicios.filter(s =>
-    ["Botox (50 unidades)","Medio Botox (25 unidades)","MesoBotox","Sculptra","Radiesse"].includes(s.nombre)
-  ),
-
-  "💋 Armonización": servicios.filter(s =>
-    ["Relleno de labios","Rinomodelación","Ácido hialurónico"].includes(s.nombre)
-  ),
-
-  "💆‍♀️ Piel": servicios.filter(s =>
-    ["NCTF","CQ Styler","Liposucción enzimática"].includes(s.nombre)
-  ),
-
-  "🔥 Láser": servicios.filter(s =>
-    s.nombre.includes("CO2")
-  ),
-
-  "🧵 Hilos": servicios.filter(s =>
-    s.nombre.includes("Hilos")
-  ),
-
-  "✨ Otros": servicios.filter(s =>
-    ["Eliminación de lunares"].includes(s.nombre)
-  )
+  "💉 Rejuvenecimiento": servicios.filter(s => s.categoria === "rejuvenecimiento"),
+  "💋 Armonización": servicios.filter(s => s.categoria === "armonizacion"),
+  "💆‍♀️ Piel": servicios.filter(s => s.categoria === "piel"),
+  "🔥 Láser": servicios.filter(s => s.categoria === "laser"),
+  "🧵 Hilos": servicios.filter(s => s.categoria === "hilos"),
+  "✨ Otros": servicios.filter(s => s.categoria === "otros")
 };
 
   let html = "";
