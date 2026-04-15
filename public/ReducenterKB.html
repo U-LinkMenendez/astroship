@@ -559,27 +559,21 @@ window.addEventListener("scroll", () => {
 
 function activarCategoria(i){
 
-  document.querySelectorAll(".categoria-btn").forEach(btn =>
-    btn.classList.remove("active")
-  );
+  let botones = document.querySelectorAll(".categoria-btn");
+
+  botones.forEach(btn => btn.classList.remove("active"));
 
   let btn = document.getElementById("btn"+i);
 
-  if(btn){
+  if(btn && !btn.classList.contains("active")){
     btn.classList.add("active");
 
-document.querySelectorAll(".categoria-btn").forEach(btn =>
-  btn.classList.remove("active")
-);
-    
-    if(!btn.classList.contains("active")){
-  btn.scrollIntoView({
-    behavior: "smooth",
-    inline: "center",
-    block: "nearest"
-  });
-}
-
+    btn.scrollIntoView({
+      behavior: "smooth",
+      inline: "center",
+      block: "nearest"
+    });
+  }
 }
   
 function actualizarTotal(){
