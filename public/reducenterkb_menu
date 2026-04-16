@@ -267,12 +267,12 @@ button.alt {
     <div id="total" class="total">Total: $0</div>
     <div id="lista" class="lista"></div>
   </div>
-  <button class="alt" onclick="abrirAgenda()" id="btnAgendar">Agendar</button>
+  <button class="alt" onclick="abrirContacto()" id="btnAgendar">Solicitar información</button>
 </div>
 
 <div class="modal" id="modal">
   <div class="modal-content">
-  <h3>¿Deseas agendar estos servicios?</h3>
+  <h3>¿Deseas que te contactemos con esta información?</h3>
   <p id="resumen"></p>
 
   <div style="display:flex; gap:10px; margin-top:15px;">
@@ -519,7 +519,7 @@ function render(){
           <img src="${s.img}">
           <div class="info">
             <div class="nombre">${s.nombre}</div>
-            <div class="precio">$${s.precio}</div>
+            <div class="precio" style="display:none;"></div>
             <div style="font-size:11px;color:#777;margin-top:4px;">
               ${s.desc}
             </div>
@@ -656,7 +656,7 @@ function actualizarTotal(){
   localStorage.setItem("carritoData", JSON.stringify(data));
 }
 
-function abrirAgenda(){
+function abrirContacto(){
   if(carrito.length==0){
     alert("Selecciona al menos un servicio");
     return;
@@ -677,9 +677,9 @@ function irAgenda(){
 
   let numero = "5219996690192";
 
-  let mensaje = "Hola, quiero agendar: " 
-                + serviciosTxt + 
-                ". ¿Tienen disponibilidad hoy o mañana?";
+  let mensaje = "Hola, me gustaría recibir información sobre los siguientes tratamientos: " 
+              + serviciosTxt + 
+              ". ¿Podrían contactarme por favor?";
 
   let data = JSON.parse(localStorage.getItem("carritoData")) || {};
     data.enviado = true;
@@ -693,12 +693,14 @@ function irAgenda(){
   window.location.href = url;
   } else {
 
-    localStorage.removeItem("carrito");
-    
-    let url = "https://cal.com/ulink/60min?servicios=" + encodeURIComponent(serviciosTxt);
-    window.open(url, "_blank");
+  let numero = "5219996690192";
 
-  }
+  let mensaje = "Hola, me gustaría recibir información sobre los siguientes tratamientos: " 
+                + serviciosTxt + 
+                ". ¿Podrían contactarme por favor?";
+
+  window.location.href = "https://wa.me/" + numero + "?text=" + encodeURIComponent(mensaje);
+}
 }
 
 let data = JSON.parse(localStorage.getItem("carritoData"));
