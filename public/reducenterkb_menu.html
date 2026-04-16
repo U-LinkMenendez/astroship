@@ -112,7 +112,7 @@ button.alt {
 }
 
 .total {
-  font-size: 14px;
+  display: none;
 }
 
 .lista {
@@ -633,27 +633,7 @@ function activarCategoria(i){
 }
   
 function actualizarTotal(){
-  let total = carrito.reduce((acc,s)=>acc+s.precio,0);
-  document.getElementById("total").innerText = "Total: $" + total;
-
-  let nombres = carrito.map(s=>s.nombre).join(", ");
-  document.getElementById("lista").innerText = nombres;
-
-  let btn = document.getElementById("btnAgendar");
-  if(btn){
-    if(carrito.length > 0){
-      btn.innerText = "Agendar (" + carrito.length + ")";
-    } else {
-      btn.innerText = "Agendar";
-    }
-  }
-  
-  let data = JSON.parse(localStorage.getItem("carritoData")) || {};
-  data.timestamp = Date.now();
-  data.items = carrito;
-  data.enviado = false;
-
-  localStorage.setItem("carritoData", JSON.stringify(data));
+  return;
 }
 
 function abrirContacto(){
