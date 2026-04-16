@@ -561,6 +561,22 @@ function filtrarServicios(){
   let input = document.getElementById("buscador");
   filtro = input.value.toLowerCase();
 
+  let clearBtn = document.getElementById("clearBtn");
+
+  if(filtro.length > 0){
+    clearBtn.style.display = "block";
+  } else {
+    clearBtn.style.display = "none";
+  }
+
+  render();
+}
+
+function limpiarBusqueda(){
+  let input = document.getElementById("buscador");
+  input.value = "";
+  filtro = "";
+  document.getElementById("clearBtn").style.display = "none";
   render();
 }
 
@@ -630,29 +646,6 @@ function actualizarTotal(){
     } else {
       btn.innerText = "Agendar";
     }
-  }
-
-  function filtrarServicios(){
-  let input = document.getElementById("buscador");
-  filtro = input.value.toLowerCase();
-
-  let clearBtn = document.getElementById("clearBtn");
-
-  if(filtro.length > 0){
-    clearBtn.style.display = "block";
-  } else {
-    clearBtn.style.display = "none";
-  }
-
-  render();
-  }
-  
-  function limpiarBusqueda(){
-  let input = document.getElementById("buscador");
-  input.value = "";
-  filtro = "";
-  document.getElementById("clearBtn").style.display = "none";
-  render();
   }
   
   let data = JSON.parse(localStorage.getItem("carritoData")) || {};
