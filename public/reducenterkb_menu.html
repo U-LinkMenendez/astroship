@@ -162,7 +162,7 @@ function renderPromos(){
     ${vencida ? '<div class="promo-overlay">VENCIDA</div>' : ''}
 
     <button 
-      onclick="interesPromo('${p.nombre}')"
+      onclick='interesPromo(${JSON.stringify(p.nombre)})'
       style="
         position:absolute;
         bottom:10px;
