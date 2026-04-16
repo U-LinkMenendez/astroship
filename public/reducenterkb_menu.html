@@ -288,11 +288,6 @@ button.alt {
 
 </div>
 
-<div style="text-align:center; margin-bottom:10px;">
-  <button onclick="abrirPromos()" class="alt">
-    Ver promociones 🔥
-  </button>
-</div>
   
 <div class="categorias-bar" id="categoriasBar"></div>
 
@@ -497,7 +492,8 @@ const nombresCategorias = [
   "💆‍♀️ Piel",
   "🔥 Láser",
   "🧵 Hilos",
-  "✨ Otros"
+  "✨ Otros",
+  "🔥 Promos"
 ];
 
 function renderCategorias(){
@@ -506,6 +502,15 @@ function renderCategorias(){
   nombresCategorias.forEach((c, i)=>{
     html += `<div class="categoria-btn" id="btn${i}" onclick="scrollToCat(${i})">${c}</div>`;
   });
+
+  // 🔥 BOTÓN PROMOCIONES
+  html += `
+    <div class="categoria-btn" 
+      style="background:#c8a96a; color:black;"
+      onclick="abrirPromos()">
+      🔥 Promos
+    </div>
+  `;
 
   document.getElementById("categoriasBar").innerHTML = html;
 }
