@@ -234,7 +234,41 @@ button.alt {
     <button onclick="cerrarPromos()">✕</button>
   </div>
 
-  <div id="promoSlider"></div>
+  <div style="position:relative; overflow:hidden;">
+
+  <div id="promoSlider" style="
+    display:flex;
+    transition:transform 0.4s ease;
+  "></div>
+
+  <!-- Flechas -->
+  <div onclick="moverPromo(-1)" style="
+    position:absolute; left:10px; top:50%;
+    transform:translateY(-50%);
+    background:rgba(0,0,0,0.5);
+    color:white;
+    width:30px; height:30px;
+    border-radius:50%;
+    text-align:center;
+    line-height:30px;
+    cursor:pointer;
+  ">‹</div>
+
+  <div onclick="moverPromo(1)" style="
+    position:absolute; right:10px; top:50%;
+    transform:translateY(-50%);
+    background:rgba(0,0,0,0.5);
+    color:white;
+    width:30px; height:30px;
+    border-radius:50%;
+    text-align:center;
+    line-height:30px;
+    cursor:pointer;
+  ">›</div>
+
+</div>
+
+<div id="promoDots" style="text-align:center; margin-top:10px;"></div>
   <div id="promoDots" style="text-align:center; margin-top:10px;"></div>
 
   <div style="margin-top:20px; text-align:center;">
@@ -771,6 +805,103 @@ function cerrarModal(){
     cerrarModal();
   }
 });
+
+
+  // ===== PROMOCIONES =====
+
+const promociones = [
+  {
+    nombre: "Botox + Hidratación",
+    imagen: "/img/Portada.jpg",
+    descripcion: "Rejuvenece tu piel con esta promoción especial",
+    vigencia: "2026-05-01"
+  },
+  {
+    nombre: "CO2 Especial",
+    imagen: "/img/Portada.jpg",
+    descripcion: "Renovación profunda de la piel",
+    vigencia: "2024-01-01"
+  }
+];
+
+let promoIndex = 0;
+
+function renderPromos(){
+
+  const slider = document.getElementById("promoSlider");
+  const dots = document.getElementById("promoDots");
+
+  if(!slider || !dots) return;
+
+  let html = "";
+
+  promociones.forEach(p=>{
+    let vencida = new Date(p.vigencia) < new Date();
+
+    html += `
+      <div style="min-width:100%; padding:5px; box-sizing:border-box;">
+        
+        <img src="${p.imagen}" style="width:100%; border-radius:14px;">
+        
+        ${vencida ? '<div style="color:red; font-size:12px;">VENCIDA</div>' : ''}
+
+        <div style="margin-top:8px; font-size:13px;">
+          ${p.descripcion}
+        </div>
+
+        <button 
+          onclick='interesPromo(${JSON.stringify(p.nombre)})'
+          class="alt"
+          style="margin-top:8px;">
+          La quiero
+        </button>
+
+      </div>
+    `;
+  });
+
+  slider.innerHTML = html;
+
+  renderDots();
+}
+
+function moverPromo(dir){
+
+  promoIndex += dir;
+
+  if(promoIndex < 0) promoIndex = promociones.length - 1;
+  if(promoIndex >= promociones.length) promoIndex = 0;
+
+  const slider = document.getElementById("promoSlider");
+
+  slider.style.transform = "translateX(-" + (promoIndex * 100) + "%)";
+
+  renderDots();
+}
+
+function renderDots(){
+
+  let dots = "";
+
+  promociones.forEach((_, i)=>{
+    dots += `<span style="
+      display:inline-block;
+      width:6px;
+      height:6px;
+      margin:3px;
+      border-radius:50%;
+      background:${i===promoIndex ? '#555' : '#ccc'};
+    "></span>`;
+  });
+
+  document.getElementById("promoDots").innerHTML = dots;
+}
+
+function interesPromo(nombre){
+  const mensaje = `Hola, me interesa la promoción: ${nombre}`;
+  const url = "https://wa.me/5219996690192?text=" + encodeURIComponent(mensaje);
+  window.open(url, "_blank");
+}
   
 </script>
 
