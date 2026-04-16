@@ -39,6 +39,15 @@ h1 {
   transition: all 0.2s ease;
 }
 
+  .card {
+  transition: all 0.2s ease;
+}
+
+  .card.added {
+  transform: scale(0.97);
+  background: #f5efe3;
+}
+
 .card:hover {
   transform: translateY(-2px);
 }
@@ -192,6 +201,10 @@ button.alt {
   color: black;
 }
 
+  button:active {
+  transform: scale(0.95);
+}
+
 </style>
 </head>
 
@@ -232,7 +245,7 @@ button.alt {
     <div id="total" class="total">Total: $0</div>
     <div id="lista" class="lista"></div>
   </div>
-  <button class="alt" onclick="abrirAgenda()">Agendar</button>
+  <button class="alt" onclick="abrirAgenda()" id="btnAgendar">Agendar</button>
 </div>
 
 <div class="modal" id="modal">
@@ -480,7 +493,7 @@ function render(){
       let seleccionado = carrito.find(x => x.nombre === s.nombre);
 
       html += `
-        <div class="card ${seleccionado ? 'selected' : ''}">
+        <div class="card ${seleccionado ? 'selected added' : ''}">
           <img src="${s.img}">
           <div class="info">
             <div class="nombre">${s.nombre}</div>
@@ -515,6 +528,11 @@ function agregar(i){
   actualizarTotal();
   render();
   renderCategorias();
+
+  setTimeout(() => {
+  let cards = document.querySelectorAll(".card");
+  cards.forEach(c => c.classList.remove("added"));
+ }, 150);
 }
 
 function filtrarServicios(){
@@ -582,6 +600,16 @@ function actualizarTotal(){
 
   let nombres = carrito.map(s=>s.nombre).join(", ");
   document.getElementById("lista").innerText = nombres;
+
+  let btn = document.getElementById("btnAgendar");
+
+  if(btn){
+    if(carrito.length > 0){
+      btn.innerText = "Agendar (" + carrito.length + ")";
+    } else {
+      btn.innerText = "Agendar";
+    }
+  }
 
   localStorage.setItem("carrito", JSON.stringify(carrito));
 }
