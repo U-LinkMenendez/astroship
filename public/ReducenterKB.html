@@ -603,7 +603,6 @@ function actualizarTotal(){
   document.getElementById("lista").innerText = nombres;
 
   let btn = document.getElementById("btnAgendar");
-
   if(btn){
     if(carrito.length > 0){
       btn.innerText = "Agendar (" + carrito.length + ")";
@@ -612,7 +611,12 @@ function actualizarTotal(){
     }
   }
 
-  localStorage.setItem("carrito", JSON.stringify(carrito));
+  let data = JSON.parse(localStorage.getItem("carritoData")) || {};
+  data.timestamp = Date.now();
+  data.items = carrito;
+  data.enviado = false;
+
+  localStorage.setItem("carritoData", JSON.stringify(data));
 }
 
 function abrirAgenda(){
@@ -640,7 +644,9 @@ function irAgenda(){
                 + serviciosTxt + 
                 ". ¿Tienen disponibilidad hoy o mañana?";
 
-  localStorage.removeItem("carrito");
+  let data = JSON.parse(localStorage.getItem("carritoData")) || {};
+    data.enviado = true;
+    localStorage.setItem("carritoData", JSON.stringify(data));
   carrito = [];
   actualizarTotal();
   render();
@@ -658,10 +664,25 @@ function irAgenda(){
   }
 }
 
-let guardado = localStorage.getItem("carrito");
+let data = JSON.parse(localStorage.getItem("carritoData"));
 
-if(guardado){
-  carrito = JSON.parse(guardado);
+if(data){
+
+  let ahora = Date.now();
+  let minutos = (ahora - data.timestamp) / 60000;
+
+  if(data.enviado){
+    localStorage.removeItem("carritoData");
+    carrito = [];
+  } 
+  else if(minutos < 30){
+    carrito = data.items || [];
+  } 
+  else {
+    localStorage.removeItem("carritoData");
+    carrito = [];
+  }
+
 }
 
 render();
