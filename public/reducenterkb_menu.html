@@ -503,13 +503,14 @@ function renderCategorias(){
   });
 
   // 🔥 BOTÓN PROMOCIONES
+  
   html += `
-    <div class="categoria-btn" 
-      style="background:#c8a96a; color:black;"
-      onclick="abrirPromos()">
-      🔥 Promos
-    </div>
-  `;
+  <div class="categoria-btn" 
+    style="background:#FFD84D; color:black; font-weight:500;"
+    onclick="abrirPromos()">
+    🔥 Promos
+  </div>
+`;
 
   document.getElementById("categoriasBar").innerHTML = html;
 }
@@ -522,6 +523,18 @@ function scrollToCat(i){
   let y = elemento.getBoundingClientRect().top + window.pageYOffset - offset;
 
   window.scrollTo({ top: y, behavior: "smooth" });
+}
+
+// 🔥 ABRIR PROMOS
+function abrirPromos(){
+  document.getElementById("pantallaPromos").style.display = "block";
+  document.body.style.overflow = "hidden";
+  renderPromos();
+}
+
+function cerrarPromos(){
+  document.getElementById("pantallaPromos").style.display = "none";
+  document.body.style.overflow = "auto";
 }
   
 function render(){
