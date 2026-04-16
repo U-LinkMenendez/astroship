@@ -634,18 +634,20 @@ function irAgenda(){
 
   if(desdeWA && desdeWA.toLowerCase() === "wa"){
 
-    let numero = "5219996690192";
+  let numero = "5219996690192";
 
-    let mensaje = "Hola, quiero agendar: " 
-              + serviciosTxt + 
-              ". ¿Tienen disponibilidad para esta semana? Estoy lista(o) para reservar.";
+  let mensaje = "Hola, quiero agendar: " 
+                + serviciosTxt + 
+                ". ¿Tienen disponibilidad hoy o mañana?";
 
-    localStorage.removeItem("carrito");
-    
-    let url = "https://wa.me/" + numero + "?text=" + encodeURIComponent(mensaje);
+  localStorage.removeItem("carrito");
+  carrito = [];
+  actualizarTotal();
+  render();
 
-    window.location.href = url;
+  let url = "https://wa.me/" + numero + "?text=" + encodeURIComponent(mensaje);
 
+  window.location.href = url;
   } else {
 
     localStorage.removeItem("carrito");
