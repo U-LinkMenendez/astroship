@@ -206,6 +206,10 @@ button.alt {
   transform: scale(0.95);
 }
 
+#clearBtn:hover {
+  color: #000;
+}
+  
 </style>
 </head>
 
@@ -219,22 +223,39 @@ button.alt {
   </div>
 </div>
 
-<div style="margin-bottom:10px;">
+<div style="margin-bottom:10px; position:relative;">
+  
   <input 
     type="text" 
     id="buscador" 
     placeholder="🔍 Buscar tratamiento..."
     style="
       width:100%;
-      padding:10px 14px;
+      padding:10px 35px 10px 14px;
       border-radius:25px;
       border:1px solid #ddd;
       font-size:13px;
       outline:none;
       box-sizing:border-box;
-"
+    "
     oninput="filtrarServicios()"
   >
+
+  <span 
+    id="clearBtn"
+    onclick="limpiarBusqueda()"
+    style="
+      position:absolute;
+      right:12px;
+      top:50%;
+      transform:translateY(-50%);
+      font-size:14px;
+      color:#999;
+      cursor:pointer;
+      display:none;
+    "
+  >✕</span>
+
 </div>
   
 <div class="categorias-bar" id="categoriasBar"></div>
@@ -611,6 +632,29 @@ function actualizarTotal(){
     }
   }
 
+  function filtrarServicios(){
+  let input = document.getElementById("buscador");
+  filtro = input.value.toLowerCase();
+
+  let clearBtn = document.getElementById("clearBtn");
+
+  if(filtro.length > 0){
+    clearBtn.style.display = "block";
+  } else {
+    clearBtn.style.display = "none";
+  }
+
+  render();
+  }
+  
+  function limpiarBusqueda(){
+  let input = document.getElementById("buscador");
+  input.value = "";
+  filtro = "";
+  document.getElementById("clearBtn").style.display = "none";
+  render();
+  }
+  
   let data = JSON.parse(localStorage.getItem("carritoData")) || {};
   data.timestamp = Date.now();
   data.items = carrito;
