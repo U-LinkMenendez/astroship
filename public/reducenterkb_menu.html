@@ -269,7 +269,6 @@ button.alt {
 </div>
 
 <div id="promoDots" style="text-align:center; margin-top:10px;"></div>
-  <div id="promoDots" style="text-align:center; margin-top:10px;"></div>
 
   <div style="margin-top:20px; text-align:center;">
     <button onclick="cerrarPromos()" class="alt">
@@ -869,8 +868,6 @@ function renderPromos(){
   slider.innerHTML = html;
 
   renderDots();
-
-  const slider = document.getElementById("promoSlider");
 
 slider.addEventListener("touchstart", (e)=>{
   startX = e.touches[0].clientX;
