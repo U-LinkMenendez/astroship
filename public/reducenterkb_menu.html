@@ -563,7 +563,8 @@ function abrirPromos(){
   document.getElementById("pantallaPromos").style.display = "block";
   document.body.style.overflow = "hidden";
   renderPromos();
-  iniciarAutoSlide(); // 🔥 AQUÍ
+  activarSwipe();
+  iniciarAutoSlide();
 }
 
 function cerrarPromos(){
@@ -868,25 +869,35 @@ function renderPromos(){
   slider.innerHTML = html;
 
   renderDots();
-
-slider.addEventListener("touchstart", (e)=>{
-  startX = e.touches[0].clientX;
-});
-
-slider.addEventListener("touchend", (e)=>{
-  endX = e.changedTouches[0].clientX;
-
-  if(startX - endX > 50){
-    moverPromo(1);
-  }
-
-  if(endX - startX > 50){
-    moverPromo(-1);
-  }
- });
 }
 
+function activarSwipe(){
+
+  const slider = document.getElementById("promoSlider");
+
+  if(!slider) return;
+
+  slider.addEventListener("touchstart", (e)=>{
+    startX = e.touches[0].clientX;
+  });
+
+  slider.addEventListener("touchend", (e)=>{
+    endX = e.changedTouches[0].clientX;
+
+    if(startX - endX > 50){
+      moverPromo(1);
+    }
+
+    if(endX - startX > 50){
+      moverPromo(-1);
+    }
+  });
+
+ }
+
 function moverPromo(dir){
+
+  clearInterval(promoInterval);
 
   promoIndex += dir;
 
@@ -898,6 +909,8 @@ function moverPromo(dir){
   slider.style.transform = "translateX(-" + (promoIndex * 100) + "%)";
 
   renderDots();
+
+  iniciarAutoSlide();
 }
   
 function iniciarAutoSlide(){
