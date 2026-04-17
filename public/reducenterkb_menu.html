@@ -564,11 +564,13 @@ function abrirPromos(){
   document.getElementById("pantallaPromos").style.display = "block";
   document.body.style.overflow = "hidden";
   renderPromos();
+  iniciarAutoSlide(); // 🔥 AQUÍ
 }
 
 function cerrarPromos(){
   document.getElementById("pantallaPromos").style.display = "none";
   document.body.style.overflow = "auto";
+  clearInterval(promoInterval); // 🔥 AQUÍ
 }
   
 function render(){
@@ -825,6 +827,10 @@ const promociones = [
 ];
 
 let promoIndex = 0;
+let promoInterval;
+
+let startX = 0;
+let endX = 0;
 
 function renderPromos(){
 
@@ -863,6 +869,24 @@ function renderPromos(){
   slider.innerHTML = html;
 
   renderDots();
+
+  const slider = document.getElementById("promoSlider");
+
+slider.addEventListener("touchstart", (e)=>{
+  startX = e.touches[0].clientX;
+});
+
+slider.addEventListener("touchend", (e)=>{
+  endX = e.changedTouches[0].clientX;
+
+  if(startX - endX > 50){
+    moverPromo(1);
+  }
+
+  if(endX - startX > 50){
+    moverPromo(-1);
+  }
+ });
 }
 
 function moverPromo(dir){
@@ -877,6 +901,15 @@ function moverPromo(dir){
   slider.style.transform = "translateX(-" + (promoIndex * 100) + "%)";
 
   renderDots();
+}
+  
+function iniciarAutoSlide(){
+
+  clearInterval(promoInterval);
+
+  promoInterval = setInterval(()=>{
+    moverPromo(1);
+  }, 4000);
 }
 
 function renderDots(){
