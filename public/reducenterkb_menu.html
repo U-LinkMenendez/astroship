@@ -518,6 +518,7 @@ const servicios = [
 
 let carrito = [];
 let filtro = "";
+let promoSeleccionada = null;
 
 const nombresCategorias = [
   "💉 Rejuvenecimiento",
@@ -798,7 +799,24 @@ renderCategorias();
 actualizarTotal();
 
 function cerrarModal(){
+
   document.getElementById("modal").style.display = "none";
+
+  // 🔥 restaurar contenido original
+  document.querySelector(".modal-content").innerHTML = `
+    <h3>¿Deseas que te contactemos con esta información?</h3>
+    <p id="resumen"></p>
+
+    <div style="display:flex; gap:10px; margin-top:15px;">
+      <button onclick="cerrarModal()" style="flex:1; background:#eee; color:#333;">
+        Regresar
+      </button>
+
+      <button class="alt" onclick="irAgenda()" style="flex:1;">
+        Continuar
+      </button>
+    </div>
+  `;
 }
 
   window.addEventListener("click", function(e){
@@ -941,9 +959,65 @@ function renderDots(){
 }
 
 function interesPromo(nombre){
-  const mensaje = `Hola, me interesa la promoción: ${nombre}`;
-  const url = "https://wa.me/5219996690192?text=" + encodeURIComponent(mensaje);
-  window.open(url, "_blank");
+
+  promoSeleccionada = nombre;
+
+  document.getElementById("resumen").innerHTML = `
+    Seleccionaste: <b>${nombre}</b><br><br>
+    ¿Cómo deseas enviarlo?
+  `;
+
+  const botones = `
+    <div style="display:flex; flex-direction:column; gap:10px; margin-top:15px;">
+
+      <button class="alt" onclick="enviarSoloPromo()">
+        Solo esta promoción
+      </button>
+
+      <button onclick="enviarTodo()">
+        Incluir tratamientos seleccionados
+      </button>
+
+      <button onclick="cerrarModal()" style="background:#eee; color:#333;">
+        Cancelar
+      </button>
+
+    </div>
+  `;
+
+  document.querySelector(".modal-content").innerHTML = `
+    <h3>Confirmar envío</h3>
+    <p id="resumen"></p>
+    ${botones}
+  `;
+
+  document.getElementById("modal").style.display = "flex";
+}
+
+function enviarSoloPromo(){
+
+  let numero = "5219996690192";
+
+  let mensaje = "Hola, me interesa la siguiente promoción: " 
+              + promoSeleccionada;
+
+  window.location.href = "https://wa.me/" + numero + "?text=" + encodeURIComponent(mensaje);
+}
+
+function enviarTodo(){
+
+  let numero = "5219996690192";
+
+  let serviciosTxt = carrito.map(s=>s.nombre).join(", ");
+
+  let mensaje = "Hola, me interesa la promoción: " 
+              + promoSeleccionada;
+
+  if(serviciosTxt.length > 0){
+    mensaje += ". También me interesan: " + serviciosTxt;
+  }
+
+  window.location.href = "https://wa.me/" + numero + "?text=" + encodeURIComponent(mensaje);
 }
   
 </script>
