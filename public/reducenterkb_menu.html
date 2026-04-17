@@ -131,6 +131,7 @@ button.alt {
   display: none;
   justify-content: center;
   align-items: center;
+  z-index: 2000;
 }
 
 .modal-content {
@@ -1001,6 +1002,12 @@ function enviarSoloPromo(){
   let mensaje = "Hola, me interesa la siguiente promoción: " 
               + promoSeleccionada;
 
+  // 🔥 LIMPIAR TODO
+  carrito = [];
+  actualizarTotal();
+  render();
+  renderCategorias();
+
   window.location.href = "https://wa.me/" + numero + "?text=" + encodeURIComponent(mensaje);
 }
 
@@ -1016,6 +1023,11 @@ function enviarTodo(){
   if(serviciosTxt.length > 0){
     mensaje += ". También me interesan: " + serviciosTxt;
   }
+
+  carrito = [];
+  actualizarTotal();
+  render();
+  renderCategorias();
 
   window.location.href = "https://wa.me/" + numero + "?text=" + encodeURIComponent(mensaje);
 }
