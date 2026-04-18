@@ -747,11 +747,9 @@ function irAgenda(){
 
   if(desdeWA && desdeWA.toLowerCase() === "wa"){
 
-  let numero = "5219992175116";
+  let url = "https://wa.me/" + NUMERO_WHATSAPP + "?text=" + encodeURIComponent(mensaje);
 
-  let mensaje = "Hola, me gustaría recibir información sobre los siguientes tratamientos: " 
-              + serviciosTxt + 
-              ". ¿Podrían contactarme por favor?";
+  let mensaje = "Hola, vengo del catálogo web y me interesan: " + serviciosTxt;
 
   let data = JSON.parse(localStorage.getItem("carritoData")) || {};
     data.enviado = true;
@@ -767,9 +765,7 @@ function irAgenda(){
 
   let numero = "5219992175116";
 
-  let mensaje = "Hola, me gustaría recibir información sobre los siguientes tratamientos: " 
-                + serviciosTxt + 
-                ". ¿Podrían contactarme por favor?";
+  let mensaje = "Hola, vengo del catálogo web y me interesan: " + serviciosTxt;
 
   window.location.href = "https://wa.me/" + numero + "?text=" + encodeURIComponent(mensaje);
 }
@@ -998,7 +994,7 @@ function interesPromo(nombre){
 
 function enviarSoloPromo(){
 
-  let numero = "5219992175116";
+  window.location.href = "https://wa.me/" + NUMERO_WHATSAPP + "?text=" + encodeURIComponent(mensaje);
 
   let mensaje = "Hola, me interesa la siguiente promoción: " 
               + promoSeleccionada;
@@ -1014,7 +1010,7 @@ function enviarSoloPromo(){
 
 function enviarTodo(){
 
-  let numero = "5219992175116";
+  window.location.href = "https://wa.me/" + NUMERO_WHATSAPP + "?text=" + encodeURIComponent(mensaje);
 
   let serviciosTxt = carrito.map(s=>s.nombre).join(", ");
 
