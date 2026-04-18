@@ -993,8 +993,7 @@ function interesPromo(nombre){
 function enviarSoloPromo(){
 
 
-  let mensaje = "Hola, me interesa la siguiente promoción: " 
-              + promoSeleccionada;
+  let mensaje = "Hola, vengo del catálogo web y me interesa la promoción: " + promoSeleccionada;
 
   // 🔥 LIMPIAR TODO
   carrito = [];
@@ -1010,8 +1009,7 @@ function enviarTodo(){
 
   let serviciosTxt = carrito.map(s=>s.nombre).join(", ");
 
-  let mensaje = "Hola, me interesa la promoción: " 
-              + promoSeleccionada;
+  let mensaje = "Hola, vengo del catálogo web y me interesa la promoción: " + promoSeleccionada;
 
   if(serviciosTxt.length > 0){
     mensaje += ". También me interesan: " + serviciosTxt;
