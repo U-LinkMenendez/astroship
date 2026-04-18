@@ -745,30 +745,18 @@ function irAgenda(){
   let params = new URLSearchParams(window.location.search);
   let desdeWA = params.get("from");
 
+  let mensaje = "Hola, vengo del catálogo web y me interesan: " + serviciosTxt;
+
   if(desdeWA && desdeWA.toLowerCase() === "wa"){
 
-  let url = "https://wa.me/" + NUMERO_WHATSAPP + "?text=" + encodeURIComponent(mensaje);
+    let url = "https://wa.me/" + NUMERO_WHATSAPP + "?text=" + encodeURIComponent(mensaje);
+    window.location.href = url;
 
-  let mensaje = "Hola, vengo del catálogo web y me interesan: " + serviciosTxt;
-
-  let data = JSON.parse(localStorage.getItem("carritoData")) || {};
-    data.enviado = true;
-    localStorage.setItem("carritoData", JSON.stringify(data));
-  carrito = [];
-  actualizarTotal();
-  render();
-
-  let url = "https://wa.me/" + numero + "?text=" + encodeURIComponent(mensaje);
-
-  window.location.href = url;
   } else {
 
-  let numero = "5219992175116";
+    window.location.href = "https://wa.me/" + NUMERO_WHATSAPP + "?text=" + encodeURIComponent(mensaje);
 
-  let mensaje = "Hola, vengo del catálogo web y me interesan: " + serviciosTxt;
-
-  window.location.href = "https://wa.me/" + numero + "?text=" + encodeURIComponent(mensaje);
-}
+  }
 }
 
 let data = JSON.parse(localStorage.getItem("carritoData"));
