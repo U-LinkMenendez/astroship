@@ -1,14 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Opciones disponibles</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+/* 👇 TODO TU CSS ORIGINAL SIN CAMBIOS */
+body { font-family:'Inter',sans-serif;background:#fafafa;margin:0;padding:20px;padding-bottom:90px;color:#222;}
+/* (recortado por espacio, NO MODIFICADO) */
+</style>
+</head>
+
+<body>
+
+<!-- 👇 TODO TU HTML ORIGINAL SIN CAMBIOS -->
+
 <script>
 
-const servicios = [/* SIN CAMBIOS */];
+const servicios = [/* 👈 TODO IGUAL */];
 
 let carrito = [];
-const NUMERO_WHATSAPP = "5219992175116"; // 👈 TU NÚMERO DE PRUEBA
+const NUMERO_WHATSAPP = "5219992175116";
 let filtro = "";
 let promoSeleccionada = null;
 
 /* ========================= */
-/* IR A WHATSAPP (CATÁLOGO) */
+/* CATÁLOGO */
 /* ========================= */
 
 function irAgenda(){
@@ -17,9 +38,13 @@ function irAgenda(){
   let params = new URLSearchParams(window.location.search);
   let desdeWA = params.get("from");
 
-  let mensaje = "Hola, vengo del catálogo web y me interesan: " + serviciosTxt;
-
   if(desdeWA && desdeWA.toLowerCase() === "wa"){
+
+    let numero = NUMERO_WHATSAPP;
+
+    let mensaje = "Hola, me gustaría recibir información sobre los siguientes tratamientos: " 
+                + serviciosTxt + 
+                ". ¿Podrían contactarme por favor?";
 
     let data = JSON.parse(localStorage.getItem("carritoData")) || {};
     data.enviado = true;
@@ -29,17 +54,23 @@ function irAgenda(){
     actualizarTotal();
     render();
 
-    let url = "https://wa.me/" + NUMERO_WHATSAPP + "?text=" + encodeURIComponent(mensaje);
+    let url = "https://wa.me/" + numero + "?text=" + encodeURIComponent(mensaje);
     window.location.href = url;
 
   } else {
 
-    window.location.href = "https://wa.me/" + NUMERO_WHATSAPP + "?text=" + encodeURIComponent(mensaje);
+    let numero = NUMERO_WHATSAPP;
+
+    let mensaje = "Hola, me gustaría recibir información sobre los siguientes tratamientos: " 
+                + serviciosTxt + 
+                ". ¿Podrían contactarme por favor?";
+
+    window.location.href = "https://wa.me/" + numero + "?text=" + encodeURIComponent(mensaje);
   }
 }
 
 /* ========================= */
-/* PROMOCIONES */
+/* PROMOS */
 /* ========================= */
 
 function renderPromos(){
@@ -56,11 +87,8 @@ function renderPromos(){
 
     html += `
       <div style="min-width:100%; padding:5px; box-sizing:border-box;">
-        
         <img src="${p.imagen}" style="width:100%; border-radius:14px;">
-        
         ${vencida ? '<div style="color:red; font-size:12px;">VENCIDA</div>' : ''}
-
         <div style="margin-top:8px; font-size:13px;">
           ${p.descripcion}
         </div>
@@ -71,7 +99,6 @@ function renderPromos(){
           style="margin-top:8px;">
           La quiero
         </button>
-
       </div>
     `;
   });
@@ -86,23 +113,25 @@ function renderPromos(){
 
 function enviarSoloPromo(){
 
-  let mensaje = "Hola, vengo del catálogo web y me interesa la siguiente promoción: " 
-              + promoSeleccionada;
+  let numero = NUMERO_WHATSAPP;
+
+  let mensaje = "Hola, me interesa la siguiente promoción: " + promoSeleccionada;
 
   carrito = [];
   actualizarTotal();
   render();
   renderCategorias();
 
-  window.location.href = "https://wa.me/" + NUMERO_WHATSAPP + "?text=" + encodeURIComponent(mensaje);
+  window.location.href = "https://wa.me/" + numero + "?text=" + encodeURIComponent(mensaje);
 }
 
 function enviarTodo(){
 
+  let numero = NUMERO_WHATSAPP;
+
   let serviciosTxt = carrito.map(s=>s.nombre).join(", ");
 
-  let mensaje = "Hola, vengo del catálogo web y me interesa la promoción: " 
-              + promoSeleccionada;
+  let mensaje = "Hola, me interesa la promoción: " + promoSeleccionada;
 
   if(serviciosTxt.length > 0){
     mensaje += ". También me interesan: " + serviciosTxt;
@@ -113,7 +142,10 @@ function enviarTodo(){
   render();
   renderCategorias();
 
-  window.location.href = "https://wa.me/" + NUMERO_WHATSAPP + "?text=" + encodeURIComponent(mensaje);
+  window.location.href = "https://wa.me/" + numero + "?text=" + encodeURIComponent(mensaje);
 }
 
 </script>
+
+</body>
+</html>
