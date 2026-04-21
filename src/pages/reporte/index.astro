@@ -115,7 +115,7 @@
               <span class="badge" id="b-peso"></span>
             </div>
             <div id="bar-peso"></div>
-            <p class="desc">El peso es la suma total de los componentes corporales: agua corporal, proteínas, minerales y grasa corporal.</p>
+            <p class="desc">Suma total de agua corporal, proteínas, minerales y grasa.</p>
             <div class="chart-wrap"><canvas id="c-peso" height="80"></canvas></div>
           <div id="pct-peso"></div>
           </div>
@@ -127,7 +127,7 @@
               <span class="badge" id="b-mus"></span>
             </div>
             <div id="bar-mus"></div>
-            <p class="desc">Los músculos se dividen en cardíaco, visceral y esquelético. El esquelético está adherido al hueso y es el único que aumenta con el ejercicio. Los músculos son menos voluminosos que la misma cantidad de grasa: con igual peso, más músculo significa verse más fuerte y delgado.</p>
+            <p class="desc">Único tejido muscular que aumenta con el ejercicio de fuerza.</p>
             <div class="chart-wrap"><canvas id="c-mus" height="80"></canvas></div>
           <div id="pct-mus"></div>
           </div>
@@ -139,13 +139,13 @@
               <span class="badge" id="b-grasa"></span>
             </div>
             <div id="bar-grasa"></div>
-            <p class="desc">La grasa corporal incluye tejido adiposo subcutáneo, visceral e intramuscular. Un porcentaje elevado aumenta el riesgo cardiovascular y metabólico independientemente del peso total.</p>
+            <p class="desc">Incluye grasa subcutánea, visceral e intramuscular.</p>
             <div class="chart-wrap"><canvas id="c-grasa" height="80"></canvas></div>
           <div id="pct-grasa"></div>
           </div>
         </div>
 
-<!-- CID -->
+        <!-- CID -->
         <div class="card">
           <div style="font-size:10px;font-weight:700;color:#9aa5b4;letter-spacing:2px;margin-bottom:4px">CID</div>
           <div id="cid-tipo-title" style="font-family:'Playfair Display',Georgia,serif;font-size:16px;font-weight:700;color:#1a2535;margin-bottom:18px">—</div>
@@ -192,6 +192,7 @@
           <div id="pct-pgc"></div>
           </div>
         </div>
+
 
         <!-- Tipo de cuerpo -->
         <div class="card">
@@ -335,9 +336,9 @@
               '<div style="position:absolute;top:-3px;left:' + nBp + '%;width:2px;height:18px;background:rgba(255,255,255,.9);z-index:2"></div>' +
             '</div>' +
             '<div style="position:relative;height:16px;margin-top:5px;font-size:9px;color:#9aa5b4">' +
-              '<span style="position:absolute;left:' + (nAp/2) + '%;transform:translateX(-50%)">Baja</span>' +
+              '<span style="position:absolute;left:' + (nAp/2) + '%;transform:translateX(-50%)">Bajo</span>' +
               '<span style="position:absolute;left:' + ((nAp+nBp)/2) + '%;transform:translateX(-50%);font-weight:700;color:' + labelColor + '">Normal</span>' +
-              '<span style="position:absolute;left:' + ((nBp+100)/2) + '%;transform:translateX(-50%)">Alta</span>' +
+              '<span style="position:absolute;left:' + ((nBp+100)/2) + '%;transform:translateX(-50%)">Alto</span>' +
             '</div>' +
           '</div>';
       }
@@ -354,57 +355,47 @@
       }
 
       // ── Chart.js mini gráfica ────────────────────────────────────────────────
-      function miniChart(id, labels, data, color, rango) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  const vals = data.map(v => v === null || v === undefined ? NaN : v);
-  const valid = vals.filter(v => !isNaN(v));
-  if (valid.length === 0) return;
-  let mn, mx;
-  if (rango) {
-    const rangeW = rango.normalMax - rango.normalMin;
-    const pad = rangeW * 0.08;
-    mn = Math.min(Math.min(...valid), rango.normalMin) - pad;
-    mx = Math.max(Math.max(...valid), rango.normalMax) + pad;
-  } else {
-    const spread = Math.max(...valid) - Math.min(...valid);
-    mn = Math.min(...valid) - Math.max(spread * 0.3, 1);
-    mx = Math.max(...valid) + Math.max(spread * 0.3, 1);
-  }
-  new Chart(el.getContext('2d'), {
-    type: 'line',
-    data: { labels, datasets: [{
-      data: vals, borderColor: color, borderWidth: 2.5,
-      pointBackgroundColor: color, pointRadius: 4, pointHoverRadius: 6,
-      tension: .35, fill: true, spanGaps: false,
-      backgroundColor: (() => {
-        const g = el.getContext('2d').createLinearGradient(0,0,0,80);
-        const hex = color.replace('#','');
-        const r = parseInt(hex.slice(0,2),16), gv = parseInt(hex.slice(2,4),16), b = parseInt(hex.slice(4,6),16);
-        g.addColorStop(0, `rgba(${r},${gv},${b},0.18)`);
-        g.addColorStop(1, `rgba(${r},${gv},${b},0)`);
-        return g;
-      })()
-    }]},
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          backgroundColor: '#fff', titleColor: '#9aa5b4',
-          bodyColor: '#1a2535', borderColor: '#f0e8f4',
-          borderWidth: 1, padding: 8, cornerRadius: 8,
-          titleFont: { size: 9 }, bodyFont: { size: 12, weight: 'bold' },
-          boxWidth: 0, boxHeight: 0
-        }
-      },
-      scales: {
-        x: { grid: { display: false }, ticks: { font: { size: 8 }, color: '#9aa5b4', maxRotation: 0 }, border: { display: false } },
-        y: { min: mn, max: mx, grid: { color: '#f5edf8' }, ticks: { font: { size: 8 }, color: '#9aa5b4' }, border: { display: false } }
+      function miniChart(id, labels, data, color) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const vals = data.map(v => v === null || v === undefined ? NaN : v);
+        const valid = vals.filter(v => !isNaN(v));
+        if (valid.length === 0) return;
+        const mn = Math.min(...valid) - 1;
+        const mx = Math.max(...valid) + 1;
+        new Chart(el.getContext('2d'), {
+          type: 'line',
+          data: { labels, datasets: [{
+            data: vals, borderColor: color, borderWidth: 2.5,
+            pointBackgroundColor: color, pointRadius: 4, pointHoverRadius: 6,
+            tension: .35, fill: true, spanGaps: false,
+            backgroundColor: (() => {
+              const g = el.getContext('2d').createLinearGradient(0,0,0,80);
+              const hex = color.replace('#','');
+              const r = parseInt(hex.slice(0,2),16), gv = parseInt(hex.slice(2,4),16), b = parseInt(hex.slice(4,6),16);
+              g.addColorStop(0, `rgba(${r},${gv},${b},0.18)`);
+              g.addColorStop(1, `rgba(${r},${gv},${b},0)`);
+              return g;
+            })()
+          }]},
+          options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                backgroundColor: '#fff', titleColor: '#9aa5b4',
+                bodyColor: '#1a2535', borderColor: '#f0e8f4',
+                borderWidth: 1, padding: 8, cornerRadius: 8,
+                titleFont: { size: 9 }, bodyFont: { size: 12, weight: 'bold' }
+              }
+            },
+            scales: {
+              x: { grid: { display: false }, ticks: { font: { size: 8 }, color: '#9aa5b4', maxRotation: 0 }, border: { display: false } },
+              y: { min: mn, max: mx, grid: { color: '#f5edf8' }, ticks: { font: { size: 8 }, color: '#9aa5b4' }, border: { display: false } }
+            }
+          }
+        });
       }
-    }
-  });
-}
 
 
       // ── Error function (para CDF normal) ───────────────────────────────────
@@ -426,47 +417,46 @@
         return Math.max(0, Math.min(100, score));
       }
 
-// ── Tabla de referencia poblacional ─────────────────────────────────────────
-// Fuente A: Barbão et al. Nutrients 2025, PMC12073220
-//           n=8,556 (F=4,628/M=3,928), InBody 570, Brasil, 18–49 años
-// Fuente B: Coelho-Júnior et al. Front Public Health 2024, PMC10791914
-//           n=18,625, InBody 230, Brasil, 18–80+ años
-// Formato filas: [edadMin, edadMax, media, SD]
-// ─────────────────────────────────────────────────────────────────────────────
-const REFPOP = {
-  muscle: {
-    F: [[10,17,20.5,2.8],[18,29,25.2,3.0],[30,39,25.7,3.3],[40,49,25.6,3.2],
-        [50,59,25.0,3.1],[60,69,23.9,2.7],[70,99,23.5,2.8]],   // Fuente B
-    M: [[10,17,27.0,4.5],[18,29,34.7,5.2],[30,39,37.2,5.4],[40,49,37.3,5.2],
-        [50,59,35.2,4.8],[60,69,33.3,4.9],[70,99,30.6,4.2]],   // Fuente B
-  },
-  fat: {
-    F: [[10,17,14.0,6.0],[18,29,21.7,9.1],[30,39,26.2,11.0],[40,49,29.2,10.9]], // Fuente A
-    M: [[10,17,10.0,5.0],[18,29,16.2,8.2],[30,39,19.9,8.2], [40,49,23.0,8.7]], // Fuente A
-  },
-  pgc: {
-    F: [[10,17,24.0,7.0],[18,29,31.8,8.5],[30,39,32.5,10.6],[40,49,37.9,8.3]], // Fuente A
-    M: [[10,17,14.0,6.0],[18,29,19.7,7.9],[30,39,23.3,7.4], [40,49,26.0,7.8]], // Fuente A
-  },
-  peso: {
-    F: [[10,17,55.0,10.0],[18,29,65.7,12.1],[30,39,72.2,14.5],[40,49,74.6,13.9]], // Fuente A
-    M: [[10,17,65.0,12.0],[18,29,79.6,11.8],[30,39,83.9,12.5],[40,49,87.6,11.3]], // Fuente A
-  },
-};
+      // ── Tabla de referencia poblacional ────────────────────────────────────
+      // Fuente A: Barbão et al. Nutrients 2025, PMC12073220
+      //           n=8,556 (F=4,628/M=3,928), InBody 570, Brasil, 18–49 años
+      // Fuente B: Coelho-Júnior et al. Front Public Health 2024, PMC10791914
+      //           n=18,625, InBody 230, Brasil, 18–80+ años
+      // Formato filas: [edadMin, edadMax, media, SD]
+      const REFPOP = {
+        muscle: {
+          F: [[10,17,20.5,2.8],[18,29,25.2,3.0],[30,39,25.7,3.3],[40,49,25.6,3.2],
+              [50,59,25.0,3.1],[60,69,23.9,2.7],[70,99,23.5,2.8]],  // Fuente B
+          M: [[10,17,27.0,4.5],[18,29,34.7,5.2],[30,39,37.2,5.4],[40,49,37.3,5.2],
+              [50,59,35.2,4.8],[60,69,33.3,4.9],[70,99,30.6,4.2]],  // Fuente B
+        },
+        fat: {
+          F: [[10,17,14.0,6.0],[18,29,21.7,9.1],[30,39,26.2,11.0],[40,49,29.2,10.9]], // Fuente A
+          M: [[10,17,10.0,5.0],[18,29,16.2,8.2],[30,39,19.9,8.2], [40,49,23.0,8.7]], // Fuente A
+        },
+        pgc: {
+          F: [[10,17,24.0,7.0],[18,29,29.4,8.5],[30,39,32.5,10.6],[40,49,37.9,8.3]], // Fuente A (midpoint p25-p50 peso normal)
+          M: [[10,17,14.0,6.0],[18,29,19.7,7.9],[30,39,23.3,7.4], [40,49,26.0,7.8]], // Fuente A
+        },
+        peso: {
+          F: [[10,17,55.0,10.0],[18,29,65.7,12.1],[30,39,72.2,14.5],[40,49,74.6,13.9]], // Fuente A
+          M: [[10,17,65.0,12.0],[18,29,79.6,11.8],[30,39,83.9,12.5],[40,49,87.6,11.3]], // Fuente A
+        },
+      };
 
-function getRefMeanSD(tipo, rango, sexo, edad) {
-  const e = Number(edad) || 25;
-  const sx = sexo === 'M' ? 'M' : 'F';
-  const table = REFPOP[tipo]?.[sx];
-  if (table) {
-    const row = table.find(r => e >= r[0] && e <= r[1]) || table[table.length - 1];
-    return { mean: row[2], sd: row[3] };
-  }
-  // Fallback fórmula para IMC y grupos sin datos publicados
-  const range = rango.normalMax - rango.normalMin;
-  if (tipo === 'imc') return { mean: rango.normalMax, sd: Math.max(range / 1.5, 0.01) };
-  return { mean: rango.normalMax, sd: Math.max(range * 0.93, 0.01) };
-}
+      function getRefMeanSD(tipo, rango, sexo, edad) {
+        const e  = Number(edad) || 25;
+        const sx = sexo === 'M' ? 'M' : 'F';
+        const table = REFPOP[tipo]?.[sx];
+        if (table) {
+          const row = table.find(r => e >= r[0] && e <= r[1]) || table[table.length - 1];
+          return { mean: row[2], sd: row[3] };
+        }
+        // Fallback para tipos sin tabla (imc, cintura-cadera, etc.)
+        const range = rango.normalMax - rango.normalMin;
+        if (tipo === 'imc') return { mean: rango.normalMax, sd: Math.max(range / 1.5, 0.01) };
+        return { mean: rango.normalMax, sd: Math.max(range, 0.01) };
+      }
 
       // ── Histograma de distribución percentil ────────────────────────────────
       function renderPercentil(containerId, val, rango, sexo, edad, color, tipo) {
@@ -518,7 +508,8 @@ function getRefMeanSD(tipo, rango, sexo, edad) {
           '</div></div>';
       }
 
-function renderCID(peso, musculo, grasa, rangos, imc, pgc, sexo) {
+      // ── CID (Composición Ideal del Cuerpo) ──────────────────────────────────
+      function renderCID(peso, musculo, grasa, rangos, imc, pgc, sexo) {
         const titleEl = document.getElementById('cid-tipo-title');
         const descEl  = document.getElementById('cid-tipo-desc');
         if (!titleEl) return;
@@ -527,17 +518,17 @@ function renderCID(peso, musculo, grasa, rangos, imc, pgc, sexo) {
         const imcHi = 25, imcLo = 18.5;
         let zona, desc;
         if (imc >= imcHi) {
-          if (pgc < pgcLo)      { zona='Atlético con Sobrepeso';          desc='IMC elevado por masa muscular. El exceso de peso se explica principalmente por músculo. Mantén el entrenamiento de fuerza y cuida la nutrición.'; }
-          else if (pgc < pgcHi) { zona='Sobrepeso';                       desc='Peso y grasa por encima del rango normal. Se recomienda reducir grasa corporal manteniendo la masa muscular mediante ejercicio y alimentación adecuada.'; }
-          else                  { zona='Obesidad';                        desc='Peso, grasa y porcentaje de grasa por encima del rango. Alta probabilidad de masa muscular metabólicamente inactiva. Priorizar reducción de grasa y activación muscular.'; }
+          if (pgc < pgcLo)      { zona = 'Atlético con Sobrepeso';        desc = 'IMC elevado por masa muscular. El exceso de peso se explica principalmente por músculo. Mantén el entrenamiento de fuerza y cuida la nutrición.'; }
+          else if (pgc < pgcHi) { zona = 'Sobrepeso';                     desc = 'Peso y grasa por encima del rango normal. Se recomienda reducir grasa corporal manteniendo la masa muscular mediante ejercicio y alimentación adecuada.'; }
+          else                  { zona = 'Obesidad';                      desc = 'Peso, grasa y porcentaje de grasa por encima del rango. Alta probabilidad de masa muscular metabólicamente inactiva. Priorizar reducción de grasa y activación muscular.'; }
         } else if (imc >= imcLo) {
-          if (pgc < pgcLo)      { zona='Musculoso con Normopeso';          desc='Normopeso con buena masa muscular y bajo porcentaje de grasa. Composición ideal. Continúa con tu rutina de ejercicio y nutrición.'; }
-          else if (pgc < pgcHi) { zona='Normopeso Equilibrado';            desc='Peso e índice de masa corporal dentro del rango normal con composición equilibrada. Mantén hábitos saludables de actividad física y alimentación.'; }
-          else                  { zona='Débil con Normopeso (Tipo-C)';    desc='El peso se encuentra dentro del rango normal pero el músculo esquelético es insuficiente en relación al peso, por lo que el cuerpo es más débil de lo que parece. Se deriva frecuentemente de baja actividad física, ingesta insuficiente de proteínas o pérdida de proteínas por hipercatabolismo. Se recomienda incrementar el ejercicio de fuerza y la ingesta proteica.'; }
+          if (pgc < pgcLo)      { zona = 'Musculoso con Normopeso';        desc = 'Normopeso con buena masa muscular y bajo porcentaje de grasa. Composición ideal. Continúa con tu rutina de ejercicio y nutrición.'; }
+          else if (pgc < pgcHi) { zona = 'Normopeso Equilibrado';          desc = 'Peso e índice de masa corporal dentro del rango normal con composición equilibrada. Mantén hábitos saludables de actividad física y alimentación.'; }
+          else                  { zona = 'Débil con Normopeso (Tipo-C)';   desc = 'El peso se encuentra dentro del rango normal pero el músculo esquelético es insuficiente en relación al peso, por lo que el cuerpo es más débil de lo que parece. Se deriva frecuentemente de baja actividad física, ingesta insuficiente de proteínas o pérdida de proteínas por hipercatabolismo. Se recomienda incrementar el ejercicio de fuerza y la ingesta proteica.'; }
         } else {
-          if (pgc < pgcLo)      { zona='Musculoso con Bajo Peso';          desc='Bajo IMC con buena masa muscular relativa. Considera aumentar el aporte calórico de forma controlada para ganar peso con músculo.'; }
-          else if (pgc < pgcHi) { zona='Bajo Peso';                        desc='Bajo peso con composición equilibrada. Se recomienda incrementar la ingesta calórica y de proteínas con supervisión nutricional.'; }
-          else                  { zona='Bajo Peso con Exceso de Grasa';   desc='Bajo peso con porcentaje de grasa elevado y masa muscular reducida. Requiere atención nutricional prioritaria para reducir grasa e incrementar músculo.'; }
+          if (pgc < pgcLo)      { zona = 'Musculoso con Bajo Peso';        desc = 'Bajo IMC con buena masa muscular relativa. Considera aumentar el aporte calórico de forma controlada para ganar peso con músculo.'; }
+          else if (pgc < pgcHi) { zona = 'Bajo Peso';                      desc = 'Bajo peso con composición equilibrada. Se recomienda incrementar la ingesta calórica y de proteínas con supervisión nutricional.'; }
+          else                  { zona = 'Bajo Peso con Exceso de Grasa';  desc = 'Bajo peso con porcentaje de grasa elevado y masa muscular reducida. Requiere atención nutricional prioritaria para reducir grasa e incrementar músculo.'; }
         }
         titleEl.textContent = zona;
         descEl.textContent  = desc;
@@ -706,7 +697,7 @@ function renderCID(peso, musculo, grasa, rangos, imc, pgc, sexo) {
           setBadge('b-magra', ultima.masaMagra, p?.masaMagra, false);
 
           // Barras
-          renderBarra('bar-peso',  ultima.peso,      rangos.peso,          'v');
+          renderBarra('bar-peso',  ultima.peso,      rangos.peso,          'r');
           renderBarra('bar-mus',   ultima.musculo,   rangos.musculo,       'v');
           renderBarra('bar-grasa', ultima.grasa,     rangos.grasa,         'v');
           renderBarra('bar-imc',   ultima.imc,       rangos.imc,           'v');
@@ -717,20 +708,20 @@ function renderCID(peso, musculo, grasa, rangos, imc, pgc, sexo) {
 
           // Gráficas
           const ROSA  = '#E8317A', NAR = '#F5A623', VERDE = '#2DB88A';
-          miniChart('c-peso',  labels, meds.map(m => m.peso),      ROSA,  rangos.peso);
-          miniChart('c-mus',   labels, meds.map(m => m.musculo),   VERDE, rangos.musculo);
-          miniChart('c-grasa', labels, meds.map(m => m.grasa),     ROSA,  rangos.grasa);
-          miniChart('c-imc',   labels, meds.map(m => m.imc),       VERDE);   rangos.imc);
-          miniChart('c-pgc',   labels, meds.map(m => m.pgc),       ROSA,  rangos.pgc);
-          miniChart('c-cc',    labels, meds.map(m => m.cc),        NAR,   rangos.cinturaCadera);
-          miniChart('c-visc',  labels, meds.map(m => m.visceral),  ROSA,  { normalMin:1, normalMax:10 });
+          miniChart('c-peso',  labels, meds.map(m => m.peso),      ROSA);
+          miniChart('c-mus',   labels, meds.map(m => m.musculo),   VERDE);
+          miniChart('c-grasa', labels, meds.map(m => m.grasa),     ROSA);
+          miniChart('c-imc',   labels, meds.map(m => m.imc),       VERDE);
+          miniChart('c-pgc',   labels, meds.map(m => m.pgc),       ROSA);
+          miniChart('c-cc',    labels, meds.map(m => m.cc),        NAR);
+          miniChart('c-visc',  labels, meds.map(m => m.visceral),  ROSA);
           miniChart('c-tmb',   labels, meds.map(m => m.tmb),       VERDE);
-          miniChart('c-magra', labels, meds.map(m => m.masaMagra), VERDE, rangos.masaMagra);
+          miniChart('c-magra', labels, meds.map(m => m.masaMagra), VERDE);
 
 
           // Percentiles
           renderPercentil('pct-peso',  ultima.peso,    rangos.peso,    data.sexo, data.edad, '#E8317A', 'peso');
-          renderPercentil('pct-mus',   ultima.musculo, rangos.musculo, data.sexo, data.edad, '#E8317A', 'muscle');
+          renderPercentil('pct-mus',   ultima.musculo, rangos.musculo, data.sexo, data.edad, '#2DB88A', 'muscle');
           renderPercentil('pct-grasa', ultima.pgc,     rangos.pgc,     data.sexo, data.edad, '#E8317A', 'pgc');
           renderPercentil('pct-imc',   ultima.imc,     rangos.imc,     data.sexo, data.edad, '#2DB88A', 'imc');
           renderPercentil('pct-pgc',   ultima.pgc,     rangos.pgc,     data.sexo, data.edad, '#E8317A', 'pgc');
