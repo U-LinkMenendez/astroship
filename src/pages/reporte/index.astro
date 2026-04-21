@@ -115,7 +115,7 @@
               <span class="badge" id="b-peso"></span>
             </div>
             <div id="bar-peso"></div>
-            <p class="desc">Suma total de agua corporal, proteínas, minerales y grasa.</p>
+            <p class="desc">El peso es la suma total de los componentes corporales: agua corporal, proteínas, minerales y grasa corporal.</p>
             <div class="chart-wrap"><canvas id="c-peso" height="80"></canvas></div>
           <div id="pct-peso"></div>
           </div>
@@ -317,9 +317,9 @@
               '<div style="position:absolute;top:-3px;left:' + nBp + '%;width:2px;height:18px;background:rgba(255,255,255,.9);z-index:2"></div>' +
             '</div>' +
             '<div style="position:relative;height:16px;margin-top:5px;font-size:9px;color:#9aa5b4">' +
-              '<span style="position:absolute;left:' + (nAp/2) + '%;transform:translateX(-50%)">Bajo</span>' +
+              '<span style="position:absolute;left:' + (nAp/2) + '%;transform:translateX(-50%)">Baja</span>' +
               '<span style="position:absolute;left:' + ((nAp+nBp)/2) + '%;transform:translateX(-50%);font-weight:700;color:' + labelColor + '">Normal</span>' +
-              '<span style="position:absolute;left:' + ((nBp+100)/2) + '%;transform:translateX(-50%)">Alto</span>' +
+              '<span style="position:absolute;left:' + ((nBp+100)/2) + '%;transform:translateX(-50%)">Alta</span>' +
             '</div>' +
           '</div>';
       }
@@ -619,7 +619,7 @@
           setBadge('b-magra', ultima.masaMagra, p?.masaMagra, false);
 
           // Barras
-          renderBarra('bar-peso',  ultima.peso,      rangos.peso,          'r');
+          renderBarra('bar-peso',  ultima.peso,      rangos.peso,          'v');
           renderBarra('bar-mus',   ultima.musculo,   rangos.musculo,       'v');
           renderBarra('bar-grasa', ultima.grasa,     rangos.grasa,         'r');
           renderBarra('bar-imc',   ultima.imc,       rangos.imc,           'r');
