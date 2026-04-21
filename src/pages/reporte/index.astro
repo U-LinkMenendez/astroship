@@ -709,7 +709,7 @@ function renderCID(peso, musculo, grasa, rangos, imc, pgc, sexo) {
           renderBarra('bar-peso',  ultima.peso,      rangos.peso,          'v');
           renderBarra('bar-mus',   ultima.musculo,   rangos.musculo,       'v');
           renderBarra('bar-grasa', ultima.grasa,     rangos.grasa,         'v');
-          renderBarra('bar-imc',   ultima.imc,       rangos.imc,           'r');
+          renderBarra('bar-imc',   ultima.imc,       rangos.imc,           'v');
           renderBarra('bar-pgc',   ultima.pgc,       rangos.pgc,           'r');
           renderBarra('bar-cc',    ultima.cc,        rangos.cinturaCadera, 'r');
           renderBarra('bar-visc',  ultima.visceral,  { normalMin:1, normalMax:10, max:20 }, 'r');
@@ -720,7 +720,7 @@ function renderCID(peso, musculo, grasa, rangos, imc, pgc, sexo) {
           miniChart('c-peso',  labels, meds.map(m => m.peso),      ROSA,  rangos.peso);
           miniChart('c-mus',   labels, meds.map(m => m.musculo),   VERDE, rangos.musculo);
           miniChart('c-grasa', labels, meds.map(m => m.grasa),     ROSA,  rangos.grasa);
-          miniChart('c-imc',   labels, meds.map(m => m.imc),       NAR,   rangos.imc);
+          miniChart('c-imc',   labels, meds.map(m => m.imc),       VERDE);   rangos.imc);
           miniChart('c-pgc',   labels, meds.map(m => m.pgc),       ROSA,  rangos.pgc);
           miniChart('c-cc',    labels, meds.map(m => m.cc),        NAR,   rangos.cinturaCadera);
           miniChart('c-visc',  labels, meds.map(m => m.visceral),  ROSA,  { normalMin:1, normalMax:10 });
@@ -730,9 +730,9 @@ function renderCID(peso, musculo, grasa, rangos, imc, pgc, sexo) {
 
           // Percentiles
           renderPercentil('pct-peso',  ultima.peso,    rangos.peso,    data.sexo, data.edad, '#E8317A', 'peso');
-          renderPercentil('pct-mus', ultima.musculo, rangos.musculo, data.sexo, data.edad, '#E8317A', 'muscle');
-          renderPercentil('pct-grasa', ultima.pgc, rangos.pgc, data.sexo, data.edad, '#E8317A', 'pgc');
-          renderPercentil('pct-imc',   ultima.imc,     rangos.imc,     data.sexo, data.edad, '#F5A623', 'imc');
+          renderPercentil('pct-mus',   ultima.musculo, rangos.musculo, data.sexo, data.edad, '#E8317A', 'muscle');
+          renderPercentil('pct-grasa', ultima.pgc,     rangos.pgc,     data.sexo, data.edad, '#E8317A', 'pgc');
+          renderPercentil('pct-imc',   ultima.imc,     rangos.imc,     data.sexo, data.edad, '#2DB88A', 'imc');
           renderPercentil('pct-pgc',   ultima.pgc,     rangos.pgc,     data.sexo, data.edad, '#E8317A', 'pgc');
 
           // Grid de tipo de cuerpo
