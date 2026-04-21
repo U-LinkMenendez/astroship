@@ -127,7 +127,7 @@
               <span class="badge" id="b-mus"></span>
             </div>
             <div id="bar-mus"></div>
-            <p class="desc">Único tejido muscular que aumenta con el ejercicio de fuerza.</p>
+            <p class="desc">Los músculos se dividen en cardíaco, visceral y esquelético. El esquelético está adherido al hueso y es el único que aumenta con el ejercicio. Los músculos son menos voluminosos que la misma cantidad de grasa: con igual peso, más músculo significa verse más fuerte y delgado.</p>
             <div class="chart-wrap"><canvas id="c-mus" height="80"></canvas></div>
           <div id="pct-mus"></div>
           </div>
@@ -336,50 +336,57 @@
       }
 
       // ── Chart.js mini gráfica ────────────────────────────────────────────────
-      function miniChart(id, labels, data, color) {
-        const el = document.getElementById(id);
-        if (!el) return;
-        const vals = data.map(v => v === null || v === undefined ? NaN : v);
-        const valid = vals.filter(v => !isNaN(v));
-        if (valid.length === 0) return;
-          const spread = Math.max(...valid) - Math.min(...valid);
-          const pad    = spread > 0 ? spread * 0.3 + 1 : Math.max(valid[0] * 0.05, 3);
-          const mn     = Math.min(...valid) - pad;
-          const mx     = Math.max(...valid) + pad;
-        new Chart(el.getContext('2d'), {
-          type: 'line',
-          data: { labels, datasets: [{
-            data: vals, borderColor: color, borderWidth: 2.5,
-            pointBackgroundColor: color, pointRadius: 4, pointHoverRadius: 6,
-            tension: .35, fill: true, spanGaps: false,
-            backgroundColor: (() => {
-              const g = el.getContext('2d').createLinearGradient(0,0,0,80);
-              const hex = color.replace('#','');
-              const r = parseInt(hex.slice(0,2),16), gv = parseInt(hex.slice(2,4),16), b = parseInt(hex.slice(4,6),16);
-              g.addColorStop(0, `rgba(${r},${gv},${b},0.18)`);
-              g.addColorStop(1, `rgba(${r},${gv},${b},0)`);
-              return g;
-            })()
-          }]},
-          options: {
-            responsive: true, maintainAspectRatio: false,
-            plugins: {
-              legend: { display: false },
-              tooltip: {
-                backgroundColor: '#fff', titleColor: '#9aa5b4',
-                bodyColor: '#1a2535', borderColor: '#f0e8f4',
-                borderWidth: 1, padding: 8, cornerRadius: 8,
-                titleFont: { size: 9 }, bodyFont: { size: 12, weight: 'bold' },
-              boxWidth: 0, boxHeight: 0
-              }
-            },
-            scales: {
-              x: { grid: { display: false }, ticks: { font: { size: 8 }, color: '#9aa5b4', maxRotation: 0 }, border: { display: false } },
-              y: { min: mn, max: mx, grid: { color: '#f5edf8' }, ticks: { font: { size: 8 }, color: '#9aa5b4' }, border: { display: false } }
-            }
-          }
-        });
+      function miniChart(id, labels, data, color, rango) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const vals = data.map(v => v === null || v === undefined ? NaN : v);
+  const valid = vals.filter(v => !isNaN(v));
+  if (valid.length === 0) return;
+  let mn, mx;
+  if (rango) {
+    const rangeW = rango.normalMax - rango.normalMin;
+    const pad = rangeW * 0.08;
+    mn = Math.min(Math.min(...valid), rango.normalMin) - pad;
+    mx = Math.max(Math.max(...valid), rango.normalMax) + pad;
+  } else {
+    const spread = Math.max(...valid) - Math.min(...valid);
+    mn = Math.min(...valid) - Math.max(spread * 0.3, 1);
+    mx = Math.max(...valid) + Math.max(spread * 0.3, 1);
+  }
+  new Chart(el.getContext('2d'), {
+    type: 'line',
+    data: { labels, datasets: [{
+      data: vals, borderColor: color, borderWidth: 2.5,
+      pointBackgroundColor: color, pointRadius: 4, pointHoverRadius: 6,
+      tension: .35, fill: true, spanGaps: false,
+      backgroundColor: (() => {
+        const g = el.getContext('2d').createLinearGradient(0,0,0,80);
+        const hex = color.replace('#','');
+        const r = parseInt(hex.slice(0,2),16), gv = parseInt(hex.slice(2,4),16), b = parseInt(hex.slice(4,6),16);
+        g.addColorStop(0, `rgba(${r},${gv},${b},0.18)`);
+        g.addColorStop(1, `rgba(${r},${gv},${b},0)`);
+        return g;
+      })()
+    }]},
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#fff', titleColor: '#9aa5b4',
+          bodyColor: '#1a2535', borderColor: '#f0e8f4',
+          borderWidth: 1, padding: 8, cornerRadius: 8,
+          titleFont: { size: 9 }, bodyFont: { size: 12, weight: 'bold' },
+          boxWidth: 0, boxHeight: 0
+        }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 8 }, color: '#9aa5b4', maxRotation: 0 }, border: { display: false } },
+        y: { min: mn, max: mx, grid: { color: '#f5edf8' }, ticks: { font: { size: 8 }, color: '#9aa5b4' }, border: { display: false } }
       }
+    }
+  });
+}
 
 
       // ── Error function (para CDF normal) ───────────────────────────────────
@@ -410,7 +417,7 @@
   let mean, sd;
   if (tipo === 'muscle') {
     mean = rango.normalMax;
-    sd   = Math.max(range / 3, 0.01);
+    sd   = Math.max(range * 0.645, 0.01);
   } else if (tipo === 'imc') {
     mean = rango.normalMax;
     sd   = Math.max(range / 1.5, 0.01);
@@ -633,20 +640,20 @@
 
           // Gráficas
           const ROSA  = '#E8317A', NAR = '#F5A623', VERDE = '#2DB88A';
-          miniChart('c-peso',  labels, meds.map(m => m.peso),      ROSA);
-          miniChart('c-mus',   labels, meds.map(m => m.musculo),   VERDE);
-          miniChart('c-grasa', labels, meds.map(m => m.grasa),     ROSA);
-          miniChart('c-imc',   labels, meds.map(m => m.imc),       NAR);
-          miniChart('c-pgc',   labels, meds.map(m => m.pgc),       ROSA);
-          miniChart('c-cc',    labels, meds.map(m => m.cc),        NAR);
-          miniChart('c-visc',  labels, meds.map(m => m.visceral),  ROSA);
+          miniChart('c-peso',  labels, meds.map(m => m.peso),      ROSA,  rangos.peso);
+          miniChart('c-mus',   labels, meds.map(m => m.musculo),   VERDE, rangos.musculo);
+          miniChart('c-grasa', labels, meds.map(m => m.grasa),     ROSA,  rangos.grasa);
+          miniChart('c-imc',   labels, meds.map(m => m.imc),       NAR,   rangos.imc);
+          miniChart('c-pgc',   labels, meds.map(m => m.pgc),       ROSA,  rangos.pgc);
+          miniChart('c-cc',    labels, meds.map(m => m.cc),        NAR,   rangos.cinturaCadera);
+          miniChart('c-visc',  labels, meds.map(m => m.visceral),  ROSA,  { normalMin:1, normalMax:10 });
           miniChart('c-tmb',   labels, meds.map(m => m.tmb),       VERDE);
-          miniChart('c-magra', labels, meds.map(m => m.masaMagra), VERDE);
+          miniChart('c-magra', labels, meds.map(m => m.masaMagra), VERDE, rangos.masaMagra);
 
 
           // Percentiles
           renderPercentil('pct-peso',  ultima.peso,    rangos.peso,    data.sexo, data.edad, '#E8317A', 'fat');
-          renderPercentil('pct-mus',   ultima.musculo, rangos.musculo, data.sexo, data.edad, '#2DB88A', 'muscle');
+          renderPercentil('pct-mus', ultima.musculo, rangos.musculo, data.sexo, data.edad, '#E8317A', 'muscle');
           renderPercentil('pct-grasa', ultima.grasa,   rangos.grasa,   data.sexo, data.edad, '#E8317A', 'fat');
           renderPercentil('pct-imc',   ultima.imc,     rangos.imc,     data.sexo, data.edad, '#F5A623', 'imc');
           renderPercentil('pct-pgc',   ultima.pgc,     rangos.pgc,     data.sexo, data.edad, '#E8317A', 'fat');
