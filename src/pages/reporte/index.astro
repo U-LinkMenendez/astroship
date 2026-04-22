@@ -344,8 +344,8 @@
         if (valid.length === 0) return;
         const spread = Math.max(...valid) - Math.min(...valid);
         const pad    = spread > 0 ? spread * 0.3 + 1 : Math.max(valid[0] * 0.05, 3);
-        const mn = Math.min(Math.min(...valid), rango.normalMin) - (range * 0.12);
-        const mx = Math.max(Math.max(...valid), rango.normalMax) + (range * 0.12);
+        const mn = Math.min(...valid) - 1;
+        const mx = Math.max(...valid) + 1;
         new Chart(el.getContext('2d'), {
           type: 'line',
           data: { labels, datasets: [{
