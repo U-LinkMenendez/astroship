@@ -278,69 +278,98 @@
       const reportId = params.get('id');
 
       // ── Rangos por sexo y edad ──────────────────────────────────────────────
-      function getRangos(sexo, edad) {
-        const F = sexo === 'F';
-        const e = edad || 25;
-        const tablaM = [
-          [10,17,{min:15,max:25},{min:4,max:14},{min:8,max:18},{min:38,max:70}],
-          [18,29,{min:29,max:37},{min:6,max:18},{min:10,max:20},{min:62,max:82}],
-          [30,39,{min:28,max:36},{min:7,max:20},{min:11,max:21},{min:63,max:84}],
-          [40,49,{min:26,max:34},{min:8,max:22},{min:12,max:22},{min:64,max:86}],
-          [50,59,{min:24,max:32},{min:9,max:24},{min:13,max:24},{min:63,max:85}],
-          [60,69,{min:22,max:30},{min:10,max:26},{min:14,max:26},{min:61,max:83}],
-          [70,99,{min:20,max:28},{min:10,max:27},{min:15,max:27},{min:58,max:80}],
-        ];
-        const tablaF = [
-          [18,29,{min:18,max:26},{min:10,max:18},{min:18,max:28},{min:50,max:68}],
-          [30,39,{min:17,max:23},{min:11,max:20},{min:19,max:29},{min:51,max:70}],
-          [40,49,{min:16,max:22},{min:12,max:22},{min:20,max:30},{min:52,max:72}],
-          [50,59,{min:15,max:21},{min:13,max:24},{min:22,max:32},{min:52,max:73}],
-          [60,69,{min:14,max:20},{min:13,max:25},{min:23,max:33},{min:51,max:72}],
-          [70,99,{min:13,max:19},{min:13,max:26},{min:24,max:34},{min:49,max:70}],
-        ];
-        const tabla = F ? tablaF : tablaM;
-        const g = tabla.find(r => e >= r[0] && e <= r[1]) || tabla[tabla.length-1];
-        return {
-          musculo:       { normalMin: g[2].min, normalMax: g[2].max, max: F?38:55 },
-          grasa:         { normalMin: g[3].min, normalMax: g[3].max, max: 50 },
-          pgc:           { normalMin: g[4].min, normalMax: g[4].max, max: 50 },
-          peso:          { normalMin: g[5].min, normalMax: g[5].max, max: F?120:140 },
-          masaMagra:     { normalMin: F?38:50,  normalMax: F?52:65,  max: F?80:100 },
-          imc:           { normalMin: 18.5,     normalMax: 25,       max: 35 },
-          cinturaCadera: F ? { normalMin:.70, normalMax:.85, max:1.3 }
-                           : { normalMin:.75, normalMax:.90, max:1.3 },
-        };
-      }
+      function getRangos(sexo, edad, altura) {
+  const F = sexo === 'F';
+  const e = edad   || 25;
+  const a = altura || 165;       // cm, fallback poblacional
+  const h = a / 100;             // metros
+  const pesoStd = 22 * h * h;   // kg a IMC 22
+
+  // ── Peso: rango IMC 18.5–25 aplicado a la talla individual ──────────
+  const peso = {
+    normalMin: parseFloat((18.5 * h * h).toFixed(1)),
+    normalMax: parseFloat((25.0 * h * h).toFixed(1)),
+    max:       parseFloat((35.0 * h * h).toFixed(1))
+  };
+
+  // ── SMM: ecuación Lee et al. J Appl Physiol 2000;89:81–88 ──────────
+  // Validada en InBody 3.0 y derivados. SD empírico ±3.0–3.5 kg.
+  const smmExp = F
+    ? Math.max(8,  -0.0448 * e + 0.2232 * a - 13.84)
+    : Math.max(12, -0.0552 * e + 0.2816 * a - 17.56);
+  const smmSD = F ? 3.0 : 3.5;
+  const musculo = {
+    normalMin: parseFloat((smmExp - smmSD).toFixed(1)),
+    normalMax: parseFloat((smmExp + smmSD).toFixed(1)),
+    max:       parseFloat((smmExp + 4.5 * smmSD).toFixed(1))
+  };
+
+  // ── Grasa (kg): PGC normal × peso estándar individual ───────────────
+  const pgcLo = F ? 18 : 10;
+  const pgcHi = F ? 28 : 20;
+  const grasa = {
+    normalMin: parseFloat((pesoStd * pgcLo / 100).toFixed(1)),
+    normalMax: parseFloat((pesoStd * pgcHi / 100).toFixed(1)),
+    max:       parseFloat((pesoStd * 0.50).toFixed(1))
+  };
+
+  // ── Masa magra: FFM = peso_std × (1 − PGC%) ─────────────────────────
+  const masaMagra = {
+    normalMin: parseFloat((pesoStd * (1 - pgcHi / 100)).toFixed(1)),
+    normalMax: parseFloat((pesoStd * (1 - pgcLo / 100)).toFixed(1)),
+    max:       parseFloat((pesoStd * 0.93).toFixed(1))
+  };
+
+  return {
+    peso,
+    musculo,
+    grasa,
+    pgc:           { normalMin: pgcLo,  normalMax: pgcHi,  max: 50   },
+    masaMagra,
+    imc:           { normalMin: 18.5,   normalMax: 25,     max: 35   },
+    cinturaCadera: F
+      ? { normalMin: 0.70, normalMax: 0.85, max: 1.3 }
+      : { normalMin: 0.75, normalMax: 0.90, max: 1.3 },
+  };
+}
 
       // ── Barra de rango ──────────────────────────────────────────────────────
-      function renderBarra(containerId, val, rango, colorTipo) {
-        const el = document.getElementById(containerId);
-        if (!el || val === null || val === undefined) return;
-        const pct  = Math.min((val / rango.max) * 100, 100);
-        const nAp  = (rango.normalMin / rango.max) * 100;
-        const nBp  = (rango.normalMax / rango.max) * 100;
-        const fill = colorTipo === 'v'
-          ? 'linear-gradient(90deg,#4ecba0,#2db88a)'
-          : 'linear-gradient(90deg,#F5A623,#E8317A)';
-        const bgN  = colorTipo === 'v' ? '#c8ede0' : '#fde8f1';
-        const labelColor = colorTipo === 'v' ? '#2DB88A' : '#E8317A';
-        el.innerHTML =
-          '<div style="position:relative;margin:10px 0 28px">' +
-            '<div style="position:relative;height:12px;border-radius:8px;background:#e8edf5">' +
-              '<div style="position:absolute;top:0;left:0;width:100%;height:100%;border-radius:8px;overflow:hidden">' +
-                '<div style="position:absolute;top:0;left:' + nAp + '%;width:' + (nBp-nAp) + '%;height:100%;background:' + bgN + '"></div>' +
-                '<div style="position:absolute;top:0;left:0;width:' + pct + '%;height:100%;background:' + fill + ';border-radius:8px"></div>' +
-              '</div>' +
-              '<div style="position:absolute;top:-3px;left:' + nAp + '%;width:2px;height:18px;background:rgba(255,255,255,.9);z-index:2"></div>' +
-              '<div style="position:absolute;top:-3px;left:' + nBp + '%;width:2px;height:18px;background:rgba(255,255,255,.9);z-index:2"></div>' +
-            '</div>' +
-            '<div style="position:relative;height:16px;margin-top:5px;font-size:9px;color:#9aa5b4">' +
-              '<span style="position:absolute;left:' + (nAp/2) + '%;transform:translateX(-50%)">Bajo</span>' +
-              '<span style="position:absolute;left:' + ((nAp+nBp)/2) + '%;transform:translateX(-50%);font-weight:700;color:' + labelColor + '">Normal</span>' +
-              '<span style="position:absolute;left:' + ((nBp+100)/2) + '%;transform:translateX(-50%)">Alto</span>' +
-            '</div>' +
-          '</div>';
-      }
+      function renderBarra(containerId, val, rango) {
+  const el = document.getElementById(containerId);
+  if (!el || val === null || val === undefined) return;
+
+  let colorTipo;
+  if (val < rango.normalMin)       colorTipo = 'bajo';
+  else if (val <= rango.normalMax) colorTipo = 'normal';
+  else                             colorTipo = 'alto';
+
+  const pct  = Math.min((val / rango.max) * 100, 100);
+  const nAp  = (rango.normalMin / rango.max) * 100;
+  const nBp  = (rango.normalMax / rango.max) * 100;
+  const fill = colorTipo === 'normal'
+    ? 'linear-gradient(90deg,#4ecba0,#2db88a)'
+    : colorTipo === 'bajo'
+      ? 'linear-gradient(90deg,#F5A623,#e8a000)'
+      : 'linear-gradient(90deg,#F5A623,#E8317A)';
+  const bgN        = colorTipo === 'normal' ? '#c8ede0' : '#fde8f1';
+  const labelColor = colorTipo === 'normal' ? '#2DB88A' : '#E8317A';
+  el.innerHTML =
+    '<div style="position:relative;margin:10px 0 28px">' +
+      '<div style="position:relative;height:12px;border-radius:8px;background:#e8edf5">' +
+        '<div style="position:absolute;top:0;left:0;width:100%;height:100%;border-radius:8px;overflow:hidden">' +
+          '<div style="position:absolute;top:0;left:' + nAp + '%;width:' + (nBp-nAp) + '%;height:100%;background:' + bgN + '"></div>' +
+          '<div style="position:absolute;top:0;left:0;width:' + pct + '%;height:100%;background:' + fill + ';border-radius:8px"></div>' +
+        '</div>' +
+        '<div style="position:absolute;top:-3px;left:' + nAp + '%;width:2px;height:18px;background:rgba(255,255,255,.9);z-index:2"></div>' +
+        '<div style="position:absolute;top:-3px;left:' + nBp + '%;width:2px;height:18px;background:rgba(255,255,255,.9);z-index:2"></div>' +
+      '</div>' +
+      '<div style="position:relative;height:16px;margin-top:5px;font-size:9px;color:#9aa5b4">' +
+        '<span style="position:absolute;left:' + (nAp/2) + '%;transform:translateX(-50%)">Bajo</span>' +
+        '<span style="position:absolute;left:' + ((nAp+nBp)/2) + '%;transform:translateX(-50%);font-weight:700;color:' + labelColor + '">Normal</span>' +
+        '<span style="position:absolute;left:' + ((nBp+100)/2) + '%;transform:translateX(-50%)">Alto</span>' +
+      '</div>' +
+    '</div>';
+}
 
       // ── Badge delta ─────────────────────────────────────────────────────────
       function setBadge(id, val, prev, buenBaja) {
@@ -541,9 +570,9 @@ function getRefMeanSD(tipo, rango, sexo, edad) {
         }
         titleEl.textContent = zona;
         descEl.textContent  = desc;
-        renderBarra('cid-bar-peso',  peso,    rangos.peso,    'v');
-        renderBarra('cid-bar-mus',   musculo, rangos.musculo, 'v');
-        renderBarra('cid-bar-grasa', grasa,   rangos.grasa,   'v');
+        renderBarra('cid-bar-peso',  peso,    rangos.peso);
+        renderBarra('cid-bar-mus',   musculo, rangos.musculo);
+        renderBarra('cid-bar-grasa', grasa,   rangos.grasa);
       }
 
       // ── Grid de tipo de cuerpo ───────────────────────────────────────────────
@@ -706,14 +735,14 @@ function getRefMeanSD(tipo, rango, sexo, edad) {
           setBadge('b-magra', ultima.masaMagra, p?.masaMagra, false);
 
           // Barras
-          renderBarra('bar-peso',  ultima.peso,      rangos.peso,          'r');
-          renderBarra('bar-mus',   ultima.musculo,   rangos.musculo,       'v');
-          renderBarra('bar-grasa', ultima.grasa,     rangos.grasa,         'v');
-          renderBarra('bar-imc',   ultima.imc,       rangos.imc,           'v');
-          renderBarra('bar-pgc',   ultima.pgc,       rangos.pgc,           'r');
-          renderBarra('bar-cc',    ultima.cc,        rangos.cinturaCadera, 'r');
-          renderBarra('bar-visc',  ultima.visceral,  { normalMin:1, normalMax:10, max:20 }, 'r');
-          renderBarra('bar-magra', ultima.masaMagra, rangos.masaMagra,     'v');
+          renderBarra('bar-peso',  ultima.peso,      rangos.peso);
+          renderBarra('bar-mus',   ultima.musculo,   rangos.musculo);
+          renderBarra('bar-grasa', ultima.grasa,     rangos.grasa);
+          renderBarra('bar-imc',   ultima.imc,       rangos.imc);
+          renderBarra('bar-pgc',   ultima.pgc,       rangos.pgc);
+          renderBarra('bar-cc',    ultima.cc,        rangos.cinturaCadera);
+          renderBarra('bar-visc',  ultima.visceral,  { normalMin:1, normalMax:10, max:20 });
+          renderBarra('bar-magra', ultima.masaMagra, rangos.masaMagra);
 
           // Gráficas
           const ROSA  = '#E8317A', NAR = '#F5A623', VERDE = '#2DB88A';
@@ -731,7 +760,7 @@ function getRefMeanSD(tipo, rango, sexo, edad) {
           // Percentiles
           renderPercentil('pct-peso',  ultima.peso,    rangos.peso,    data.sexo, data.edad, '#E8317A', 'peso');
           renderPercentil('pct-mus',   ultima.musculo, rangos.musculo, data.sexo, data.edad, '#E8317A', 'muscle');
-          renderPercentil('pct-grasa', ultima.pgc,     rangos.pgc,     data.sexo, data.edad, '#E8317A', 'pgc');
+          renderPercentil('pct-grasa', ultima.grasa,   rangos.grasa,   data.sexo, data.edad, '#E8317A', 'fat');
           renderPercentil('pct-imc',   ultima.imc,     rangos.imc,     data.sexo, data.edad, '#2DB88A', 'imc');
           renderPercentil('pct-pgc',   ultima.pgc,     rangos.pgc,     data.sexo, data.edad, '#E8317A', 'pgc');
 
