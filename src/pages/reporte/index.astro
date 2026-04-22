@@ -555,30 +555,31 @@ function getRefMeanSD(tipo, rango, sexo, edad) {
         const descEl  = document.getElementById('cid-tipo-desc');
         if (!titleEl) return;
         const F      = sexo === 'F';
+        const pgcLo  = F ? 18 : 10;
         const pgcMid = F ? 23 : 15;
         const pgcHi  = F ? 28 : 20;
-        const pgcLo  = F ? 18 : 10;
         const imcR1  = 25;
         const imcR2  = 22;
         const imcR3  = 18.5;
  
         let zona, desc;
         if (imc >= imcR1) {
-          if      (pgc < pgcMid) { zona = 'Figura Atlética';               desc = 'IMC elevado por alta masa muscular. El exceso de peso se explica principalmente por músculo. Mantén el entrenamiento de fuerza y cuida la nutrición.'; }
-          else if (pgc < pgcHi)  { zona = 'Sobrepeso';                      desc = 'Peso y grasa por encima del rango normal. Se recomienda reducir grasa corporal manteniendo la masa muscular mediante ejercicio y alimentación adecuada.'; }
-          else                   { zona = 'Obesidad';                       desc = 'Peso, grasa y porcentaje de grasa por encima del rango. Alta probabilidad de masa muscular metabólicamente inactiva. Priorizar reducción de grasa y activación muscular.'; }
+          if      (pgc < pgcMid) { zona = 'Figura Atlética';     desc = 'IMC elevado por alta masa muscular. El exceso de peso se explica principalmente por músculo. Mantén el entrenamiento de fuerza y cuida la nutrición.'; }
+          else if (pgc < pgcHi)  { zona = 'Sobrepeso';           desc = 'Peso y grasa por encima del rango normal. Se recomienda reducir grasa corporal manteniendo la masa muscular mediante ejercicio y alimentación adecuada.'; }
+          else                   { zona = 'Obesidad';            desc = 'Peso, grasa y porcentaje de grasa por encima del rango. Alta probabilidad de masa muscular metabólicamente inactiva. Priorizar reducción de grasa y activación muscular.'; }
         } else if (imc >= imcR2) {
-          if      (pgc < pgcMid) { zona = 'Figura Musculosa';               desc = 'Buena masa muscular con IMC en rango normal-alto. Composición favorable. Continúa con tu rutina de ejercicio y nutrición.'; }
-          else if (pgc < pgcHi)  { zona = 'Promedio';                        desc = 'Peso e índice de masa corporal dentro del rango normal con composición equilibrada. Mantén hábitos saludables de actividad física y alimentación.'; }
-          else                   { zona = 'Obesidad leve';                  desc = 'IMC normal con grasa moderadamente elevada. Se recomienda reducir grasa corporal e incrementar actividad física y consumo de proteína.'; }
+          if      (pgc < pgcMid) { zona = 'Figura Musculosa';    desc = 'Buena masa muscular con IMC en rango normal-alto. Composición favorable. Continúa con tu rutina de ejercicio y nutrición.'; }
+          else if (pgc < pgcHi)  { zona = 'Promedio';            desc = 'Peso e índice de masa corporal dentro del rango normal con composición equilibrada. Mantén hábitos saludables de actividad física y alimentación.'; }
+          else                   { zona = 'Obesidad leve';       desc = 'IMC normal con grasa moderadamente elevada. Se recomienda reducir grasa corporal e incrementar actividad física y consumo de proteína.'; }
         } else if (imc >= imcR3) {
-          if      (pgc < pgcLo)  { zona = 'Esbelto Musculoso';              desc = 'Bajo IMC con buena proporción muscular. Considera aumentar el aporte calórico de forma controlada para ganar masa magra.'; }
-          else if (pgc < pgcHi)  { zona = 'Esbelto';                        desc = 'Bajo peso con composición equilibrada. Se recomienda incrementar la ingesta calórica y de proteínas con supervisión nutricional.'; }
-          else                   { zona = 'Obesidad Sarcopénica';           desc = 'El peso se encuentra en rango normal-bajo pero el músculo esquelético es insuficiente en relación a la grasa corporal. Se recomienda incrementar el ejercicio de fuerza y la ingesta proteica para ganar músculo y reducir grasa simultáneamente.'; }
+          if      (pgc < pgcLo)  { zona = 'Esbelto Musculoso';   desc = 'Bajo IMC con buena proporción muscular. Considera aumentar el aporte calórico de forma controlada para ganar masa magra.'; }
+          else if (pgc < pgcMid) { zona = 'Esbelto';             desc = 'Bajo peso con composición equilibrada. Se recomienda incrementar la ingesta calórica y de proteínas con supervisión nutricional.'; }
+          else if (pgc < pgcHi)  { zona = 'Promedio';            desc = 'Peso e índice de masa corporal dentro del rango normal con composición equilibrada. Mantén hábitos saludables de actividad física y alimentación.'; }
+          else                   { zona = 'Obesidad Sarcopénica';desc = 'El peso se encuentra en rango normal-bajo pero el músculo esquelético es insuficiente en relación a la grasa corporal. Se recomienda incrementar el ejercicio de fuerza y la ingesta proteica para ganar músculo y reducir grasa simultáneamente.'; }
         } else {
-          if      (pgc < pgcLo)  { zona = 'Delgado';                        desc = 'Bajo peso con poca grasa y músculo. Se recomienda incrementar ingesta calórica y proteica con supervisión nutricional.'; }
-          else if (pgc < pgcHi)  { zona = 'Ligeramente Delgado';            desc = 'Bajo peso con composición relativamente equilibrada. Incrementa gradualmente el aporte calórico con supervisión.'; }
-          else                   { zona = 'Bajo Peso con Exceso de Grasa';  desc = 'Bajo peso con porcentaje de grasa elevado y masa muscular reducida. Requiere atención nutricional prioritaria para reducir grasa e incrementar músculo.'; }
+          if      (pgc < pgcLo)  { zona = 'Delgado';             desc = 'Bajo peso con poca grasa y músculo. Se recomienda incrementar ingesta calórica y proteica con supervisión nutricional.'; }
+          else if (pgc < pgcHi)  { zona = 'Ligeramente Delgado'; desc = 'Bajo peso con composición relativamente equilibrada. Incrementa gradualmente el aporte calórico con supervisión.'; }
+          else                   { zona = 'Obesidad Sarcopénica';desc = 'El peso se encuentra en rango normal-bajo pero el músculo esquelético es insuficiente en relación a la grasa corporal. Se recomienda incrementar el ejercicio de fuerza y la ingesta proteica para ganar músculo y reducir grasa simultáneamente.'; }
         }
  
         titleEl.textContent = zona;
@@ -595,158 +596,163 @@ function getRefMeanSD(tipo, rango, sexo, edad) {
         const desc  = document.getElementById('cid-desc');
         if (!el || imc === null || pgc === null) return;
  
-        const F       = sexo === 'F';
-        const pgcLo   = F ? 18 : 10;   // corte izquierdo normal (col 1/2)
-        const pgcMid  = F ? 23 : 15;   // corte medio normal     (col 2/3) ← nuevo
-        const pgcHi   = F ? 28 : 20;   // corte derecho normal   (col 3/4)
-        const imcR1   = 25;
-        const imcR2   = 22;
-        const imcR3   = 18.5;
+        const F      = sexo === 'F';
+        const pgcLo  = F ? 18 : 10;   // separador izquierdo filas C+D
+        const pgcMid = F ? 23 : 15;   // separador izquierdo filas A+B
+        const pgcHi  = F ? 28 : 20;   // separador derecho todas las filas
  
-        // ── Clasificación: filas A+B usan pgcMid como separador izquierdo ──
+        const imcR1  = 25;
+        const imcR2  = 22;
+        const imcR3  = 18.5;
+ 
+        // ── Clasificación ──────────────────────────────────────────────────────
+        // Promedio cubre: (18.5 ≤ IMC < 25) ∧ (pgcMid ≤ pgc < pgcHi)
+        // Obesidad Sarcopénica cubre: (IMC < 22) ∧ (pgc ≥ pgcHi)
         let zone, zoneColor, zoneDesc;
         if (imc >= imcR1) {
-          if      (pgc < pgcMid) { zone = 'Figura Atlética';              zoneColor = '#e8f2fc'; zoneDesc = 'IMC elevado por alta masa muscular. El exceso de peso se explica principalmente por músculo. Mantén el entrenamiento de fuerza y cuida la nutrición.'; }
-          else if (pgc < pgcHi)  { zone = 'Sobrepeso';                    zoneColor = '#fef3e2'; zoneDesc = 'Peso y grasa por encima del rango normal. Se recomienda reducir grasa corporal manteniendo la masa muscular.'; }
-          else                   { zone = 'Obesidad';                     zoneColor = '#fde8f1'; zoneDesc = 'Peso, grasa y porcentaje de grasa elevados. Prioriza la reducción de grasa con actividad física y alimentación supervisada.'; }
+          if      (pgc < pgcMid) { zone = 'Figura Atlética';     zoneColor = '#e8f2fc'; zoneDesc = 'IMC elevado por alta masa muscular. El exceso de peso se explica principalmente por músculo. Mantén el entrenamiento de fuerza y cuida la nutrición.'; }
+          else if (pgc < pgcHi)  { zone = 'Sobrepeso';           zoneColor = '#fef3e2'; zoneDesc = 'Peso y grasa por encima del rango normal. Se recomienda reducir grasa corporal manteniendo la masa muscular.'; }
+          else                   { zone = 'Obesidad';            zoneColor = '#fde8f1'; zoneDesc = 'Peso, grasa y porcentaje de grasa elevados. Prioriza la reducción de grasa con actividad física y alimentación supervisada.'; }
         } else if (imc >= imcR2) {
-          if      (pgc < pgcMid) { zone = 'Figura Musculosa';             zoneColor = '#e6f7f0'; zoneDesc = 'Buena masa muscular con IMC en rango normal-alto. Composición favorable. Continúa con tu rutina actual.'; }
-          else if (pgc < pgcHi)  { zone = 'Promedio';                     zoneColor = '#f0f4f8'; zoneDesc = 'Composición corporal dentro de rangos normales. Mantén hábitos saludables de alimentación y ejercicio.'; }
-          else                   { zone = 'Obesidad leve';                zoneColor = '#fef3e2'; zoneDesc = 'IMC normal con grasa moderadamente elevada. Se recomienda reducir grasa corporal e incrementar actividad física.'; }
+          if      (pgc < pgcMid) { zone = 'Figura Musculosa';    zoneColor = '#e6f7f0'; zoneDesc = 'Buena masa muscular con IMC en rango normal-alto. Composición favorable. Continúa con tu rutina actual.'; }
+          else if (pgc < pgcHi)  { zone = 'Promedio';            zoneColor = '#f0f4f8'; zoneDesc = 'Composición corporal dentro de rangos normales. Mantén hábitos saludables de alimentación y ejercicio.'; }
+          else                   { zone = 'Obesidad leve';       zoneColor = '#fef3e2'; zoneDesc = 'IMC normal con grasa moderadamente elevada. Reduce grasa e incrementa actividad física y proteína.'; }
         } else if (imc >= imcR3) {
-          if      (pgc < pgcLo)  { zone = 'Esbelto Musculoso';            zoneColor = '#e6f7f0'; zoneDesc = 'Bajo IMC con buena proporción muscular. Considera aumentar el aporte calórico controlado para ganar masa magra.'; }
-          else if (pgc < pgcHi)  { zone = 'Esbelto';                      zoneColor = '#f0f4f8'; zoneDesc = 'Bajo peso con composición equilibrada. Incrementa la ingesta calórica de forma saludable.'; }
-          else                   { zone = 'Obesidad Sarcopénica';         zoneColor = '#fef3e2'; zoneDesc = 'Peso normal-bajo con porcentaje de grasa elevado y masa muscular reducida. Requiere incrementar músculo y reducir grasa simultáneamente con ejercicio de fuerza y adecuada ingesta proteica.'; }
+          if      (pgc < pgcLo)  { zone = 'Esbelto Musculoso';   zoneColor = '#e6f7f0'; zoneDesc = 'Bajo IMC con buena proporción muscular. Considera aumentar el aporte calórico controlado para ganar masa magra.'; }
+          else if (pgc < pgcMid) { zone = 'Esbelto';             zoneColor = '#f0f4f8'; zoneDesc = 'Bajo peso con composición equilibrada. Incrementa la ingesta calórica de forma saludable.'; }
+          else if (pgc < pgcHi)  { zone = 'Promedio';            zoneColor = '#f0f4f8'; zoneDesc = 'Composición corporal dentro de rangos normales. Mantén hábitos saludables de alimentación y ejercicio.'; }
+          else                   { zone = 'Obesidad Sarcopénica';zoneColor = '#fef3e2'; zoneDesc = 'Peso normal-bajo con porcentaje de grasa elevado y masa muscular reducida. Requiere incrementar músculo y reducir grasa simultáneamente con ejercicio de fuerza y adecuada ingesta proteica.'; }
         } else {
-          if      (pgc < pgcLo)  { zone = 'Delgado';                      zoneColor = '#e8f2fc'; zoneDesc = 'Bajo peso con poca grasa y músculo. Se recomienda incrementar ingesta calórica y proteica con supervisión nutricional.'; }
-          else if (pgc < pgcHi)  { zone = 'Ligeramente Delgado';          zoneColor = '#f0f4f8'; zoneDesc = 'Bajo peso con composición relativamente equilibrada. Incrementa gradualmente el aporte calórico.'; }
-          else                   { zone = 'Bajo Peso con Exceso de Grasa';zoneColor = '#fde8f1'; zoneDesc = 'Bajo peso con exceso de grasa y poca masa muscular. Requiere atención nutricional prioritaria.'; }
+          if      (pgc < pgcLo)  { zone = 'Delgado';             zoneColor = '#e8f2fc'; zoneDesc = 'Bajo peso con poca grasa y músculo. Se recomienda incrementar ingesta calórica y proteica con supervisión nutricional.'; }
+          else if (pgc < pgcHi)  { zone = 'Ligeramente Delgado'; zoneColor = '#f0f4f8'; zoneDesc = 'Bajo peso con composición relativamente equilibrada. Incrementa gradualmente el aporte calórico.'; }
+          else                   { zone = 'Obesidad Sarcopénica';zoneColor = '#fef3e2'; zoneDesc = 'Peso normal-bajo con porcentaje de grasa elevado y masa muscular reducida. Requiere incrementar músculo y reducir grasa simultáneamente con ejercicio de fuerza y adecuada ingesta proteica.'; }
         }
  
         if (title) title.textContent = zone;
         if (desc)  desc.textContent  = zoneDesc;
  
-        // ── SVG: 4 filas × 3 celdas visibles (con fusiones distintas por fila)
+        // ── Dimensiones SVG ────────────────────────────────────────────────────
         const W = 280, H = 300;
         const padL = 32, padB = 28, padR = 10, padT = 10;
         const gW = W - padL - padR;
         const gH = H - padT - padB;
  
+        // ── Escala ─────────────────────────────────────────────────────────────
+        // imcMin=12, imcMax=30 → proporciones de filas: A≈28%, B≈17%, C≈19%, D≈36%
+        // pgcMin/pgcMax por simetría: cols izq/der iguales en filas C+D
         const pgcMin = F ? 11 : 3,  pgcMax = F ? 35 : 27;
-        const imcMin = 14, imcMax = 32;
+        const imcMin = 12,           imcMax = 30;
  
-        // Posición del punto (clampado)
-        const dotX = Math.min(padL+gW-3, Math.max(padL+3,
-                       padL + ((pgc - pgcMin) / (pgcMax - pgcMin)) * gW));
-        const dotY = Math.min(padT+gH-3, Math.max(padT+3,
-                       padT + (1 - (imc - imcMin) / (imcMax - imcMin)) * gH));
+        function toX(v) { return padL + ((v - pgcMin) / (pgcMax - pgcMin)) * gW; }
+        function toY(v) { return padT + (1 - (v - imcMin) / (imcMax - imcMin)) * gH; }
  
-        // Líneas verticales (4 columnas → 3 separadores)
-        const xL1 = padL + ((pgcLo  - pgcMin) / (pgcMax - pgcMin)) * gW; // 18 F
-        const xL2 = padL + ((pgcMid - pgcMin) / (pgcMax - pgcMin)) * gW; // 23 F
-        const xL3 = padL + ((pgcHi  - pgcMin) / (pgcMax - pgcMin)) * gW; // 28 F
+        const xL1 = toX(pgcLo);
+        const xL2 = toX(pgcMid);
+        const xL3 = toX(pgcHi);
+        const xR  = padL + gW;
  
-        // Líneas horizontales (4 filas → 3 separadores)
-        const yL1 = padT + (1 - (imcR1 - imcMin) / (imcMax - imcMin)) * gH;
-        const yL2 = padT + (1 - (imcR2 - imcMin) / (imcMax - imcMin)) * gH;
-        const yL3 = padT + (1 - (imcR3 - imcMin) / (imcMax - imcMin)) * gH;
+        const yL1 = toY(imcR1);
+        const yL2 = toY(imcR2);
+        const yL3 = toY(imcR3);
+        const yB  = padT + gH;
  
-        // ── Zona activa: ancho depende del patrón de fusión de la fila ────────
-        let zX, zW2, zY, zH2;
-        if      (imc >= imcR1) { zY = padT; zH2 = yL1 - padT; }
-        else if (imc >= imcR2) { zY = yL1;  zH2 = yL2 - yL1; }
-        else if (imc >= imcR3) { zY = yL2;  zH2 = yL3 - yL2; }
-        else                   { zY = yL3;  zH2 = (padT+gH) - yL3; }
+        // Punto del paciente (clampado)
+        const dotX = Math.min(xR - 3, Math.max(padL + 3, toX(pgc)));
+        const dotY = Math.min(yB - 3, Math.max(padT + 3, toY(imc)));
  
-        if (imc >= imcR2) {
-          // Filas A+B: fusión cols 1+2 en la izquierda
-          if      (pgc < pgcMid) { zX = padL; zW2 = xL2 - padL; }
-          else if (pgc < pgcHi)  { zX = xL2;  zW2 = xL3 - xL2; }
-          else                   { zX = xL3;  zW2 = (padL+gW) - xL3; }
-        } else {
-          // Filas C+D: fusión cols 2+3 en el centro
-          if      (pgc < pgcLo)  { zX = padL; zW2 = xL1 - padL; }
-          else if (pgc < pgcHi)  { zX = xL1;  zW2 = xL3 - xL1; }
-          else                   { zX = xL3;  zW2 = (padL+gW) - xL3; }
-        }
- 
-        // ── 12 celdas visibles (3 por fila con fusiones distintas) ────────────
-        const zones = [
-          // Fila A (IMC ≥ 25): cols 1+2 fusionadas a la izquierda
-          { x: padL, y: padT, w: xL2-padL,    h: yL1-padT,      label: 'Figura|Atlética',     fs: 7.5 },
-          { x: xL2,  y: padT, w: xL3-xL2,     h: yL1-padT,      label: 'Sobrepeso',            fs: 8   },
-          { x: xL3,  y: padT, w: padL+gW-xL3, h: yL1-padT,      label: 'Obesidad',             fs: 8   },
-          // Fila B (22–25): cols 1+2 fusionadas a la izquierda
-          { x: padL, y: yL1,  w: xL2-padL,    h: yL2-yL1,       label: 'Figura|Musculosa',     fs: 7.5 },
-          { x: xL2,  y: yL1,  w: xL3-xL2,     h: yL2-yL1,       label: 'Promedio',             fs: 8   },
-          { x: xL3,  y: yL1,  w: padL+gW-xL3, h: yL2-yL1,       label: 'Obesidad|leve',        fs: 7.5 },
-          // Fila C (18.5–22): cols 2+3 fusionadas en el centro
-          { x: padL, y: yL2,  w: xL1-padL,    h: yL3-yL2,       label: 'Esbelto|Musculoso',    fs: 7   },
-          { x: xL1,  y: yL2,  w: xL3-xL1,     h: yL3-yL2,       label: 'Esbelto',              fs: 8   },
-          { x: xL3,  y: yL2,  w: padL+gW-xL3, h: yL3-yL2,       label: 'Obesidad|Sarcopénica', fs: 6.5 },
-          // Fila D (< 18.5): cols 2+3 fusionadas en el centro
-          { x: padL, y: yL3,  w: xL1-padL,    h: (padT+gH)-yL3, label: 'Delgado',              fs: 8   },
-          { x: xL1,  y: yL3,  w: xL3-xL1,     h: (padT+gH)-yL3, label: 'Ligeramente|Delgado',  fs: 7   },
-          { x: xL3,  y: yL3,  w: padL+gW-xL3, h: (padT+gH)-yL3, label: '',                     fs: 7   },
-        ];
- 
+        // ── Mapa de resaltado: una rect por zona (las fusionadas cubren ambas filas) ──
+        const highlights = {
+          'Figura Atlética':     { x: padL, y: padT, w: xL2-padL, h: yL1-padT },
+          'Sobrepeso':           { x: xL2,  y: padT, w: xL3-xL2,  h: yL1-padT },
+          'Obesidad':            { x: xL3,  y: padT, w: xR-xL3,   h: yL1-padT },
+          'Figura Musculosa':    { x: padL, y: yL1,  w: xL2-padL, h: yL2-yL1  },
+          'Promedio':            { x: xL2,  y: yL1,  w: xL3-xL2,  h: yL3-yL1  }, // filas B+C
+          'Obesidad leve':       { x: xL3,  y: yL1,  w: xR-xL3,   h: yL2-yL1  },
+          'Esbelto Musculoso':   { x: padL, y: yL2,  w: xL1-padL, h: yL3-yL2  },
+          'Esbelto':             { x: xL1,  y: yL2,  w: xL2-xL1,  h: yL3-yL2  },
+          'Obesidad Sarcopénica':{ x: xL3,  y: yL2,  w: xR-xL3,   h: yB-yL2   }, // filas C+D
+          'Delgado':             { x: padL, y: yL3,  w: xL1-padL, h: yB-yL3   },
+          'Ligeramente Delgado': { x: xL1,  y: yL3,  w: xL3-xL1,  h: yB-yL3   },
+        };
+        const zh = highlights[zone];
         const borderColor = zone.toLowerCase().includes('obes') ? '#E8317A' : '#2DB88A';
  
-        let svgZones = '';
-        zones.forEach(function(z) {
-          svgZones +=
-            '<rect x="' + z.x.toFixed(1) + '" y="' + z.y.toFixed(1) +
-            '" width="' + Math.max(0, z.w).toFixed(1) +
-            '" height="' + Math.max(0, z.h).toFixed(1) +
+        // ── 11 celdas de fondo ─────────────────────────────────────────────────
+        // Promedio y Obesidad Sarcopénica se dibujan como un solo rect que cruza filas.
+        // La celda C3 (fila C, col 3) y D4 (fila D, col 4) NO se dibujan por separado.
+        const cells = [
+          // Fila A (IMC ≥ 25): cols 1+2 → Figura Atlética
+          { x: padL, y: padT, w: xL2-padL, h: yL1-padT, label: 'Figura Atlética',   fs: 8   },
+          { x: xL2,  y: padT, w: xL3-xL2,  h: yL1-padT, label: 'Sobrepeso',         fs: 7.5 },
+          { x: xL3,  y: padT, w: xR-xL3,   h: yL1-padT, label: 'Obesidad',          fs: 8   },
+          // Fila B (22–25): cols 1+2 → Figura Musculosa | col 3 → Promedio (cruza a C)
+          { x: padL, y: yL1,  w: xL2-padL, h: yL2-yL1,  label: 'Figura Musculosa',  fs: 7.5 },
+          { x: xL2,  y: yL1,  w: xL3-xL2,  h: yL3-yL1,  label: 'Promedio',          fs: 8   }, // B+C
+          { x: xL3,  y: yL1,  w: xR-xL3,   h: yL2-yL1,  label: 'Obesidad leve',     fs: 7   },
+          // Fila C (18.5–22): col 1 | col 2 | col 3 forma parte de Promedio | col 4 → Obs.Sarc (cruza a D)
+          { x: padL, y: yL2,  w: xL1-padL, h: yL3-yL2,  label: 'Esbelto|Musculoso', fs: 7   },
+          { x: xL1,  y: yL2,  w: xL2-xL1,  h: yL3-yL2,  label: 'Esbelto',           fs: 8   },
+          { x: xL3,  y: yL2,  w: xR-xL3,   h: yB-yL2,   label: 'Obesidad|Sarcopénica', fs: 6.5 }, // C+D
+          // Fila D (IMC < 18.5): col 1 | cols 2+3 → Lig. Delgado | col 4 forma parte de Obs.Sarc
+          { x: padL, y: yL3,  w: xL1-padL, h: yB-yL3,   label: 'Delgado',           fs: 8   },
+          { x: xL1,  y: yL3,  w: xL3-xL1,  h: yB-yL3,   label: 'Ligeramente Delgado', fs: 7.5 },
+        ];
+ 
+        // ── SVG ────────────────────────────────────────────────────────────────
+        let svgCells = '';
+        cells.forEach(function(c) {
+          svgCells +=
+            '<rect x="' + c.x.toFixed(1) + '" y="' + c.y.toFixed(1) +
+            '" width="' + Math.max(0, c.w).toFixed(1) +
+            '" height="' + Math.max(0, c.h).toFixed(1) +
             '" fill="#f0f4f8" rx="2" stroke="#fff" stroke-width="2"/>';
-          const lines = z.label.split('|').filter(Boolean);
-          const cy = z.y + z.h / 2;
+          const lines = c.label.split('|');
+          const cx = c.x + c.w / 2;
+          const cy = c.y + c.h / 2;
           lines.forEach(function(line, li) {
-            const ly = cy + (li - (lines.length - 1) / 2) * (z.fs + 2);
-            svgZones +=
-              '<text x="' + (z.x + z.w / 2).toFixed(1) +
-              '" y="' + ly.toFixed(1) +
-              '" text-anchor="middle" font-size="' + z.fs +
-              '" fill="#8a97a8" font-family="DM Sans,Arial,sans-serif"' +
+            const ly = cy + (li - (lines.length - 1) / 2) * (c.fs + 2.5);
+            svgCells +=
+              '<text x="' + cx.toFixed(1) + '" y="' + ly.toFixed(1) +
+              '" text-anchor="middle" font-size="' + c.fs +
+              '" fill="#4a5568"' +
+              ' font-family="DM Sans,Arial,sans-serif"' +
               ' dominant-baseline="middle">' + line + '</text>';
           });
         });
  
         const svgStr =
-          '<svg width="100%" viewBox="0 0 ' + W + ' ' + H + '" xmlns="http://www.w3.org/2000/svg">' +
-          svgZones +
-          // Zona activa resaltada
-          '<rect x="' + zX.toFixed(1) + '" y="' + zY.toFixed(1) +
-          '" width="' + Math.max(0, zW2).toFixed(1) +
-          '" height="' + Math.max(0, zH2).toFixed(1) +
-          '" fill="' + zoneColor + '" rx="2" stroke="' + borderColor +
-          '" stroke-width="1.5" opacity="0.9"/>' +
-          // Línea vertical xL1 (pgcLo) solo en filas C+D
-          '<line x1="' + xL1.toFixed(1) + '" y1="' + yL2.toFixed(1) +
-          '" x2="' + xL1.toFixed(1) + '" y2="' + (padT+gH) +
-          '" stroke="#d0d8e0" stroke-width="1"/>' +
-          // Línea vertical xL2 (pgcMid) solo en filas A+B
-          '<line x1="' + xL2.toFixed(1) + '" y1="' + padT +
-          '" x2="' + xL2.toFixed(1) + '" y2="' + yL2.toFixed(1) +
-          '" stroke="#d0d8e0" stroke-width="1"/>' +
-          // Línea vertical xL3 (pgcHi) altura completa
-          '<line x1="' + xL3.toFixed(1) + '" y1="' + padT +
-          '" x2="' + xL3.toFixed(1) + '" y2="' + (padT+gH) +
-          '" stroke="#d0d8e0" stroke-width="1"/>' +
-          // Líneas horizontales
-          '<line x1="' + padL + '" y1="' + yL1.toFixed(1) + '" x2="' + (padL+gW) + '" y2="' + yL1.toFixed(1) + '" stroke="#d0d8e0" stroke-width="1"/>' +
-          '<line x1="' + padL + '" y1="' + yL2.toFixed(1) + '" x2="' + (padL+gW) + '" y2="' + yL2.toFixed(1) + '" stroke="#d0d8e0" stroke-width="1"/>' +
-          '<line x1="' + padL + '" y1="' + yL3.toFixed(1) + '" x2="' + (padL+gW) + '" y2="' + yL3.toFixed(1) + '" stroke="#d0d8e0" stroke-width="1"/>' +
+          '<svg width="100%" viewBox="0 0 ' + W + ' ' + H +
+          '" xmlns="http://www.w3.org/2000/svg">' +
+          svgCells +
+          // Zona activa (dibujada sobre el fondo, debajo del punto)
+          (zh
+            ? '<rect x="' + zh.x.toFixed(1) + '" y="' + zh.y.toFixed(1) +
+              '" width="' + Math.max(0, zh.w).toFixed(1) +
+              '" height="' + Math.max(0, zh.h).toFixed(1) +
+              '" fill="' + zoneColor + '" rx="2" stroke="' + borderColor +
+              '" stroke-width="1.5" opacity="0.92"/>'
+            : '') +
+          // Líneas horizontales — ancho completo
+          '<line x1="' + padL + '" y1="' + yL1.toFixed(1) + '" x2="' + xR + '" y2="' + yL1.toFixed(1) + '" stroke="#c8d0da" stroke-width="1"/>' +
+          '<line x1="' + padL + '" y1="' + yL2.toFixed(1) + '" x2="' + xR + '" y2="' + yL2.toFixed(1) + '" stroke="#c8d0da" stroke-width="1"/>' +
+          '<line x1="' + padL + '" y1="' + yL3.toFixed(1) + '" x2="' + xR + '" y2="' + yL3.toFixed(1) + '" stroke="#c8d0da" stroke-width="1"/>' +
+          // xL1 (pgcLo): solo filas C+D (de yL2 hacia abajo)
+          '<line x1="' + xL1.toFixed(1) + '" y1="' + yL2.toFixed(1) + '" x2="' + xL1.toFixed(1) + '" y2="' + yB + '" stroke="#c8d0da" stroke-width="1"/>' +
+          // xL2 (pgcMid): filas A+B+C (de padT a yL3, no cruza fila D)
+          '<line x1="' + xL2.toFixed(1) + '" y1="' + padT + '" x2="' + xL2.toFixed(1) + '" y2="' + yL3.toFixed(1) + '" stroke="#c8d0da" stroke-width="1"/>' +
+          // xL3 (pgcHi): ancho completo
+          '<line x1="' + xL3.toFixed(1) + '" y1="' + padT + '" x2="' + xL3.toFixed(1) + '" y2="' + yB + '" stroke="#c8d0da" stroke-width="1"/>' +
           // Etiquetas eje IMC
           '<text x="' + (padL-4) + '" y="' + yL1.toFixed(1) + '" text-anchor="end" font-size="8" fill="#9aa5b4" dominant-baseline="middle">' + imcR1 + '</text>' +
           '<text x="' + (padL-4) + '" y="' + yL2.toFixed(1) + '" text-anchor="end" font-size="8" fill="#9aa5b4" dominant-baseline="middle">' + imcR2 + '</text>' +
           '<text x="' + (padL-4) + '" y="' + yL3.toFixed(1) + '" text-anchor="end" font-size="8" fill="#9aa5b4" dominant-baseline="middle">' + imcR3 + '</text>' +
-          // Etiquetas eje PGC (solo los dos cortes que InBody muestra)
-          '<text x="' + xL1.toFixed(1) + '" y="' + (padT+gH+12) + '" text-anchor="middle" font-size="8" fill="#9aa5b4">' + pgcLo + '</text>' +
-          '<text x="' + xL3.toFixed(1) + '" y="' + (padT+gH+12) + '" text-anchor="middle" font-size="8" fill="#9aa5b4">' + pgcHi + '</text>' +
-          '<text x="' + (padL+gW) + '" y="' + (padT+gH+12) + '" text-anchor="end" font-size="8" fill="#9aa5b4">PGC</text>' +
-          '<text x="' + (padL-8) + '" y="' + (padT+gH/2) + '" text-anchor="middle" font-size="8" fill="#9aa5b4" transform="rotate(-90,' + (padL-8) + ',' + (padT+gH/2) + ')">IMC</text>' +
-          // Punto del paciente
+          // Etiquetas eje PGC (solo los dos cortes que muestra InBody)
+          '<text x="' + xL1.toFixed(1) + '" y="' + (yB+12) + '" text-anchor="middle" font-size="8" fill="#9aa5b4">' + pgcLo + '</text>' +
+          '<text x="' + xL3.toFixed(1) + '" y="' + (yB+12) + '" text-anchor="middle" font-size="8" fill="#9aa5b4">' + pgcHi + '</text>' +
+          '<text x="' + xR + '" y="' + (yB+12) + '" text-anchor="end" font-size="8" fill="#9aa5b4">PGC</text>' +
+          '<text x="' + (padL-8) + '" y="' + (padT+gH/2) + '" text-anchor="middle" font-size="8" fill="#9aa5b4"' +
+          ' transform="rotate(-90,' + (padL-8) + ',' + (padT+gH/2) + ')">IMC</text>' +
+          // Punto del paciente (encima de todo)
           '<circle cx="' + dotX.toFixed(1) + '" cy="' + dotY.toFixed(1) +
           '" r="6" fill="#E8317A" stroke="#fff" stroke-width="2"/>' +
           '</svg>';
