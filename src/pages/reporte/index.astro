@@ -828,7 +828,15 @@ function getRefMeanSD(tipo, rango, sexo, edad) {
         };
           renderBarra('bar-cc', ultima.cc - ccMin, ccRangoVisual);
           renderBarra('bar-visc', ultima.visceral, { normalMin:10, normalMax:10, max:20 });
-          renderBarra('bar-magra', ultima.masaMagra, rangos.masaMagra);
+          const magraRange    = rangos.masaMagra.normalMax - rangos.masaMagra.normalMin;
+          const magraBarWidth = magraRange / 0.13;
+          const magraMin_v    = rangos.masaMagra.normalMin - 0.20 * magraBarWidth;
+          const magraRangoVisual = {
+           normalMin: rangos.masaMagra.normalMin - magraMin_v,
+           normalMax: rangos.masaMagra.normalMax - magraMin_v,
+           max:       magraBarWidth
+         };
+renderBarra('bar-magra', ultima.masaMagra - magraMin_v, magraRangoVisual);
 
           // Gráficas
           const ROSA  = '#E8317A', NAR = '#F5A623', VERDE = '#2DB88A';
