@@ -368,7 +368,7 @@
       '</div>' +
       '<div style="position:relative;height:16px;margin-top:5px;font-size:9px;color:#9aa5b4">' +
         '<span style="position:absolute;left:' + (nAp/2) + '%;transform:translateX(-50%)">Bajo</span>' +
-        '<span style="position:absolute;left:' + ((nAp+nBp)/2) + '%;transform:translateX(-50%);font-weight:700;color:' + labelColor + '">Normal</span>' +
+        (nAp < nBp ? '<span style="position:absolute;left:' + ((nAp+nBp)/2) + '%;transform:translateX(-50%);font-weight:700;color:' + labelColor + '">Normal</span>' : '') +
         '<span style="position:absolute;left:' + ((nBp+100)/2) + '%;transform:translateX(-50%)">Alto</span>' +
       '</div>' +
     '</div>';
