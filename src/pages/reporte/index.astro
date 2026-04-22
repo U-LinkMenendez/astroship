@@ -145,6 +145,25 @@
           </div>
         </div>
 
+      <!-- CID -->
+        <div class="card">
+          <div style="font-size:10px;font-weight:700;color:#9aa5b4;letter-spacing:2px;margin-bottom:4px">CID</div>
+          <div id="cid-tipo-title" style="font-family:'Playfair Display',Georgia,serif;font-size:16px;font-weight:700;color:#1a2535;margin-bottom:18px">—</div>
+          <div style="margin-bottom:2px">
+            <div style="font-size:11px;font-weight:600;color:#4a5568;margin-bottom:0">Peso</div>
+            <div id="cid-bar-peso"></div>
+          </div>
+          <div style="margin-bottom:2px">
+            <div style="font-size:11px;font-weight:600;color:#4a5568;margin-bottom:0">Masa de Músculo Esquelético</div>
+            <div id="cid-bar-mus"></div>
+          </div>
+          <div style="margin-bottom:2px">
+            <div style="font-size:11px;font-weight:600;color:#4a5568;margin-bottom:0">Grasa Corporal</div>
+            <div id="cid-bar-grasa"></div>
+          </div>
+          <p id="cid-tipo-desc" style="font-size:12px;color:#4a5568;line-height:1.6;margin-top:14px"></p>
+        </div>
+
         <!-- Obesidad -->
         <div class="card">
           <div class="card-title"><span>⚖️</span> Análisis de Obesidad</div>
@@ -499,6 +518,34 @@ function getRefMeanSD(tipo, rango, sexo, edad) {
           '</div></div>';
       }
 
+      function renderCID(peso, musculo, grasa, rangos, imc, pgc, sexo) {
+        const titleEl = document.getElementById('cid-tipo-title');
+        const descEl  = document.getElementById('cid-tipo-desc');
+        if (!titleEl) return;
+        const F = sexo === 'F';
+        const pgcLo = F ? 18 : 10, pgcHi = F ? 28 : 20;
+        const imcHi = 25, imcLo = 18.5;
+        let zona, desc;
+        if (imc >= imcHi) {
+          if (pgc < pgcLo)      { zona='Atlético con Sobrepeso';          desc='IMC elevado por masa muscular. El exceso de peso se explica principalmente por músculo. Mantén el entrenamiento de fuerza y cuida la nutrición.'; }
+          else if (pgc < pgcHi) { zona='Sobrepeso';                       desc='Peso y grasa por encima del rango normal. Se recomienda reducir grasa corporal manteniendo la masa muscular mediante ejercicio y alimentación adecuada.'; }
+          else                  { zona='Obesidad';                        desc='Peso, grasa y porcentaje de grasa por encima del rango. Alta probabilidad de masa muscular metabólicamente inactiva. Priorizar reducción de grasa y activación muscular.'; }
+        } else if (imc >= imcLo) {
+          if (pgc < pgcLo)      { zona='Musculoso con Normopeso';          desc='Normopeso con buena masa muscular y bajo porcentaje de grasa. Composición ideal. Continúa con tu rutina de ejercicio y nutrición.'; }
+          else if (pgc < pgcHi) { zona='Normopeso Equilibrado';            desc='Peso e índice de masa corporal dentro del rango normal con composición equilibrada. Mantén hábitos saludables de actividad física y alimentación.'; }
+          else                  { zona='Débil con Normopeso (Tipo-C)';    desc='El peso se encuentra dentro del rango normal pero el músculo esquelético es insuficiente en relación al peso, por lo que el cuerpo es más débil de lo que parece. Se deriva frecuentemente de baja actividad física, ingesta insuficiente de proteínas o pérdida de proteínas por hipercatabolismo. Se recomienda incrementar el ejercicio de fuerza y la ingesta proteica.'; }
+        } else {
+          if (pgc < pgcLo)      { zona='Musculoso con Bajo Peso';          desc='Bajo IMC con buena masa muscular relativa. Considera aumentar el aporte calórico de forma controlada para ganar peso con músculo.'; }
+          else if (pgc < pgcHi) { zona='Bajo Peso';                        desc='Bajo peso con composición equilibrada. Se recomienda incrementar la ingesta calórica y de proteínas con supervisión nutricional.'; }
+          else                  { zona='Bajo Peso con Exceso de Grasa';   desc='Bajo peso con porcentaje de grasa elevado y masa muscular reducida. Requiere atención nutricional prioritaria para reducir grasa e incrementar músculo.'; }
+        }
+        titleEl.textContent = zona;
+        descEl.textContent  = desc;
+        renderBarra('cid-bar-peso',  peso,    rangos.peso,    'v');
+        renderBarra('cid-bar-mus',   musculo, rangos.musculo, 'v');
+        renderBarra('cid-bar-grasa', grasa,   rangos.grasa,   'v');
+      }
+
       // ── Grid de tipo de cuerpo ───────────────────────────────────────────────
       function renderBodyGrid(imc, pgc, sexo) {
         const el    = document.getElementById('body-grid');
@@ -690,6 +737,8 @@ function getRefMeanSD(tipo, rango, sexo, edad) {
 
           // Grid de tipo de cuerpo
           renderBodyGrid(ultima.imc, ultima.pgc, data.sexo);
+
+          renderCID(ultima.peso, ultima.musculo, ultima.grasa, rangos, ultima.imc, ultima.pgc, data.sexo);
 
           // Mostrar
           document.getElementById('st-loading').classList.add('hidden');
