@@ -819,7 +819,14 @@ function getRefMeanSD(tipo, rango, sexo, edad) {
           renderBarra('bar-grasa', ultima.grasa,     rangos.grasa);
           renderBarra('bar-imc',   ultima.imc,       rangos.imc);
           renderBarra('bar-pgc',   ultima.pgc,       rangos.pgc);
-          renderBarra('bar-cc',    ultima.cc,        rangos.cinturaCadera);
+          // renderBarra('bar-cc',    ultima.cc,        rangos.cinturaCadera);
+           const ccMin = data.sexo === 'F' ? 0.55 : 0.61;
+           const ccRangoVisual = {
+           normalMin: rangos.cinturaCadera.normalMin - ccMin,
+           normalMax: rangos.cinturaCadera.normalMax - ccMin,
+           max:       rangos.cinturaCadera.max       - ccMin
+        };
+          renderBarra('bar-cc', ultima.cc - ccMin, ccRangoVisual);
           renderBarra('bar-visc',  ultima.visceral,  { normalMin:1, normalMax:10, max:20 });
           renderBarra('bar-magra', ultima.masaMagra, rangos.masaMagra);
 
