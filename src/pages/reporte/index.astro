@@ -342,8 +342,10 @@
         const vals = data.map(v => v === null || v === undefined ? NaN : v);
         const valid = vals.filter(v => !isNaN(v));
         if (valid.length === 0) return;
-        const mn = Math.min(...valid) - 1;
-        const mx = Math.max(...valid) + 1;
+        const spread = Math.max(...valid) - Math.min(...valid);
+        const pad    = spread > 0 ? spread * 0.3 + 1 : Math.max(valid[0] * 0.05, 3);
+        const mn = Math.min(Math.min(...valid), rango.normalMin) - (range * 0.12);
+        const mx = Math.max(Math.max(...valid), rango.normalMax) + (range * 0.12);
         new Chart(el.getContext('2d'), {
           type: 'line',
           data: { labels, datasets: [{
@@ -367,7 +369,8 @@
                 backgroundColor: '#fff', titleColor: '#9aa5b4',
                 bodyColor: '#1a2535', borderColor: '#f0e8f4',
                 borderWidth: 1, padding: 8, cornerRadius: 8,
-                titleFont: { size: 9 }, bodyFont: { size: 12, weight: 'bold' }
+                titleFont: { size: 9 }, bodyFont: { size: 12, weight: 'bold' },
+              boxWidth: 0, boxHeight: 0
               }
             },
             scales: {
@@ -413,7 +416,7 @@
     sd   = Math.max(range / 1.5, 0.01);
   } else {
     mean = rango.normalMax;
-    sd   = Math.max(range, 0.01);
+    sd   = Math.max(range * 0.93, 0.01);
   }
 
   const z    = (val - mean) / sd;
