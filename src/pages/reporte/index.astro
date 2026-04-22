@@ -408,23 +408,54 @@
         return Math.max(0, Math.min(100, score));
       }
 
+// ── Tabla de referencia poblacional ─────────────────────────────────────────
+// Fuente A: Barbão et al. Nutrients 2025, PMC12073220
+//           n=8,556 (F=4,628/M=3,928), InBody 570, Brasil, 18–49 años
+// Fuente B: Coelho-Júnior et al. Front Public Health 2024, PMC10791914
+//           n=18,625, InBody 230, Brasil, 18–80+ años
+// Formato filas: [edadMin, edadMax, media, SD]
+// ─────────────────────────────────────────────────────────────────────────────
+const REFPOP = {
+  muscle: {
+    F: [[10,17,20.5,2.8],[18,29,25.2,3.0],[30,39,25.7,3.3],[40,49,25.6,3.2],
+        [50,59,25.0,3.1],[60,69,23.9,2.7],[70,99,23.5,2.8]],   // Fuente B
+    M: [[10,17,27.0,4.5],[18,29,34.7,5.2],[30,39,37.2,5.4],[40,49,37.3,5.2],
+        [50,59,35.2,4.8],[60,69,33.3,4.9],[70,99,30.6,4.2]],   // Fuente B
+  },
+  fat: {
+    F: [[10,17,14.0,6.0],[18,29,21.7,9.1],[30,39,26.2,11.0],[40,49,29.2,10.9]], // Fuente A
+    M: [[10,17,10.0,5.0],[18,29,16.2,8.2],[30,39,19.9,8.2], [40,49,23.0,8.7]], // Fuente A
+  },
+  pgc: {
+    F: [[10,17,24.0,7.0],[18,29,31.8,8.5],[30,39,32.5,10.6],[40,49,37.9,8.3]], // Fuente A
+    M: [[10,17,14.0,6.0],[18,29,19.7,7.9],[30,39,23.3,7.4], [40,49,26.0,7.8]], // Fuente A
+  },
+  peso: {
+    F: [[10,17,55.0,10.0],[18,29,65.7,12.1],[30,39,72.2,14.5],[40,49,74.6,13.9]], // Fuente A
+    M: [[10,17,65.0,12.0],[18,29,79.6,11.8],[30,39,83.9,12.5],[40,49,87.6,11.3]], // Fuente A
+  },
+};
+
+function getRefMeanSD(tipo, rango, sexo, edad) {
+  const e = Number(edad) || 25;
+  const sx = sexo === 'M' ? 'M' : 'F';
+  const table = REFPOP[tipo]?.[sx];
+  if (table) {
+    const row = table.find(r => e >= r[0] && e <= r[1]) || table[table.length - 1];
+    return { mean: row[2], sd: row[3] };
+  }
+  // Fallback fórmula para IMC y grupos sin datos publicados
+  const range = rango.normalMax - rango.normalMin;
+  if (tipo === 'imc') return { mean: rango.normalMax, sd: Math.max(range / 1.5, 0.01) };
+  return { mean: rango.normalMax, sd: Math.max(range * 0.93, 0.01) };
+}
+
       // ── Histograma de distribución percentil ────────────────────────────────
       function renderPercentil(containerId, val, rango, sexo, edad, color, tipo) {
   const el = document.getElementById(containerId);
   if (!el || val === null || val === undefined) return;
 
-  const range = rango.normalMax - rango.normalMin;
-  let mean, sd;
-  if (tipo === 'muscle') {
-    mean = rango.normalMax;
-    sd   = Math.max(range * 0.645, 0.01);
-  } else if (tipo === 'imc') {
-    mean = rango.normalMax;
-    sd   = Math.max(range / 1.5, 0.01);
-  } else {
-    mean = rango.normalMax;
-    sd   = Math.max(range * 0.93, 0.01);
-  }
+  const { mean, sd } = getRefMeanSD(tipo, rango, sexo, edad);
 
   const z    = (val - mean) / sd;
   const pct  = Math.round(Math.max(0.1, Math.min(99.9,
@@ -652,11 +683,11 @@
 
 
           // Percentiles
-          renderPercentil('pct-peso',  ultima.peso,    rangos.peso,    data.sexo, data.edad, '#E8317A', 'fat');
+          renderPercentil('pct-peso',  ultima.peso,    rangos.peso,    data.sexo, data.edad, '#E8317A', 'peso');
           renderPercentil('pct-mus',   ultima.musculo, rangos.musculo, data.sexo, data.edad, '#E8317A', 'muscle');
           renderPercentil('pct-grasa', ultima.grasa,   rangos.grasa,   data.sexo, data.edad, '#E8317A', 'fat');
           renderPercentil('pct-imc',   ultima.imc,     rangos.imc,     data.sexo, data.edad, '#F5A623', 'imc');
-          renderPercentil('pct-pgc',   ultima.pgc,     rangos.pgc,     data.sexo, data.edad, '#E8317A', 'fat');
+          renderPercentil('pct-pgc',   ultima.pgc,     rangos.pgc,     data.sexo, data.edad, '#E8317A', 'pgc');
 
           // Grid de tipo de cuerpo
           renderBodyGrid(ultima.imc, ultima.pgc, data.sexo);
