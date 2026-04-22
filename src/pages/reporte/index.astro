@@ -272,13 +272,12 @@
           [70,99,{min:20,max:28},{min:10,max:27},{min:15,max:27},{min:58,max:80}],
         ];
         const tablaF = [
-          [10,17,{min:12,max:20},{min:8,max:20},{min:14,max:24},{min:35,max:62}],
-          [18,29,{min:18,max:26},{min:10,max:22},{min:18,max:28},{min:50,max:68}],
-          [30,39,{min:17,max:23},{min:11,max:24},{min:19,max:29},{min:51,max:70}],
-          [40,49,{min:16,max:22},{min:12,max:26},{min:20,max:30},{min:52,max:72}],
-          [50,59,{min:15,max:21},{min:13,max:28},{min:22,max:32},{min:52,max:73}],
-          [60,69,{min:14,max:20},{min:13,max:29},{min:23,max:33},{min:51,max:72}],
-          [70,99,{min:13,max:19},{min:13,max:30},{min:24,max:34},{min:49,max:70}],
+          [18,29,{min:18,max:26},{min:10,max:18},{min:18,max:28},{min:50,max:68}],
+          [30,39,{min:17,max:23},{min:11,max:20},{min:19,max:29},{min:51,max:70}],
+          [40,49,{min:16,max:22},{min:12,max:22},{min:20,max:30},{min:52,max:72}],
+          [50,59,{min:15,max:21},{min:13,max:24},{min:22,max:32},{min:52,max:73}],
+          [60,69,{min:14,max:20},{min:13,max:25},{min:23,max:33},{min:51,max:72}],
+          [70,99,{min:13,max:19},{min:13,max:26},{min:24,max:34},{min:49,max:70}],
         ];
         const tabla = F ? tablaF : tablaM;
         const g = tabla.find(r => e >= r[0] && e <= r[1]) || tabla[tabla.length-1];
@@ -662,7 +661,7 @@ function getRefMeanSD(tipo, rango, sexo, edad) {
           // Barras
           renderBarra('bar-peso',  ultima.peso,      rangos.peso,          'r');
           renderBarra('bar-mus',   ultima.musculo,   rangos.musculo,       'v');
-          renderBarra('bar-grasa', ultima.grasa,     rangos.grasa,         'r');
+          renderBarra('bar-grasa', ultima.grasa,     rangos.grasa,         'v');
           renderBarra('bar-imc',   ultima.imc,       rangos.imc,           'r');
           renderBarra('bar-pgc',   ultima.pgc,       rangos.pgc,           'r');
           renderBarra('bar-cc',    ultima.cc,        rangos.cinturaCadera, 'r');
@@ -685,7 +684,7 @@ function getRefMeanSD(tipo, rango, sexo, edad) {
           // Percentiles
           renderPercentil('pct-peso',  ultima.peso,    rangos.peso,    data.sexo, data.edad, '#E8317A', 'peso');
           renderPercentil('pct-mus',   ultima.musculo, rangos.musculo, data.sexo, data.edad, '#E8317A', 'muscle');
-          renderPercentil('pct-grasa', ultima.grasa,   rangos.grasa,   data.sexo, data.edad, '#E8317A', 'fat');
+          renderPercentil('pct-grasa', ultima.pgc,     rangos.pgc,     data.sexo, data.edad, '#E8317A', 'pgc');
           renderPercentil('pct-imc',   ultima.imc,     rangos.imc,     data.sexo, data.edad, '#F5A623', 'imc');
           renderPercentil('pct-pgc',   ultima.pgc,     rangos.pgc,     data.sexo, data.edad, '#E8317A', 'pgc');
 
