@@ -180,7 +180,7 @@
           <div id="pct-imc"></div>
           </div>
           <div class="metrica">
-            <div class="metrica-label">PGC</div>
+            <div class="metrica-label">Porcentaje de Grasa Corporal</div>
             <div class="metrica-row">
               <span class="metrica-val" id="v-pgc">—</span>
               <span class="metrica-uni">%</span>
@@ -447,6 +447,11 @@
       function getRefMeanSD(tipo, rango, sexo, edad) {
         const e  = Number(edad) || 25;
         const sx = sexo === 'M' ? 'M' : 'F';
+        // Músculo: fórmula empírica calibrada para coincidir con InBody
+        if (tipo === 'muscle') {
+          const range = rango.normalMax - rango.normalMin;
+          return { mean: rango.normalMax, sd: Math.max(range * 0.645, 0.01) };
+        }
         const table = REFPOP[tipo]?.[sx];
         if (table) {
           const row = table.find(r => e >= r[0] && e <= r[1]) || table[table.length - 1];
@@ -697,7 +702,7 @@
           setBadge('b-magra', ultima.masaMagra, p?.masaMagra, false);
 
           // Barras
-          renderBarra('bar-peso',  ultima.peso,      rangos.peso,          'r');
+          renderBarra('bar-peso',  ultima.peso,      rangos.peso,          'v');
           renderBarra('bar-mus',   ultima.musculo,   rangos.musculo,       'v');
           renderBarra('bar-grasa', ultima.grasa,     rangos.grasa,         'v');
           renderBarra('bar-imc',   ultima.imc,       rangos.imc,           'v');
