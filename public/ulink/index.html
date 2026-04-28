@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+
+<title>Opciones disponibles</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+body {
+  font-family: 'Inter', sans-serif;
+  background: #fafafa;
+  margin: 0;
+  padding: 20px;
+  padding-bottom: 90px;
+  color: #222;
+}
+
+h1 {
+  font-family: 'Playfair Display', serif;
+  text-align: center;
+  font-size: 22px;
+  margin-bottom: 25px;
+}
+
+/* CARDS */
+.card {
+  background: white;
+  border-radius: 14px;
+  padding: 12px;
+  margin-bottom: 12px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.05);
+  transition: all 0.2s ease;
+}
+
+  .card {
+  transition: all 0.2s ease;
+}
+
+  .card.added {
+  transform: scale(0.97);
+  background: #f5efe3;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+}
+
+.card.selected {
+  border: 2px solid #c8a96a;
+  background: #fffdf8;
+}
+
+.card img {
+  width: 70px;
+  height: 70px;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+.info {
+  flex: 1;
+}
+
+.nombre {
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.precio {
+  font-size: 13px;
+  color: #888;
+  margin-top: 3px;
+}
+
+/* BOTÓN */
+button {
+  background: #111;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+
+button.alt {
+  background: #c8a96a;
+  color: black;
+}
+
+/* CARRITO */
+.carrito {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: white;
+  border-top: 1px solid #eee;
+  padding: 12px 20px; /* 👈 cambio clave */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-sizing: border-box; /* 👈 MUY importante */
+}
+
+.total {
+  font-size: 14px;
+}
+
+.lista {
+  font-size: 11px;
+  color: #777;
+}
+
+/* MODAL */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.4);
+  display: none;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 14px;
+  width: 90%;
+  max-width: 380px;
+}
+
+.modal h3 {
+  margin-top: 0;
+}
+
+.header {
+  position: relative;
+  margin-bottom: 15px;
+}
+
+.cover {
+  width: 100vw;
+  height: 22vw; /* proporción 1:4 aprox */
+  object-fit: cover;
+  margin-left: -20px;
+  border-radius: 0;
+}
+
+.overlay {
+  position: absolute;
+  bottom: 10px;
+  left: 15px;
+  color: white;
+}
+
+.logo {
+  width: 40px;
+  border-radius: 50%;
+}
+
+.titulo {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* BARRA CATEGORÍAS */
+.categorias-bar {
+  display: flex;
+  overflow-x: auto;
+  gap: 10px;
+  padding: 10px 0;
+  position: sticky;
+  top: 0;
+  background: #fafafa;
+  z-index: 10;
+  margin-top: 10px;
+}
+
+.categoria-btn {
+  padding: 6px 12px;
+  background: #eee;
+  border-radius: 20px;
+  font-size: 12px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.categoria-btn.active {
+  background: #c8a96a;
+  color: black;
+}
+
+  button:active {
+  transform: scale(0.95);
+}
+
+#clearBtn:hover {
+  color: #000;
+}
+  
+</style>
+</head>
+
+<body>
+
+<div class="header">
+  <img src="/img/Portada.jpg" class="cover">
+  <div class="overlay">
+    <img src="/img/Logo.png" class="logo">
+    <div class="titulo">Reducenter KB</div>
+  </div>
+</div>
+
+<div style="margin-bottom:10px; position:relative;">
+  
+  <input 
+    type="text" 
+    id="buscador" 
+    placeholder="🔍 Buscar tratamiento..."
+    style="
+      width:100%;
+      padding:10px 35px 10px 14px;
+      border-radius:25px;
+      border:1px solid #ddd;
+      font-size:13px;
+      outline:none;
+      box-sizing:border-box;
+    "
+    oninput="filtrarServicios()"
+  >
+
+  <span 
+    id="clearBtn"
+    onclick="limpiarBusqueda()"
+    style="
+      position:absolute;
+      right:12px;
+      top:50%;
+      transform:translateY(-50%);
+      font-size:14px;
+      color:#999;
+      cursor:pointer;
+      display:none;
+    "
+  >✕</span>
+
+</div>
+  
+<div class="categorias-bar" id="categoriasBar"></div>
+
+<div id="menu"></div>
+
+<div class="carrito">
+  <div>
+    <div id="total" class="total">Total: $0</div>
+    <div id="lista" class="lista"></div>
+  </div>
+  <button class="alt" onclick="abrirAgenda()" id="btnAgendar">Agendar</button>
+</div>
+
+<div class="modal" id="modal">
+  <div class="modal-content">
+  <h3>¿Deseas agendar estos servicios?</h3>
+  <p id="resumen"></p>
+
+  <div style="display:flex; gap:10px; margin-top:15px;">
+    <button onclick="cerrarModal()" style="flex:1; background:#eee; color:#333;">
+      Regresar
+    </button>
+
+    <button class="alt" onclick="irAgenda()" style="flex:1;">
+      Continuar
+    </button>
+  </div>
+ </div>
+</div>
+
+<script>
+
+const servicios = [
+
+  // REJUVENECIMIENTO
+  {
+    nombre:"Botox (50 unidades)",
+    precio:4500,
+    categoria:"rejuvenecimiento",
+    img:"/img/botox.webp",
+    desc:"Relaja los músculos faciales para disminuir líneas de expresión."
+  },
+  {
+    nombre:"Medio Botox (25 unidades)",
+    precio:2500,
+    categoria:"rejuvenecimiento",
+    img:"/img/medio-botox.webp",
+    desc:"Aplicación localizada para tratar zonas específicas."
+  },
+  {
+    nombre:"MesoBotox",
+    precio:5500,
+    categoria:"rejuvenecimiento",
+    img:"/img/mesobotox.webp",
+    desc:"Mejora textura y luminosidad combinando botox con activos."
+  },
+  {
+    nombre:"Sculptra",
+    precio:12000,
+    categoria:"rejuvenecimiento",
+    img:"/img/sculptra.webp",
+    desc:"Estimula colágeno para rejuvenecimiento progresivo."
+  },
+  {
+    nombre:"Radiesse",
+    precio:8000,
+    categoria:"rejuvenecimiento",
+    img:"/img/radiesse.webp",
+    desc:"Relleno que mejora volumen y firmeza."
+  },
+
+  // ARMONIZACIÓN
+  {
+    nombre:"Relleno de labios",
+    precio:4000,
+    categoria:"armonizacion",
+    img:"/img/lips.webp",
+    desc:"Aporta volumen, definición y armonía a los labios."
+  },
+  {
+    nombre:"Rinomodelación",
+    precio:4000,
+    categoria:"armonizacion",
+    img:"/img/nose.webp",
+    desc:"Mejora la forma de la nariz sin cirugía."
+  },
+  {
+    nombre:"Ácido hialurónico",
+    precio:3500,
+    categoria:"armonizacion",
+    img:"/img/acido.webp",
+    desc:"Hidratación profunda y mejora de volumen facial."
+  },
+
+  // PIEL
+  {
+    nombre:"NCTF",
+    precio:3500,
+    categoria:"piel",
+    img:"/img/patient.webp",
+    desc:"Revitalización con vitaminas y ácido hialurónico."
+  },
+  {
+    nombre:"CQ Styler",
+    precio:4000,
+    categoria:"piel",
+    img:"/img/cq.webp",
+    desc:"Mejora calidad y firmeza de la piel."
+  },
+  {
+    nombre:"Liposucción enzimática",
+    precio:2500,
+    categoria:"piel",
+    img:"/img/lipo.webp",
+    desc:"Reduce grasa localizada sin cirugía."
+  },
+
+  // LÁSER
+  {
+    nombre:"CO2 ojos",
+    precio:4000,
+    categoria:"laser",
+    img:"/img/eye.webp",
+    desc:"Mejora arrugas finas y textura alrededor de los ojos."
+  },
+  {
+    nombre:"CO2 mejillas",
+    precio:5000,
+    categoria:"laser",
+    img:"/img/cheek.webp",
+    desc:"Renovación de piel en zona media del rostro."
+  },
+  {
+    nombre:"CO2 rostro",
+    precio:10000,
+    categoria:"laser",
+    img:"/img/face.webp",
+    desc:"Rejuvenecimiento completo con láser."
+  },
+  {
+    nombre:"CO2 rostro y cuello",
+    precio:15000,
+    categoria:"laser",
+    img:"/img/co2-cuello.webp",
+    desc:"Tratamiento profundo en rostro y cuello."
+  },
+  {
+    nombre:"CO2 rostro, cuello y escote",
+    precio:20000,
+    categoria:"laser",
+    img:"/img/co2-escote.webp",
+    desc:"Rejuvenecimiento integral de piel."
+  },
+
+  // HILOS
+  {
+    nombre:"Hilos cara",
+    precio:12000,
+    categoria:"hilos",
+    img:"/img/eyebrown.webp",
+    desc:"Lifting sin cirugía para mejorar firmeza facial."
+  },
+  {
+    nombre:"Hilos cuello",
+    precio:12000,
+    categoria:"hilos",
+    img:"/img/hilos-cuello.webp",
+    desc:"Mejora flacidez en cuello."
+  },
+  {
+    nombre:"Hilos cejas",
+    precio:6000,
+    categoria:"hilos",
+    img:"/img/hilos-cejas.webp",
+    desc:"Eleva y define la zona de las cejas."
+  },
+  {
+    nombre:"Hilos nariz",
+    precio:4000,
+    categoria:"hilos",
+    img:"/img/hilos-nariz.webp",
+    desc:"Mejora la proyección nasal sin cirugía."
+  },
+
+  // EXTRA
+  {
+    nombre:"Eliminación de lunares",
+    precio:0,
+    categoria:"otros",
+    img:"/img/lunares.webp",
+    desc:"Requiere valoración previa para determinar tratamiento (Puede enviar fotografías)."
+  }
+
+];
+
+let carrito = [];
+let filtro = "";
+
+const nombresCategorias = [
+  "💉 Rejuvenecimiento",
+  "💋 Armonización",
+  "💆‍♀️ Piel",
+  "🔥 Láser",
+  "🧵 Hilos",
+  "✨ Otros"
+];
+
+function renderCategorias(){
+  let html = "";
+
+  nombresCategorias.forEach((c, i)=>{
+    html += `<div class="categoria-btn" id="btn${i}" onclick="scrollToCat(${i})">${c}</div>`;
+  });
+
+  document.getElementById("categoriasBar").innerHTML = html;
+}
+
+function scrollToCat(i){
+  let elemento = document.getElementById("cat"+i);
+
+  let offset = 120; // ajusta si quieres
+
+  let y = elemento.getBoundingClientRect().top + window.pageYOffset - offset;
+
+  window.scrollTo({ top: y, behavior: "smooth" });
+}
+  
+function render(){
+
+  const categorias = {
+  "💉 Rejuvenecimiento": servicios.filter(s => s.categoria === "rejuvenecimiento"),
+  "💋 Armonización": servicios.filter(s => s.categoria === "armonizacion"),
+  "💆‍♀️ Piel": servicios.filter(s => s.categoria === "piel"),
+  "🔥 Láser": servicios.filter(s => s.categoria === "laser"),
+  "🧵 Hilos": servicios.filter(s => s.categoria === "hilos"),
+  "✨ Otros": servicios.filter(s => s.categoria === "otros")
+};
+
+  let html = "";
+
+  Object.keys(categorias).forEach((cat, index) => {
+
+    let serviciosFiltrados = categorias[cat].filter(s => 
+      !filtro || 
+      s.nombre.toLowerCase().includes(filtro) ||
+      s.desc.toLowerCase().includes(filtro)
+    );
+
+    if(serviciosFiltrados.length === 0) return;
+
+    html += `<h2 id="cat${index}" style="margin-top:25px;">${cat}</h2>`;
+
+    serviciosFiltrados.forEach(s => {
+
+      let i = servicios.findIndex(x => x.nombre === s.nombre);
+      let seleccionado = carrito.find(x => x.nombre === s.nombre);
+
+      html += `
+        <div class="card ${seleccionado ? 'selected added' : ''}">
+          <img src="${s.img}">
+          <div class="info">
+            <div class="nombre">${s.nombre}</div>
+            <div class="precio">$${s.precio}</div>
+            <div style="font-size:11px;color:#777;margin-top:4px;">
+              ${s.desc}
+            </div>
+          </div>
+          <button onclick="agregar(${i})">
+            ${seleccionado ? 'Quitar' : 'Agregar'}
+          </button>
+        </div>
+      `;
+    });
+
+  });
+
+  document.getElementById("menu").innerHTML = html;
+}
+
+function agregar(i){
+
+  let servicio = servicios[i];
+  let index = carrito.findIndex(s => s.nombre === servicio.nombre);
+
+  if(index > -1){
+    carrito.splice(index, 1);
+  } else {
+    carrito.push(servicio);
+  }
+
+  actualizarTotal();
+  render();
+  renderCategorias();
+
+  setTimeout(() => {
+  let cards = document.querySelectorAll(".card");
+  cards.forEach(c => c.classList.remove("added"));
+ }, 150);
+}
+
+function filtrarServicios(){
+  let input = document.getElementById("buscador");
+  filtro = input.value.toLowerCase();
+
+  let clearBtn = document.getElementById("clearBtn");
+
+  if(filtro.length > 0){
+    clearBtn.style.display = "block";
+  } else {
+    clearBtn.style.display = "none";
+  }
+
+  render();
+}
+
+function limpiarBusqueda(){
+  let input = document.getElementById("buscador");
+  input.value = "";
+  filtro = "";
+  document.getElementById("clearBtn").style.display = "none";
+  render();
+}
+
+window.addEventListener("scroll", () => {
+
+  let categorias = document.querySelectorAll("h2");
+  let scrollTop = window.scrollY;
+  let windowHeight = window.innerHeight;
+  let fullHeight = document.body.scrollHeight;
+
+  // 🔥 DETECTAR FINAL REAL
+  let alFinal = scrollTop + windowHeight >= fullHeight - 5;
+
+  if(alFinal){
+    activarCategoria(categorias.length - 1);
+    return;
+  }
+
+  let scrollPos = scrollTop + 150;
+
+  categorias.forEach((cat, i) => {
+
+    let offsetTop = cat.offsetTop;
+    let nextOffset = categorias[i+1]?.offsetTop;
+
+    if(nextOffset){
+      if(scrollPos >= offsetTop && scrollPos < nextOffset){
+        activarCategoria(i);
+      }
+    }
+
+  });
+
+});
+
+
+function activarCategoria(i){
+
+  let botones = document.querySelectorAll(".categoria-btn");
+
+  botones.forEach(btn => btn.classList.remove("active"));
+
+  let btn = document.getElementById("btn"+i);
+
+  if(btn && !btn.classList.contains("active")){
+    btn.classList.add("active");
+
+    btn.scrollIntoView({
+      behavior: "smooth",
+      inline: "center",
+      block: "nearest"
+    });
+  }
+}
+  
+function actualizarTotal(){
+  let total = carrito.reduce((acc,s)=>acc+s.precio,0);
+  document.getElementById("total").innerText = "Total: $" + total;
+
+  let nombres = carrito.map(s=>s.nombre).join(", ");
+  document.getElementById("lista").innerText = nombres;
+
+  let btn = document.getElementById("btnAgendar");
+  if(btn){
+    if(carrito.length > 0){
+      btn.innerText = "Agendar (" + carrito.length + ")";
+    } else {
+      btn.innerText = "Agendar";
+    }
+  }
+  
+  let data = JSON.parse(localStorage.getItem("carritoData")) || {};
+  data.timestamp = Date.now();
+  data.items = carrito;
+  data.enviado = false;
+
+  localStorage.setItem("carritoData", JSON.stringify(data));
+}
+
+function abrirAgenda(){
+  if(carrito.length==0){
+    alert("Selecciona al menos un servicio");
+    return;
+  }
+
+  let resumen = carrito.map(s=>s.nombre).join(", ");
+  document.getElementById("resumen").innerText = resumen;
+  document.getElementById("modal").style.display = "flex";
+}
+
+function irAgenda(){
+
+  let serviciosTxt = carrito.map(s=>s.nombre).join(", ");
+  let params = new URLSearchParams(window.location.search);
+  let desdeWA = params.get("from");
+
+  if(desdeWA && desdeWA.toLowerCase() === "wa"){
+
+  let numero = "5219996690192";
+
+  let mensaje = "Hola, quiero agendar: " 
+                + serviciosTxt + 
+                ". ¿Tienen disponibilidad hoy o mañana?";
+
+  let data = JSON.parse(localStorage.getItem("carritoData")) || {};
+    data.enviado = true;
+    localStorage.setItem("carritoData", JSON.stringify(data));
+  carrito = [];
+  actualizarTotal();
+  render();
+
+  let url = "https://wa.me/" + numero + "?text=" + encodeURIComponent(mensaje);
+
+  window.location.href = url;
+  } else {
+
+    localStorage.removeItem("carrito");
+    
+    let url = "https://cal.com/ulink/60min?servicios=" + encodeURIComponent(serviciosTxt);
+    window.open(url, "_blank");
+
+  }
+}
+
+let data = JSON.parse(localStorage.getItem("carritoData"));
+
+if(data){
+
+  let ahora = Date.now();
+  let minutos = (ahora - data.timestamp) / 60000;
+
+  if(data.enviado){
+    localStorage.removeItem("carritoData");
+    carrito = [];
+  } 
+  else if(minutos < 30){
+    carrito = data.items || [];
+  } 
+  else {
+    localStorage.removeItem("carritoData");
+    carrito = [];
+  }
+
+}
+
+render();
+renderCategorias();
+actualizarTotal();
+
+function cerrarModal(){
+  document.getElementById("modal").style.display = "none";
+}
+
+  window.addEventListener("click", function(e){
+  let modal = document.getElementById("modal");
+  if(e.target === modal){
+    cerrarModal();
+  }
+});
+  
+</script>
+
+</body>
+</html>
