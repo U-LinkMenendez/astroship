@@ -264,12 +264,13 @@ button.alt {
 
   <button onclick="moverPromo(1)" style="
     pointer-events:auto;
-    background:rgba(0,0,0,0.4);
+    background:rgba(0,0,0,0.6);
     color:white;
     border:none;
     padding:10px;
     border-radius:50%;
     margin-right:10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
   ">›</button>
 
 </div>
@@ -617,9 +618,11 @@ function agregar(i){
 }
 
   function abrirPromos(){
+  promoIndex = 0; // 👈 AGREGA ESTO
+  document.getElementById("promoSlider").style.transform = "translateX(0%)";
   document.getElementById("pantallaPromos").style.display = "block";
   renderPromos();
-  activarSwipe(); // 👈 ESTA LÍNEA ES CLAVE
+  activarSwipe();
 }
 
 function cerrarPromos(){
@@ -632,20 +635,44 @@ function renderPromos(){
 
   promociones.forEach(p=>{
     html += `
-  <div style="
-    min-width:100%;
-    max-width:100%;
-    box-sizing:border-box;
-    padding:10px;
-    flex-shrink:0;
-    display:flex;
-    flex-direction:column;
-    justify-content:flex-start;
-  ">
+      <div style="
+        min-width:100%;
+        max-width:100%;
+        box-sizing:border-box;
+        padding:10px;
+        flex-shrink:0;
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+      ">
+
+        <img src="${p.imagen}" style="
+          width:100%;
+          border-radius:12px;
+          margin-bottom:15px;
+        ">
+
+        <div style="
+          font-weight:600;
+          margin-bottom:5px;
+          text-align:center;
+        ">
+          ${p.nombre}
+        </div>
+
+        <div style="
+          font-size:13px;
+          color:#666;
+          margin-bottom:15px;
+          text-align:center;
+        ">
+          ${p.descripcion}
+        </div>
 
         <button class="alt" onclick="interesCaso('${p.nombre}')">
           Quiero esto en mi negocio
         </button>
+
       </div>
     `;
   });
