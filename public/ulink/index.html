@@ -233,7 +233,10 @@ button.alt {
     <button onclick="cerrarPromos()">✕</button>
   </div>
 
-  <div id="promoSlider" style="display:flex;"></div>
+  <div id="promoSlider" style="
+  display:flex;
+  transition: transform 0.4s ease;
+"></div>
 
 </div>
   
@@ -580,6 +583,7 @@ function agregar(i){
   function abrirPromos(){
   document.getElementById("pantallaPromos").style.display = "block";
   renderPromos();
+  activarSwipe(); // 👈 ESTA LÍNEA ES CLAVE
 }
 
 function cerrarPromos(){
@@ -611,9 +615,49 @@ function renderPromos(){
 function interesCaso(nombre){
 
   let mensaje = "Hola, vi el caso de " + nombre + 
-                " y quiero algo similar para mi negocio";
+              " y quiero implementar algo así en mi negocio. ¿Me puedes explicar cómo funciona y costos?";
 
   window.location.href = "https://wa.me/521999XXXXXXX?text=" + encodeURIComponent(mensaje);
+}
+
+  let promoIndex = 0;
+let startX = 0;
+let endX = 0;
+
+function activarSwipe(){
+
+  const slider = document.getElementById("promoSlider");
+
+  if(!slider) return;
+
+  slider.addEventListener("touchstart", (e)=>{
+    startX = e.touches[0].clientX;
+  });
+
+  slider.addEventListener("touchend", (e)=>{
+    endX = e.changedTouches[0].clientX;
+
+    if(startX - endX > 50){
+      moverPromo(1);
+    }
+
+    if(endX - startX > 50){
+      moverPromo(-1);
+    }
+  });
+
+}
+
+function moverPromo(dir){
+
+  promoIndex += dir;
+
+  if(promoIndex < 0) promoIndex = promociones.length - 1;
+  if(promoIndex >= promociones.length) promoIndex = 0;
+
+  const slider = document.getElementById("promoSlider");
+
+  slider.style.transform = "translateX(-" + (promoIndex * 100) + "%)";
 }
 
 function filtrarServicios(){
