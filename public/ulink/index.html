@@ -567,7 +567,17 @@ function agregar(i){
     carrito.push(servicio);
   }
 
-function abrirPromos(){
+  actualizarTotal();
+  render();
+  renderCategorias();
+
+  setTimeout(() => {
+  let cards = document.querySelectorAll(".card");
+  cards.forEach(c => c.classList.remove("added"));
+ }, 150);
+}
+
+  function abrirPromos(){
   document.getElementById("pantallaPromos").style.display = "block";
   renderPromos();
 }
@@ -604,16 +614,6 @@ function interesCaso(nombre){
                 " y quiero algo similar para mi negocio";
 
   window.location.href = "https://wa.me/521999XXXXXXX?text=" + encodeURIComponent(mensaje);
-}
-  
-  actualizarTotal();
-  render();
-  renderCategorias();
-
-  setTimeout(() => {
-  let cards = document.querySelectorAll(".card");
-  cards.forEach(c => c.classList.remove("added"));
- }, 150);
 }
 
 function filtrarServicios(){
