@@ -620,7 +620,11 @@ function agregar(i){
 let startX = 0;
 let endX = 0;
 
+let swipeActivo = false;
+
 function activarSwipe(){
+
+  if(swipeActivo) return; // 👈 evita duplicación
 
   const slider = document.getElementById("promoSlider");
 
@@ -642,8 +646,51 @@ function activarSwipe(){
     }
   });
 
+  swipeActivo = true; // 👈 marca como activo
 }
 
+  function abrirPromos(){
+  promoIndex = 0;
+
+  document.getElementById("pantallaPromos").style.display = "block";
+  document.getElementById("promoSlider").style.transform = "translateX(0%)";
+
+  renderPromos();
+  renderDots();
+  activarSwipe();
+}
+
+  function cerrarPromos(){
+  document.getElementById("pantallaPromos").style.display = "none";
+}
+
+function renderPromos(){
+
+  let html = "";
+
+  promociones.forEach(p=>{
+    html += `
+      <div style="
+        min-width:100%;
+        flex-shrink:0;
+        padding:10px;
+        box-sizing:border-box;
+        text-align:center;
+      ">
+        <img src="${p.imagen}" style="width:100%; border-radius:12px;">
+        <div style="font-weight:600; margin-top:10px;">${p.nombre}</div>
+        <div style="font-size:13px; color:#666;">${p.descripcion}</div>
+
+        <button class="alt" onclick="interesCaso('${p.nombre}')">
+          Quiero implementar esto ahora
+        </button>
+      </div>
+    `;
+  });
+
+  document.getElementById("promoSlider").innerHTML = html;
+}
+  
 function moverPromo(dir){
 
   promoIndex += dir;
@@ -654,6 +701,26 @@ function moverPromo(dir){
   const slider = document.getElementById("promoSlider");
 
   slider.style.transform = "translateX(-" + (promoIndex * 100) + "%)";
+
+  renderDots(); // 👈 ESTA LÍNEA FALTABA
+}
+
+  function renderDots(){
+
+  let html = "";
+
+  promociones.forEach((_, i)=>{
+    html += `
+      <div style="
+        width:8px;
+        height:8px;
+        border-radius:50%;
+        background:${i === promoIndex ? '#000' : '#ccc'};
+      "></div>
+    `;
+  });
+
+  document.getElementById("dots").innerHTML = html;
 }
 
 function filtrarServicios(){
@@ -671,6 +738,15 @@ function filtrarServicios(){
   render();
 }
 
+function interesCaso(nombre){
+
+  let mensaje = "Hola, vi el caso de " + nombre +
+                " y quiero implementar algo así en mi negocio.";
+
+  window.location.href =
+    "https://wa.me/5219996187124?text=" + encodeURIComponent(mensaje);
+}
+    
 function limpiarBusqueda(){
   let input = document.getElementById("buscador");
   input.value = "";
