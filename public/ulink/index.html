@@ -729,20 +729,17 @@ function abrirAgenda(){
 function irAgenda(){
 
   let serviciosTxt = carrito.map(s=>s.nombre).join(", ");
-  let params = new URLSearchParams(window.location.search);
-  let desdeWA = params.get("from");
 
-  if(desdeWA && desdeWA.toLowerCase() === "wa"){
+  let numero = "5219996187124"; // 👈 tu número real
 
-  let numero = "5219996187124";
-
-  let mensaje = "Hola, quiero agendar: " 
+  let mensaje = "Hola, me interesan estos servicios: " 
                 + serviciosTxt + 
-                ". ¿Tienen disponibilidad hoy o mañana?";
+                ". ¿Me puedes dar más información?";
 
   let data = JSON.parse(localStorage.getItem("carritoData")) || {};
-    data.enviado = true;
-    localStorage.setItem("carritoData", JSON.stringify(data));
+  data.enviado = true;
+  localStorage.setItem("carritoData", JSON.stringify(data));
+
   carrito = [];
   actualizarTotal();
   render();
@@ -750,14 +747,6 @@ function irAgenda(){
   let url = "https://wa.me/" + numero + "?text=" + encodeURIComponent(mensaje);
 
   window.location.href = url;
-  } else {
-
-    localStorage.removeItem("carrito");
-    
-    let url = "https://cal.com/ulink/60min?servicios=" + encodeURIComponent(serviciosTxt);
-    window.open(url, "_blank");
-
-  }
 }
 
 let data = JSON.parse(localStorage.getItem("carritoData"));
