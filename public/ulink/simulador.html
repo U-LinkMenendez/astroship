@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Simulador de Chatbot — U Link</title>
+
+<!-- Google Analytics 4 -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-085Q40C8KY"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){ dataLayer.push(arguments); }
+  gtag('js', new Date());
+  gtag('config', 'G-085Q40C8KY');
+</script>
+
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold: #c8a96a;
+  --green: #25D366;
+  --wa-header: #075E54;
+  --wa-bg: #e5ddd5;
+  --wa-bot: #ffffff;
+  --wa-user: #dcf8c6;
+  --dark: #0d0d0d;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background: #000;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  color: #fff;
+}
+
+.app {
+  width: 100%;
+  max-width: 430px;
+  height: 100dvh;
+  position: relative;
+  overflow: hidden;
+  background: var(--dark);
+}
+
+/* ── SCREENS ── */
+.screen {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.32s cubic-bezier(0.4,0,0.2,1), opacity 0.32s ease;
+  will-change: transform;
+}
+
+.screen.hidden-left  { transform: translateX(-100%); opacity: 0; pointer-events: none; }
+.screen.hidden-right { transform: translateX(100%);  opacity: 0; pointer-events: none; }
+.screen.visible      { transform: translateX(0);     opacity: 1; }
+
+/* ────────────────────────────────────────────────────────────
+   PANTALLA 1 — SELECTOR
+──────────────────────────────────────────────────────────── */
+#s-selector {
+  background: var(--dark);
+  overflow-y: auto;
+  padding: 40px 20px 36px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 36px;
+}
+
+.brand-logo {
+  width: 40px;
+  height: 40px;
+  background: var(--gold);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: 800;
+  color: #000;
+  flex-shrink: 0;
+}
+
+.brand-name  { font-size: 16px; font-weight: 700; letter-spacing: -0.3px; }
+.brand-tag   { font-size: 11px; color: #555; margin-top: 1px; }
+
+.sel-title {
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.6px;
+  margin-bottom: 10px;
+}
+
+.sel-sub {
+  font-size: 14px;
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 28px;
+}
+
+.sectors-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 32px;
+}
+
+.sector-card {
+  background: #161616;
+  border: 1px solid #222;
+  border-radius: 16px;
+  padding: 16px 14px 14px;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.sector-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  border-radius: 16px 16px 0 0;
+  background: #333;
+}
+
+.sector-card:active { transform: scale(0.96); background: #1e1e1e; }
+
+.sector-card[data-s="clinica"]::before      { background: #4ade80; }
+.sector-card[data-s="taller"]::before       { background: #f472b6; }
+.sector-card[data-s="restaurante"]::before  { background: #fb923c; }
+.sector-card[data-s="spa"]::before          { background: #a78bfa; }
+.sector-card[data-s="inmobiliaria"]::before { background: #60a5fa; }
+.sector-card[data-s="tienda"]::before       { background: var(--gold); }
+
+.sc-icon  { font-size: 26px; margin-bottom: 10px; display: block; }
+.sc-label { font-size: 13px; font-weight: 700; color: #fff; line-height: 1.3; }
+.sc-desc  { font-size: 11px; color: #555; margin-top: 3px; }
+
+.sel-footer {
+  font-size: 11px;
+  color: #3a3a3a;
+  text-align: center;
+  line-height: 1.7;
+}
+
+.sel-footer a { color: var(--gold); text-decoration: none; }
+
+/* ────────────────────────────────────────────────────────────
+   PANTALLA 2 — CHAT
+──────────────────────────────────────────────────────────── */
+#s-chat {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+}
+
+/* Header WA */
+.wa-header {
+  background: var(--wa-header);
+  padding: 10px 12px 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+.wa-back {
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.8);
+  font-size: 22px;
+  cursor: pointer;
+  padding: 2px 4px 2px 0;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+}
+
+.wa-avatar {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  background: #128C7E;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.wa-info { flex: 1; min-width: 0; }
+.wa-biz  { font-size: 15px; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wa-st   { font-size: 11px; color: rgba(255,255,255,0.65); }
+
+/* Messages area */
+.wa-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px 10px 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background-color: var(--wa-bg);
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23b0a89e' fill-opacity='0.13'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* Bubbles */
+.msg-row        { display: flex; margin-bottom: 1px; }
+.msg-row.bot    { justify-content: flex-start; }
+.msg-row.user   { justify-content: flex-end; }
+
+.bubble {
+  max-width: 80%;
+  padding: 7px 10px 6px;
+  border-radius: 8px;
+  font-size: 13.5px;
+  line-height: 1.5;
+  position: relative;
+  word-break: break-word;
+  box-shadow: 0 1px 1px rgba(0,0,0,0.12);
+}
+
+.msg-row.bot  .bubble { background: var(--wa-bot);  border-radius: 0 8px 8px 8px; color: #111; }
+.msg-row.user .bubble { background: var(--wa-user); border-radius: 8px 0 8px 8px; color: #111; }
+
+.btime {
+  font-size: 10px;
+  color: #999;
+  float: right;
+  margin-left: 6px;
+  margin-top: 2px;
+  line-height: 1;
+}
+
+.msg-row.user .btime::after { content: ' ✓✓'; color: #53bdeb; }
+
+/* Typing */
+.typing-ind {
+  display: flex; gap: 4px;
+  padding: 10px 13px;
+  background: white;
+  border-radius: 0 8px 8px 8px;
+  width: fit-content;
+  box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+  margin-bottom: 1px;
+}
+
+.tdot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: #aaa;
+  animation: tdot 1.3s infinite;
+}
+.tdot:nth-child(2) { animation-delay: 0.18s; }
+.tdot:nth-child(3) { animation-delay: 0.36s; }
+
+@keyframes tdot {
+  0%,60%,100% { transform: translateY(0); opacity: 0.35; }
+  30%          { transform: translateY(-5px); opacity: 1; }
+}
+
+/* Map bubble */
+.fake-map {
+  width: 100%; height: 110px;
+  border-radius: 6px 6px 0 0;
+  background: linear-gradient(145deg, #d4e9c4, #b8d4a8);
+  position: relative; overflow: hidden; margin-bottom: 4px;
+}
+.fake-map::before {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    repeating-linear-gradient(0deg,  transparent, transparent 20px, rgba(255,255,255,0.25) 20px, rgba(255,255,255,0.25) 21px),
+    repeating-linear-gradient(90deg, transparent, transparent 20px, rgba(255,255,255,0.25) 20px, rgba(255,255,255,0.25) 21px);
+}
+.map-pin {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -100%);
+  font-size: 26px;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+  animation: pin-drop 0.6s ease-out;
+}
+@keyframes pin-drop {
+  from { transform: translate(-50%, -220%); opacity: 0; }
+  to   { transform: translate(-50%, -100%); opacity: 1; }
+}
+
+/* Quick replies */
+.qr-area {
+  background: #ededed;
+  border-top: 1px solid #d9d9d9;
+  padding: 8px 10px;
+  flex-shrink: 0;
+}
+
+.qr-wrap { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.qr-btn {
+  background: #fff;
+  border: 1.5px solid #128C7E;
+  color: #128C7E;
+  border-radius: 18px;
+  padding: 7px 13px;
+  font-size: 12.5px;
+  font-weight: 600;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  cursor: pointer;
+  transition: all 0.12s ease;
+  white-space: nowrap;
+}
+
+.qr-btn:active { background: #128C7E; color: #fff; transform: scale(0.95); }
+
+/* Fake input bar */
+.wa-bar {
+  background: #ededed;
+  padding: 7px 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  border-top: 1px solid #d9d9d9;
+}
+
+.wa-fake-inp {
+  flex: 1;
+  background: #fff;
+  border-radius: 22px;
+  padding: 9px 14px;
+  font-size: 14px;
+  color: #bbb;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  border: none;
+  pointer-events: none;
+  user-select: none;
+}
+
+.wa-send-btn {
+  width: 42px; height: 42px;
+  border-radius: 50%;
+  background: var(--wa-header);
+  border: none;
+  display: flex; align-items: center; justify-content: center;
+  color: white;
+  font-size: 16px;
+  flex-shrink: 0;
+  cursor: default;
+}
+
+/* Message enter animation */
+.msg-enter { animation: min 0.22s ease-out; }
+@keyframes min {
+  from { opacity: 0; transform: translateY(5px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ────────────────────────────────────────────────────────────
+   PANTALLA 3 — RESUMEN
+──────────────────────────────────────────────────────────── */
+#s-summary {
+  background: var(--dark);
+  overflow-y: auto;
+  padding: 44px 24px 44px;
+  display: flex;
+  flex-direction: column;
+}
+
+.sum-icon {
+  width: 60px; height: 60px;
+  border-radius: 50%;
+  background: rgba(37,211,102,0.12);
+  border: 2px solid var(--green);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px;
+  margin-bottom: 22px;
+  flex-shrink: 0;
+}
+
+.sum-title {
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.4px;
+  margin-bottom: 8px;
+}
+
+.sum-sub {
+  font-size: 13px;
+  color: #555;
+  line-height: 1.7;
+  margin-bottom: 28px;
+}
+
+.sum-box {
+  background: #161616;
+  border: 1px solid #222;
+  border-radius: 16px;
+  padding: 18px 16px;
+  margin-bottom: 24px;
+}
+
+.sum-box-title {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1.8px;
+  color: #444;
+  margin-bottom: 14px;
+}
+
+.sum-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 11px;
+  font-size: 13px;
+  color: #aaa;
+  line-height: 1.5;
+}
+
+.sum-item:last-child { margin-bottom: 0; }
+
+.sum-check { color: var(--green); font-size: 13px; flex-shrink: 0; margin-top: 1px; }
+
+.cta-main {
+  background: var(--green);
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  padding: 16px;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  cursor: pointer;
+  width: 100%;
+  display: flex; align-items: center; justify-content: center;
+  gap: 8px;
+  transition: all 0.15s ease;
+  margin-bottom: 10px;
+}
+
+.cta-main:active { transform: scale(0.97); }
+
+.cta-sec {
+  background: transparent;
+  border: 1.5px solid #252525;
+  color: #555;
+  border-radius: 14px;
+  padding: 14px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  cursor: pointer;
+  width: 100%;
+  transition: all 0.15s ease;
+}
+
+.cta-sec:active { border-color: #444; color: #888; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ── PANTALLA 1: SELECTOR ── -->
+  <div id="s-selector" class="screen visible">
+    <div class="brand">
+      <div class="brand-logo">U</div>
+      <div>
+        <div class="brand-name">U Link Chatbots</div>
+        <div class="brand-tag">Simulador interactivo</div>
+      </div>
+    </div>
+
+    <div class="sel-title">¿A qué se dedica<br>tu negocio?</div>
+    <div class="sel-sub">Elige tu giro y vive exactamente<br>lo que tus clientes verían.</div>
+
+    <div class="sectors-grid">
+      <div class="sector-card" data-s="clinica"      onclick="iniciar('clinica')">
+        <span class="sc-icon">🏥</span>
+        <div class="sc-label">Clínica / Consultorio</div>
+        <div class="sc-desc">Médico, nutriólogo, estética</div>
+      </div>
+      <div class="sector-card" data-s="taller"       onclick="iniciar('taller')">
+        <span class="sc-icon">🎨</span>
+        <div class="sc-label">Taller / Academia</div>
+        <div class="sc-desc">Cursos, clases, formación</div>
+      </div>
+      <div class="sector-card" data-s="restaurante"  onclick="iniciar('restaurante')">
+        <span class="sc-icon">🍽️</span>
+        <div class="sc-label">Restaurante / Café</div>
+        <div class="sc-desc">Reservas, menú, pedidos</div>
+      </div>
+      <div class="sector-card" data-s="spa"          onclick="iniciar('spa')">
+        <span class="sc-icon">💆‍♀️</span>
+        <div class="sc-label">Spa / Estética</div>
+        <div class="sc-desc">Tratamientos, agenda, precios</div>
+      </div>
+      <div class="sector-card" data-s="inmobiliaria" onclick="iniciar('inmobiliaria')">
+        <span class="sc-icon">🏠</span>
+        <div class="sc-label">Inmobiliaria</div>
+        <div class="sc-desc">Compra, renta, venta</div>
+      </div>
+      <div class="sector-card" data-s="tienda"       onclick="iniciar('tienda')">
+        <span class="sc-icon">🛍️</span>
+        <div class="sc-label">Tienda / Comercio</div>
+        <div class="sc-desc">Productos, pedidos, envíos</div>
+      </div>
+    </div>
+
+    <div class="sel-footer">
+      Demostración por <a href="https://www.menendez.lat" target="_blank">U Link Chatbots</a>
+    </div>
+  </div>
+
+  <!-- ── PANTALLA 2: CHAT ── -->
+  <div id="s-chat" class="screen hidden-right">
+    <div class="wa-header">
+      <button class="wa-back" onclick="goSelector()">‹</button>
+      <div class="wa-avatar" id="chat-ico">🏥</div>
+      <div class="wa-info">
+        <div class="wa-biz" id="chat-biz">—</div>
+        <div class="wa-st">en línea</div>
+      </div>
+    </div>
+
+    <div class="wa-messages" id="wa-msgs"></div>
+
+    <div class="qr-area" id="qr-area" style="display:none;">
+      <div class="qr-wrap" id="qr-wrap"></div>
+    </div>
+
+    <div class="wa-bar">
+      <div class="wa-fake-inp">Escribe un mensaje...</div>
+      <div class="wa-send-btn">➤</div>
+    </div>
+  </div>
+
+  <!-- ── PANTALLA 3: RESUMEN ── -->
+  <div id="s-summary" class="screen hidden-right">
+    <div class="sum-icon">✓</div>
+    <div class="sum-title" id="sum-title">Lo que acaba de automatizar</div>
+    <div class="sum-sub">Esto opera 24/7. Cero conversaciones manuales.<br>Cero prospectos perdidos.</div>
+
+    <div class="sum-box">
+      <div class="sum-box-title">Automatizaciones en este flujo</div>
+      <div id="sum-items"></div>
+    </div>
+
+    <button class="cta-main" onclick="goWA()">
+      <span>💬</span> Quiero esto en mi negocio
+    </button>
+    <button class="cta-sec" onclick="reiniciar()">Probar otro sector</button>
+  </div>
+
+</div>
+<script>
+// ─── DATOS ───────────────────────────────────────────────────────────────────
+
+const S = {
+
+  clinica: {
+    nombre: "Clínica MedPlus", icono: "🏥",
+    flujo: {
+      start: {
+        bot: ["¡Hola! 👋 Gracias por escribirnos.", "Soy el asistente de *Clínica MedPlus*. Estoy disponible las 24 horas. 🕐", "¿En qué te puedo ayudar?"],
+        op: [{ l:"📅 Agendar cita", n:"agendar" }, { l:"💊 Ver tratamientos", n:"tratamientos" }, { l:"📍 Ubicación y horarios", n:"ubicacion" }, { l:"💬 Hablar con alguien", n:"asesor" }]
+      },
+      agendar: {
+        bot: ["¡Perfecto! ¿Para qué especialidad?"],
+        op: [{ l:"👨‍⚕️ Medicina general", n:"fecha" }, { l:"🥗 Nutrición", n:"fecha" }, { l:"✨ Estética facial", n:"fecha" }, { l:"No sé, necesito orientación", n:"orientacion" }]
+      },
+      fecha: {
+        bot: ["¿Cuándo prefieres tu cita?"],
+        op: [{ l:"Hoy", n:"confirmar" }, { l:"Mañana", n:"confirmar" }, { l:"Esta semana", n:"confirmar" }]
+      },
+      confirmar: {
+        bot: ["Verificando disponibilidad... ⏳", "✅ *¡Cita confirmada!*", "Te enviaremos un recordatorio 1 hora antes. ¿Necesitas algo más?"],
+        op: [{ l:"Ver ubicación", n:"ubicacion" }, { l:"No, gracias", n:"fin" }]
+      },
+      tratamientos: {
+        bot: ["Nuestros servicios principales:\n\n💉 Rejuvenecimiento facial\n🔥 Láser CO₂\n🧵 Hilos tensores\n✨ Armonización facial\n\n¿Te interesa alguno?"],
+        op: [{ l:"Más información", n:"info_trat" }, { l:"Agendar valoración gratis", n:"fecha" }]
+      },
+      info_trat: {
+        bot: ["Puedo enviarte precios y descripción de cada tratamiento 📋", "O agenda una *valoración sin costo* con nuestro médico."],
+        op: [{ l:"Agendar valoración gratis", n:"fecha" }, { l:"Volver al menú", n:"start" }]
+      },
+      ubicacion: {
+        bot: ["📍 *Clínica MedPlus*\nAv. Principal 123, Col. Centro\n\n🕐 Lun–Vie: 9am – 7pm\n🕐 Sábados: 10am – 2pm", "¿Te comparto la ubicación en Maps?"],
+        op: [{ l:"Sí, ver en Maps", n:"maps" }, { l:"Agendar cita", n:"agendar" }]
+      },
+      maps: {
+        bot: ["Aquí tienes 📌"], mapa: true,
+        botPost: ["Toca para abrir en Google Maps. ¿Algo más?"],
+        op: [{ l:"Agendar cita", n:"agendar" }, { l:"No, gracias", n:"fin" }]
+      },
+      asesor: {
+        bot: ["Con gusto te conecto con un asesor. 👩‍💼", "Están *disponibles ahora*. Tiempo estimado: 2 min.", "Mientras tanto, ¿puedo ayudarte?"],
+        op: [{ l:"Ver tratamientos", n:"tratamientos" }, { l:"Agendar cita", n:"agendar" }]
+      },
+      orientacion: {
+        bot: ["Sin problema, te orientamos. 😊", "¿Cuál es tu motivo principal de consulta?"],
+        op: [{ l:"Dolor o malestar", n:"fecha" }, { l:"Apariencia / estética", n:"tratamientos" }, { l:"Nutrición o peso", n:"fecha" }]
+      },
+      fin: { bot: ["¡Fue un placer atenderte! 😊", "Recuerda: disponibles *las 24 horas*. ¡Hasta pronto! 👋"], op: [], final: true }
+    },
+    resumen: ["Bienvenida y menú automáticos las 24 horas", "Agendamiento de citas sin intervención humana", "Catálogo de tratamientos con valoración gratuita", "Envío de ubicación por Google Maps en automático", "Conexión con asesor humano cuando se necesita"]
+  },
+
+  taller: {
+    nombre: "Taller Creativo", icono: "🎨",
+    flujo: {
+      start: {
+        bot: ["¡Hola! 🎨 Bienvenido a *Taller Creativo*.", "Estoy aquí para resolver tus dudas. 😊", "¿Qué te trae por aquí?"],
+        op: [{ l:"🖌️ Ver cursos", n:"cursos" }, { l:"📅 Inscribirme", n:"inscripcion" }, { l:"🎁 Clase de prueba gratis", n:"prueba" }, { l:"💰 Ver precios", n:"precios" }]
+      },
+      cursos: {
+        bot: ["Estos son nuestros cursos activos:\n\n🖼️ *Pintura al óleo* — Lun/Mié/Vie\n🖍️ *Acuarela* — Mar/Jue\n🏺 *Cerámica* — Sábados\n✏️ *Dibujo básico* — Todos los días\n\n¿Alguno te interesa?"],
+        op: [{ l:"Inscribirme", n:"inscripcion" }, { l:"Ver precios", n:"precios" }, { l:"Clase de prueba", n:"prueba" }]
+      },
+      inscripcion: {
+        bot: ["¡Excelente decisión! 🎉", "¿Ya sabes qué curso te interesa?"],
+        op: [{ l:"Pintura al óleo", n:"horario" }, { l:"Acuarela", n:"horario" }, { l:"Cerámica", n:"horario" }, { l:"Todavía no lo sé", n:"prueba" }]
+      },
+      horario: {
+        bot: ["¿Qué horario se adapta mejor a ti?"],
+        op: [{ l:"Mañana", n:"conf_ins" }, { l:"Tarde", n:"conf_ins" }, { l:"Fines de semana", n:"conf_ins" }]
+      },
+      conf_ins: {
+        bot: ["✅ *¡Inscripción registrada!*", "Nuestro equipo te confirma tu lugar en menos de 24 horas.", "¿Tienes alguna pregunta?"],
+        op: [{ l:"Ver precios", n:"precios" }, { l:"No, gracias", n:"fin" }]
+      },
+      prueba: {
+        bot: ["¡Perfecto! Ofrecemos una *clase de prueba sin costo*. 🎨", "¿Para cuándo?"],
+        op: [{ l:"Esta semana", n:"conf_prueba" }, { l:"La próxima semana", n:"conf_prueba" }]
+      },
+      conf_prueba: {
+        bot: ["✅ *¡Clase de prueba agendada!*", "Solo necesitas ganas de crear. 🖌️", "¿Alguna pregunta antes de tu clase?"],
+        op: [{ l:"Ver los cursos", n:"cursos" }, { l:"No, gracias", n:"fin" }]
+      },
+      precios: {
+        bot: ["Nuestros planes:\n\n📦 *Mensualidad* — 4 clases/mes\n📦 *Plan intensivo* — 8 clases/mes\n📦 *Clase suelta* — Por sesión\n\n✅ Todos incluyen materiales básicos."],
+        op: [{ l:"Inscribirme", n:"inscripcion" }, { l:"Clase de prueba primero", n:"prueba" }]
+      },
+      fin: { bot: ["¡Te esperamos en el taller! 🎨", "Disponibles a cualquier hora. ¡Hasta pronto!"], op: [], final: true }
+    },
+    resumen: ["Catálogo de cursos y horarios disponible 24/7", "Inscripciones con selección de horario en automático", "Clase de prueba gratis para reducir fricción de precio", "Confirmación sin intervención del equipo", "Atención en Facebook, Instagram y WhatsApp unificados"]
+  },
+
+  restaurante: {
+    nombre: "Restaurante Cazuela", icono: "🍽️",
+    flujo: {
+      start: {
+        bot: ["¡Hola! 😊 Bienvenido a *Restaurante Cazuela*.", "¿En qué te puedo ayudar?"],
+        op: [{ l:"📋 Ver menú", n:"menu" }, { l:"📅 Reservar mesa", n:"reservar" }, { l:"🛵 Pedido para llevar", n:"llevar" }, { l:"📍 Ubicación y horarios", n:"ubicacion" }]
+      },
+      menu: {
+        bot: ["Menú del día 🍴\n\n🥗 *Entradas*\nSopa del día $85 · Ensalada $95\n\n🍖 *Platos fuertes*\nFilete al gusto $195\nPollo en salsa $165\nPasta de la casa $145\n\n🍮 *Postres*\nFlan casero $55"],
+        op: [{ l:"Reservar mesa", n:"reservar" }, { l:"Pedido para llevar", n:"llevar" }, { l:"Ver bebidas", n:"bebidas" }]
+      },
+      bebidas: {
+        bot: ["🥤 *Bebidas*\n\nAguas frescas $35 · Refrescos $40\nCerveza $60 · Vino copa $95\nVino botella $350"],
+        op: [{ l:"Reservar mesa", n:"reservar" }, { l:"Pedido para llevar", n:"llevar" }]
+      },
+      reservar: {
+        bot: ["¡Con gusto! ¿Para cuántas personas?"],
+        op: [{ l:"1–2 personas", n:"fecha_r" }, { l:"3–5 personas", n:"fecha_r" }, { l:"6 o más", n:"fecha_r" }]
+      },
+      fecha_r: {
+        bot: ["¿Para qué fecha?"],
+        op: [{ l:"Hoy", n:"hora_r" }, { l:"Mañana", n:"hora_r" }, { l:"Este fin de semana", n:"hora_r" }]
+      },
+      hora_r: {
+        bot: ["¿A qué hora?"],
+        op: [{ l:"1:00 pm", n:"conf_r" }, { l:"2:30 pm", n:"conf_r" }, { l:"7:00 pm", n:"conf_r" }, { l:"8:30 pm", n:"conf_r" }]
+      },
+      conf_r: {
+        bot: ["✅ *¡Mesa reservada!*", "Te enviamos un recordatorio 2 horas antes. 🍽️", "¿Algo más?"],
+        op: [{ l:"Ver el menú", n:"menu" }, { l:"No, gracias", n:"fin" }]
+      },
+      llevar: {
+        bot: ["Tiempo estimado: *25–30 minutos*. ⏱️", "¿Ya revisaste el menú?"],
+        op: [{ l:"Sí, quiero ordenar", n:"orden_ll" }, { l:"No, ver menú", n:"menu" }]
+      },
+      orden_ll: {
+        bot: ["¿Tienes alguna restricción alimentaria?"],
+        op: [{ l:"Sin gluten", n:"conf_ll" }, { l:"Vegetariano", n:"conf_ll" }, { l:"Ninguna", n:"conf_ll" }]
+      },
+      conf_ll: {
+        bot: ["✅ Anotado. En 2 minutos te confirmamos el pedido. 👨‍🍳"],
+        op: [], final: true
+      },
+      ubicacion: {
+        bot: ["📍 *Restaurante Cazuela*\nCalle Sabores 45\n\n🕐 Lun–Sáb: 1pm – 11pm\n🕐 Domingos: 1pm – 6pm"],
+        mapa: true, botPost: ["¡Te esperamos! 😊"],
+        op: [{ l:"Reservar mesa", n:"reservar" }, { l:"Ver menú", n:"menu" }]
+      },
+      fin: { bot: ["¡Muchas gracias! 😊 Te esperamos pronto. 🍽️"], op: [], final: true }
+    },
+    resumen: ["Menú digital con precios disponible 24/7", "Reservaciones con fecha y hora sin llamadas", "Confirmación instantánea por WhatsApp", "Pedidos para llevar con filtro de restricciones", "Envío automático de ubicación en Google Maps"]
+  },
+
+  spa: {
+    nombre: "Spa Serenity", icono: "💆‍♀️",
+    flujo: {
+      start: {
+        bot: ["¡Hola! 🌸 Bienvenida a *Spa Serenity*.", "¿Qué buscas hoy? ✨"],
+        op: [{ l:"💆 Ver tratamientos", n:"trats" }, { l:"📅 Agendar cita", n:"agendar" }, { l:"💰 Ver precios", n:"precios" }, { l:"🎁 Paquetes especiales", n:"paquetes" }]
+      },
+      trats: {
+        bot: ["Nuestros tratamientos estrella:\n\n🌿 Masaje relajante — 60 min\n💆 Masaje descontracturante — 90 min\n✨ Facial hidratante\n🔥 Piedras calientes\n🌊 Envolvimiento corporal\n\n¿Alguno te interesa?"],
+        op: [{ l:"Agendar tratamiento", n:"agendar" }, { l:"Ver precios", n:"precios" }, { l:"Ver paquetes", n:"paquetes" }]
+      },
+      precios: {
+        bot: ["Nuestros precios:\n\n🌿 Masaje 60 min — $650\n💆 Masaje 90 min — $850\n✨ Facial completo — $750\n🔥 Piedras calientes — $900\n💕 Paquete pareja — $1,400"],
+        op: [{ l:"Agendar cita", n:"agendar" }, { l:"Ver paquetes", n:"paquetes" }]
+      },
+      paquetes: {
+        bot: ["🎁 *Paquetes especiales:*\n\n💕 *Pareja* — 2 masajes + facial — $2,200\n🌸 *Día de spa* — Masaje + facial + envolvimiento — $1,800\n✨ *Cumpleaños* — 20% en cualquier servicio\n\n¡Incluyen café y snack de bienvenida!"],
+        op: [{ l:"Reservar pareja", n:"agendar" }, { l:"Reservar día de spa", n:"agendar" }]
+      },
+      agendar: {
+        bot: ["¡Perfecto! ¿Para cuántas personas?"],
+        op: [{ l:"Solo para mí", n:"fecha_sp" }, { l:"Para dos personas", n:"fecha_sp" }]
+      },
+      fecha_sp: {
+        bot: ["¿Qué día prefieres?"],
+        op: [{ l:"Hoy", n:"hora_sp" }, { l:"Mañana", n:"hora_sp" }, { l:"Este fin de semana", n:"hora_sp" }]
+      },
+      hora_sp: {
+        bot: ["¿En qué horario?"],
+        op: [{ l:"10:00 am", n:"conf_sp" }, { l:"12:00 pm", n:"conf_sp" }, { l:"3:00 pm", n:"conf_sp" }, { l:"5:00 pm", n:"conf_sp" }]
+      },
+      conf_sp: {
+        bot: ["✅ *¡Cita confirmada!* 🌸", "Llega 10 minutos antes para tu experiencia de bienvenida. 💆‍♀️", "¡Te esperamos con mucho cariño!"],
+        op: [], final: true
+      }
+    },
+    resumen: ["Catálogo de tratamientos y precios 24/7", "Agendamiento automático con selección de fecha/hora", "Venta de paquetes y promociones sin intermediarios", "Confirmación con instrucciones de llegada", "Recordatorio automático previo a la cita"]
+  },
+
+  inmobiliaria: {
+    nombre: "Inmobiliaria Vertex", icono: "🏠",
+    flujo: {
+      start: {
+        bot: ["¡Hola! 🏠 Bienvenido a *Inmobiliaria Vertex*.", "¿En qué te puedo ayudar?"],
+        op: [{ l:"🏡 Quiero comprar", n:"comprar" }, { l:"🔑 Quiero rentar", n:"rentar" }, { l:"💰 Vender mi propiedad", n:"vender" }, { l:"👤 Hablar con un asesor", n:"asesor_inmob" }]
+      },
+      comprar: {
+        bot: ["¡Excelente! ¿Cuál es tu presupuesto aproximado?"],
+        op: [{ l:"Hasta $1.5 MDP", n:"zona" }, { l:"$1.5M – $3M", n:"zona" }, { l:"$3M o más", n:"zona" }]
+      },
+      zona: {
+        bot: ["¿En qué zona te interesa?"],
+        op: [{ l:"Norte de la ciudad", n:"tipo_prop" }, { l:"Sur de la ciudad", n:"tipo_prop" }, { l:"Centro", n:"tipo_prop" }, { l:"Indiferente", n:"tipo_prop" }]
+      },
+      tipo_prop: {
+        bot: ["¿Qué tipo de propiedad buscas?"],
+        op: [{ l:"Casa", n:"contacto_c" }, { l:"Departamento", n:"contacto_c" }, { l:"Terreno", n:"contacto_c" }]
+      },
+      contacto_c: {
+        bot: ["Perfecto. Tenemos *3 opciones* que se ajustan a tu perfil. 🏡", "Un asesor te enviará las fichas técnicas en menos de 30 minutos.", "¿Quieres agendar una visita?"],
+        op: [{ l:"Sí, agendar visita", n:"conf_visita" }, { l:"Primero ver las opciones", n:"fin" }]
+      },
+      conf_visita: {
+        bot: ["✅ *¡Visita agendada!*", "Nuestro asesor confirma fecha exacta a la brevedad. 🤝"],
+        op: [], final: true
+      },
+      rentar: {
+        bot: ["Tenemos opciones en renta en varias zonas. 🔑", "¿Qué tipo de inmueble buscas?"],
+        op: [{ l:"Casa", n:"zona" }, { l:"Departamento", n:"zona" }, { l:"Local comercial", n:"zona" }]
+      },
+      vender: {
+        bot: ["¡Podemos ayudarte a vender al mejor precio! 💰", "¿Qué tipo de propiedad deseas vender?"],
+        op: [{ l:"Casa", n:"valuacion" }, { l:"Departamento", n:"valuacion" }, { l:"Terreno o local", n:"valuacion" }]
+      },
+      valuacion: {
+        bot: ["Ofrecemos *valuación gratuita* sin costo ni compromiso.", "¿Agendamos la visita de valoración?"],
+        op: [{ l:"Sí, agendar valuación", n:"conf_visita" }, { l:"Tengo dudas primero", n:"asesor_inmob" }]
+      },
+      asesor_inmob: {
+        bot: ["Con gusto te pongo en contacto con un asesor. 👤", "Tiempo de respuesta estimado: *5 minutos*."],
+        op: [{ l:"Comprar", n:"comprar" }, { l:"Rentar", n:"rentar" }, { l:"Vender", n:"vender" }]
+      },
+      fin: { bot: ["¡Perfecto! Estaremos en contacto muy pronto. 🤝", "Puedes escribirnos en cualquier momento."], op: [], final: true }
+    },
+    resumen: ["Calificación automática por presupuesto, zona y tipo", "Envío de fichas técnicas sin intervención del asesor", "Agendamiento de visitas a propiedades en automático", "Captación y seguimiento de leads para venta", "Cero prospectos perdidos fuera de horario de oficina"]
+  },
+
+  tienda: {
+    nombre: "Tienda Nomad", icono: "🛍️",
+    flujo: {
+      start: {
+        bot: ["¡Hola! 🛍️ Bienvenido a *Tienda Nomad*.", "¿En qué te puedo ayudar?"],
+        op: [{ l:"🔍 Ver productos", n:"productos" }, { l:"📦 Rastrear mi pedido", n:"rastreo" }, { l:"🛵 Envíos y costos", n:"envios" }, { l:"🔄 Devoluciones", n:"devoluciones" }]
+      },
+      productos: {
+        bot: ["Nuestras categorías:\n\n👕 Ropa casual\n👟 Calzado\n🎒 Mochilas y accesorios\n🏠 Decoración\n\n¿Cuál te interesa?"],
+        op: [{ l:"👕 Ropa", n:"ropa" }, { l:"👟 Calzado", n:"calzado" }, { l:"🎒 Accesorios", n:"accesorios" }]
+      },
+      ropa: {
+        bot: ["Top ventas esta semana 🔥\n\n• Playera básica — $299\n• Hoodie oversize — $599\n• Pantalón cargo — $749\n\nEnvíos desde $79."],
+        op: [{ l:"Comprar", n:"compra" }, { l:"Ver más categorías", n:"productos" }]
+      },
+      calzado: {
+        bot: ["Top ventas en calzado 👟\n\n• Tenis casuales — $899\n• Sandalias — $449\n• Botas — $1,199\n\nEnvío gratis en compras +$999."],
+        op: [{ l:"Comprar", n:"compra" }, { l:"Ver más", n:"productos" }]
+      },
+      accesorios: {
+        bot: ["Accesorios populares 🎒\n\n• Mochila urbana — $699\n• Cartera minimalista — $349\n• Gorra básica — $249"],
+        op: [{ l:"Comprar", n:"compra" }, { l:"Ver más", n:"productos" }]
+      },
+      compra: {
+        bot: ["¡Perfecto! ¿En qué estado estás? (Para calcular envío)"],
+        op: [{ l:"CDMX / Área metropolitana", n:"conf_compra" }, { l:"Otra ciudad", n:"conf_compra" }]
+      },
+      conf_compra: {
+        bot: ["✅ *¡Pedido registrado!*", "En 10 minutos recibirás confirmación con el total y opciones de pago. 📦"],
+        op: [], final: true
+      },
+      rastreo: {
+        bot: ["Para rastrear tu pedido compárteme tu *número de orden*."],
+        op: [{ l:"No tengo el número", n:"rastreo_manual" }, { l:"Lo busco y regreso", n:"fin" }]
+      },
+      rastreo_manual: {
+        bot: ["Sin problema, un asesor lo busca con tu nombre o teléfono. 🔍", "¿Cuándo realizaste la compra?"],
+        op: [{ l:"Esta semana", n:"conf_rastreo" }, { l:"La semana pasada", n:"conf_rastreo" }, { l:"Hace más tiempo", n:"conf_rastreo" }]
+      },
+      conf_rastreo: {
+        bot: ["✅ Ya le solicité al equipo que localice tu pedido.", "Te responden en máximo *30 minutos*. 📦"],
+        op: [], final: true
+      },
+      envios: {
+        bot: ["🛵 *Costos de envío:*\n\nEstándar 3–5 días — $79\nExprés 1–2 días — $149\n*Gratis* en compras +$999\n\nEnviamos a todo México. 🇲🇽"],
+        op: [{ l:"Ver productos", n:"productos" }, { l:"Hacer un pedido", n:"compra" }]
+      },
+      devoluciones: {
+        bot: ["Aceptamos devoluciones en los *primeros 30 días*. 🔄", "¿Ya tienes un pedido que quieres devolver?"],
+        op: [{ l:"Sí, quiero devolver", n:"conf_dev" }, { l:"Solo quería saberlo", n:"fin" }]
+      },
+      conf_dev: {
+        bot: ["Entendido. Un asesor te guía en el proceso paso a paso. ✅", "Te contactamos en breve. 😊"],
+        op: [], final: true
+      },
+      fin: { bot: ["¡Gracias por visitarnos! 😊 Disponibles las 24 horas. ¡Hasta pronto! 🛍️"], op: [], final: true }
+    },
+    resumen: ["Catálogo con precios disponible 24/7", "Registro de pedidos sin llamadas ni formularios", "Rastreo de órdenes sin intervención del equipo", "Política de envíos y devoluciones entregada en automático", "Calificación por zona para calcular envío al instante"]
+  }
+
+};
+
+// ─── ESTADO ───────────────────────────────────────────────────────────────────
+
+let sector = null;
+let ocupado = false;
+
+// ─── PANTALLAS ────────────────────────────────────────────────────────────────
+
+function ir(id) {
+  document.querySelectorAll('.screen').forEach(s => {
+    s.classList.remove('visible','hidden-left','hidden-right');
+    s.classList.add('hidden-right');
+  });
+  const el = document.getElementById(id);
+  el.classList.remove('hidden-right','hidden-left');
+  el.classList.add('visible');
+}
+
+// ─── INICIAR ──────────────────────────────────────────────────────────────────
+
+function iniciar(id) {
+  sector = S[id];
+  ocupado = false;
+  document.getElementById('chat-ico').textContent  = sector.icono;
+  document.getElementById('chat-biz').textContent  = sector.nombre;
+  document.getElementById('wa-msgs').innerHTML = '';
+  qrOcultar();
+  ir('s-chat');
+
+  // GA4: sector elegido
+  gtag('event', 'sector_seleccionado', {
+    sector_nombre: sector.nombre,
+    sector_id: id
+  });
+
+  setTimeout(() => nodo('start'), 500);
+}
+
+// ─── PROCESAR NODO ────────────────────────────────────────────────────────────
+
+async function nodo(id) {
+  if (ocupado) return;
+  const f = sector.flujo[id];
+  if (!f) return;
+  ocupado = true;
+  qrOcultar();
+
+  for (const txt of (f.bot || [])) {
+    await typing(Math.min(1400, 700 + txt.length * 11));
+    burbuja('bot', txt);
+  }
+
+  if (f.mapa) {
+    await typing(700);
+    bubbleMapa();
+    for (const txt of (f.botPost || [])) {
+      await typing(600);
+      burbuja('bot', txt);
+    }
+  }
+
+  ocupado = false;
+
+  if (f.final) {
+    setTimeout(() => resumen(), 1800);
+    return;
+  }
+
+  if (f.op && f.op.length) qrMostrar(f.op);
+}
+
+// ─── ELEGIR OPCIÓN ────────────────────────────────────────────────────────────
+
+function elegir(label, next) {
+  if (ocupado) return;
+  qrOcultar();
+  burbuja('user', label);
+
+  // GA4: opción elegida
+  gtag('event', 'opcion_elegida', {
+    sector_nombre: sector.nombre,
+    opcion_label: label,
+    nodo_destino: next
+  });
+
+  setTimeout(() => nodo(next), 350);
+}
+
+// ─── BURBUJAS ─────────────────────────────────────────────────────────────────
+
+function burbuja(tipo, texto) {
+  const area = document.getElementById('wa-msgs');
+  const row  = document.createElement('div');
+  row.className = `msg-row ${tipo} msg-enter`;
+  const html = texto
+    .replace(/\*(.*?)\*/g, '<strong>$1</strong>')
+    .replace(/\n/g, '<br>');
+  row.innerHTML = `<div class="bubble">${html}<span class="btime">${hora()}</span></div>`;
+  area.appendChild(row);
+  scroll();
+}
+
+function bubbleMapa() {
+  const area = document.getElementById('wa-msgs');
+  const row  = document.createElement('div');
+  row.className = 'msg-row bot msg-enter';
+  row.innerHTML = `
+    <div class="bubble" style="padding:6px;max-width:58%;">
+      <div class="fake-map"><div class="map-pin">📍</div></div>
+      <div style="font-size:12px;color:#075E54;font-weight:600;margin-top:4px;">Ver en Google Maps ↗</div>
+      <span class="btime">${hora()}</span>
+    </div>`;
+  area.appendChild(row);
+  scroll();
+}
+
+// ─── TYPING ───────────────────────────────────────────────────────────────────
+
+function typing(ms) {
+  return new Promise(res => {
+    const area = document.getElementById('wa-msgs');
+    const el   = document.createElement('div');
+    el.className = 'msg-row bot';
+    el.id = 'typ';
+    el.innerHTML = `<div class="typing-ind"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div>`;
+    area.appendChild(el);
+    scroll();
+    setTimeout(() => { el.remove(); res(); }, ms);
+  });
+}
+
+// ─── QUICK REPLIES ────────────────────────────────────────────────────────────
+
+function qrMostrar(ops) {
+  const area = document.getElementById('qr-area');
+  const wrap = document.getElementById('qr-wrap');
+  wrap.innerHTML = '';
+  ops.forEach(op => {
+    const b = document.createElement('button');
+    b.className = 'qr-btn';
+    b.textContent = op.l;
+    b.onclick = () => elegir(op.l, op.n);
+    wrap.appendChild(b);
+  });
+  area.style.display = 'block';
+  scroll();
+}
+
+function qrOcultar() {
+  document.getElementById('qr-area').style.display = 'none';
+  document.getElementById('qr-wrap').innerHTML = '';
+}
+
+// ─── RESUMEN ──────────────────────────────────────────────────────────────────
+
+function resumen() {
+  document.getElementById('sum-title').textContent =
+    `Lo que acaba de automatizar para ${sector.nombre}`;
+  document.getElementById('sum-items').innerHTML =
+    sector.resumen.map(r => `
+      <div class="sum-item">
+        <span class="sum-check">✓</span>
+        <span>${r}</span>
+      </div>`).join('');
+
+  // GA4: conversación completada
+  gtag('event', 'conversacion_completada', {
+    sector_nombre: sector.nombre
+  });
+
+  ir('s-summary');
+  document.getElementById('s-summary').scrollTop = 0;
+}
+
+function goWA() {
+  // GA4: CTA tocado
+  gtag('event', 'cta_whatsapp', {
+    sector_nombre: sector.nombre
+  });
+
+  const msg = `Hola, acabo de probar el simulador de U Link con el sector "${sector.nombre}" y quiero implementarlo en mi negocio.`;
+  window.open('https://wa.me/5219996187124?text=' + encodeURIComponent(msg), '_blank');
+}
+
+function reiniciar() {
+  // GA4: reinicio
+  gtag('event', 'reinicio', {
+    sector_anterior: sector ? sector.nombre : 'ninguno'
+  });
+  ir('s-selector');
+}
+function goSelector() { ir('s-selector'); }
+
+// ─── UTILS ────────────────────────────────────────────────────────────────────
+
+function scroll() {
+  const a = document.getElementById('wa-msgs');
+  setTimeout(() => { a.scrollTop = a.scrollHeight; }, 40);
+}
+
+function hora() {
+  const n = new Date();
+  return String(n.getHours()).padStart(2,'0') + ':' + String(n.getMinutes()).padStart(2,'0');
+}
+
+ir('s-selector');
+
+// GA4: simulador abierto
+gtag('event', 'simulador_abierto', {
+  referrer: document.referrer || 'directo'
+});
+</script>
+</body>
+</html>
