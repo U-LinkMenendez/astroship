@@ -15,8 +15,67 @@ body {
   background: #fafafa;
   margin: 0;
   padding: 20px;
+  padding-top: 64px;
   padding-bottom: 90px;
   color: #222;
+}
+
+/* BANNER FIJO */
+.banner-activos {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 44px;
+  background: #111;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  box-sizing: border-box;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.banner-activos:active { background: #1a1a1a; }
+
+.banner-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #4ade80;
+  flex-shrink: 0;
+  animation: pulse-dot 2s infinite;
+}
+
+@keyframes pulse-dot {
+  0%   { box-shadow: 0 0 0 0 rgba(74,222,128,0.6); }
+  70%  { box-shadow: 0 0 0 6px rgba(74,222,128,0); }
+  100% { box-shadow: 0 0 0 0 rgba(74,222,128,0); }
+}
+
+.banner-texto {
+  flex: 1;
+  margin-left: 10px;
+  font-size: 12px;
+  color: #ccc;
+  font-weight: 400;
+}
+
+.banner-texto strong {
+  color: white;
+  font-weight: 600;
+}
+
+.banner-cta {
+  font-size: 11px;
+  color: #c8a96a;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  white-space: nowrap;
+  margin-left: 10px;
 }
 
 h1 {
@@ -182,7 +241,7 @@ button.alt {
   gap: 10px;
   padding: 10px 0;
   position: sticky;
-  top: 0;
+  top: 44px; /* altura del banner */
   background: #fafafa;
   z-index: 10;
   margin-top: 10px;
@@ -304,6 +363,15 @@ button.alt {
 
 </div>
 
+<!-- BANNER FIJO SUPERIOR -->
+<div class="banner-activos" onclick="abrirPromos()">
+  <div class="banner-dot"></div>
+  <div class="banner-texto">
+    <strong>3 negocios</strong> con chatbot activo ahora mismo
+  </div>
+  <div class="banner-cta">Ver casos →</div>
+</div>
+
 <div class="header">
   <img src="/ulink/img/portada.jpg" class="cover">
   <div class="overlay">
@@ -409,9 +477,36 @@ const servicios = [
 ];
 
 const promociones = [
-  { nombre:"Nutrióloga Iratxe",  imagen:"/ulink/img/caso-nutriologa.webp", descripcion:"Agenda automática + respuestas 24/7 + recuperación de prospectos." },
-  { nombre:"Taller Artístico",   imagen:"/ulink/img/caso-taller.webp",     descripcion:"Convierte dudas en alumnos, incluso fines de semana." },
-  { nombre:"Chatbots U Link",    imagen:"/ulink/img/caso-chatbot.webp",    descripcion:"Automatiza, vende y escala sin aumentar tu equipo." }
+  {
+    nombre: "Nutrióloga Iratxe M.",
+    icono: "🥗",
+    imagen: "/ulink/img/caso-nutriologa.webp",
+    bullets: [
+      "Explica la metodología y agenda citas en automático",
+      "Permite reagendar y comparte ubicación por Google Maps",
+      "Notifica a la nutrióloga al instante ante cada reserva o consulta nueva"
+    ]
+  },
+  {
+    nombre: "Taller Artístico Blanco Terés",
+    icono: "🎨",
+    imagen: "/ulink/img/caso-taller.webp",
+    bullets: [
+      "Responde dudas a cualquier hora, incluso fines de semana",
+      "Guía al prospecto hasta presentar costos; si el precio es un freno, ofrece una clase muestra sin costo",
+      "Conecta Facebook, Instagram y WhatsApp en una sola bandeja"
+    ]
+  },
+  {
+    nombre: "Clínica Estética",
+    icono: "✨",
+    imagen: "/ulink/img/caso-chatbot.webp",
+    bullets: [
+      "Atención automatizada desde la primera consulta hasta agendar cita",
+      "Flujo optimizado para una experiencia directa, clara y eficiente",
+      "Diseñado a medida según los lineamientos del cliente"
+    ]
+  }
 ];
 
 const nombresCategorias = [
@@ -484,14 +579,6 @@ function renderCategorias() {
   nombresCategorias.forEach((c, i) => {
     html += `<div class="categoria-btn" id="btn${i}" onclick="scrollToCat(${i})">${c}</div>`;
   });
-
-  html += `
-    <div class="categoria-btn"
-      style="background:#FFD84D; color:black; font-weight:500;"
-      onclick="abrirPromos()">
-      🔥 Casos reales
-    </div>
-  `;
 
   document.getElementById("categoriasBar").innerHTML = html;
 }
@@ -642,39 +729,56 @@ function renderPromos() {
   let html = "";
 
   promociones.forEach(p => {
+    let bulletsHtml = p.bullets.map(b => `
+      <div style="
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        margin-bottom: 8px;
+        text-align: left;
+      ">
+        <span style="color:#4ade80; font-size:13px; flex-shrink:0; margin-top:1px;">✔</span>
+        <span style="font-size:13px; color:#444; line-height:1.5;">${b}</span>
+      </div>
+    `).join("");
+
     html += `
       <div style="
         min-width: 100%;
         width: 100%;
         flex-shrink: 0;
         box-sizing: border-box;
-        text-align: center;
+        padding: 4px 2px;
       ">
         <img src="${p.imagen}" style="
           width: 100%;
           display: block;
           border-radius: 12px;
           object-fit: cover;
+          max-height: 200px;
         ">
+
         <div style="
-          font-weight: 600;
-          font-size: 15px;
-          margin-top: 14px;
-          color: #111;
-        ">${p.nombre}</div>
-        <div style="
-          font-size: 13px;
-          color: #666;
-          margin-top: 6px;
-          line-height: 1.5;
-        ">${p.descripcion}</div>
-        <button class="alt" onclick="interesCaso('${p.nombre}')" style="
+          display: flex;
+          align-items: center;
+          gap: 8px;
           margin-top: 16px;
-          padding: 10px 20px;
+          margin-bottom: 10px;
+        ">
+          <span style="font-size:20px;">${p.icono}</span>
+          <div style="font-weight:700; font-size:15px; color:#111;">${p.nombre}</div>
+        </div>
+
+        <div style="margin-bottom:16px;">${bulletsHtml}</div>
+
+        <button class="alt" onclick="interesCaso('${p.nombre}')" style="
+          width: 100%;
+          padding: 12px;
           font-size: 13px;
+          font-weight: 600;
           border-radius: 25px;
         ">
-          Quiero implementar esto
+          Quiero implementar esto en mi negocio
         </button>
       </div>
     `;
