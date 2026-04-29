@@ -39,11 +39,7 @@ h1 {
   transition: all 0.2s ease;
 }
 
-  .card {
-  transition: all 0.2s ease;
-}
-
-  .card.added {
+.card.added {
   transform: scale(0.97);
   background: #f5efe3;
 }
@@ -91,6 +87,10 @@ button {
   transition: transform 0.1s ease;
 }
 
+button:active {
+  transform: scale(0.95);
+}
+
 button.alt {
   background: #c8a96a;
   color: black;
@@ -104,11 +104,11 @@ button.alt {
   width: 100%;
   background: white;
   border-top: 1px solid #eee;
-  padding: 12px 20px; /* 👈 cambio clave */
+  padding: 12px 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-sizing: border-box; /* 👈 MUY importante */
+  box-sizing: border-box;
 }
 
 .total {
@@ -152,7 +152,7 @@ button.alt {
 
 .cover {
   width: 100vw;
-  height: 22vw; /* proporción 1:4 aprox */
+  height: 22vw;
   object-fit: cover;
   margin-left: -20px;
   border-radius: 0;
@@ -202,102 +202,129 @@ button.alt {
   color: black;
 }
 
-  button:active {
-  transform: scale(0.95);
-}
-
 #clearBtn:hover {
   color: #000;
 }
-  
 </style>
 </head>
 
 <body>
 
+<!-- PANTALLA PROMOS -->
 <div id="pantallaPromos" style="
-  display:none;
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  background:#fafafa;
-  z-index:999;
-  overflow-y:auto;
-  padding:20px;
-  position:relative;
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #fafafa;
+  z-index: 999;
+  overflow-y: auto;
+  padding: 24px 20px 30px;
+  box-sizing: border-box;
 ">
 
-  <div style="display:flex; justify-content:space-between;">
-    <h2>Resultados reales</h2>
-    <button onclick="cerrarPromos()">✕</button>
+  <!-- Encabezado con botón de cierre comercial -->
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+    <div>
+      <div style="font-size:11px; text-transform:uppercase; letter-spacing:1.5px; color:#999; margin-bottom:3px;">U Link</div>
+      <h2 style="margin:0; font-size:18px; font-weight:600;">Casos reales</h2>
+    </div>
+
+    <!-- X comercial: círculo con SVG -->
+    <button onclick="cerrarPromos()" style="
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #f0f0f0;
+      border: none;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+    ">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <line x1="1" y1="1" x2="13" y2="13" stroke="#333" stroke-width="2" stroke-linecap="round"/>
+        <line x1="13" y1="1" x2="1" y2="13" stroke="#333" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    </button>
   </div>
 
-  <div id="promoSlider" style="
-  display:flex;
-  width:100%;
-  overflow:hidden;
-  transition: transform 0.4s ease;
-"></div>
+  <!-- Slider: wrapper externo hace el clip, el inner se transforma -->
+  <div style="overflow: hidden; width: 100%; border-radius: 14px;">
+    <div id="promoSlider" style="
+      display: flex;
+      transition: transform 0.4s ease;
+      will-change: transform;
+    "></div>
+  </div>
 
-<div style="
-  display:flex;
-  justify-content:space-between;
-  margin-top:10px;
-">
+  <!-- Controles de navegación -->
+  <div style="display:flex; justify-content:center; gap:12px; margin-top:16px;">
+    <button onclick="moverPromo(-1)" style="
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #111;
+      color: white;
+      border: none;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      cursor: pointer;
+    ">←</button>
 
-  <button onclick="moverPromo(-1)" style="
-    background:rgba(0,0,0,0.6);
-    color:white;
-    border:none;
-    padding:10px 14px;
-    border-radius:20px;
-  ">←</button>
+    <button onclick="moverPromo(1)" style="
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #111;
+      color: white;
+      border: none;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      cursor: pointer;
+    ">→</button>
+  </div>
 
-  <button onclick="moverPromo(1)" style="
-    background:rgba(0,0,0,0.6);
-    color:white;
-    border:none;
-    padding:10px 14px;
-    border-radius:20px;
-  ">→</button>
+  <div id="dots" style="
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 12px;
+  "></div>
 
 </div>
 
-<div id="dots" style="
-  display:flex;
-  justify-content:center;
-  gap:6px;
-  margin-top:10px;
-"></div>
-
-  </div>
-  
-</div>
-  
 <div class="header">
   <img src="/ulink/img/portada.jpg" class="cover">
-<div class="overlay">
-  <img src="/ulink/img/logo.png" class="logo">
-  <div class="titulo">U Link Demo</div>
- </div>
+  <div class="overlay">
+    <img src="/ulink/img/logo.png" class="logo">
+    <div class="titulo">U Link Demo</div>
+  </div>
 </div>
 
 <div style="margin-bottom:10px; position:relative;">
-  
   <input 
     type="text" 
     id="buscador" 
     placeholder="🔍 Buscar tratamiento..."
     style="
-      width:100%;
-      padding:10px 35px 10px 14px;
-      border-radius:25px;
-      border:1px solid #ddd;
-      font-size:13px;
-      outline:none;
-      box-sizing:border-box;
+      width: 100%;
+      padding: 10px 35px 10px 14px;
+      border-radius: 25px;
+      border: 1px solid #ddd;
+      font-size: 13px;
+      outline: none;
+      box-sizing: border-box;
     "
     oninput="filtrarServicios()"
   >
@@ -306,19 +333,18 @@ button.alt {
     id="clearBtn"
     onclick="limpiarBusqueda()"
     style="
-      position:absolute;
-      right:12px;
-      top:50%;
-      transform:translateY(-50%);
-      font-size:14px;
-      color:#999;
-      cursor:pointer;
-      display:none;
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 14px;
+      color: #999;
+      cursor: pointer;
+      display: none;
     "
   >✕</span>
-
 </div>
-  
+
 <div class="categorias-bar" id="categoriasBar"></div>
 
 <div id="menu"></div>
@@ -333,19 +359,18 @@ button.alt {
 
 <div class="modal" id="modal">
   <div class="modal-content">
-  <h3>¿Deseas agendar estos servicios?</h3>
-  <p id="resumen"></p>
+    <h3>¿Deseas agendar estos servicios?</h3>
+    <p id="resumen"></p>
 
-  <div style="display:flex; gap:10px; margin-top:15px;">
-    <button onclick="cerrarModal()" style="flex:1; background:#eee; color:#333;">
-      Regresar
-    </button>
-
-    <button class="alt" onclick="irAgenda()" style="flex:1;">
-      Continuar
-    </button>
+    <div style="display:flex; gap:10px; margin-top:15px;">
+      <button onclick="cerrarModal()" style="flex:1; background:#eee; color:#333;">
+        Regresar
+      </button>
+      <button class="alt" onclick="irAgenda()" style="flex:1;">
+        Continuar
+      </button>
+    </div>
   </div>
- </div>
 </div>
 
 <script>
@@ -353,158 +378,41 @@ button.alt {
 const servicios = [
 
   // FACIAL AVANZADO
-  {
-    nombre:"Tratamiento facial premium",
-    precio:3200,
-    categoria:"rejuvenecimiento",
-    img:"/ulink/img/facial1.webp",
-    desc:"Mejora la apariencia general de la piel y suaviza líneas de expresión."
-  },
-  {
-    nombre:"Aplicación localizada facial",
-    precio:2100,
-    categoria:"rejuvenecimiento",
-    img:"/ulink/img/facial2.webp",
-    desc:"Tratamiento dirigido a zonas específicas del rostro."
-  },
-  {
-    nombre:"Rejuvenecimiento intensivo",
-    precio:4600,
-    categoria:"rejuvenecimiento",
-    img:"/ulink/img/facial3.webp",
-    desc:"Mejora textura, luminosidad y firmeza de la piel."
-  },
-  {
-    nombre:"Estimulación de colágeno",
-    precio:7400,
-    categoria:"rejuvenecimiento",
-    img:"/ulink/img/facial4.webp",
-    desc:"Activa procesos naturales para rejuvenecimiento progresivo."
-  },
+  { nombre:"Tratamiento facial premium",    precio:3200, categoria:"rejuvenecimiento", img:"/ulink/img/facial1.webp",         desc:"Mejora la apariencia general de la piel y suaviza líneas de expresión." },
+  { nombre:"Aplicación localizada facial",  precio:2100, categoria:"rejuvenecimiento", img:"/ulink/img/facial2.webp",         desc:"Tratamiento dirigido a zonas específicas del rostro." },
+  { nombre:"Rejuvenecimiento intensivo",    precio:4600, categoria:"rejuvenecimiento", img:"/ulink/img/facial3.webp",         desc:"Mejora textura, luminosidad y firmeza de la piel." },
+  { nombre:"Estimulación de colágeno",      precio:7400, categoria:"rejuvenecimiento", img:"/ulink/img/facial4.webp",         desc:"Activa procesos naturales para rejuvenecimiento progresivo." },
 
   // ARMONIZACIÓN
-  {
-    nombre:"Perfilado estético facial",
-    precio:3800,
-    categoria:"armonizacion",
-    img:"/ulink/img/armonizacion1.webp",
-    desc:"Mejora proporciones y equilibrio facial."
-  },
-  {
-    nombre:"Definición de contorno",
-    precio:4200,
-    categoria:"armonizacion",
-    img:"/ulink/img/armonizacion2.webp",
-    desc:"Resalta rasgos y estructura del rostro."
-  },
-  {
-    nombre:"Hidratación profunda",
-    precio:2900,
-    categoria:"armonizacion",
-    img:"/ulink/img/armonizacion3.webp",
-    desc:"Aporta volumen y mejora calidad de la piel."
-  },
+  { nombre:"Perfilado estético facial",     precio:3800, categoria:"armonizacion",     img:"/ulink/img/armonizacion1.webp",   desc:"Mejora proporciones y equilibrio facial." },
+  { nombre:"Definición de contorno",        precio:4200, categoria:"armonizacion",     img:"/ulink/img/armonizacion2.webp",   desc:"Resalta rasgos y estructura del rostro." },
+  { nombre:"Hidratación profunda",          precio:2900, categoria:"armonizacion",     img:"/ulink/img/armonizacion3.webp",   desc:"Aporta volumen y mejora calidad de la piel." },
 
   // PIEL
-  {
-    nombre:"Revitalización cutánea",
-    precio:2600,
-    categoria:"piel",
-    img:"/ulink/img/piel1.webp",
-    desc:"Nutre la piel con activos especializados."
-  },
-  {
-    nombre:"Mejora de textura facial",
-    precio:3100,
-    categoria:"piel",
-    img:"/ulink/img/piel2.webp",
-    desc:"Incrementa firmeza y uniformidad."
-  },
-  {
-    nombre:"Reducción localizada",
-    precio:2300,
-    categoria:"piel",
-    img:"/ulink/img/piel3.webp",
-    desc:"Apoya en la disminución de acumulaciones específicas."
-  },
+  { nombre:"Revitalización cutánea",        precio:2600, categoria:"piel",             img:"/ulink/img/piel1.webp",           desc:"Nutre la piel con activos especializados." },
+  { nombre:"Mejora de textura facial",      precio:3100, categoria:"piel",             img:"/ulink/img/piel2.webp",           desc:"Incrementa firmeza y uniformidad." },
+  { nombre:"Reducción localizada",          precio:2300, categoria:"piel",             img:"/ulink/img/piel3.webp",           desc:"Apoya en la disminución de acumulaciones específicas." },
 
-  // TECNOLOGÍA
-  {
-    nombre:"Tratamiento láser zona pequeña",
-    precio:3400,
-    categoria:"laser",
-    img:"/ulink/img/laser1.webp",
-    desc:"Mejora textura y apariencia en áreas localizadas."
-  },
-  {
-    nombre:"Tratamiento láser zona media",
-    precio:5100,
-    categoria:"laser",
-    img:"/ulink/img/laser2.webp",
-    desc:"Renovación de piel en zonas específicas."
-  },
-  {
-    nombre:"Tratamiento láser completo",
-    precio:9800,
-    categoria:"laser",
-    img:"/ulink/img/laser3.webp",
-    desc:"Rejuvenecimiento integral del rostro."
-  },
+  // LÁSER
+  { nombre:"Tratamiento láser zona pequeña",precio:3400, categoria:"laser",            img:"/ulink/img/laser1.webp",          desc:"Mejora textura y apariencia en áreas localizadas." },
+  { nombre:"Tratamiento láser zona media",  precio:5100, categoria:"laser",            img:"/ulink/img/laser2.webp",          desc:"Renovación de piel en zonas específicas." },
+  { nombre:"Tratamiento láser completo",    precio:9800, categoria:"laser",            img:"/ulink/img/laser3.webp",          desc:"Rejuvenecimiento integral del rostro." },
 
-  // FIRMEZA
-  {
-    nombre:"Tensado facial",
-    precio:8700,
-    categoria:"hilos",
-    img:"/ulink/img/firmeza1.webp",
-    desc:"Mejora firmeza y soporte de la piel."
-  },
-  {
-    nombre:"Reafirmación de cuello",
-    precio:9200,
-    categoria:"hilos",
-    img:"/ulink/img/firmeza2.webp",
-    desc:"Reduce flacidez en zona cervical."
-  },
-  {
-    nombre:"Elevación de contorno",
-    precio:5600,
-    categoria:"hilos",
-    img:"/ulink/img/firmeza3.webp",
-    desc:"Mejora definición y posición de áreas faciales."
-  },
+  // HILOS / FIRMEZA
+  { nombre:"Tensado facial",                precio:8700, categoria:"hilos",            img:"/ulink/img/firmeza1.webp",        desc:"Mejora firmeza y soporte de la piel." },
+  { nombre:"Reafirmación de cuello",        precio:9200, categoria:"hilos",            img:"/ulink/img/firmeza2.webp",        desc:"Reduce flacidez en zona cervical." },
+  { nombre:"Elevación de contorno",         precio:5600, categoria:"hilos",            img:"/ulink/img/firmeza3.webp",        desc:"Mejora definición y posición de áreas faciales." },
 
   // OTROS
-  {
-    nombre:"Valoración personalizada",
-    precio:1200,
-    categoria:"otros",
-    img:"/ulink/img/valoracion.webp",
-    desc:"Evaluación inicial para recomendar el mejor tratamiento."
-  }
+  { nombre:"Valoración personalizada",      precio:1200, categoria:"otros",            img:"/ulink/img/valoracion.webp",      desc:"Evaluación inicial para recomendar el mejor tratamiento." }
 
 ];
 
 const promociones = [
-  {
-    nombre: "Nutrióloga Iratxe",
-    imagen: "/ulink/img/caso-nutriologa.webp",
-    descripcion: "Agenda automática + respuestas 24/7 + recuperación de prospectos."
-  },
-  {
-    nombre: "Taller Artístico",
-    imagen: "/ulink/img/caso-taller.webp",
-    descripcion: "Convierte dudas en alumnos, incluso fines de semana."
-  },
-  {
-    nombre: "Chatbots U Link",
-    imagen: "/ulink/img/caso-chatbot.webp",
-    descripcion: "Automatiza, vende y escala sin aumentar tu equipo."
-  }
+  { nombre:"Nutrióloga Iratxe",  imagen:"/ulink/img/caso-nutriologa.webp", descripcion:"Agenda automática + respuestas 24/7 + recuperación de prospectos." },
+  { nombre:"Taller Artístico",   imagen:"/ulink/img/caso-taller.webp",     descripcion:"Convierte dudas en alumnos, incluso fines de semana." },
+  { nombre:"Chatbots U Link",    imagen:"/ulink/img/caso-chatbot.webp",    descripcion:"Automatiza, vende y escala sin aumentar tu equipo." }
 ];
-  
-let carrito = [];
-let filtro = "";
 
 const nombresCategorias = [
   "💉 Rejuvenecimiento",
@@ -515,61 +423,39 @@ const nombresCategorias = [
   "✨ Otros"
 ];
 
-function renderCategorias(){
-  let html = "";
+let carrito = [];
+let filtro = "";
+let promoIndex = 0;
+let startX = 0;
+let endX = 0;
+let swipeActivo = false;
 
-  nombresCategorias.forEach((c, i)=>{
-    html += `<div class="categoria-btn" id="btn${i}" onclick="scrollToCat(${i})">${c}</div>`;
-  });
+// ─── RENDER PRINCIPAL ────────────────────────────────────────────────────────
 
-  html += `
-    <div class="categoria-btn" 
-      style="background:#FFD84D; color:black; font-weight:500;"
-      onclick="abrirPromos()">
-      🔥 Casos reales
-    </div>
-  `;
-
-  document.getElementById("categoriasBar").innerHTML = html;
-}
-
-function scrollToCat(i){
-  let elemento = document.getElementById("cat"+i);
-
-  let offset = 120; // ajusta si quieres
-
-  let y = elemento.getBoundingClientRect().top + window.pageYOffset - offset;
-
-  window.scrollTo({ top: y, behavior: "smooth" });
-}
-  
-function render(){
-
+function render() {
   const categorias = {
-  "💉 Rejuvenecimiento": servicios.filter(s => s.categoria === "rejuvenecimiento"),
-  "💋 Armonización": servicios.filter(s => s.categoria === "armonizacion"),
-  "💆‍♀️ Piel": servicios.filter(s => s.categoria === "piel"),
-  "🔥 Láser": servicios.filter(s => s.categoria === "laser"),
-  "🧵 Hilos": servicios.filter(s => s.categoria === "hilos"),
-  "✨ Otros": servicios.filter(s => s.categoria === "otros")
-};
+    "💉 Rejuvenecimiento": servicios.filter(s => s.categoria === "rejuvenecimiento"),
+    "💋 Armonización":     servicios.filter(s => s.categoria === "armonizacion"),
+    "💆‍♀️ Piel":             servicios.filter(s => s.categoria === "piel"),
+    "🔥 Láser":            servicios.filter(s => s.categoria === "laser"),
+    "🧵 Hilos":            servicios.filter(s => s.categoria === "hilos"),
+    "✨ Otros":            servicios.filter(s => s.categoria === "otros")
+  };
 
   let html = "";
 
   Object.keys(categorias).forEach((cat, index) => {
-
-    let serviciosFiltrados = categorias[cat].filter(s => 
-      !filtro || 
+    let serviciosFiltrados = categorias[cat].filter(s =>
+      !filtro ||
       s.nombre.toLowerCase().includes(filtro) ||
       s.desc.toLowerCase().includes(filtro)
     );
 
-    if(serviciosFiltrados.length === 0) return;
+    if (serviciosFiltrados.length === 0) return;
 
     html += `<h2 id="cat${index}" style="margin-top:25px;">${cat}</h2>`;
 
     serviciosFiltrados.forEach(s => {
-
       let i = servicios.findIndex(x => x.nombre === s.nombre);
       let seleccionado = carrito.find(x => x.nombre === s.nombre);
 
@@ -579,9 +465,7 @@ function render(){
           <div class="info">
             <div class="nombre">${s.nombre}</div>
             <div class="precio">$${s.precio}</div>
-            <div style="font-size:11px;color:#777;margin-top:4px;">
-              ${s.desc}
-            </div>
+            <div style="font-size:11px;color:#777;margin-top:4px;">${s.desc}</div>
           </div>
           <button onclick="agregar(${i})">
             ${seleccionado ? 'Quitar' : 'Agregar'}
@@ -589,18 +473,36 @@ function render(){
         </div>
       `;
     });
-
   });
 
   document.getElementById("menu").innerHTML = html;
 }
 
-function agregar(i){
+function renderCategorias() {
+  let html = "";
 
+  nombresCategorias.forEach((c, i) => {
+    html += `<div class="categoria-btn" id="btn${i}" onclick="scrollToCat(${i})">${c}</div>`;
+  });
+
+  html += `
+    <div class="categoria-btn"
+      style="background:#FFD84D; color:black; font-weight:500;"
+      onclick="abrirPromos()">
+      🔥 Casos reales
+    </div>
+  `;
+
+  document.getElementById("categoriasBar").innerHTML = html;
+}
+
+// ─── CARRITO ─────────────────────────────────────────────────────────────────
+
+function agregar(i) {
   let servicio = servicios[i];
   let index = carrito.findIndex(s => s.nombre === servicio.nombre);
 
-  if(index > -1){
+  if (index > -1) {
     carrito.splice(index, 1);
   } else {
     carrito.push(servicio);
@@ -611,246 +513,46 @@ function agregar(i){
   renderCategorias();
 
   setTimeout(() => {
-  let cards = document.querySelectorAll(".card");
-  cards.forEach(c => c.classList.remove("added"));
- }, 150);
+    document.querySelectorAll(".card").forEach(c => c.classList.remove("added"));
+  }, 150);
 }
 
-  let promoIndex = 0;
-let startX = 0;
-let endX = 0;
-
-let swipeActivo = false;
-
-function activarSwipe(){
-
-  if(swipeActivo) return; // 👈 evita duplicación
-
-  const slider = document.getElementById("promoSlider");
-
-  if(!slider) return;
-
-  slider.addEventListener("touchstart", (e)=>{
-    startX = e.touches[0].clientX;
-  });
-
-  slider.addEventListener("touchend", (e)=>{
-    endX = e.changedTouches[0].clientX;
-
-    if(startX - endX > 50){
-      moverPromo(1);
-    }
-
-    if(endX - startX > 50){
-      moverPromo(-1);
-    }
-  });
-
-  swipeActivo = true; // 👈 marca como activo
-}
-
-  function abrirPromos(){
-  promoIndex = 0;
-
-  document.getElementById("pantallaPromos").style.display = "block";
-  document.getElementById("promoSlider").style.transform = "translateX(0%)";
-
-  renderPromos();
-  renderDots();
-  activarSwipe();
-}
-
-  function cerrarPromos(){
-  document.getElementById("pantallaPromos").style.display = "none";
-}
-
-function renderPromos(){
-
-  let html = "";
-
-  promociones.forEach(p=>{
-    html += `
-      <div style="
-        min-width:100%;
-        flex-shrink:0;
-        padding:10px;
-        box-sizing:border-box;
-        text-align:center;
-      ">
-        <img src="${p.imagen}" style="width:100%; border-radius:12px;">
-        <div style="font-weight:600; margin-top:10px;">${p.nombre}</div>
-        <div style="font-size:13px; color:#666;">${p.descripcion}</div>
-
-        <button class="alt" onclick="interesCaso('${p.nombre}')">
-          Quiero implementar esto ahora
-        </button>
-      </div>
-    `;
-  });
-
-  document.getElementById("promoSlider").innerHTML = html;
-}
-  
-function moverPromo(dir){
-
-  promoIndex += dir;
-
-  if(promoIndex < 0) promoIndex = promociones.length - 1;
-  if(promoIndex >= promociones.length) promoIndex = 0;
-
-  const slider = document.getElementById("promoSlider");
-
-  slider.style.transform = "translateX(-" + (promoIndex * 100) + "%)";
-
-  renderDots(); // 👈 ESTA LÍNEA FALTABA
-}
-
-  function renderDots(){
-
-  let html = "";
-
-  promociones.forEach((_, i)=>{
-    html += `
-      <div style="
-        width:8px;
-        height:8px;
-        border-radius:50%;
-        background:${i === promoIndex ? '#000' : '#ccc'};
-      "></div>
-    `;
-  });
-
-  document.getElementById("dots").innerHTML = html;
-}
-
-function filtrarServicios(){
-  let input = document.getElementById("buscador");
-  filtro = input.value.toLowerCase();
-
-  let clearBtn = document.getElementById("clearBtn");
-
-  if(filtro.length > 0){
-    clearBtn.style.display = "block";
-  } else {
-    clearBtn.style.display = "none";
-  }
-
-  render();
-}
-
-function interesCaso(nombre){
-
-  let mensaje = "Hola, vi el caso de " + nombre +
-                " y quiero implementar algo así en mi negocio.";
-
-  window.location.href =
-    "https://wa.me/5219996187124?text=" + encodeURIComponent(mensaje);
-}
-    
-function limpiarBusqueda(){
-  let input = document.getElementById("buscador");
-  input.value = "";
-  filtro = "";
-  document.getElementById("clearBtn").style.display = "none";
-  render();
-}
-
-window.addEventListener("scroll", () => {
-
-  let categorias = document.querySelectorAll("h2");
-  let scrollTop = window.scrollY;
-  let windowHeight = window.innerHeight;
-  let fullHeight = document.body.scrollHeight;
-
-  // 🔥 DETECTAR FINAL REAL
-  let alFinal = scrollTop + windowHeight >= fullHeight - 5;
-
-  if(alFinal){
-    activarCategoria(categorias.length - 1);
-    return;
-  }
-
-  let scrollPos = scrollTop + 150;
-
-  categorias.forEach((cat, i) => {
-
-    let offsetTop = cat.offsetTop;
-    let nextOffset = categorias[i+1]?.offsetTop;
-
-    if(nextOffset){
-      if(scrollPos >= offsetTop && scrollPos < nextOffset){
-        activarCategoria(i);
-      }
-    }
-
-  });
-
-});
-
-
-function activarCategoria(i){
-
-  let botones = document.querySelectorAll(".categoria-btn");
-
-  botones.forEach(btn => btn.classList.remove("active"));
-
-  let btn = document.getElementById("btn"+i);
-
-  if(btn && !btn.classList.contains("active")){
-    btn.classList.add("active");
-
-    btn.scrollIntoView({
-      behavior: "smooth",
-      inline: "center",
-      block: "nearest"
-    });
-  }
-}
-  
-function actualizarTotal(){
-  let total = carrito.reduce((acc,s)=>acc+s.precio,0);
+function actualizarTotal() {
+  let total = carrito.reduce((acc, s) => acc + s.precio, 0);
   document.getElementById("total").innerText = "Total: $" + total;
-
-  let nombres = carrito.map(s=>s.nombre).join(", ");
-  document.getElementById("lista").innerText = nombres;
+  document.getElementById("lista").innerText = carrito.map(s => s.nombre).join(", ");
 
   let btn = document.getElementById("btnAgendar");
-  if(btn){
-    if(carrito.length > 0){
-      btn.innerText = "Agendar (" + carrito.length + ")";
-    } else {
-      btn.innerText = "Agendar";
-    }
+  if (btn) {
+    btn.innerText = carrito.length > 0 ? "Agendar (" + carrito.length + ")" : "Agendar";
   }
-  
+
   let data = JSON.parse(localStorage.getItem("carritoData")) || {};
   data.timestamp = Date.now();
   data.items = carrito;
   data.enviado = false;
-
   localStorage.setItem("carritoData", JSON.stringify(data));
 }
 
-function abrirAgenda(){
-  if(carrito.length==0){
+// ─── MODAL AGENDA ─────────────────────────────────────────────────────────────
+
+function abrirAgenda() {
+  if (carrito.length === 0) {
     alert("Selecciona al menos un servicio");
     return;
   }
-
-  let resumen = carrito.map(s=>s.nombre).join(", ");
-  document.getElementById("resumen").innerText = resumen;
+  document.getElementById("resumen").innerText = carrito.map(s => s.nombre).join(", ");
   document.getElementById("modal").style.display = "flex";
 }
 
-function irAgenda(){
+function cerrarModal() {
+  document.getElementById("modal").style.display = "none";
+}
 
-  let serviciosTxt = carrito.map(s=>s.nombre).join(", ");
-
-  let numero = "5219996187124"; // 👈 tu número real
-
-  let mensaje = "Hola, me interesan estos servicios: " 
-                + serviciosTxt + 
-                ". ¿Me puedes dar más información?";
+function irAgenda() {
+  let serviciosTxt = carrito.map(s => s.nombre).join(", ");
+  let numero = "5219996187124";
+  let mensaje = "Hola, me interesan estos servicios: " + serviciosTxt + ". ¿Me puedes dar más información?";
 
   let data = JSON.parse(localStorage.getItem("carritoData")) || {};
   data.enviado = true;
@@ -860,46 +562,194 @@ function irAgenda(){
   actualizarTotal();
   render();
 
-  let url = "https://wa.me/" + numero + "?text=" + encodeURIComponent(mensaje);
-
-  window.location.href = url;
+  window.location.href = "https://wa.me/" + numero + "?text=" + encodeURIComponent(mensaje);
 }
 
-let data = JSON.parse(localStorage.getItem("carritoData"));
+// ─── BÚSQUEDA ─────────────────────────────────────────────────────────────────
 
-if(data){
+function filtrarServicios() {
+  filtro = document.getElementById("buscador").value.toLowerCase();
+  document.getElementById("clearBtn").style.display = filtro.length > 0 ? "block" : "none";
+  render();
+}
 
-  let ahora = Date.now();
-  let minutos = (ahora - data.timestamp) / 60000;
+function limpiarBusqueda() {
+  document.getElementById("buscador").value = "";
+  filtro = "";
+  document.getElementById("clearBtn").style.display = "none";
+  render();
+}
 
-  if(data.enviado){
-    localStorage.removeItem("carritoData");
-    carrito = [];
-  } 
-  else if(minutos < 30){
-    carrito = data.items || [];
-  } 
-  else {
-    localStorage.removeItem("carritoData");
-    carrito = [];
+// ─── CATEGORÍAS / SCROLL ──────────────────────────────────────────────────────
+
+function scrollToCat(i) {
+  let elemento = document.getElementById("cat" + i);
+  if (!elemento) return;
+  let y = elemento.getBoundingClientRect().top + window.pageYOffset - 120;
+  window.scrollTo({ top: y, behavior: "smooth" });
+}
+
+function activarCategoria(i) {
+  document.querySelectorAll(".categoria-btn").forEach(btn => btn.classList.remove("active"));
+  let btn = document.getElementById("btn" + i);
+  if (btn) {
+    btn.classList.add("active");
+    btn.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+  }
+}
+
+window.addEventListener("scroll", () => {
+  let categorias = document.querySelectorAll("#menu h2");
+  let scrollTop = window.scrollY;
+  let windowHeight = window.innerHeight;
+  let fullHeight = document.body.scrollHeight;
+
+  if (scrollTop + windowHeight >= fullHeight - 5) {
+    activarCategoria(categorias.length - 1);
+    return;
   }
 
+  let scrollPos = scrollTop + 150;
+
+  categorias.forEach((cat, i) => {
+    let offsetTop = cat.offsetTop;
+    let nextOffset = categorias[i + 1]?.offsetTop;
+
+    if (nextOffset) {
+      if (scrollPos >= offsetTop && scrollPos < nextOffset) {
+        activarCategoria(i);
+      }
+    }
+  });
+});
+
+// ─── PROMOS ───────────────────────────────────────────────────────────────────
+
+function abrirPromos() {
+  promoIndex = 0;
+  document.getElementById("pantallaPromos").style.display = "block";
+  document.getElementById("promoSlider").style.transform = "translateX(0%)";
+  renderPromos();
+  renderDots();
+  activarSwipe();
 }
+
+function cerrarPromos() {
+  document.getElementById("pantallaPromos").style.display = "none";
+}
+
+function renderPromos() {
+  let html = "";
+
+  promociones.forEach(p => {
+    html += `
+      <div style="
+        min-width: 100%;
+        width: 100%;
+        flex-shrink: 0;
+        box-sizing: border-box;
+        text-align: center;
+      ">
+        <img src="${p.imagen}" style="
+          width: 100%;
+          display: block;
+          border-radius: 12px;
+          object-fit: cover;
+        ">
+        <div style="
+          font-weight: 600;
+          font-size: 15px;
+          margin-top: 14px;
+          color: #111;
+        ">${p.nombre}</div>
+        <div style="
+          font-size: 13px;
+          color: #666;
+          margin-top: 6px;
+          line-height: 1.5;
+        ">${p.descripcion}</div>
+        <button class="alt" onclick="interesCaso('${p.nombre}')" style="
+          margin-top: 16px;
+          padding: 10px 20px;
+          font-size: 13px;
+          border-radius: 25px;
+        ">
+          Quiero implementar esto
+        </button>
+      </div>
+    `;
+  });
+
+  document.getElementById("promoSlider").innerHTML = html;
+}
+
+function moverPromo(dir) {
+  promoIndex += dir;
+  if (promoIndex < 0) promoIndex = promociones.length - 1;
+  if (promoIndex >= promociones.length) promoIndex = 0;
+
+  document.getElementById("promoSlider").style.transform =
+    "translateX(-" + (promoIndex * 100) + "%)";
+
+  renderDots();
+}
+
+function renderDots() {
+  document.getElementById("dots").innerHTML = promociones.map((_, i) => `
+    <div style="
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: ${i === promoIndex ? '#000' : '#ccc'};
+    "></div>
+  `).join("");
+}
+
+function activarSwipe() {
+  if (swipeActivo) return;
+
+  const slider = document.getElementById("promoSlider");
+  if (!slider) return;
+
+  slider.addEventListener("touchstart", (e) => { startX = e.touches[0].clientX; });
+  slider.addEventListener("touchend",   (e) => {
+    endX = e.changedTouches[0].clientX;
+    if (startX - endX > 50) moverPromo(1);
+    if (endX - startX > 50) moverPromo(-1);
+  });
+
+  swipeActivo = true;
+}
+
+function interesCaso(nombre) {
+  let mensaje = "Hola, vi el caso de " + nombre + " y quiero implementar algo así en mi negocio.";
+  window.location.href = "https://wa.me/5219996187124?text=" + encodeURIComponent(mensaje);
+}
+
+// ─── CLICK FUERA DE MODAL ─────────────────────────────────────────────────────
+
+window.addEventListener("click", function(e) {
+  if (e.target === document.getElementById("modal")) cerrarModal();
+});
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+
+(function initCarrito() {
+  let data = JSON.parse(localStorage.getItem("carritoData"));
+  if (!data) return;
+
+  let minutos = (Date.now() - data.timestamp) / 60000;
+
+  if (data.enviado || minutos >= 30) {
+    localStorage.removeItem("carritoData");
+  } else {
+    carrito = data.items || [];
+  }
+})();
 
 render();
 renderCategorias();
 actualizarTotal();
-
-function cerrarModal(){
-  document.getElementById("modal").style.display = "none";
-}
-
-  window.addEventListener("click", function(e){
-  let modal = document.getElementById("modal");
-  if(e.target === modal){
-    cerrarModal();
-  }
-});
 
 </script>
 
