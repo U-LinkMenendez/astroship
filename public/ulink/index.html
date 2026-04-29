@@ -7,6 +7,15 @@
 
 <title>Opciones disponibles</title>
 
+<!-- Google Analytics 4 -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-085Q40C8KY"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){ dataLayer.push(arguments); }
+  gtag('js', new Date());
+  gtag('config', 'G-085Q40C8KY');
+</script>
+
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 
 <style>
@@ -591,8 +600,18 @@ function agregar(i) {
 
   if (index > -1) {
     carrito.splice(index, 1);
+    gtag('event', 'servicio_quitado', {
+      servicio_nombre: servicio.nombre,
+      servicio_precio: servicio.precio,
+      servicio_categoria: servicio.categoria
+    });
   } else {
     carrito.push(servicio);
+    gtag('event', 'servicio_agregado', {
+      servicio_nombre: servicio.nombre,
+      servicio_precio: servicio.precio,
+      servicio_categoria: servicio.categoria
+    });
   }
 
   actualizarTotal();
@@ -628,6 +647,11 @@ function abrirAgenda() {
     alert("Selecciona al menos un servicio");
     return;
   }
+  gtag('event', 'agendar_iniciado', {
+    total: carrito.reduce((a, s) => a + s.precio, 0),
+    servicios_count: carrito.length,
+    servicios: carrito.map(s => s.nombre).join(", ")
+  });
   document.getElementById("resumen").innerText = carrito.map(s => s.nombre).join(", ");
   document.getElementById("modal").style.display = "flex";
 }
@@ -640,6 +664,12 @@ function irAgenda() {
   let serviciosTxt = carrito.map(s => s.nombre).join(", ");
   let numero = "5219996187124";
   let mensaje = "Hola, me interesan estos servicios: " + serviciosTxt + ". ¿Me puedes dar más información?";
+
+  gtag('event', 'conversion_whatsapp', {
+    total: carrito.reduce((a, s) => a + s.precio, 0),
+    servicios_count: carrito.length,
+    servicios: serviciosTxt
+  });
 
   let data = JSON.parse(localStorage.getItem("carritoData")) || {};
   data.enviado = true;
@@ -657,6 +687,9 @@ function irAgenda() {
 function filtrarServicios() {
   filtro = document.getElementById("buscador").value.toLowerCase();
   document.getElementById("clearBtn").style.display = filtro.length > 0 ? "block" : "none";
+  if (filtro.length >= 3) {
+    gtag('event', 'busqueda', { termino: filtro });
+  }
   render();
 }
 
@@ -719,6 +752,7 @@ function abrirPromos() {
   renderPromos();
   renderDots();
   activarSwipe();
+  gtag('event', 'casos_reales_abiertos');
 }
 
 function cerrarPromos() {
@@ -826,6 +860,7 @@ function activarSwipe() {
 }
 
 function interesCaso(nombre) {
+  gtag('event', 'caso_real_interes', { caso_nombre: nombre });
   let mensaje = "Hola, vi el caso de " + nombre + " y quiero implementar algo así en mi negocio.";
   window.location.href = "https://wa.me/5219996187124?text=" + encodeURIComponent(mensaje);
 }
@@ -854,6 +889,11 @@ window.addEventListener("click", function(e) {
 render();
 renderCategorias();
 actualizarTotal();
+
+// GA4: menú abierto
+gtag('event', 'menu_abierto', {
+  referrer: document.referrer || 'directo'
+});
 
 </script>
 
