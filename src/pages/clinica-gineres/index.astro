@@ -3,7 +3,7 @@
 // ─────────────────────────────────────────────────────────────
 // INSTRUCCIONES DE INSTALACIÓN:
 // 1. Copia este archivo a: src/pages/gineres.astro
-// 2. Copia el logo a:      public/clinica-gineres/logo-gineres.webp
+// 2. Copia el logo a:      public/logo-gineres.webp
 // 3. Deploy → accesible en menendez.lat/gineres
 // ─────────────────────────────────────────────────────────────
 ---
@@ -64,7 +64,7 @@
       z-index: 200;
       border-bottom: 1px solid rgba(74,124,181,0.3);
     }
-    .header-logo { height: 36px; width: auto; object-fit: contain; filter: brightness(0) invert(1); opacity: 0.92; }
+    .header-logo { height: 36px; width: auto; object-fit: contain;  }
     .header-right { display: flex; align-items: center; gap: 10px; }
     .header-pill { font-size: 0.7rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--blue-lt); border: 1px solid rgba(143,180,212,0.35); padding: 5px 12px; border-radius: 100px; }
     .header-dot { width: 8px; height: 8px; background: #4ade80; border-radius: 50%; animation: pulse 2s infinite; }
@@ -76,7 +76,7 @@
 
     /* HERO */
     .hero { background: var(--navy); padding: 3rem 2rem 2.5rem; text-align: center; }
-    .hero-eyebrow { font-size: 0.72rem; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--blue-lt); margin-bottom: 0.75rem; }
+    .hero-eyebrow { font-size: 1rem; font-weight: 400; color: rgba(255,255,255,0.75); margin-bottom: 0.75rem; letter-spacing: 0.03em; }
     .hero h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); font-weight: 600; color: var(--white); margin-bottom: 0.5rem; }
     .hero-sub { font-size: 0.9rem; font-weight: 300; color: rgba(255,255,255,0.6); margin-bottom: 2rem; }
     .steps { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
@@ -157,7 +157,7 @@
 <body>
 
   <header class="header">
-    <img src="/clinica-gineres/logo-gineres.webp" alt="Clínica Ginerés" class="header-logo" />
+    <img src="/logo-gineres.webp" alt="Clínica Ginerés" class="header-logo" style="height:42px;width:auto;object-fit:contain;background:white;padding:6px 12px;border-radius:8px;" />
     <div class="header-right">
       <div class="header-dot"></div>
       <span class="header-pill">Reservas en línea</span>
@@ -264,7 +264,7 @@
     </div>
 
     <div class="footer">
-      <img src="/clinica-gineres/logo-gineres.webp" alt="Clínica Ginerés" class="footer-logo" />
+      <img src="/logo-gineres.webp" alt="Clínica Ginerés" class="footer-logo" />
       <span class="footer-text">Clínica Ginerés · Unidad de Cirugía Ambulatoria · Mérida, Yucatán</span>
       <span class="footer-text">Sistema de reservas en línea</span>
     </div>
@@ -272,7 +272,7 @@
   </div>
 
   <!-- CAL.COM SCRIPTS -->
-  <script type="text/javascript">
+  <script type="text/javascript" is:inline>
     (function (C, A, L) {
       let p = function (a, ar) { a.q.push(ar); };
       let d = C.document;
@@ -343,7 +343,7 @@
   </script>
 
   <!-- TAB LOGIC -->
-  <script>
+  <script is:inline>
     function switchTab(n) {
       document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
       document.getElementById('panel-' + n).classList.add('active');
