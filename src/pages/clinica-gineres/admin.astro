@@ -1,0 +1,154 @@
+// ═══════════════════════════════════════════════════════════════
+// Apps Script — Panel Administrativo Clínica Ginerés
+// Desplegar como Web App:
+//   Ejecutar como: Yo
+//   Quién puede acceder: Cualquier persona
+// ═══════════════════════════════════════════════════════════════
+
+const SHEET_NAME    = 'Reservas_Activas';
+const LIMPIEZA_COL  = 28;   // Columna AB — EstadoLimpieza
+const BOOKING_COL   = 1;    // Columna A  — BookingIDCal
+
+function doGet(e) {
+  try {
+    const start = e.parameter.start;
+    const end   = e.parameter.end;
+    const data  = getReservas(start, end);
+    return jsonResponse(data);
+  } catch(err) {
+    return jsonResponse({ error: err.message });
+  }
+}
+
+function doPost(e) {
+  try {
+    const body   = JSON.parse(e.postData.contents);
+    const action = body.action;
+
+    if (action === 'updateLimpieza') {
+      updateLimpieza(body.bookingId, body.estado);
+      return jsonResponse({ ok: true });
+    }
+    return jsonResponse({ error: 'Acción desconocida' });
+  } catch(err) {
+    return jsonResponse({ error: err.message });
+  }
+}
+
+// ── Obtener reservas para rango de fechas ──────────────────────
+function getReservas(startStr, endStr) {
+  const ss    = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName(SHEET_NAME);
+  const data  = sheet.getDataRange().getValues();
+  const headers = data[0];
+
+  // Asegurar que exista columna AB (EstadoLimpieza)
+  ensureLimpiezaColumn(sheet, headers);
+
+  const startDate = new Date(startStr + 'T00:00:00');
+  const endDate   = new Date(endStr   + 'T23:59:59');
+
+  const reservas = [];
+
+  for (let i = 1; i < data.length; i++) {
+    const row = data[i];
+    if (!row[0]) continue;                          // Fila vacía
+
+    const fechaRaw = row[5];                        // Columna F — FechaCirugia
+    const fecha    = parseFecha(fechaRaw);
+    if (!fecha) continue;
+
+    if (fecha < startDate || fecha > endDate) continue;
+
+    const estatus = row[21] || '';                  // Columna V
+    if (estatus === 'Cancelado') continue;          // Omitir cancelados en panel
+
+    const servicios = [];
+    if (row[13] === 'Sí') servicios.push('Rayos X');        // N
+    if (row[19] === 'Sí') servicios.push('USG');             // T
+    if (row[14] === 'Sí') servicios.push('Microscopio');     // O
+    if (row[18] === 'Sí') servicios.push('Sol. Irrigación'); // S
+    if (row[15] === 'Sí') servicios.push('Primer Ayudante'); // P
+    if (row[16] === 'Sí') servicios.push('Instrumentista');  // Q
+    if (row[17] === 'Sí') servicios.push('Anestesiólogo Ext.'); // R
+
+    reservas.push({
+      bookingId:   String(row[0]),
+      fecha:       Utilities.formatDate(fecha, 'America/Merida', 'yyyy-MM-dd'),
+      horaInicio:  parseHora(row[6]),
+      horaFin:     parseHora(row[7]),
+      duracion:    Number(row[8]) || 1,
+      quirofano:   String(row[9] || '').trim(),
+      doctor:      String(row[10] || '').trim(),
+      especialidad:String(row[11] || '').trim(),
+      tipoCirugia: String(row[12] || '').trim(),
+      servicios:   servicios,
+      estatus:     estatus,
+      limpieza:    String(row[LIMPIEZA_COL - 1] || 'Pendiente').trim(),
+    });
+  }
+
+  // Ordenar por fecha y hora
+  reservas.sort((a, b) => {
+    const d = a.fecha.localeCompare(b.fecha);
+    return d !== 0 ? d : a.horaInicio.localeCompare(b.horaInicio);
+  });
+
+  return { reservas };
+}
+
+// ── Actualizar estado de limpieza ──────────────────────────────
+function updateLimpieza(bookingId, estado) {
+  const ss    = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName(SHEET_NAME);
+  const data  = sheet.getRange(1, 1, sheet.getLastRow(), 1).getValues();
+
+  for (let i = 1; i < data.length; i++) {
+    if (String(data[i][0]) === String(bookingId)) {
+      sheet.getRange(i + 1, LIMPIEZA_COL).setValue(estado);
+      return;
+    }
+  }
+  throw new Error('Reserva no encontrada: ' + bookingId);
+}
+
+// ── Asegurar columna AB ────────────────────────────────────────
+function ensureLimpiezaColumn(sheet, headers) {
+  if (!headers[LIMPIEZA_COL - 1]) {
+    sheet.getRange(1, LIMPIEZA_COL).setValue('EstadoLimpieza');
+  }
+}
+
+// ── Helpers ────────────────────────────────────────────────────
+function parseFecha(val) {
+  if (!val) return null;
+  try {
+    const s = String(val);
+    // ISO: 2026-05-07T13:00:00.000Z
+    if (s.includes('T')) return new Date(s.substring(0, 10) + 'T12:00:00');
+    // Fecha limpia: 2026-05-07
+    if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return new Date(s + 'T12:00:00');
+    // Objeto Date de Sheets
+    if (val instanceof Date) return val;
+    return null;
+  } catch(e) { return null; }
+}
+
+function parseHora(val) {
+  if (!val) return '00:00';
+  const s = String(val);
+  // ISO: 2026-05-07T13:00:00.000Z → 13:00
+  const isoMatch = s.match(/T(\d{2}:\d{2})/);
+  if (isoMatch) return isoMatch[1];
+  // HH:mm directo
+  if (/^\d{2}:\d{2}/.test(s)) return s.substring(0, 5);
+  // formatDate(...; "HH:mm") — tomar últimos 5 chars
+  if (s.length >= 5) return s.slice(-5);
+  return '00:00';
+}
+
+function jsonResponse(data) {
+  return ContentService
+    .createTextOutput(JSON.stringify(data))
+    .setMimeType(ContentService.MimeType.JSON);
+}
