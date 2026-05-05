@@ -1,11 +1,5 @@
 ---
-// src/pages/gineres.astro
-// ─────────────────────────────────────────────────────────────
-// INSTRUCCIONES DE INSTALACIÓN:
-// 1. Copia este archivo a: src/pages/gineres.astro
-// 2. Copia el logo a:      public/clinica-gineres/logo-gineres.webp
-// 3. Deploy → accesible en menendez.lat/gineres
-// ─────────────────────────────────────────────────────────────
+// src/pages/clinica-gineres/index.astro
 ---
 <!DOCTYPE html>
 <html lang="es">
@@ -54,7 +48,7 @@
     /* HEADER */
     .header {
       background: var(--navy-dark);
-      height: 68px;
+      height: 52px;
       display: flex;
       align-items: center;
       padding: 0 2rem;
@@ -64,44 +58,74 @@
       z-index: 200;
       border-bottom: 1px solid rgba(74,124,181,0.3);
     }
-    .header-logo { height: 36px; width: auto; object-fit: contain;  }
+    .header-brand {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.2;
+    }
+    .header-brand-name {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--white);
+      letter-spacing: 0.01em;
+    }
+    .header-brand-sub {
+      font-size: 0.65rem;
+      font-weight: 400;
+      color: var(--blue-lt);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
     .header-right { display: flex; align-items: center; gap: 10px; }
-    .header-pill { font-size: 0.7rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--blue-lt); border: 1px solid rgba(143,180,212,0.35); padding: 5px 12px; border-radius: 100px; }
-    .header-dot { width: 8px; height: 8px; background: #4ade80; border-radius: 50%; animation: pulse 2s infinite; }
+    .header-pill { font-size: 0.65rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--blue-lt); border: 1px solid rgba(143,180,212,0.35); padding: 4px 10px; border-radius: 100px; }
+    .header-dot { width: 7px; height: 7px; background: #4ade80; border-radius: 50%; animation: pulse 2s infinite; }
 
     @keyframes pulse {
       0%, 100% { box-shadow: 0 0 0 3px rgba(74,222,128,0.2); }
       50%       { box-shadow: 0 0 0 6px rgba(74,222,128,0.06); }
     }
 
-    /* HERO */
-    .hero { background: var(--navy); padding: 3rem 2rem 2.5rem; text-align: center; }
-    .hero-eyebrow { font-size: 1rem; font-weight: 400; color: rgba(255,255,255,0.75); margin-bottom: 0.75rem; letter-spacing: 0.03em; }
-    .hero h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); font-weight: 600; color: var(--white); margin-bottom: 0.5rem; }
-    .hero-sub { font-size: 0.9rem; font-weight: 300; color: rgba(255,255,255,0.6); margin-bottom: 2rem; }
-    .steps { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
-    .step { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 100px; padding: 7px 16px; font-size: 0.8rem; color: rgba(255,255,255,0.82); }
-    .step-num { width: 20px; height: 20px; background: var(--blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 600; color: white; flex-shrink: 0; }
+    /* HERO — compacto, ~5mm del header */
+    .hero {
+      background: var(--navy);
+      padding: 0.5rem 2rem 1rem;
+      text-align: center;
+    }
+    .hero h1 {
+      font-size: clamp(1.4rem, 3.5vw, 2rem);
+      font-weight: 600;
+      color: var(--white);
+      margin-bottom: 0.3rem;
+    }
+    .hero-sub {
+      font-size: 0.82rem;
+      font-weight: 300;
+      color: rgba(255,255,255,0.6);
+      margin-bottom: 0.75rem;
+    }
+    .steps { display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap; }
+    .step { display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 100px; padding: 5px 12px; font-size: 0.75rem; color: rgba(255,255,255,0.82); }
+    .step-num { width: 18px; height: 18px; background: var(--blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; font-weight: 600; color: white; flex-shrink: 0; }
 
     /* INFO BAR */
-    .info-bar { background: var(--navy-mid); border-bottom: 1px solid rgba(74,124,181,0.25); padding: 0.75rem 2rem; display: flex; align-items: center; justify-content: center; gap: 2rem; flex-wrap: wrap; }
-    .info-item { display: flex; align-items: center; gap: 7px; font-size: 0.78rem; color: rgba(255,255,255,0.68); }
-    .info-item svg { width: 14px; height: 14px; stroke: var(--blue-lt); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+    .info-bar { background: var(--navy-mid); border-bottom: 1px solid rgba(74,124,181,0.25); padding: 0.5rem 2rem; display: flex; align-items: center; justify-content: center; gap: 2rem; flex-wrap: wrap; }
+    .info-item { display: flex; align-items: center; gap: 7px; font-size: 0.75rem; color: rgba(255,255,255,0.68); }
+    .info-item svg { width: 13px; height: 13px; stroke: var(--blue-lt); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
 
     /* CONTAINER */
-    .container { max-width: 1080px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+    .container { max-width: 1080px; margin: 0 auto; padding: 1.5rem 1.5rem 4rem; }
 
     /* TAB NAV */
-    .tab-nav { background: var(--white); border-radius: var(--radius); padding: 6px; display: flex; gap: 4px; margin-bottom: 1.5rem; box-shadow: var(--shadow-sm); border: 1px solid var(--gray-200); }
-    .tab-btn { flex: 1; padding: 0.8rem 1rem; border: none; background: transparent; border-radius: 9px; cursor: pointer; font-family: 'Outfit', sans-serif; font-size: 0.92rem; font-weight: 500; color: var(--gray-600); transition: all 0.18s ease; display: flex; align-items: center; justify-content: center; gap: 9px; }
+    .tab-nav { background: var(--white); border-radius: var(--radius); padding: 5px; display: flex; gap: 4px; margin-bottom: 1.25rem; box-shadow: var(--shadow-sm); border: 1px solid var(--gray-200); }
+    .tab-btn { flex: 1; padding: 0.7rem 1rem; border: none; background: transparent; border-radius: 8px; cursor: pointer; font-family: 'Outfit', sans-serif; font-size: 0.9rem; font-weight: 500; color: var(--gray-600); transition: all 0.18s ease; display: flex; align-items: center; justify-content: center; gap: 8px; }
     .tab-btn:hover:not(.active) { background: var(--blue-ghost); color: var(--navy); }
     .tab-btn.active { background: var(--navy); color: var(--white); box-shadow: 0 2px 10px rgba(15,32,64,0.22); }
-    .tab-icon { width: 28px; height: 28px; border-radius: 6px; background: var(--blue-pale); display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background 0.18s; }
+    .tab-icon { width: 26px; height: 26px; border-radius: 6px; background: var(--blue-pale); display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background 0.18s; }
     .tab-btn.active .tab-icon { background: rgba(255,255,255,0.15); }
-    .tab-icon svg { width: 14px; height: 14px; stroke: var(--blue); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .tab-icon svg { width: 13px; height: 13px; stroke: var(--blue); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
     .tab-btn.active .tab-icon svg { stroke: rgba(255,255,255,0.9); }
     .tab-label { line-height: 1; text-align: left; }
-    .tab-sub { font-size: 0.68rem; font-weight: 400; opacity: 0.6; display: block; margin-top: 2px; }
+    .tab-sub { font-size: 0.65rem; font-weight: 400; opacity: 0.6; display: block; margin-top: 2px; }
 
     /* PANELS */
     .tab-panel { display: none; }
@@ -110,14 +134,14 @@
 
     /* CAL CARD */
     .cal-card { background: var(--white); border-radius: var(--radius-lg); box-shadow: var(--shadow); border: 1px solid var(--gray-200); overflow: hidden; }
-    .cal-card-header { background: var(--navy); padding: 1.1rem 1.75rem; display: flex; align-items: center; justify-content: space-between; }
+    .cal-card-header { background: var(--navy); padding: 0.9rem 1.5rem; display: flex; align-items: center; justify-content: space-between; }
     .cal-card-title { display: flex; align-items: center; gap: 10px; }
-    .cal-card-icon { width: 32px; height: 32px; background: rgba(255,255,255,0.12); border-radius: 7px; display: flex; align-items: center; justify-content: center; }
-    .cal-card-icon svg { width: 16px; height: 16px; stroke: rgba(255,255,255,0.9); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-    .cal-card-header h2 { font-size: 1rem; font-weight: 600; color: var(--white); }
-    .cal-card-header p { font-size: 0.72rem; color: rgba(255,255,255,0.5); margin-top: 2px; }
-    .live-badge { display: flex; align-items: center; gap: 6px; background: rgba(74,222,128,0.12); border: 1px solid rgba(74,222,128,0.25); border-radius: 100px; padding: 5px 12px; font-size: 0.7rem; font-weight: 500; color: #4ade80; white-space: nowrap; }
-    .live-dot { width: 6px; height: 6px; background: #4ade80; border-radius: 50%; animation: pulse 2s infinite; }
+    .cal-card-icon { width: 30px; height: 30px; background: rgba(255,255,255,0.12); border-radius: 7px; display: flex; align-items: center; justify-content: center; }
+    .cal-card-icon svg { width: 15px; height: 15px; stroke: rgba(255,255,255,0.9); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .cal-card-header h2 { font-size: 0.95rem; font-weight: 600; color: var(--white); }
+    .cal-card-header p { font-size: 0.7rem; color: rgba(255,255,255,0.5); margin-top: 2px; }
+    .live-badge { display: flex; align-items: center; gap: 6px; background: rgba(74,222,128,0.12); border: 1px solid rgba(74,222,128,0.25); border-radius: 100px; padding: 4px 10px; font-size: 0.68rem; font-weight: 500; color: #4ade80; white-space: nowrap; }
+    .live-dot { width: 5px; height: 5px; background: #4ade80; border-radius: 50%; animation: pulse 2s infinite; }
 
     /* EMBED */
     .cal-wrapper { position: relative; min-height: 700px; }
@@ -126,30 +150,29 @@
     /* LOADING */
     .cal-loading { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1rem; background: var(--white); z-index: 10; transition: opacity 0.4s ease; }
     .cal-loading.hidden { opacity: 0; pointer-events: none; }
-    .spinner { width: 40px; height: 40px; border: 3px solid var(--blue-pale); border-top-color: var(--blue); border-radius: 50%; animation: spin 0.75s linear infinite; }
+    .spinner { width: 38px; height: 38px; border: 3px solid var(--blue-pale); border-top-color: var(--blue); border-radius: 50%; animation: spin 0.75s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
     .cal-loading p { font-size: 0.85rem; color: var(--gray-400); }
 
     /* NOTICE */
-    .notice { margin-top: 1.25rem; background: var(--blue-pale); border: 1px solid var(--gray-200); border-left: 3px solid var(--blue); border-radius: var(--radius-sm); padding: 0.9rem 1.25rem; display: flex; align-items: flex-start; gap: 10px; }
-    .notice svg { width: 16px; height: 16px; stroke: var(--blue); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; margin-top: 2px; }
-    .notice p { font-size: 0.82rem; color: var(--gray-600); line-height: 1.5; }
+    .notice { margin-top: 1rem; background: var(--blue-pale); border: 1px solid var(--gray-200); border-left: 3px solid var(--blue); border-radius: var(--radius-sm); padding: 0.75rem 1.25rem; display: flex; align-items: flex-start; gap: 10px; }
+    .notice svg { width: 15px; height: 15px; stroke: var(--blue); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; margin-top: 2px; }
+    .notice p { font-size: 0.8rem; color: var(--gray-600); line-height: 1.5; }
     .notice strong { color: var(--navy); font-weight: 600; }
 
     /* FOOTER */
-    .footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--gray-200); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
-    .footer-logo { height: 26px; opacity: 0.45; }
+    .footer { margin-top: 2.5rem; padding-top: 1.25rem; border-top: 1px solid var(--gray-200); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
     .footer-text { font-size: 0.75rem; color: var(--gray-400); }
 
     /* RESPONSIVE */
     @media (max-width: 640px) {
-      .header { padding: 0 1rem; }
-      .hero { padding: 2rem 1rem; }
-      .info-bar { padding: 0.75rem 1rem; gap: 1rem; }
-      .container { padding: 1.25rem 1rem 3rem; }
-      .tab-btn { padding: 0.7rem 0.5rem; font-size: 0.82rem; }
+      .header { padding: 0 1rem; height: 48px; }
+      .hero { padding: 0.4rem 1rem 0.75rem; }
+      .info-bar { padding: 0.5rem 1rem; gap: 0.75rem; }
+      .container { padding: 1rem 1rem 3rem; }
+      .tab-btn { padding: 0.6rem 0.4rem; font-size: 0.8rem; }
       .tab-sub { display: none; }
-      .cal-card-header { flex-direction: column; align-items: flex-start; gap: 0.75rem; padding: 1rem; }
+      .cal-card-header { flex-direction: column; align-items: flex-start; gap: 0.5rem; padding: 0.75rem 1rem; }
       .footer { flex-direction: column; align-items: center; text-align: center; }
     }
   </style>
@@ -157,7 +180,10 @@
 <body>
 
   <header class="header">
-    <img src="/clinica-gineres/logo-gineres.webp" alt="Clínica Ginerés" class="header-logo" style="height:42px;width:auto;object-fit:contain;background:white;padding:6px 12px;border-radius:8px;" />
+    <div class="header-brand">
+      <span class="header-brand-name">Clínica Ginerés</span>
+      <span class="header-brand-sub">Unidad de Cirugía Ambulatoria</span>
+    </div>
     <div class="header-right">
       <div class="header-dot"></div>
       <span class="header-pill">Reservas en línea</span>
@@ -165,7 +191,6 @@
   </header>
 
   <section class="hero">
-    <p class="hero-eyebrow">Clínica Ginerés · Unidad de Cirugía Ambulatoria</p>
     <h1>Reserva tu Quirófano</h1>
     <p class="hero-sub">Selecciona el quirófano disponible para el horario que necesitas y agenda en línea.</p>
     <div class="steps">
@@ -264,14 +289,12 @@
     </div>
 
     <div class="footer">
-      <img src="/clinica-gineres/logo-gineres.webp" alt="Clínica Ginerés" class="footer-logo" />
       <span class="footer-text">Clínica Ginerés · Unidad de Cirugía Ambulatoria · Mérida, Yucatán</span>
       <span class="footer-text">Sistema de reservas en línea</span>
     </div>
 
   </div>
 
-  <!-- CAL.COM SCRIPTS -->
   <script type="text/javascript" is:inline>
     (function (C, A, L) {
       let p = function (a, ar) { a.q.push(ar); };
@@ -322,7 +345,6 @@
     });
     Cal.ns["q3"]("ui", { hideEventTypeDetails: false, layout: "month_view" });
 
-    // Ocultar loaders al cargar Cal
     ["q1","q2","q3"].forEach(function(ns, i) {
       Cal.ns[ns]("on", {
         action: "*",
@@ -333,7 +355,6 @@
       });
     });
 
-    // Respaldo por timeout
     setTimeout(function() {
       [1,2,3].forEach(function(n) {
         var el = document.getElementById("loading-" + n);
@@ -342,7 +363,6 @@
     }, 3500);
   </script>
 
-  <!-- TAB LOGIC -->
   <script is:inline>
     function switchTab(n) {
       document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
