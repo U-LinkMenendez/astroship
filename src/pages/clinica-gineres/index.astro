@@ -1,0 +1,361 @@
+---
+// src/pages/gineres.astro
+// ─────────────────────────────────────────────────────────────
+// INSTRUCCIONES DE INSTALACIÓN:
+// 1. Copia este archivo a: src/pages/gineres.astro
+// 2. Copia el logo a:      public/clinica-gineres/logo-gineres.webp
+// 3. Deploy → accesible en menendez.lat/gineres
+// ─────────────────────────────────────────────────────────────
+---
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reserva de Quirófano — Clínica Ginerés</title>
+  <meta name="description" content="Sistema de reservas quirúrgicas — Clínica Ginerés, Unidad de Cirugía Ambulatoria" />
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy-dark:  #0F2040;
+      --navy:       #1A3464;
+      --navy-mid:   #2D4F82;
+      --blue:       #4A7CB5;
+      --blue-lt:    #8FB4D4;
+      --blue-pale:  #E8F0F8;
+      --blue-ghost: #F2F6FB;
+      --white:      #FFFFFF;
+      --gray-100:   #F0F4F8;
+      --gray-200:   #DDE4EE;
+      --gray-400:   #97A8BF;
+      --gray-600:   #4E6077;
+      --text:       #0F2040;
+      --radius-sm:  8px;
+      --radius:     12px;
+      --radius-lg:  16px;
+      --shadow-sm:  0 1px 4px rgba(15,32,64,0.08);
+      --shadow:     0 4px 20px rgba(15,32,64,0.10);
+    }
+
+    html, body {
+      min-height: 100%;
+      font-family: 'Outfit', sans-serif;
+      background: var(--blue-ghost);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* HEADER */
+    .header {
+      background: var(--navy-dark);
+      height: 68px;
+      display: flex;
+      align-items: center;
+      padding: 0 2rem;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      border-bottom: 1px solid rgba(74,124,181,0.3);
+    }
+    .header-logo { height: 36px; width: auto; object-fit: contain; filter: brightness(0) invert(1); opacity: 0.92; }
+    .header-right { display: flex; align-items: center; gap: 10px; }
+    .header-pill { font-size: 0.7rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--blue-lt); border: 1px solid rgba(143,180,212,0.35); padding: 5px 12px; border-radius: 100px; }
+    .header-dot { width: 8px; height: 8px; background: #4ade80; border-radius: 50%; animation: pulse 2s infinite; }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 3px rgba(74,222,128,0.2); }
+      50%       { box-shadow: 0 0 0 6px rgba(74,222,128,0.06); }
+    }
+
+    /* HERO */
+    .hero { background: var(--navy); padding: 3rem 2rem 2.5rem; text-align: center; }
+    .hero-eyebrow { font-size: 0.72rem; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--blue-lt); margin-bottom: 0.75rem; }
+    .hero h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); font-weight: 600; color: var(--white); margin-bottom: 0.5rem; }
+    .hero-sub { font-size: 0.9rem; font-weight: 300; color: rgba(255,255,255,0.6); margin-bottom: 2rem; }
+    .steps { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
+    .step { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 100px; padding: 7px 16px; font-size: 0.8rem; color: rgba(255,255,255,0.82); }
+    .step-num { width: 20px; height: 20px; background: var(--blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 600; color: white; flex-shrink: 0; }
+
+    /* INFO BAR */
+    .info-bar { background: var(--navy-mid); border-bottom: 1px solid rgba(74,124,181,0.25); padding: 0.75rem 2rem; display: flex; align-items: center; justify-content: center; gap: 2rem; flex-wrap: wrap; }
+    .info-item { display: flex; align-items: center; gap: 7px; font-size: 0.78rem; color: rgba(255,255,255,0.68); }
+    .info-item svg { width: 14px; height: 14px; stroke: var(--blue-lt); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+
+    /* CONTAINER */
+    .container { max-width: 1080px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+
+    /* TAB NAV */
+    .tab-nav { background: var(--white); border-radius: var(--radius); padding: 6px; display: flex; gap: 4px; margin-bottom: 1.5rem; box-shadow: var(--shadow-sm); border: 1px solid var(--gray-200); }
+    .tab-btn { flex: 1; padding: 0.8rem 1rem; border: none; background: transparent; border-radius: 9px; cursor: pointer; font-family: 'Outfit', sans-serif; font-size: 0.92rem; font-weight: 500; color: var(--gray-600); transition: all 0.18s ease; display: flex; align-items: center; justify-content: center; gap: 9px; }
+    .tab-btn:hover:not(.active) { background: var(--blue-ghost); color: var(--navy); }
+    .tab-btn.active { background: var(--navy); color: var(--white); box-shadow: 0 2px 10px rgba(15,32,64,0.22); }
+    .tab-icon { width: 28px; height: 28px; border-radius: 6px; background: var(--blue-pale); display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background 0.18s; }
+    .tab-btn.active .tab-icon { background: rgba(255,255,255,0.15); }
+    .tab-icon svg { width: 14px; height: 14px; stroke: var(--blue); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .tab-btn.active .tab-icon svg { stroke: rgba(255,255,255,0.9); }
+    .tab-label { line-height: 1; text-align: left; }
+    .tab-sub { font-size: 0.68rem; font-weight: 400; opacity: 0.6; display: block; margin-top: 2px; }
+
+    /* PANELS */
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; animation: fadeIn 0.2s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+    /* CAL CARD */
+    .cal-card { background: var(--white); border-radius: var(--radius-lg); box-shadow: var(--shadow); border: 1px solid var(--gray-200); overflow: hidden; }
+    .cal-card-header { background: var(--navy); padding: 1.1rem 1.75rem; display: flex; align-items: center; justify-content: space-between; }
+    .cal-card-title { display: flex; align-items: center; gap: 10px; }
+    .cal-card-icon { width: 32px; height: 32px; background: rgba(255,255,255,0.12); border-radius: 7px; display: flex; align-items: center; justify-content: center; }
+    .cal-card-icon svg { width: 16px; height: 16px; stroke: rgba(255,255,255,0.9); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .cal-card-header h2 { font-size: 1rem; font-weight: 600; color: var(--white); }
+    .cal-card-header p { font-size: 0.72rem; color: rgba(255,255,255,0.5); margin-top: 2px; }
+    .live-badge { display: flex; align-items: center; gap: 6px; background: rgba(74,222,128,0.12); border: 1px solid rgba(74,222,128,0.25); border-radius: 100px; padding: 5px 12px; font-size: 0.7rem; font-weight: 500; color: #4ade80; white-space: nowrap; }
+    .live-dot { width: 6px; height: 6px; background: #4ade80; border-radius: 50%; animation: pulse 2s infinite; }
+
+    /* EMBED */
+    .cal-wrapper { position: relative; min-height: 700px; }
+    .cal-wrapper > div[id^="my-cal"] { width: 100% !important; min-height: 700px !important; }
+
+    /* LOADING */
+    .cal-loading { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1rem; background: var(--white); z-index: 10; transition: opacity 0.4s ease; }
+    .cal-loading.hidden { opacity: 0; pointer-events: none; }
+    .spinner { width: 40px; height: 40px; border: 3px solid var(--blue-pale); border-top-color: var(--blue); border-radius: 50%; animation: spin 0.75s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .cal-loading p { font-size: 0.85rem; color: var(--gray-400); }
+
+    /* NOTICE */
+    .notice { margin-top: 1.25rem; background: var(--blue-pale); border: 1px solid var(--gray-200); border-left: 3px solid var(--blue); border-radius: var(--radius-sm); padding: 0.9rem 1.25rem; display: flex; align-items: flex-start; gap: 10px; }
+    .notice svg { width: 16px; height: 16px; stroke: var(--blue); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; margin-top: 2px; }
+    .notice p { font-size: 0.82rem; color: var(--gray-600); line-height: 1.5; }
+    .notice strong { color: var(--navy); font-weight: 600; }
+
+    /* FOOTER */
+    .footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--gray-200); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
+    .footer-logo { height: 26px; opacity: 0.45; }
+    .footer-text { font-size: 0.75rem; color: var(--gray-400); }
+
+    /* RESPONSIVE */
+    @media (max-width: 640px) {
+      .header { padding: 0 1rem; }
+      .hero { padding: 2rem 1rem; }
+      .info-bar { padding: 0.75rem 1rem; gap: 1rem; }
+      .container { padding: 1.25rem 1rem 3rem; }
+      .tab-btn { padding: 0.7rem 0.5rem; font-size: 0.82rem; }
+      .tab-sub { display: none; }
+      .cal-card-header { flex-direction: column; align-items: flex-start; gap: 0.75rem; padding: 1rem; }
+      .footer { flex-direction: column; align-items: center; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <img src="/clinica-gineres/logo-gineres.webp" alt="Clínica Ginerés" class="header-logo" />
+    <div class="header-right">
+      <div class="header-dot"></div>
+      <span class="header-pill">Reservas en línea</span>
+    </div>
+  </header>
+
+  <section class="hero">
+    <p class="hero-eyebrow">Clínica Ginerés · Unidad de Cirugía Ambulatoria</p>
+    <h1>Reserva tu Quirófano</h1>
+    <p class="hero-sub">Selecciona el quirófano disponible para el horario que necesitas y agenda en línea.</p>
+    <div class="steps">
+      <div class="step"><span class="step-num">1</span>Elige el quirófano disponible</div>
+      <div class="step"><span class="step-num">2</span>Selecciona fecha y duración</div>
+      <div class="step"><span class="step-num">3</span>Completa tus datos y confirma</div>
+    </div>
+  </section>
+
+  <div class="info-bar">
+    <div class="info-item">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      Lunes a Sábado · 7:00 am – 9:00 pm
+    </div>
+    <div class="info-item">
+      <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.03 1.18 2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>
+      ¿Dudas? Comunícate a recepción
+    </div>
+    <div class="info-item">
+      <svg viewBox="0 0 24 24"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0112 2a8 8 0 018 8.2c0 7.3-8 11.8-8 11.8z"/><circle cx="12" cy="10" r="3"/></svg>
+      Mérida, Yucatán, México
+    </div>
+  </div>
+
+  <div class="container">
+
+    <nav class="tab-nav" role="tablist" aria-label="Selección de quirófano">
+      <button class="tab-btn active" id="tab-1" role="tab" aria-selected="true" aria-controls="panel-1" onclick="switchTab(1)">
+        <div class="tab-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 8v8M8 12h8"/></svg></div>
+        <div class="tab-label">Quirófano 1<span class="tab-sub">Seleccionado</span></div>
+      </button>
+      <button class="tab-btn" id="tab-2" role="tab" aria-selected="false" aria-controls="panel-2" onclick="switchTab(2)">
+        <div class="tab-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 8v8M8 12h8"/></svg></div>
+        <div class="tab-label">Quirófano 2<span class="tab-sub">Ver disponibilidad</span></div>
+      </button>
+      <button class="tab-btn" id="tab-3" role="tab" aria-selected="false" aria-controls="panel-3" onclick="switchTab(3)">
+        <div class="tab-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 8v8M8 12h8"/></svg></div>
+        <div class="tab-label">Quirófano 3<span class="tab-sub">Ver disponibilidad</span></div>
+      </button>
+    </nav>
+
+    <!-- PANEL 1 -->
+    <div class="tab-panel active" id="panel-1" role="tabpanel" aria-labelledby="tab-1">
+      <div class="cal-card">
+        <div class="cal-card-header">
+          <div class="cal-card-title">
+            <div class="cal-card-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+            <div><h2>Quirófano 1</h2><p>Selecciona fecha, horario y completa tus datos</p></div>
+          </div>
+          <div class="live-badge"><span class="live-dot"></span>Disponibilidad en vivo</div>
+        </div>
+        <div class="cal-wrapper">
+          <div class="cal-loading" id="loading-1"><div class="spinner"></div><p>Cargando disponibilidad…</p></div>
+          <div style="width:100%;height:100%;overflow:scroll" id="my-cal-inline-1"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PANEL 2 -->
+    <div class="tab-panel" id="panel-2" role="tabpanel" aria-labelledby="tab-2">
+      <div class="cal-card">
+        <div class="cal-card-header">
+          <div class="cal-card-title">
+            <div class="cal-card-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+            <div><h2>Quirófano 2</h2><p>Selecciona fecha, horario y completa tus datos</p></div>
+          </div>
+          <div class="live-badge"><span class="live-dot"></span>Disponibilidad en vivo</div>
+        </div>
+        <div class="cal-wrapper">
+          <div class="cal-loading" id="loading-2"><div class="spinner"></div><p>Cargando disponibilidad…</p></div>
+          <div style="width:100%;height:100%;overflow:scroll" id="my-cal-inline-2"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PANEL 3 -->
+    <div class="tab-panel" id="panel-3" role="tabpanel" aria-labelledby="tab-3">
+      <div class="cal-card">
+        <div class="cal-card-header">
+          <div class="cal-card-title">
+            <div class="cal-card-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+            <div><h2>Quirófano 3</h2><p>Selecciona fecha, horario y completa tus datos</p></div>
+          </div>
+          <div class="live-badge"><span class="live-dot"></span>Disponibilidad en vivo</div>
+        </div>
+        <div class="cal-wrapper">
+          <div class="cal-loading" id="loading-3"><div class="spinner"></div><p>Cargando disponibilidad…</p></div>
+          <div style="width:100%;height:100%;overflow:scroll" id="my-cal-inline-3"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="notice">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <p><strong>¿El quirófano que buscas no tiene disponibilidad?</strong> Revisa las otras pestañas — los tres quirófanos operan en el mismo horario. También puedes comunicarte a recepción para que te apoye con la reserva por teléfono.</p>
+    </div>
+
+    <div class="footer">
+      <img src="/clinica-gineres/logo-gineres.webp" alt="Clínica Ginerés" class="footer-logo" />
+      <span class="footer-text">Clínica Ginerés · Unidad de Cirugía Ambulatoria · Mérida, Yucatán</span>
+      <span class="footer-text">Sistema de reservas en línea</span>
+    </div>
+
+  </div>
+
+  <!-- CAL.COM SCRIPTS -->
+  <script type="text/javascript">
+    (function (C, A, L) {
+      let p = function (a, ar) { a.q.push(ar); };
+      let d = C.document;
+      C.Cal = C.Cal || function () {
+        let cal = C.Cal; let ar = arguments;
+        if (!cal.loaded) {
+          cal.ns = {}; cal.q = cal.q || [];
+          d.head.appendChild(d.createElement("script")).src = A;
+          cal.loaded = true;
+        }
+        if (ar[0] === L) {
+          const api = function () { p(api, arguments); };
+          const namespace = ar[1];
+          api.q = api.q || [];
+          if (typeof namespace === "string") {
+            cal.ns[namespace] = cal.ns[namespace] || api;
+            p(cal.ns[namespace], ar);
+            p(cal, ["initNamespace", namespace]);
+          } else p(cal, ar);
+          return;
+        }
+        p(cal, ar);
+      };
+    })(window, "https://app.cal.com/embed/embed.js", "init");
+
+    Cal("init", "q1", { origin: "https://app.cal.com" });
+    Cal.ns["q1"]("inline", {
+      elementOrSelector: "#my-cal-inline-1",
+      config: { layout: "month_view", useSlotsViewOnSmallScreen: "true" },
+      calLink: "clinica-gineres-q1/1",
+    });
+    Cal.ns["q1"]("ui", { hideEventTypeDetails: false, layout: "month_view" });
+
+    Cal("init", "q2", { origin: "https://app.cal.com" });
+    Cal.ns["q2"]("inline", {
+      elementOrSelector: "#my-cal-inline-2",
+      config: { layout: "month_view", useSlotsViewOnSmallScreen: "true" },
+      calLink: "clinica-gineres-q2/2",
+    });
+    Cal.ns["q2"]("ui", { hideEventTypeDetails: false, layout: "month_view" });
+
+    Cal("init", "q3", { origin: "https://app.cal.com" });
+    Cal.ns["q3"]("inline", {
+      elementOrSelector: "#my-cal-inline-3",
+      config: { layout: "month_view", useSlotsViewOnSmallScreen: "true" },
+      calLink: "clinica-gineres-q3/3",
+    });
+    Cal.ns["q3"]("ui", { hideEventTypeDetails: false, layout: "month_view" });
+
+    // Ocultar loaders al cargar Cal
+    ["q1","q2","q3"].forEach(function(ns, i) {
+      Cal.ns[ns]("on", {
+        action: "*",
+        callback: function() {
+          var el = document.getElementById("loading-" + (i + 1));
+          if (el) el.classList.add("hidden");
+        }
+      });
+    });
+
+    // Respaldo por timeout
+    setTimeout(function() {
+      [1,2,3].forEach(function(n) {
+        var el = document.getElementById("loading-" + n);
+        if (el) el.classList.add("hidden");
+      });
+    }, 3500);
+  </script>
+
+  <!-- TAB LOGIC -->
+  <script>
+    function switchTab(n) {
+      document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+      document.getElementById('panel-' + n).classList.add('active');
+      document.querySelectorAll('.tab-btn').forEach(function(b, i) {
+        var on = (i + 1) === n;
+        b.classList.toggle('active', on);
+        b.setAttribute('aria-selected', on ? 'true' : 'false');
+        var sub = b.querySelector('.tab-sub');
+        if (sub) sub.textContent = on ? 'Seleccionado' : 'Ver disponibilidad';
+      });
+    }
+  </script>
+
+</body>
+</html>
