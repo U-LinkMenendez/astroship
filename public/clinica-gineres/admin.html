@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Panel Admin — Clínica Ginerés</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy:    #0F2040;
+      --navy2:   #1A3464;
+      --blue:    #4A7CB5;
+      --blue-lt: #8FB4D4;
+      --pale:    #E8F0F8;
+      --ghost:   #F2F6FB;
+      --white:   #FFFFFF;
+      --g200:    #DDE4EE;
+      --g400:    #97A8BF;
+      --g600:    #4E6077;
+      --text:    #0F2040;
+      --green:   #16a34a;
+      --green-bg:#dcfce7;
+      --amber:   #d97706;
+      --amber-bg:#fef3c7;
+      --red:     #dc2626;
+      --red-bg:  #fee2e2;
+      --r:       10px;
+      --r-lg:    14px;
+      --sh:      0 2px 12px rgba(15,32,64,0.10);
+    }
+    html,body { min-height:100%; font-family:'Outfit',sans-serif; background:var(--ghost); color:var(--text); -webkit-font-smoothing:antialiased; }
+
+    /* HEADER */
+    .hdr { background:var(--navy); height:56px; display:flex; align-items:center; padding:0 1.5rem; gap:1rem; position:sticky; top:0; z-index:100; border-bottom:1px solid rgba(74,124,181,0.3); }
+    .hdr-brand { font-size:0.95rem; font-weight:600; color:#fff; }
+    .hdr-brand span { color:var(--blue-lt); font-weight:400; font-size:0.75rem; margin-left:8px; }
+    .hdr-right { margin-left:auto; display:flex; align-items:center; gap:10px; }
+    .setup-btn { font-size:0.72rem; font-family:'Outfit',sans-serif; font-weight:500; background:rgba(255,255,255,0.08); color:var(--blue-lt); border:1px solid rgba(143,180,212,0.3); padding:5px 12px; border-radius:100px; cursor:pointer; transition:background 0.15s; }
+    .setup-btn:hover { background:rgba(255,255,255,0.15); }
+    .status-dot { width:7px; height:7px; border-radius:50%; background:#4ade80; }
+    .status-dot.off { background:var(--amber); }
+
+    /* SETUP MODAL */
+    .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:500; align-items:center; justify-content:center; }
+    .modal-overlay.open { display:flex; }
+    .modal { background:#fff; border-radius:var(--r-lg); padding:1.75rem; width:min(480px,90vw); box-shadow:0 20px 60px rgba(0,0,0,0.25); }
+    .modal h2 { font-size:1rem; font-weight:600; color:var(--navy); margin-bottom:0.4rem; }
+    .modal p { font-size:0.8rem; color:var(--g600); margin-bottom:1rem; line-height:1.5; }
+    .modal input { width:100%; border:1px solid var(--g200); border-radius:8px; padding:0.65rem 0.9rem; font-family:'Outfit',sans-serif; font-size:0.85rem; color:var(--text); outline:none; transition:border 0.15s; }
+    .modal input:focus { border-color:var(--blue); }
+    .modal-actions { display:flex; gap:0.75rem; margin-top:1rem; justify-content:flex-end; }
+    .btn { font-family:'Outfit',sans-serif; font-size:0.82rem; font-weight:500; padding:0.55rem 1.1rem; border-radius:8px; cursor:pointer; border:none; transition:all 0.15s; }
+    .btn-primary { background:var(--navy); color:#fff; }
+    .btn-primary:hover { background:var(--navy2); }
+    .btn-ghost { background:transparent; color:var(--g600); border:1px solid var(--g200); }
+    .btn-ghost:hover { background:var(--ghost); }
+
+    /* TOOLBAR */
+    .toolbar { background:#fff; border-bottom:1px solid var(--g200); padding:0.75rem 1.5rem; display:flex; align-items:center; gap:1rem; flex-wrap:wrap; }
+    /* DATE TABS */
+    .date-tabs { display:flex; gap:4px; flex:1; overflow-x:auto; padding-bottom:2px; }
+    .date-tabs::-webkit-scrollbar { height:3px; }
+    .date-tabs::-webkit-scrollbar-thumb { background:var(--g200); border-radius:2px; }
+    .date-tab { flex-shrink:0; padding:0.45rem 0.9rem; border-radius:7px; border:1px solid var(--g200); background:transparent; font-family:'Outfit',sans-serif; font-size:0.8rem; font-weight:500; color:var(--g600); cursor:pointer; transition:all 0.15s; white-space:nowrap; }
+    .date-tab:hover { background:var(--pale); color:var(--navy); border-color:var(--blue-lt); }
+    .date-tab.active { background:var(--navy); color:#fff; border-color:var(--navy); }
+    .date-tab.today-tab { border-color:var(--blue); color:var(--blue); font-weight:600; }
+    .date-tab.today-tab.active { background:var(--blue); color:#fff; border-color:var(--blue); }
+    /* VIEW TOGGLE */
+    .view-toggle { display:flex; background:var(--ghost); border:1px solid var(--g200); border-radius:8px; padding:3px; flex-shrink:0; }
+    .view-btn { padding:0.35rem 0.8rem; border-radius:6px; border:none; background:transparent; font-family:'Outfit',sans-serif; font-size:0.78rem; font-weight:500; color:var(--g600); cursor:pointer; transition:all 0.15s; display:flex; align-items:center; gap:5px; }
+    .view-btn.active { background:#fff; color:var(--navy); box-shadow:0 1px 4px rgba(15,32,64,0.1); }
+
+    /* MAIN */
+    .main { padding:1.25rem 1.5rem 3rem; }
+
+    /* LOADING */
+    .loader { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1rem; padding:4rem; }
+    .spinner { width:36px; height:36px; border:3px solid var(--pale); border-top-color:var(--blue); border-radius:50%; animation:spin 0.75s linear infinite; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    .loader p { font-size:0.85rem; color:var(--g400); }
+
+    /* EMPTY STATE */
+    .empty { text-align:center; padding:3rem 1rem; }
+    .empty-icon { font-size:2.5rem; margin-bottom:0.75rem; }
+    .empty h3 { font-size:1rem; font-weight:600; color:var(--navy); margin-bottom:0.3rem; }
+    .empty p { font-size:0.82rem; color:var(--g400); }
+
+    /* NO URL STATE */
+    .no-url { background:#fff; border:1px solid var(--g200); border-radius:var(--r-lg); padding:2rem; text-align:center; max-width:420px; margin:2rem auto; }
+    .no-url h3 { font-size:1rem; font-weight:600; color:var(--navy); margin-bottom:0.5rem; }
+    .no-url p { font-size:0.82rem; color:var(--g600); line-height:1.5; margin-bottom:1.25rem; }
+
+    /* ══ COLUMN VIEW ══ */
+    .col-view { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; }
+    .q-col { background:#fff; border-radius:var(--r-lg); border:1px solid var(--g200); overflow:hidden; box-shadow:var(--sh); }
+    .q-col-header { background:var(--navy); padding:0.75rem 1rem; display:flex; align-items:center; justify-content:space-between; }
+    .q-col-header h3 { font-size:0.9rem; font-weight:600; color:#fff; }
+    .q-count { font-size:0.7rem; background:rgba(255,255,255,0.15); color:#fff; padding:2px 8px; border-radius:100px; }
+    .q-col-body { padding:0.75rem; display:flex; flex-direction:column; gap:0.6rem; min-height:120px; }
+
+    /* ══ TIMELINE VIEW ══ */
+    .timeline { background:#fff; border-radius:var(--r-lg); border:1px solid var(--g200); overflow:hidden; box-shadow:var(--sh); }
+    .tl-header { display:grid; grid-template-columns:56px repeat(3,1fr); background:var(--navy); }
+    .tl-header-cell { padding:0.65rem 0.75rem; font-size:0.82rem; font-weight:600; color:#fff; text-align:center; border-right:1px solid rgba(255,255,255,0.1); }
+    .tl-header-cell:last-child { border-right:none; }
+    .tl-row { display:grid; grid-template-columns:56px repeat(3,1fr); border-bottom:1px solid var(--g200); min-height:52px; }
+    .tl-row:last-child { border-bottom:none; }
+    .tl-row.odd { background:var(--ghost); }
+    .tl-hour { padding:0.5rem; font-size:0.72rem; font-weight:600; color:var(--g400); text-align:center; border-right:1px solid var(--g200); display:flex; align-items:flex-start; justify-content:center; padding-top:0.6rem; }
+    .tl-cell { padding:0.35rem; border-right:1px solid var(--g200); display:flex; flex-direction:column; gap:0.3rem; }
+    .tl-cell:last-child { border-right:none; }
+
+    /* ══ SURGERY CARD ══ */
+    .surgery-card { border-radius:8px; border:1px solid var(--g200); padding:0.65rem 0.75rem; background:#fff; transition:box-shadow 0.15s; }
+    .surgery-card:hover { box-shadow:0 2px 8px rgba(15,32,64,0.1); }
+    .card-top { display:flex; align-items:flex-start; justify-content:space-between; gap:0.5rem; margin-bottom:0.4rem; }
+    .card-doctor { font-size:0.85rem; font-weight:600; color:var(--navy); line-height:1.2; }
+    .card-hora { font-size:0.72rem; font-weight:500; color:var(--blue); white-space:nowrap; background:var(--pale); padding:2px 7px; border-radius:100px; }
+    .card-meta { font-size:0.75rem; color:var(--g600); margin-bottom:0.5rem; line-height:1.4; }
+    .card-meta strong { color:var(--navy); }
+    .card-services { display:flex; flex-wrap:wrap; gap:3px; margin-bottom:0.5rem; }
+    .svc-badge { font-size:0.65rem; font-weight:500; background:var(--pale); color:var(--navy2); padding:2px 6px; border-radius:4px; }
+    .card-footer { display:flex; align-items:center; justify-content:space-between; gap:0.5rem; }
+    /* Limpieza button */
+    .lmp-btn { font-family:'Outfit',sans-serif; font-size:0.68rem; font-weight:600; padding:3px 9px; border-radius:6px; border:1px solid; cursor:pointer; transition:all 0.15s; white-space:nowrap; }
+    .lmp-btn.Pendiente  { background:var(--amber-bg); color:var(--amber); border-color:var(--amber); }
+    .lmp-btn.EnProceso  { background:var(--pale); color:var(--blue); border-color:var(--blue); }
+    .lmp-btn.Listo      { background:var(--green-bg); color:var(--green); border-color:var(--green); }
+    .lmp-btn:disabled   { opacity:0.5; cursor:not-allowed; }
+    /* Status badge */
+    .status-badge { font-size:0.65rem; font-weight:500; padding:2px 7px; border-radius:4px; }
+    .status-badge.Confirmado { background:var(--green-bg); color:var(--green); }
+    .status-badge.Cancelado  { background:var(--red-bg);   color:var(--red); }
+
+    /* TL compact card */
+    .tl-card { background:var(--pale); border-radius:6px; padding:0.3rem 0.5rem; border-left:3px solid var(--blue); }
+    .tl-card .card-doctor { font-size:0.78rem; }
+    .tl-card .card-hora { font-size:0.65rem; }
+    .tl-card .card-meta { font-size:0.68rem; margin-bottom:0.3rem; }
+    .tl-card .card-services { margin-bottom:0.3rem; }
+
+    /* REFRESH */
+    .refresh-bar { display:flex; align-items:center; justify-content:flex-end; gap:0.75rem; margin-bottom:0.75rem; }
+    .refresh-bar span { font-size:0.75rem; color:var(--g400); }
+    .refresh-btn { font-family:'Outfit',sans-serif; font-size:0.75rem; font-weight:500; background:#fff; color:var(--navy); border:1px solid var(--g200); padding:4px 12px; border-radius:7px; cursor:pointer; display:flex; align-items:center; gap:5px; transition:background 0.15s; }
+    .refresh-btn:hover { background:var(--pale); }
+
+    /* RESPONSIVE */
+    @media (max-width:900px) {
+      .col-view { grid-template-columns:1fr; }
+      .tl-header, .tl-row { grid-template-columns:44px repeat(3,1fr); }
+    }
+    @media (max-width:640px) {
+      .hdr { padding:0 1rem; }
+      .toolbar { padding:0.6rem 1rem; }
+      .main { padding:1rem 1rem 3rem; }
+      .date-tab { font-size:0.72rem; padding:0.4rem 0.7rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="hdr">
+    <div class="hdr-brand">Panel Admin <span>Clínica Ginerés</span></div>
+    <div class="hdr-right">
+      <div class="status-dot" id="statusDot"></div>
+      <button class="setup-btn" onclick="openSetup()">⚙ Configurar URL</button>
+    </div>
+  </header>
+
+  <!-- SETUP MODAL -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <h2>URL del Apps Script</h2>
+      <p>Pega aquí la URL de tu Web App de Google Apps Script. Esta URL se guarda en este navegador y no es visible para otros.</p>
+      <input type="url" id="scriptUrlInput" placeholder="https://script.google.com/macros/s/.../exec" />
+      <div class="modal-actions">
+        <button class="btn btn-ghost" onclick="closeSetup()">Cancelar</button>
+        <button class="btn btn-primary" onclick="saveSetup()">Guardar y conectar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOOLBAR -->
+  <div class="toolbar">
+    <div class="date-tabs" id="dateTabs"></div>
+    <div class="view-toggle">
+      <button class="view-btn active" id="btnCol" onclick="setView('col')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="5" height="18" rx="1"/><rect x="10" y="3" width="5" height="18" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg>
+        Quirófanos
+      </button>
+      <button class="view-btn" id="btnTl" onclick="setView('tl')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        Cronológico
+      </button>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="main" id="mainContent">
+    <div class="loader" id="loader" style="display:none">
+      <div class="spinner"></div>
+      <p>Cargando reservas…</p>
+    </div>
+    <div id="contentArea"></div>
+  </div>
+
+  <script>
+    const SCRIPT_KEY = 'cg_admin_script_url';
+    const HOURS = ['07:00','08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00'];
+    const QUIROFANOS = ['Quirofano 1','Quirofano 2','Quirofano 3'];
+
+    let currentDate = todayStr();
+    let currentView = 'col';
+    let allReservas  = [];
+    let lastUpdate   = null;
+
+    // ── Init ────────────────────────────────────────────────────
+    function init() {
+      buildDateTabs();
+      const url = localStorage.getItem(SCRIPT_KEY);
+      if (!url) {
+        showNoUrl();
+      } else {
+        updateStatusDot(true);
+        loadData();
+      }
+    }
+
+    // ── Date tabs ───────────────────────────────────────────────
+    function buildDateTabs() {
+      const container = document.getElementById('dateTabs');
+      container.innerHTML = '';
+      const today = new Date();
+      for (let i = 0; i < 8; i++) {
+        const d = new Date(today);
+        d.setDate(today.getDate() + i);
+        const ds = formatDate(d);
+        const label = i === 0 ? 'Hoy' : formatShortDate(d);
+        const btn = document.createElement('button');
+        btn.className = 'date-tab' + (i === 0 ? ' today-tab' : '') + (ds === currentDate ? ' active' : '');
+        btn.textContent = label;
+        btn.onclick = () => selectDate(ds);
+        container.appendChild(btn);
+      }
+    }
+
+    function selectDate(ds) {
+      currentDate = ds;
+      document.querySelectorAll('.date-tab').forEach((b, i) => {
+        const d = new Date();
+        d.setDate(d.getDate() + i);
+        b.classList.toggle('active', formatDate(d) === ds);
+      });
+      render();
+    }
+
+    // ── View toggle ─────────────────────────────────────────────
+    function setView(v) {
+      currentView = v;
+      document.getElementById('btnCol').classList.toggle('active', v === 'col');
+      document.getElementById('btnTl').classList.toggle('active',  v === 'tl');
+      render();
+    }
+
+    // ── Load data ───────────────────────────────────────────────
+    async function loadData() {
+      const url = localStorage.getItem(SCRIPT_KEY);
+      if (!url) { showNoUrl(); return; }
+
+      showLoader(true);
+      const today = todayStr();
+      const end   = addDays(today, 7);
+
+      try {
+        const res  = await fetch(`${url}?start=${today}&end=${end}`);
+        const json = await res.json();
+        if (json.error) throw new Error(json.error);
+        allReservas = json.reservas || [];
+        lastUpdate  = new Date();
+        render();
+      } catch(e) {
+        showLoader(false);
+        document.getElementById('contentArea').innerHTML = `
+          <div class="no-url">
+            <h3>Error de conexión</h3>
+            <p>No se pudo conectar con Google Sheets.<br>${e.message}</p>
+            <button class="btn btn-primary" onclick="loadData()">Reintentar</button>
+          </div>`;
+      }
+      showLoader(false);
+    }
+
+    // ── Render ──────────────────────────────────────────────────
+    function render() {
+      const area = document.getElementById('contentArea');
+      const dayReservas = allReservas.filter(r => r.fecha === currentDate);
+
+      let html = `<div class="refresh-bar">
+        <span>${lastUpdate ? 'Actualizado: ' + lastUpdate.toLocaleTimeString('es-MX', {hour:'2-digit',minute:'2-digit'}) : ''}</span>
+        <button class="refresh-btn" onclick="loadData()">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+          Actualizar
+        </button>
+      </div>`;
+
+      if (currentView === 'col') {
+        html += renderColView(dayReservas);
+      } else {
+        html += renderTimelineView(dayReservas);
+      }
+      area.innerHTML = html;
+    }
+
+    // ── Column view ─────────────────────────────────────────────
+    function renderColView(reservas) {
+      const byQ = {};
+      QUIROFANOS.forEach(q => byQ[q] = []);
+      reservas.forEach(r => {
+        const key = QUIROFANOS.find(q => q.toLowerCase() === (r.quirofano || '').toLowerCase()) || QUIROFANOS[0];
+        byQ[key].push(r);
+      });
+
+      return `<div class="col-view">
+        ${QUIROFANOS.map(q => `
+          <div class="q-col">
+            <div class="q-col-header">
+              <h3>${q.replace('Quirofano','Quirófano')}</h3>
+              <span class="q-count">${byQ[q].length} cir.</span>
+            </div>
+            <div class="q-col-body">
+              ${byQ[q].length === 0
+                ? '<div style="font-size:0.78rem;color:var(--g400);text-align:center;padding:1.5rem 0">Sin cirugías</div>'
+                : byQ[q].map(r => cardHTML(r, false)).join('')}
+            </div>
+          </div>
+        `).join('')}
+      </div>`;
+    }
+
+    // ── Timeline view ────────────────────────────────────────────
+    function renderTimelineView(reservas) {
+      const cells = {};
+      HOURS.forEach(h => {
+        cells[h] = { 'Quirofano 1': [], 'Quirofano 2': [], 'Quirofano 3': [] };
+      });
+
+      reservas.forEach(r => {
+        const h  = r.horaInicio ? r.horaInicio.substring(0,5) : '07:00';
+        const hr = HOURS.find(x => x === h) || HOURS[0];
+        const qk = QUIROFANOS.find(q => q.toLowerCase() === (r.quirofano||'').toLowerCase()) || QUIROFANOS[0];
+        cells[hr][qk].push(r);
+      });
+
+      const rows = HOURS.map((h, i) => {
+        const hasAny = QUIROFANOS.some(q => cells[h][q].length > 0);
+        return `<div class="tl-row ${i % 2 === 0 ? 'odd' : ''}">
+          <div class="tl-hour">${h}</div>
+          ${QUIROFANOS.map(q => `
+            <div class="tl-cell">
+              ${cells[h][q].map(r => cardHTML(r, true)).join('')}
+            </div>`).join('')}
+        </div>`;
+      }).join('');
+
+      return `<div class="timeline">
+        <div class="tl-header">
+          <div class="tl-header-cell" style="font-size:0.68rem;color:rgba(255,255,255,0.6)">Hora</div>
+          ${QUIROFANOS.map(q => `<div class="tl-header-cell">${q.replace('Quirofano','Quirófano')}</div>`).join('')}
+        </div>
+        ${rows}
+      </div>`;
+    }
+
+    // ── Card HTML ────────────────────────────────────────────────
+    function cardHTML(r, compact) {
+      const svcs = (r.servicios || []).map(s => `<span class="svc-badge">${s}</span>`).join('');
+      const lmpCycle = { 'Pendiente':'EnProceso', 'EnProceso':'Listo', 'Listo':'Pendiente' };
+      const lmpLabel = { 'Pendiente':'⏳ Pendiente', 'EnProceso':'🧹 En proceso', 'Listo':'✅ Listo' };
+      const lmp = r.limpieza || 'Pendiente';
+
+      return `<div class="surgery-card ${compact ? 'tl-card' : ''}" data-id="${escHtml(r.bookingId)}">
+        <div class="card-top">
+          <div class="card-doctor">${escHtml(r.doctor || 'Sin nombre')}</div>
+          <div class="card-hora">${r.horaInicio}${r.duracion ? ' · ' + r.duracion + 'h' : ''}</div>
+        </div>
+        <div class="card-meta">
+          <strong>${escHtml(r.especialidad || '')}</strong>${r.tipoCirugia ? ' · ' + escHtml(r.tipoCirugia) : ''}
+        </div>
+        ${svcs ? `<div class="card-services">${svcs}</div>` : ''}
+        <div class="card-footer">
+          <button class="lmp-btn ${lmp}" onclick="cycleLimpieza('${escHtml(r.bookingId)}','${lmpCycle[lmp] || 'Pendiente'}')">${lmpLabel[lmp] || lmp}</button>
+          <span class="status-badge ${r.estatus}">${r.estatus || ''}</span>
+        </div>
+      </div>`;
+    }
+
+    // ── Cycle limpieza ───────────────────────────────────────────
+    async function cycleLimpieza(bookingId, nextState) {
+      const url = localStorage.getItem(SCRIPT_KEY);
+      if (!url) return;
+
+      // Update local state immediately
+      const r = allReservas.find(x => x.bookingId === bookingId);
+      if (r) r.limpieza = nextState;
+      render();
+
+      // Persist to Sheets
+      try {
+        await fetch(url, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'updateLimpieza', bookingId, estado: nextState }),
+        });
+      } catch(e) { console.warn('No se pudo guardar limpieza:', e); }
+    }
+
+    // ── Setup modal ──────────────────────────────────────────────
+    function openSetup() {
+      const input = document.getElementById('scriptUrlInput');
+      input.value = localStorage.getItem(SCRIPT_KEY) || '';
+      document.getElementById('modalOverlay').classList.add('open');
+      input.focus();
+    }
+
+    function closeSetup() {
+      document.getElementById('modalOverlay').classList.remove('open');
+    }
+
+    function saveSetup() {
+      const val = document.getElementById('scriptUrlInput').value.trim();
+      if (!val) return;
+      localStorage.setItem(SCRIPT_KEY, val);
+      closeSetup();
+      updateStatusDot(true);
+      loadData();
+    }
+
+    // ── Helpers ──────────────────────────────────────────────────
+    function showNoUrl() {
+      document.getElementById('contentArea').innerHTML = `
+        <div class="no-url">
+          <h3>Configuración requerida</h3>
+          <p>Para cargar los datos de Google Sheets, primero configura la URL del Apps Script desplegado.</p>
+          <button class="btn btn-primary" onclick="openSetup()">⚙ Configurar ahora</button>
+        </div>`;
+    }
+
+    function showLoader(show) {
+      document.getElementById('loader').style.display = show ? 'flex' : 'none';
+    }
+
+    function updateStatusDot(connected) {
+      document.getElementById('statusDot').classList.toggle('off', !connected);
+    }
+
+    function todayStr() {
+      const d = new Date();
+      return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    }
+
+    function addDays(ds, n) {
+      const d = new Date(ds + 'T12:00:00');
+      d.setDate(d.getDate() + n);
+      return formatDate(d);
+    }
+
+    function formatDate(d) {
+      return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    }
+
+    function formatShortDate(d) {
+      return d.toLocaleDateString('es-MX', { weekday:'short', day:'numeric', month:'short' });
+    }
+
+    function escHtml(s) {
+      return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    // Close modal on overlay click
+    document.getElementById('modalOverlay').addEventListener('click', function(e) {
+      if (e.target === this) closeSetup();
+    });
+
+    init();
+  </script>
+
+</body>
+</html>
