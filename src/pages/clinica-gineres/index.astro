@@ -323,22 +323,22 @@
 
     // Leer leadid de la URL (viene como metadata[leadid])
     var urlParams = new URLSearchParams(window.location.search);
-    var leadId    = urlParams.get('metadata[leadid]') || urlParams.get('leadid') || '';
+    window._leadId = urlParams.get('metadata[leadid]') || urlParams.get('leadid') || '';
 
     // URL del Apps Script para vincular leadId con booking
     var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwrVhnF3uqPDgUiH6XvWNcyCfGffyAbr_JdWklY0Ov67M2D0iXMGBNw7AjWLbG1jlnxtA/exec';
 
     function vincularLeadConBooking(bookingId) {
-      if (!leadId || !bookingId) return;
+      if (!window._leadId || !bookingId) return;
       fetch(APPS_SCRIPT_URL, {
         method: 'POST',
-        body: JSON.stringify({ action: 'vincularLead', bookingId: String(bookingId), leadId: String(leadId) }),
+        body: JSON.stringify({ action: 'vincularLead', bookingId: String(bookingId), leadId: String(window._leadId) }),
       }).catch(function(e) { console.log('Error vinculando lead:', e); });
     }
 
     Cal("init", "q1", { origin: "https://app.cal.com" });
     var calConfig = { layout: "month_view", useSlotsViewOnSmallScreen: "true" };
-    if (leadId) calConfig["metadata[leadid]"] = leadId;
+    if (window._leadId) calConfig["metadata[leadid]"] = window._leadId;
 
     Cal.ns["q1"]("inline", {
       elementOrSelector: "#my-cal-inline-1",
