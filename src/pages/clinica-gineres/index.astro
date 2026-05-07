@@ -321,9 +321,20 @@
       };
     })(window, "https://app.cal.com/embed/embed.js", "init");
 
-    // Leer leadid de la URL
+    // Leer leadid de la URL y guardarlo en memoria
     var urlParams = new URLSearchParams(window.location.search);
     var leadId    = urlParams.get('leadid') || '';
+
+    // URL del Apps Script para vincular leadId con booking
+    var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwrVhnF3uqPDgUiH6XvWNcyCfGffyAbr_JdWklY0Ov67M2D0iXMGBNw7AjWLbG1jlnxtA/exec';
+
+    function vincularLeadConBooking(bookingId) {
+      if (!leadId || !bookingId) return;
+      fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'vincularLead', bookingId: String(bookingId), leadId: String(leadId) }),
+      }).catch(function(e) { console.log('Error vinculando lead:', e); });
+    }
 
     Cal("init", "q1", { origin: "https://app.cal.com" });
     Cal.ns["q1"]("inline", {
@@ -332,6 +343,9 @@
       calLink: "clinica-gineres-q1/1",
     });
     Cal.ns["q1"]("ui", { hideEventTypeDetails: false, layout: "month_view" });
+    Cal.ns["q1"]("on", { action: "bookingSuccessful", callback: function(e) {
+      vincularLeadConBooking(e.data && e.data.booking && e.data.booking.id);
+    }});
 
     Cal("init", "q2", { origin: "https://app.cal.com" });
     Cal.ns["q2"]("inline", {
@@ -340,6 +354,9 @@
       calLink: "clinica-gineres-q2/2",
     });
     Cal.ns["q2"]("ui", { hideEventTypeDetails: false, layout: "month_view" });
+    Cal.ns["q2"]("on", { action: "bookingSuccessful", callback: function(e) {
+      vincularLeadConBooking(e.data && e.data.booking && e.data.booking.id);
+    }});
 
     Cal("init", "q3", { origin: "https://app.cal.com" });
     Cal.ns["q3"]("inline", {
@@ -348,23 +365,9 @@
       calLink: "clinica-gineres-q3/3",
     });
     Cal.ns["q3"]("ui", { hideEventTypeDetails: false, layout: "month_view" });
-
-    // Inyectar leadid en iframes de Cal.com cuando estén listos
-    if (leadId) {
-      var injectLeadId = function() {
-        var iframes = document.querySelectorAll('iframe');
-        iframes.forEach(function(iframe) {
-          try {
-            iframe.contentWindow.postMessage(
-              JSON.stringify({ method: "setFormValues", args: [{ leadid: leadId }] }),
-              "https://app.cal.com"
-            );
-          } catch(e) {}
-        });
-      };
-      setTimeout(injectLeadId, 2000);
-      setTimeout(injectLeadId, 4000);
-    }
+    Cal.ns["q3"]("on", { action: "bookingSuccessful", callback: function(e) {
+      vincularLeadConBooking(e.data && e.data.booking && e.data.booking.id);
+    }});
 
     ["q1","q2","q3"].forEach(function(ns, i) {
       Cal.ns[ns]("on", {
