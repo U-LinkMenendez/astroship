@@ -113,10 +113,10 @@
     .info-item svg { width: 13px; height: 13px; stroke: var(--blue-lt); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
 
     /* CONTAINER */
-    .container { max-width: 1080px; margin: 0 auto; padding: 0.75rem 1.5rem 4rem; }
+    .container { max-width: 1080px; margin: 0 auto; padding: 1.5rem 1.5rem 4rem; }
 
     /* TAB NAV */
-    .tab-nav { background: var(--white); border-radius: var(--radius); padding: 5px; display: flex; gap: 4px; margin-bottom: 0.6rem; box-shadow: var(--shadow-sm); border: 1px solid var(--gray-200); }
+    .tab-nav { background: var(--white); border-radius: var(--radius); padding: 5px; display: flex; gap: 4px; margin-bottom: 1.25rem; box-shadow: var(--shadow-sm); border: 1px solid var(--gray-200); }
     .tab-btn { flex: 1; padding: 0.7rem 1rem; border: none; background: transparent; border-radius: 8px; cursor: pointer; font-family: 'Outfit', sans-serif; font-size: 0.9rem; font-weight: 500; color: var(--gray-600); transition: all 0.18s ease; display: flex; align-items: center; justify-content: center; gap: 8px; }
     .tab-btn:hover:not(.active) { background: var(--blue-ghost); color: var(--navy); }
     .tab-btn.active { background: var(--navy); color: var(--white); box-shadow: 0 2px 10px rgba(15,32,64,0.22); }
@@ -134,7 +134,7 @@
 
     /* CAL CARD */
     .cal-card { background: var(--white); border-radius: var(--radius-lg); box-shadow: var(--shadow); border: 1px solid var(--gray-200); overflow: hidden; }
-    .cal-card-header { background: var(--navy); padding: 0.35rem 1.5rem; display: flex; align-items: center; justify-content: space-between; }
+    .cal-card-header { background: var(--navy); padding: 0.9rem 1.5rem; display: flex; align-items: center; justify-content: space-between; }
     .cal-card-title { display: flex; align-items: center; gap: 10px; }
     .cal-card-icon { width: 30px; height: 30px; background: rgba(255,255,255,0.12); border-radius: 7px; display: flex; align-items: center; justify-content: center; }
     .cal-card-icon svg { width: 15px; height: 15px; stroke: rgba(255,255,255,0.9); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
@@ -321,6 +321,10 @@
       };
     })(window, "https://app.cal.com/embed/embed.js", "init");
 
+    // Leer leadid de la URL
+    var urlParams = new URLSearchParams(window.location.search);
+    var leadId    = urlParams.get('leadid') || '';
+
     Cal("init", "q1", { origin: "https://app.cal.com" });
     Cal.ns["q1"]("inline", {
       elementOrSelector: "#my-cal-inline-1",
@@ -344,6 +348,23 @@
       calLink: "clinica-gineres-q3/3",
     });
     Cal.ns["q3"]("ui", { hideEventTypeDetails: false, layout: "month_view" });
+
+    // Inyectar leadid en iframes de Cal.com cuando estén listos
+    if (leadId) {
+      var injectLeadId = function() {
+        var iframes = document.querySelectorAll('iframe');
+        iframes.forEach(function(iframe) {
+          try {
+            iframe.contentWindow.postMessage(
+              JSON.stringify({ method: "setFormValues", args: [{ leadid: leadId }] }),
+              "https://app.cal.com"
+            );
+          } catch(e) {}
+        });
+      };
+      setTimeout(injectLeadId, 2000);
+      setTimeout(injectLeadId, 4000);
+    }
 
     ["q1","q2","q3"].forEach(function(ns, i) {
       Cal.ns[ns]("on", {
