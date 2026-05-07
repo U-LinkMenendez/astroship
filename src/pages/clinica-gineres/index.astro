@@ -345,10 +345,11 @@
     });
     Cal.ns["q1"]("ui", { hideEventTypeDetails: false, layout: "month_view" });
     Cal.ns["q1"]("on", { action: "bookingSuccessful", callback: function(e) {
-      console.log('bookingSuccessful q1:', JSON.stringify(e));
-      var bid = (e.data && e.data.bookingId) || (e.data && e.data.booking && e.data.booking.id) || (e.detail && e.detail.bookingId);
-      vincularLeadConBooking(bid);
-    }});
+  console.log('bookingSuccessful q1 full:', JSON.stringify(e), JSON.stringify(e.data));
+  var bid = e.bookingId || e.uid || (e.data && (e.data.bookingId || e.data.uid || e.data.id));
+  console.log('bid encontrado:', bid);
+  vincularLeadConBooking(bid);
+}});
 
     Cal("init", "q2", { origin: "https://app.cal.com" });
     Cal.ns["q2"]("inline", {
@@ -358,10 +359,11 @@
     });
     Cal.ns["q2"]("ui", { hideEventTypeDetails: false, layout: "month_view" });
     Cal.ns["q2"]("on", { action: "bookingSuccessful", callback: function(e) {
-      console.log('bookingSuccessful q2:', JSON.stringify(e));
-      var bid = (e.data && e.data.bookingId) || (e.data && e.data.booking && e.data.booking.id) || (e.detail && e.detail.bookingId);
-      vincularLeadConBooking(bid);
-    }});
+  console.log('bookingSuccessful q1 full:', JSON.stringify(e), JSON.stringify(e.data));
+  var bid = e.bookingId || e.uid || (e.data && (e.data.bookingId || e.data.uid || e.data.id));
+  console.log('bid encontrado:', bid);
+  vincularLeadConBooking(bid);
+}});
 
     Cal("init", "q3", { origin: "https://app.cal.com" });
     Cal.ns["q3"]("inline", {
@@ -371,10 +373,11 @@
     });
     Cal.ns["q3"]("ui", { hideEventTypeDetails: false, layout: "month_view" });
     Cal.ns["q3"]("on", { action: "bookingSuccessful", callback: function(e) {
-      console.log('bookingSuccessful q3:', JSON.stringify(e));
-      var bid = (e.data && e.data.bookingId) || (e.data && e.data.booking && e.data.booking.id) || (e.detail && e.detail.bookingId);
-      vincularLeadConBooking(bid);
-    }});
+  console.log('bookingSuccessful q1 full:', JSON.stringify(e), JSON.stringify(e.data));
+  var bid = e.bookingId || e.uid || (e.data && (e.data.bookingId || e.data.uid || e.data.id));
+  console.log('bid encontrado:', bid);
+  vincularLeadConBooking(bid);
+}});
 
     ["q1","q2","q3"].forEach(function(ns, i) {
       Cal.ns[ns]("on", {
