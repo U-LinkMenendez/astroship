@@ -211,6 +211,7 @@
 
   <script>
     const SCRIPT_KEY = 'cg_admin_script_url';
+    const HARDCODED_URL = 'https://script.google.com/macros/s/AKfycbxwrdO0fFNCknbj0pSOdeRFJ5c6vOAVIJjLYBnrwOce3AUp6Z1wFjuZ5bblOI9VjltY3g/exec';
     const HOURS = ['07:00','08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00'];
     const QUIROFANOS = ['Quirofano 1','Quirofano 2','Quirofano 3'];
 
@@ -221,16 +222,11 @@
 
     // ── Init ────────────────────────────────────────────────────
     function init() {
-      buildDateTabs();
-      const url = localStorage.getItem(SCRIPT_KEY);
-      if (!url) {
-        showNoUrl();
-      } else {
-        updateStatusDot(true);
-        loadData();
-      }
-    }
-
+     buildDateTabs();
+     updateStatusDot(true);
+    loadData();
+   }
+    
     // ── Date tabs ───────────────────────────────────────────────
     function buildDateTabs() {
       const container = document.getElementById('dateTabs');
@@ -269,8 +265,7 @@
 
     // ── Load data ───────────────────────────────────────────────
     async function loadData() {
-      const url = localStorage.getItem(SCRIPT_KEY);
-      if (!url) { showNoUrl(); return; }
+      const url = localStorage.getItem(SCRIPT_KEY) || HARDCODED_URL;
 
       showLoader(true);
       const today = todayStr();
@@ -401,8 +396,7 @@
 
     // ── Cycle limpieza ───────────────────────────────────────────
     async function cycleLimpieza(bookingId, nextState) {
-      const url = localStorage.getItem(SCRIPT_KEY);
-      if (!url) return;
+      const url = localStorage.getItem(SCRIPT_KEY) || HARDCODED_URL;
 
       // Update local state immediately
       const r = allReservas.find(x => x.bookingId === bookingId);
