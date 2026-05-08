@@ -5,229 +5,272 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Panel Admin — Clínica Ginerés</title>
   <meta name="robots" content="noindex, nofollow" />
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --navy:    #0F2040;
-      --navy2:   #1A3464;
-      --blue:    #4A7CB5;
-      --blue-lt: #8FB4D4;
-      --pale:    #E8F0F8;
-      --ghost:   #F2F6FB;
-      --white:   #FFFFFF;
-      --g200:    #DDE4EE;
-      --g400:    #97A8BF;
-      --g600:    #4E6077;
-      --text:    #0F2040;
-      --green:   #16a34a;
-      --green-bg:#dcfce7;
-      --amber:   #d97706;
-      --amber-bg:#fef3c7;
-      --red:     #dc2626;
-      --red-bg:  #fee2e2;
-      --r:       10px;
-      --r-lg:    14px;
-      --sh:      0 2px 12px rgba(15,32,64,0.10);
+      --navy:     #0B1F3A;
+      --navy2:    #152D52;
+      --blue:     #2563EB;
+      --blue-lt:  #93C5FD;
+      --teal:     #0D9488;
+      --pale:     #EFF6FF;
+      --ghost:    #F8FAFC;
+      --white:    #FFFFFF;
+      --g100:     #F1F5F9;
+      --g200:     #E2E8F0;
+      --g400:     #94A3B8;
+      --g600:     #475569;
+      --text:     #0F172A;
+      --green:    #059669;
+      --green-bg: #D1FAE5;
+      --amber:    #D97706;
+      --amber-bg: #FEF3C7;
+      --red:      #DC2626;
+      --red-bg:   #FEE2E2;
+      --purple:   #7C3AED;
+      --purple-bg:#EDE9FE;
+      --r:        8px;
+      --r-lg:     12px;
+      --sh:       0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.04);
     }
-    html,body { min-height:100%; font-family:'Outfit',sans-serif; background:var(--ghost); color:var(--text); -webkit-font-smoothing:antialiased; }
+    html,body { min-height:100%; font-family:'DM Sans',sans-serif; background:var(--ghost); color:var(--text); -webkit-font-smoothing:antialiased; }
 
     /* HEADER */
-    .hdr { background:var(--navy); height:56px; display:flex; align-items:center; padding:0 1.5rem; gap:1rem; position:sticky; top:0; z-index:100; border-bottom:1px solid rgba(74,124,181,0.3); }
-    .hdr-brand { font-size:0.95rem; font-weight:600; color:#fff; }
-    .hdr-brand span { color:var(--blue-lt); font-weight:400; font-size:0.75rem; margin-left:8px; }
-    .hdr-right { margin-left:auto; display:flex; align-items:center; gap:10px; }
-    .setup-btn { font-size:0.72rem; font-family:'Outfit',sans-serif; font-weight:500; background:rgba(255,255,255,0.08); color:var(--blue-lt); border:1px solid rgba(143,180,212,0.3); padding:5px 12px; border-radius:100px; cursor:pointer; transition:background 0.15s; }
-    .setup-btn:hover { background:rgba(255,255,255,0.15); }
-    .status-dot { width:7px; height:7px; border-radius:50%; background:#4ade80; }
-    .status-dot.off { background:var(--amber); }
+    .hdr { background:var(--navy); height:54px; display:flex; align-items:center; padding:0 1.5rem; gap:1rem; position:sticky; top:0; z-index:100; }
+    .hdr-logo { display:flex; align-items:center; gap:10px; }
+    .hdr-cross { width:28px; height:28px; background:var(--blue); border-radius:6px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .hdr-cross svg { width:14px; height:14px; stroke:#fff; fill:none; stroke-width:2.5; stroke-linecap:round; }
+    .hdr-brand { font-size:0.9rem; font-weight:600; color:#fff; letter-spacing:-0.01em; }
+    .hdr-brand span { color:var(--blue-lt); font-weight:400; margin-left:6px; font-size:0.75rem; }
+    .hdr-right { margin-left:auto; display:flex; align-items:center; gap:8px; }
+    .hdr-date { font-family:'DM Mono',monospace; font-size:0.72rem; color:rgba(255,255,255,0.5); }
+    .status-pill { display:flex; align-items:center; gap:5px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); padding:4px 10px; border-radius:100px; font-size:0.68rem; color:rgba(255,255,255,0.7); }
+    .status-dot { width:6px; height:6px; border-radius:50%; background:#4ADE80; animation:pulse 2s infinite; }
+    .status-dot.off { background:var(--amber); animation:none; }
+    @keyframes pulse { 0%,100%{box-shadow:0 0 0 2px rgba(74,222,128,0.2)} 50%{box-shadow:0 0 0 5px rgba(74,222,128,0.05)} }
+    .setup-btn { font-size:0.7rem; font-family:'DM Sans',sans-serif; font-weight:500; background:rgba(255,255,255,0.07); color:rgba(255,255,255,0.6); border:1px solid rgba(255,255,255,0.12); padding:4px 10px; border-radius:6px; cursor:pointer; transition:all 0.15s; }
+    .setup-btn:hover { background:rgba(255,255,255,0.13); color:#fff; }
 
-    /* SETUP MODAL */
-    .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:500; align-items:center; justify-content:center; }
+    /* MODAL */
+    .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:500; align-items:center; justify-content:center; backdrop-filter:blur(4px); }
     .modal-overlay.open { display:flex; }
-    .modal { background:#fff; border-radius:var(--r-lg); padding:1.75rem; width:min(480px,90vw); box-shadow:0 20px 60px rgba(0,0,0,0.25); }
-    .modal h2 { font-size:1rem; font-weight:600; color:var(--navy); margin-bottom:0.4rem; }
-    .modal p { font-size:0.8rem; color:var(--g600); margin-bottom:1rem; line-height:1.5; }
-    .modal input { width:100%; border:1px solid var(--g200); border-radius:8px; padding:0.65rem 0.9rem; font-family:'Outfit',sans-serif; font-size:0.85rem; color:var(--text); outline:none; transition:border 0.15s; }
+    .modal { background:#fff; border-radius:var(--r-lg); padding:1.75rem; width:min(460px,90vw); box-shadow:0 24px 64px rgba(0,0,0,0.2); }
+    .modal h2 { font-size:0.95rem; font-weight:600; color:var(--navy); margin-bottom:0.35rem; }
+    .modal p { font-size:0.78rem; color:var(--g600); margin-bottom:1rem; line-height:1.55; }
+    .modal input { width:100%; border:1.5px solid var(--g200); border-radius:var(--r); padding:0.6rem 0.85rem; font-family:'DM Sans',sans-serif; font-size:0.82rem; color:var(--text); outline:none; transition:border 0.15s; }
     .modal input:focus { border-color:var(--blue); }
-    .modal-actions { display:flex; gap:0.75rem; margin-top:1rem; justify-content:flex-end; }
-    .btn { font-family:'Outfit',sans-serif; font-size:0.82rem; font-weight:500; padding:0.55rem 1.1rem; border-radius:8px; cursor:pointer; border:none; transition:all 0.15s; }
-    .btn-primary { background:var(--navy); color:#fff; }
-    .btn-primary:hover { background:var(--navy2); }
+    .modal-actions { display:flex; gap:0.6rem; margin-top:1rem; justify-content:flex-end; }
+    .btn { font-family:'DM Sans',sans-serif; font-size:0.8rem; font-weight:500; padding:0.5rem 1rem; border-radius:var(--r); cursor:pointer; border:none; transition:all 0.15s; }
+    .btn-primary { background:var(--blue); color:#fff; }
+    .btn-primary:hover { background:#1D4ED8; }
     .btn-ghost { background:transparent; color:var(--g600); border:1px solid var(--g200); }
-    .btn-ghost:hover { background:var(--ghost); }
+    .btn-ghost:hover { background:var(--g100); }
 
     /* TOOLBAR */
-    .toolbar { background:#fff; border-bottom:1px solid var(--g200); padding:0.75rem 1.5rem; display:flex; align-items:center; gap:1rem; flex-wrap:wrap; }
-    /* DATE TABS */
-    .date-tabs { display:flex; gap:4px; flex:1; overflow-x:auto; padding-bottom:2px; }
-    .date-tabs::-webkit-scrollbar { height:3px; }
-    .date-tabs::-webkit-scrollbar-thumb { background:var(--g200); border-radius:2px; }
-    .date-tab { flex-shrink:0; padding:0.45rem 0.9rem; border-radius:7px; border:1px solid var(--g200); background:transparent; font-family:'Outfit',sans-serif; font-size:0.8rem; font-weight:500; color:var(--g600); cursor:pointer; transition:all 0.15s; white-space:nowrap; }
-    .date-tab:hover { background:var(--pale); color:var(--navy); border-color:var(--blue-lt); }
-    .date-tab.active { background:var(--navy); color:#fff; border-color:var(--navy); }
-    .date-tab.today-tab { border-color:var(--blue); color:var(--blue); font-weight:600; }
+    .toolbar { background:#fff; border-bottom:1px solid var(--g200); padding:0.65rem 1.5rem; display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap; }
+    .date-tabs { display:flex; gap:3px; flex:1; overflow-x:auto; padding-bottom:2px; }
+    .date-tabs::-webkit-scrollbar { height:0; }
+    .date-tab { flex-shrink:0; padding:0.4rem 0.85rem; border-radius:6px; border:1px solid transparent; background:transparent; font-family:'DM Sans',sans-serif; font-size:0.78rem; font-weight:500; color:var(--g600); cursor:pointer; transition:all 0.15s; white-space:nowrap; }
+    .date-tab:hover { background:var(--pale); color:var(--navy); }
+    .date-tab.active { background:var(--navy); color:#fff; }
+    .date-tab.today-tab { border-color:var(--blue); color:var(--blue); }
     .date-tab.today-tab.active { background:var(--blue); color:#fff; border-color:var(--blue); }
-    /* VIEW TOGGLE */
-    .view-toggle { display:flex; background:var(--ghost); border:1px solid var(--g200); border-radius:8px; padding:3px; flex-shrink:0; }
-    .view-btn { padding:0.35rem 0.8rem; border-radius:6px; border:none; background:transparent; font-family:'Outfit',sans-serif; font-size:0.78rem; font-weight:500; color:var(--g600); cursor:pointer; transition:all 0.15s; display:flex; align-items:center; gap:5px; }
-    .view-btn.active { background:#fff; color:var(--navy); box-shadow:0 1px 4px rgba(15,32,64,0.1); }
+    .view-toggle { display:flex; background:var(--g100); border-radius:7px; padding:2px; flex-shrink:0; }
+    .view-btn { padding:0.3rem 0.75rem; border-radius:5px; border:none; background:transparent; font-family:'DM Sans',sans-serif; font-size:0.75rem; font-weight:500; color:var(--g600); cursor:pointer; transition:all 0.15s; display:flex; align-items:center; gap:4px; white-space:nowrap; }
+    .view-btn.active { background:#fff; color:var(--navy); box-shadow:0 1px 3px rgba(0,0,0,0.08); }
 
     /* MAIN */
-    .main { padding:1.25rem 1.5rem 3rem; }
+    .main { padding:1.25rem 1.5rem 4rem; }
 
-    /* LOADING */
-    .loader { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1rem; padding:4rem; }
-    .spinner { width:36px; height:36px; border:3px solid var(--pale); border-top-color:var(--blue); border-radius:50%; animation:spin 0.75s linear infinite; }
+    /* LOADER */
+    .loader { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1rem; padding:5rem; }
+    .spinner { width:32px; height:32px; border:2.5px solid var(--g200); border-top-color:var(--blue); border-radius:50%; animation:spin 0.7s linear infinite; }
     @keyframes spin { to { transform:rotate(360deg); } }
-    .loader p { font-size:0.85rem; color:var(--g400); }
+    .loader p { font-size:0.82rem; color:var(--g400); }
 
-    /* EMPTY STATE */
-    .empty { text-align:center; padding:3rem 1rem; }
-    .empty-icon { font-size:2.5rem; margin-bottom:0.75rem; }
-    .empty h3 { font-size:1rem; font-weight:600; color:var(--navy); margin-bottom:0.3rem; }
-    .empty p { font-size:0.82rem; color:var(--g400); }
-
-    /* NO URL STATE */
-    .no-url { background:#fff; border:1px solid var(--g200); border-radius:var(--r-lg); padding:2rem; text-align:center; max-width:420px; margin:2rem auto; }
-    .no-url h3 { font-size:1rem; font-weight:600; color:var(--navy); margin-bottom:0.5rem; }
-    .no-url p { font-size:0.82rem; color:var(--g600); line-height:1.5; margin-bottom:1.25rem; }
+    /* REFRESH BAR */
+    .refresh-bar { display:flex; align-items:center; justify-content:flex-end; gap:0.75rem; margin-bottom:1rem; }
+    .refresh-bar span { font-size:0.72rem; color:var(--g400); font-family:'DM Mono',monospace; }
+    .refresh-btn { font-family:'DM Sans',sans-serif; font-size:0.72rem; font-weight:500; background:#fff; color:var(--navy); border:1px solid var(--g200); padding:4px 10px; border-radius:6px; cursor:pointer; display:flex; align-items:center; gap:4px; transition:background 0.15s; }
+    .refresh-btn:hover { background:var(--pale); }
 
     /* ══ COLUMN VIEW ══ */
     .col-view { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; }
     .q-col { background:#fff; border-radius:var(--r-lg); border:1px solid var(--g200); overflow:hidden; box-shadow:var(--sh); }
-    .q-col-header { background:var(--navy); padding:0.75rem 1rem; display:flex; align-items:center; justify-content:space-between; }
-    .q-col-header h3 { font-size:0.9rem; font-weight:600; color:#fff; }
-    .q-count { font-size:0.7rem; background:rgba(255,255,255,0.15); color:#fff; padding:2px 8px; border-radius:100px; }
-    .q-col-body { padding:0.75rem; display:flex; flex-direction:column; gap:0.6rem; min-height:120px; }
-
-    /* ══ TIMELINE VIEW ══ */
-    .timeline { background:#fff; border-radius:var(--r-lg); border:1px solid var(--g200); overflow:hidden; box-shadow:var(--sh); }
-    .tl-header { display:grid; grid-template-columns:56px repeat(3,1fr); background:var(--navy); }
-    .tl-header-cell { padding:0.65rem 0.75rem; font-size:0.82rem; font-weight:600; color:#fff; text-align:center; border-right:1px solid rgba(255,255,255,0.1); }
-    .tl-header-cell:last-child { border-right:none; }
-    .tl-row { display:grid; grid-template-columns:56px repeat(3,1fr); border-bottom:1px solid var(--g200); min-height:52px; }
-    .tl-row:last-child { border-bottom:none; }
-    .tl-row.odd { background:var(--ghost); }
-    .tl-hour { padding:0.5rem; font-size:0.72rem; font-weight:600; color:var(--g400); text-align:center; border-right:1px solid var(--g200); display:flex; align-items:flex-start; justify-content:center; padding-top:0.6rem; }
-    .tl-cell { padding:0.35rem; border-right:1px solid var(--g200); display:flex; flex-direction:column; gap:0.3rem; }
-    .tl-cell:last-child { border-right:none; }
+    .q-col-header { background:var(--navy); padding:0.7rem 1rem; display:flex; align-items:center; justify-content:space-between; }
+    .q-col-title { display:flex; align-items:center; gap:8px; }
+    .q-num { width:22px; height:22px; background:rgba(255,255,255,0.12); border-radius:5px; display:flex; align-items:center; justify-content:center; font-size:0.72rem; font-weight:600; color:#fff; font-family:'DM Mono',monospace; }
+    .q-col-header h3 { font-size:0.85rem; font-weight:600; color:#fff; }
+    .q-count { font-size:0.65rem; font-family:'DM Mono',monospace; background:rgba(255,255,255,0.12); color:rgba(255,255,255,0.8); padding:2px 7px; border-radius:100px; }
+    .q-col-body { padding:0.6rem; display:flex; flex-direction:column; gap:0.5rem; min-height:100px; }
+    .q-empty { font-size:0.75rem; color:var(--g400); text-align:center; padding:1.5rem 0; }
 
     /* ══ SURGERY CARD ══ */
-    .surgery-card { border-radius:8px; border:1px solid var(--g200); padding:0.65rem 0.75rem; background:#fff; transition:box-shadow 0.15s; }
-    .surgery-card:hover { box-shadow:0 2px 8px rgba(15,32,64,0.1); }
-    .card-top { display:flex; align-items:flex-start; justify-content:space-between; gap:0.5rem; margin-bottom:0.4rem; }
-    .card-doctor { font-size:0.85rem; font-weight:600; color:var(--navy); line-height:1.2; }
-    .card-hora { font-size:0.72rem; font-weight:500; color:var(--blue); white-space:nowrap; background:var(--pale); padding:2px 7px; border-radius:100px; }
-    .card-meta { font-size:0.75rem; color:var(--g600); margin-bottom:0.5rem; line-height:1.4; }
-    .card-meta strong { color:var(--navy); }
-    .card-services { display:flex; flex-wrap:wrap; gap:3px; margin-bottom:0.5rem; }
-    .svc-badge { font-size:0.65rem; font-weight:500; background:var(--pale); color:var(--navy2); padding:2px 6px; border-radius:4px; }
-    .card-footer { display:flex; align-items:center; justify-content:space-between; gap:0.5rem; }
-    /* Limpieza button */
-    .lmp-btn { font-family:'Outfit',sans-serif; font-size:0.68rem; font-weight:600; padding:3px 9px; border-radius:6px; border:1px solid; cursor:pointer; transition:all 0.15s; white-space:nowrap; }
-    .lmp-btn.Pendiente  { background:var(--amber-bg); color:var(--amber); border-color:var(--amber); }
-    .lmp-btn.EnProceso  { background:var(--pale); color:var(--blue); border-color:var(--blue); }
-    .lmp-btn.Listo      { background:var(--green-bg); color:var(--green); border-color:var(--green); }
-    .lmp-btn:disabled   { opacity:0.5; cursor:not-allowed; }
-    /* Status badge */
-    .status-badge { font-size:0.65rem; font-weight:500; padding:2px 7px; border-radius:4px; }
-    .status-badge.Confirmado { background:var(--green-bg); color:var(--green); }
-    .status-badge.Cancelado  { background:var(--red-bg);   color:var(--red); }
+    .surgery-card { border-radius:var(--r); border:1px solid var(--g200); background:#fff; overflow:hidden; transition:box-shadow 0.15s; }
+    .surgery-card:hover { box-shadow:0 2px 12px rgba(0,0,0,0.08); }
 
-    /* TL compact card */
-    .tl-card { background:var(--pale); border-radius:6px; padding:0.3rem 0.5rem; border-left:3px solid var(--blue); }
-    .tl-card .card-doctor { font-size:0.78rem; }
-    .tl-card .card-hora { font-size:0.65rem; }
-    .tl-card .card-meta { font-size:0.68rem; margin-bottom:0.3rem; }
-    .tl-card .card-services { margin-bottom:0.3rem; }
+    /* Card header strip */
+    .card-strip { background:var(--navy); padding:0.45rem 0.7rem; display:flex; align-items:center; justify-content:space-between; gap:0.5rem; }
+    .card-hora { font-family:'DM Mono',monospace; font-size:0.75rem; font-weight:500; color:#fff; }
+    .card-duracion { font-size:0.65rem; color:rgba(255,255,255,0.5); }
+    .card-estatus { font-size:0.62rem; font-weight:600; padding:2px 6px; border-radius:4px; letter-spacing:0.02em; }
+    .card-estatus.Confirmado { background:rgba(5,150,105,0.2); color:#6EE7B7; }
+    .card-estatus.Cancelado  { background:rgba(220,38,38,0.2); color:#FCA5A5; }
+    .card-estatus.Reagendado { background:rgba(245,158,11,0.2); color:#FCD34D; }
 
-    /* REFRESH */
-    .refresh-bar { display:flex; align-items:center; justify-content:flex-end; gap:0.75rem; margin-bottom:0.75rem; }
-    .refresh-bar span { font-size:0.75rem; color:var(--g400); }
-    .refresh-btn { font-family:'Outfit',sans-serif; font-size:0.75rem; font-weight:500; background:#fff; color:var(--navy); border:1px solid var(--g200); padding:4px 12px; border-radius:7px; cursor:pointer; display:flex; align-items:center; gap:5px; transition:background 0.15s; }
-    .refresh-btn:hover { background:var(--pale); }
+    /* Card body */
+    .card-body { padding:0.55rem 0.7rem; }
+
+    /* Procedimiento — prominent */
+    .card-proc { font-size:0.88rem; font-weight:600; color:var(--navy); margin-bottom:0.35rem; line-height:1.2; }
+    .card-proc-empty { font-size:0.82rem; font-weight:500; color:var(--g400); font-style:italic; margin-bottom:0.35rem; }
+
+    /* Grid de personas */
+    .card-grid { display:grid; grid-template-columns:1fr 1fr; gap:0.25rem 0.5rem; margin-bottom:0.4rem; }
+    .card-field { display:flex; flex-direction:column; gap:1px; }
+    .card-field-label { font-size:0.58rem; font-weight:600; color:var(--g400); text-transform:uppercase; letter-spacing:0.06em; }
+    .card-field-value { font-size:0.75rem; font-weight:500; color:var(--text); line-height:1.2; }
+    .card-field-value.empty { color:var(--g400); font-style:italic; font-weight:400; }
+
+    /* Paciente — full width destacado */
+    .card-paciente { display:flex; align-items:center; gap:6px; background:var(--pale); border-radius:5px; padding:0.3rem 0.5rem; margin-bottom:0.4rem; }
+    .card-paciente-icon { width:16px; height:16px; background:var(--blue); border-radius:4px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .card-paciente-icon svg { width:9px; height:9px; stroke:#fff; fill:none; stroke-width:2; stroke-linecap:round; }
+    .card-paciente-name { font-size:0.78rem; font-weight:600; color:var(--navy); }
+    .card-paciente-name.empty { color:var(--g400); font-style:italic; font-weight:400; font-size:0.72rem; }
+
+    /* Servicios */
+    .card-services { display:flex; flex-wrap:wrap; gap:3px; margin-bottom:0.45rem; }
+    .svc-badge { font-size:0.6rem; font-weight:500; background:var(--g100); color:var(--g600); padding:2px 5px; border-radius:3px; }
+
+    /* Footer */
+    .card-footer { display:flex; align-items:center; justify-content:space-between; gap:0.5rem; padding-top:0.35rem; border-top:1px solid var(--g100); }
+    .lmp-btn { font-family:'DM Sans',sans-serif; font-size:0.65rem; font-weight:600; padding:3px 8px; border-radius:5px; border:1px solid; cursor:pointer; transition:all 0.15s; white-space:nowrap; }
+    .lmp-btn.Pendiente { background:var(--amber-bg); color:var(--amber); border-color:#F59E0B; }
+    .lmp-btn.EnProceso { background:var(--pale); color:var(--blue); border-color:var(--blue); }
+    .lmp-btn.Listo     { background:var(--green-bg); color:var(--green); border-color:#10B981; }
+    .lmp-btn:disabled  { opacity:0.5; cursor:not-allowed; }
+
+    /* ══ TIMELINE VIEW ══ */
+    .timeline-wrap { background:#fff; border-radius:var(--r-lg); border:1px solid var(--g200); overflow:hidden; box-shadow:var(--sh); }
+    .tl-header { display:grid; grid-template-columns:52px repeat(3,1fr); background:var(--navy); }
+    .tl-hcell { padding:0.6rem 0.75rem; font-size:0.78rem; font-weight:600; color:#fff; text-align:center; border-right:1px solid rgba(255,255,255,0.08); }
+    .tl-hcell:last-child { border-right:none; }
+    .tl-hcell.time-col { font-size:0.65rem; color:rgba(255,255,255,0.4); font-family:'DM Mono',monospace; }
+    .tl-row { display:grid; grid-template-columns:52px repeat(3,1fr); border-bottom:1px solid var(--g200); min-height:48px; }
+    .tl-row:last-child { border-bottom:none; }
+    .tl-row.alt { background:var(--ghost); }
+    .tl-hour { padding:0.5rem 0.25rem; font-size:0.68rem; font-weight:500; color:var(--g400); text-align:center; border-right:1px solid var(--g200); font-family:'DM Mono',monospace; display:flex; align-items:flex-start; justify-content:center; padding-top:0.55rem; }
+    .tl-cell { padding:0.3rem; border-right:1px solid var(--g200); display:flex; flex-direction:column; gap:0.25rem; }
+    .tl-cell:last-child { border-right:none; }
+
+    /* Timeline compact card */
+    .tl-card { background:var(--pale); border-radius:5px; padding:0.3rem 0.45rem; border-left:2.5px solid var(--blue); }
+    .tl-card .card-proc { font-size:0.76rem; margin-bottom:0.2rem; }
+    .tl-card .card-hora { font-size:0.65rem; color:var(--blue); font-family:'DM Mono',monospace; font-weight:500; display:block; margin-bottom:0.15rem; }
+    .tl-card .card-mini-row { display:flex; gap:0.5rem; flex-wrap:wrap; }
+    .tl-card .card-mini-item { font-size:0.65rem; color:var(--g600); }
+    .tl-card .card-mini-label { color:var(--g400); }
+
+    /* NO URL */
+    .no-url { background:#fff; border:1px solid var(--g200); border-radius:var(--r-lg); padding:2.5rem; text-align:center; max-width:400px; margin:2rem auto; box-shadow:var(--sh); }
+    .no-url h3 { font-size:1rem; font-weight:600; color:var(--navy); margin-bottom:0.5rem; }
+    .no-url p { font-size:0.8rem; color:var(--g600); line-height:1.55; margin-bottom:1.25rem; }
 
     /* RESPONSIVE */
-    @media (max-width:900px) {
+    @media (max-width:960px) {
       .col-view { grid-template-columns:1fr; }
       .tl-header, .tl-row { grid-template-columns:44px repeat(3,1fr); }
     }
     @media (max-width:640px) {
       .hdr { padding:0 1rem; }
-      .toolbar { padding:0.6rem 1rem; }
+      .hdr-date { display:none; }
+      .toolbar { padding:0.5rem 1rem; }
       .main { padding:1rem 1rem 3rem; }
-      .date-tab { font-size:0.72rem; padding:0.4rem 0.7rem; }
+      .date-tab { font-size:0.72rem; padding:0.35rem 0.65rem; }
+      .col-view { grid-template-columns:1fr; }
     }
   </style>
 </head>
 <body>
 
-  <!-- HEADER -->
   <header class="hdr">
-    <div class="hdr-brand">Panel Admin <span>Clínica Ginerés</span></div>
+    <div class="hdr-logo">
+      <div class="hdr-cross">
+        <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      </div>
+      <div class="hdr-brand">Panel Admin <span>Clínica Ginerés</span></div>
+    </div>
     <div class="hdr-right">
-      <div class="status-dot" id="statusDot"></div>
-      <button class="setup-btn" onclick="openSetup()">⚙ Configurar URL</button>
+      <span class="hdr-date" id="hdrDate"></span>
+      <div class="status-pill">
+        <div class="status-dot" id="statusDot"></div>
+        <span id="statusTxt">Conectado</span>
+      </div>
+      <button class="setup-btn" onclick="openSetup()">⚙ URL</button>
     </div>
   </header>
 
-  <!-- SETUP MODAL -->
   <div class="modal-overlay" id="modalOverlay">
     <div class="modal">
       <h2>URL del Apps Script</h2>
-      <p>Pega aquí la URL de tu Web App de Google Apps Script. Esta URL se guarda en este navegador y no es visible para otros.</p>
+      <p>Pega aquí la URL de tu Web App de Google Apps Script. Se guarda en este navegador.</p>
       <input type="url" id="scriptUrlInput" placeholder="https://script.google.com/macros/s/.../exec" />
       <div class="modal-actions">
         <button class="btn btn-ghost" onclick="closeSetup()">Cancelar</button>
-        <button class="btn btn-primary" onclick="saveSetup()">Guardar y conectar</button>
+        <button class="btn btn-primary" onclick="saveSetup()">Guardar</button>
       </div>
     </div>
   </div>
 
-  <!-- TOOLBAR -->
   <div class="toolbar">
     <div class="date-tabs" id="dateTabs"></div>
     <div class="view-toggle">
       <button class="view-btn active" id="btnCol" onclick="setView('col')">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="5" height="18" rx="1"/><rect x="10" y="3" width="5" height="18" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="5" height="18" rx="1"/><rect x="10" y="3" width="5" height="18" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg>
         Quirófanos
       </button>
       <button class="view-btn" id="btnTl" onclick="setView('tl')">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
         Cronológico
       </button>
     </div>
   </div>
 
-  <!-- MAIN CONTENT -->
-  <div class="main" id="mainContent">
+  <div class="main">
     <div class="loader" id="loader" style="display:none">
       <div class="spinner"></div>
-      <p>Cargando reservas…</p>
+      <p>Cargando agenda…</p>
     </div>
     <div id="contentArea"></div>
   </div>
 
   <script>
     const SCRIPT_KEY = 'cg_admin_script_url';
-    const HARDCODED_URL = 'https://script.google.com/macros/s/AKfycbxwrdO0fFNCknbj0pSOdeRFJ5c6vOAVIJjLYBnrwOce3AUp6Z1wFjuZ5bblOI9VjltY3g/exec';
-    const HOURS = ['07:00','08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00'];
+    const HARDCODED_URL = 'https://script.google.com/macros/s/AKfycbx1qvSmsCI7x70oS4RWi8bTbb4DR-v0yI29m9kXzECB5WSG7hWm6LcTUrKKITx6Kd7F/exec';
+    const HOURS = ['06:00','07:00','08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00'];
     const QUIROFANOS = ['Quirofano 1','Quirofano 2','Quirofano 3'];
+    const LMP_CYCLE = { 'Pendiente':'EnProceso', 'EnProceso':'Listo', 'Listo':'Pendiente' };
+    const LMP_LABEL = { 'Pendiente':'⏳ Pendiente', 'EnProceso':'🧹 En proceso', 'Listo':'✅ Listo' };
 
     let currentDate = todayStr();
     let currentView = 'col';
     let allReservas  = [];
     let lastUpdate   = null;
 
-    // ── Init ────────────────────────────────────────────────────
     function init() {
-     buildDateTabs();
-     updateStatusDot(true);
-    loadData();
-   }
-    
-    // ── Date tabs ───────────────────────────────────────────────
+      buildDateTabs();
+      updateHdrDate();
+      updateStatusDot(true);
+      loadData();
+    }
+
+    function updateHdrDate() {
+      const d = new Date();
+      document.getElementById('hdrDate').textContent = d.toLocaleDateString('es-MX', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+    }
+
     function buildDateTabs() {
       const container = document.getElementById('dateTabs');
       container.innerHTML = '';
@@ -248,14 +291,12 @@
     function selectDate(ds) {
       currentDate = ds;
       document.querySelectorAll('.date-tab').forEach((b, i) => {
-        const d = new Date();
-        d.setDate(d.getDate() + i);
+        const d = new Date(); d.setDate(d.getDate() + i);
         b.classList.toggle('active', formatDate(d) === ds);
       });
       render();
     }
 
-    // ── View toggle ─────────────────────────────────────────────
     function setView(v) {
       currentView = v;
       document.getElementById('btnCol').classList.toggle('active', v === 'col');
@@ -263,167 +304,170 @@
       render();
     }
 
-    // ── Load data ───────────────────────────────────────────────
     async function loadData() {
       const url = localStorage.getItem(SCRIPT_KEY) || HARDCODED_URL;
-
       showLoader(true);
       const today = todayStr();
       const end   = addDays(today, 7);
-
       try {
         const res  = await fetch(`${url}?start=${today}&end=${end}`);
         const json = await res.json();
         if (json.error) throw new Error(json.error);
         allReservas = json.reservas || [];
         lastUpdate  = new Date();
+        updateStatusDot(true);
         render();
       } catch(e) {
+        updateStatusDot(false);
         showLoader(false);
         document.getElementById('contentArea').innerHTML = `
           <div class="no-url">
             <h3>Error de conexión</h3>
-            <p>No se pudo conectar con Google Sheets.<br>${e.message}</p>
-            <button class="btn btn-primary" onclick="loadData()">Reintentar</button>
+            <p>${e.message}</p>
+            <button class="btn btn-primary" style="margin-top:0" onclick="loadData()">Reintentar</button>
           </div>`;
+        return;
       }
       showLoader(false);
     }
 
-    // ── Render ──────────────────────────────────────────────────
     function render() {
       const area = document.getElementById('contentArea');
-      const dayReservas = allReservas.filter(r => r.fecha === currentDate);
+      const dayR = allReservas.filter(r => r.fecha === currentDate).sort((a,b) => (a.horaInicio||'').localeCompare(b.horaInicio||''));
 
       let html = `<div class="refresh-bar">
-        <span>${lastUpdate ? 'Actualizado: ' + lastUpdate.toLocaleTimeString('es-MX', {hour:'2-digit',minute:'2-digit'}) : ''}</span>
+        <span>${lastUpdate ? lastUpdate.toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'}) : ''}</span>
         <button class="refresh-btn" onclick="loadData()">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
           Actualizar
         </button>
       </div>`;
 
-      if (currentView === 'col') {
-        html += renderColView(dayReservas);
-      } else {
-        html += renderTimelineView(dayReservas);
-      }
+      html += currentView === 'col' ? renderCol(dayR) : renderTl(dayR);
       area.innerHTML = html;
     }
 
-    // ── Column view ─────────────────────────────────────────────
-    function renderColView(reservas) {
+    function renderCol(reservas) {
       const byQ = {};
       QUIROFANOS.forEach(q => byQ[q] = []);
       reservas.forEach(r => {
-        const key = QUIROFANOS.find(q => q.toLowerCase() === (r.quirofano || '').toLowerCase()) || QUIROFANOS[0];
+        const key = QUIROFANOS.find(q => q.toLowerCase() === (r.quirofano||'').toLowerCase()) || QUIROFANOS[0];
         byQ[key].push(r);
       });
-
       return `<div class="col-view">
-        ${QUIROFANOS.map(q => `
+        ${QUIROFANOS.map((q,i) => `
           <div class="q-col">
             <div class="q-col-header">
-              <h3>${q.replace('Quirofano','Quirófano')}</h3>
+              <div class="q-col-title">
+                <div class="q-num">${i+1}</div>
+                <h3>${q.replace('Quirofano','Quirófano')}</h3>
+              </div>
               <span class="q-count">${byQ[q].length} cir.</span>
             </div>
             <div class="q-col-body">
               ${byQ[q].length === 0
-                ? '<div style="font-size:0.78rem;color:var(--g400);text-align:center;padding:1.5rem 0">Sin cirugías</div>'
+                ? '<div class="q-empty">Sin cirugías programadas</div>'
                 : byQ[q].map(r => cardHTML(r, false)).join('')}
             </div>
-          </div>
-        `).join('')}
+          </div>`).join('')}
       </div>`;
     }
 
-    // ── Timeline view ────────────────────────────────────────────
-    function renderTimelineView(reservas) {
+    function renderTl(reservas) {
       const cells = {};
-      HOURS.forEach(h => {
-        cells[h] = { 'Quirofano 1': [], 'Quirofano 2': [], 'Quirofano 3': [] };
-      });
-
+      HOURS.forEach(h => { cells[h] = {}; QUIROFANOS.forEach(q => cells[h][q] = []); });
       reservas.forEach(r => {
-        const h  = r.horaInicio ? r.horaInicio.substring(0,5) : '07:00';
-        const hr = HOURS.find(x => x === h) || HOURS[0];
+        const h  = (r.horaInicio||'07:00').substring(0,5);
+        const hr = HOURS.find(x => x <= h && h < (HOURS[HOURS.indexOf(x)+1]||'99:00')) || HOURS[0];
         const qk = QUIROFANOS.find(q => q.toLowerCase() === (r.quirofano||'').toLowerCase()) || QUIROFANOS[0];
         cells[hr][qk].push(r);
       });
-
-      const rows = HOURS.map((h, i) => {
-        const hasAny = QUIROFANOS.some(q => cells[h][q].length > 0);
-        return `<div class="tl-row ${i % 2 === 0 ? 'odd' : ''}">
-          <div class="tl-hour">${h}</div>
-          ${QUIROFANOS.map(q => `
-            <div class="tl-cell">
-              ${cells[h][q].map(r => cardHTML(r, true)).join('')}
-            </div>`).join('')}
-        </div>`;
-      }).join('');
-
-      return `<div class="timeline">
+      return `<div class="timeline-wrap">
         <div class="tl-header">
-          <div class="tl-header-cell" style="font-size:0.68rem;color:rgba(255,255,255,0.6)">Hora</div>
-          ${QUIROFANOS.map(q => `<div class="tl-header-cell">${q.replace('Quirofano','Quirófano')}</div>`).join('')}
+          <div class="tl-hcell time-col">Hora</div>
+          ${QUIROFANOS.map((q,i) => `<div class="tl-hcell"><span style="opacity:0.5;font-size:0.65rem;margin-right:4px">${i+1}</span>${q.replace('Quirofano','Quirófano')}</div>`).join('')}
         </div>
-        ${rows}
+        ${HOURS.map((h,i) => `
+          <div class="tl-row ${i%2===0?'alt':''}">
+            <div class="tl-hour">${h}</div>
+            ${QUIROFANOS.map(q => `
+              <div class="tl-cell">
+                ${cells[h][q].map(r => cardTlHTML(r)).join('')}
+              </div>`).join('')}
+          </div>`).join('')}
       </div>`;
     }
 
-    // ── Card HTML ────────────────────────────────────────────────
     function cardHTML(r, compact) {
-      const svcs = (r.servicios || []).map(s => `<span class="svc-badge">${s}</span>`).join('');
-      const lmpCycle = { 'Pendiente':'EnProceso', 'EnProceso':'Listo', 'Listo':'Pendiente' };
-      const lmpLabel = { 'Pendiente':'⏳ Pendiente', 'EnProceso':'🧹 En proceso', 'Listo':'✅ Listo' };
-      const lmp = r.limpieza || 'Pendiente';
+      const lmp  = r.limpieza || 'Pendiente';
+      const svcs = (r.servicios||[]).map(s => `<span class="svc-badge">${s}</span>`).join('');
+      const proc = r.procedimiento ? `<div class="card-proc">${escHtml(r.procedimiento)}</div>` : `<div class="card-proc-empty">Sin procedimiento</div>`;
+      const pac  = r.paciente
+        ? `<div class="card-paciente"><div class="card-paciente-icon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><span class="card-paciente-name">${escHtml(r.paciente)}</span></div>`
+        : `<div class="card-paciente"><div class="card-paciente-icon" style="background:var(--g400)"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><span class="card-paciente-name empty">Paciente no registrado</span></div>`;
 
-      return `<div class="surgery-card ${compact ? 'tl-card' : ''}" data-id="${escHtml(r.bookingId)}">
-        <div class="card-top">
-          <div class="card-doctor">${escHtml(r.doctor || 'Sin nombre')}</div>
-          <div class="card-hora">${r.horaInicio}${r.duracion ? ' · ' + r.duracion + 'h' : ''}</div>
+      return `<div class="surgery-card">
+        <div class="card-strip">
+          <span class="card-hora">${r.horaInicio||'--:--'}</span>
+          <span class="card-duracion">${r.duracion ? r.duracion+'h' : ''}</span>
+          <span class="card-estatus ${r.estatus||''}">${r.estatus||''}</span>
         </div>
-        <div class="card-meta">
-          <strong>${escHtml(r.especialidad || '')}</strong>${r.tipoCirugia ? ' · ' + escHtml(r.tipoCirugia) : ''}
-        </div>
-        ${svcs ? `<div class="card-services">${svcs}</div>` : ''}
-        <div class="card-footer">
-          <button class="lmp-btn ${lmp}" onclick="cycleLimpieza('${escHtml(r.bookingId)}','${lmpCycle[lmp] || 'Pendiente'}')">${lmpLabel[lmp] || lmp}</button>
-          <span class="status-badge ${r.estatus}">${r.estatus || ''}</span>
+        <div class="card-body">
+          ${proc}
+          ${pac}
+          <div class="card-grid">
+            <div class="card-field">
+              <span class="card-field-label">Cirujano</span>
+              <span class="card-field-value ${r.doctor?'':'empty'}">${escHtml(r.doctor||'—')}</span>
+            </div>
+            <div class="card-field">
+              <span class="card-field-label">Anestesiólogo</span>
+              <span class="card-field-value ${r.anestesiologo?'':'empty'}">${escHtml(r.anestesiologo||'—')}</span>
+            </div>
+            <div class="card-field">
+              <span class="card-field-label">Enfermería</span>
+              <span class="card-field-value ${r.enfermeria?'':'empty'}">${escHtml(r.enfermeria||'—')}</span>
+            </div>
+            <div class="card-field">
+              <span class="card-field-label">Quirófano</span>
+              <span class="card-field-value">${escHtml((r.quirofano||'').replace('Quirofano','Q.'))}</span>
+            </div>
+          </div>
+          ${svcs ? `<div class="card-services">${svcs}</div>` : ''}
+          <div class="card-footer">
+            <button class="lmp-btn ${lmp}" onclick="cycleLimpieza('${escHtml(r.bookingId)}','${LMP_CYCLE[lmp]||'Pendiente'}')">${LMP_LABEL[lmp]||lmp}</button>
+          </div>
         </div>
       </div>`;
     }
 
-    // ── Cycle limpieza ───────────────────────────────────────────
+    function cardTlHTML(r) {
+      return `<div class="tl-card">
+        <span class="card-hora">${r.horaInicio||'--:--'} · ${r.duracion||1}h</span>
+        <div class="card-proc">${escHtml(r.procedimiento||'Sin procedimiento')}</div>
+        <div class="card-mini-row">
+          ${r.paciente ? `<span class="card-mini-item"><span class="card-mini-label">Pac: </span>${escHtml(r.paciente)}</span>` : ''}
+          ${r.doctor   ? `<span class="card-mini-item"><span class="card-mini-label">Cir: </span>${escHtml(r.doctor)}</span>` : ''}
+        </div>
+      </div>`;
+    }
+
     async function cycleLimpieza(bookingId, nextState) {
       const url = localStorage.getItem(SCRIPT_KEY) || HARDCODED_URL;
-
-      // Update local state immediately
       const r = allReservas.find(x => x.bookingId === bookingId);
       if (r) r.limpieza = nextState;
       render();
-
-      // Persist to Sheets
       try {
-        await fetch(url, {
-          method: 'POST',
-          body: JSON.stringify({ action: 'updateLimpieza', bookingId, estado: nextState }),
-        });
-      } catch(e) { console.warn('No se pudo guardar limpieza:', e); }
+        await fetch(url, { method:'POST', body:JSON.stringify({ action:'updateLimpieza', bookingId, estado:nextState }) });
+      } catch(e) { console.warn('Error limpieza:', e); }
     }
 
-    // ── Setup modal ──────────────────────────────────────────────
     function openSetup() {
-      const input = document.getElementById('scriptUrlInput');
-      input.value = localStorage.getItem(SCRIPT_KEY) || '';
+      document.getElementById('scriptUrlInput').value = localStorage.getItem(SCRIPT_KEY) || '';
       document.getElementById('modalOverlay').classList.add('open');
-      input.focus();
+      document.getElementById('scriptUrlInput').focus();
     }
-
-    function closeSetup() {
-      document.getElementById('modalOverlay').classList.remove('open');
-    }
-
+    function closeSetup() { document.getElementById('modalOverlay').classList.remove('open'); }
     function saveSetup() {
       const val = document.getElementById('scriptUrlInput').value.trim();
       if (!val) return;
@@ -433,52 +477,30 @@
       loadData();
     }
 
-    // ── Helpers ──────────────────────────────────────────────────
-    function showNoUrl() {
-      document.getElementById('contentArea').innerHTML = `
-        <div class="no-url">
-          <h3>Configuración requerida</h3>
-          <p>Para cargar los datos de Google Sheets, primero configura la URL del Apps Script desplegado.</p>
-          <button class="btn btn-primary" onclick="openSetup()">⚙ Configurar ahora</button>
-        </div>`;
-    }
-
-    function showLoader(show) {
-      document.getElementById('loader').style.display = show ? 'flex' : 'none';
-    }
-
-    function updateStatusDot(connected) {
-      document.getElementById('statusDot').classList.toggle('off', !connected);
+    function showLoader(show) { document.getElementById('loader').style.display = show ? 'flex' : 'none'; }
+    function updateStatusDot(ok) {
+      document.getElementById('statusDot').classList.toggle('off', !ok);
+      document.getElementById('statusTxt').textContent = ok ? 'Conectado' : 'Sin conexión';
     }
 
     function todayStr() {
       const d = new Date();
       return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
     }
-
     function addDays(ds, n) {
-      const d = new Date(ds + 'T12:00:00');
-      d.setDate(d.getDate() + n);
-      return formatDate(d);
+      const d = new Date(ds+'T12:00:00'); d.setDate(d.getDate()+n); return formatDate(d);
     }
-
     function formatDate(d) {
       return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
     }
-
     function formatShortDate(d) {
-      return d.toLocaleDateString('es-MX', { weekday:'short', day:'numeric', month:'short' });
+      return d.toLocaleDateString('es-MX',{weekday:'short',day:'numeric',month:'short'});
     }
-
     function escHtml(s) {
-      return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+      return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
 
-    // Close modal on overlay click
-    document.getElementById('modalOverlay').addEventListener('click', function(e) {
-      if (e.target === this) closeSetup();
-    });
-
+    document.getElementById('modalOverlay').addEventListener('click', function(e) { if(e.target===this) closeSetup(); });
     init();
   </script>
 
