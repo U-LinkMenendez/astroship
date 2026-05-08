@@ -433,7 +433,7 @@
               <span class="card-field-value">${escHtml((r.quirofano||'').replace('Quirofano','Q.'))}</span>
             </div>
           </div>
-          ${svcs ? `<div class="card-services">${svcs}</div>` : ''}
+          ${svcs ? `<div class="card-field" style="grid-column:1/-1;margin-bottom:0.3rem"><span class="card-field-label">Servicios adicionales requeridos</span></div><div class="card-services">${svcs}</div>` : ''}
           <div class="card-footer">
             <button class="lmp-btn ${lmp}" onclick="cycleLimpieza('${escHtml(r.bookingId)}','${LMP_CYCLE[lmp]||'Pendiente'}')">${LMP_LABEL[lmp]||lmp}</button>
           </div>
