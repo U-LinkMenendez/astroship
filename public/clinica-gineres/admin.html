@@ -158,20 +158,29 @@
     .tl-hcell { padding:0.6rem 0.75rem; font-size:0.78rem; font-weight:600; color:#fff; text-align:center; border-right:1px solid rgba(255,255,255,0.08); }
     .tl-hcell:last-child { border-right:none; }
     .tl-hcell.time-col { font-size:0.65rem; color:rgba(255,255,255,0.4); font-family:'DM Mono',monospace; }
-    .tl-row { display:grid; grid-template-columns:52px repeat(3,1fr); border-bottom:1px solid var(--g200); min-height:48px; }
+    .tl-row { display:grid; grid-template-columns:52px repeat(3,1fr); border-bottom:1px solid var(--g200); height:52px; min-height:52px; }
     .tl-row:last-child { border-bottom:none; }
     .tl-row.alt { background:var(--ghost); }
     .tl-hour { padding:0.5rem 0.25rem; font-size:0.68rem; font-weight:500; color:var(--g400); text-align:center; border-right:1px solid var(--g200); font-family:'DM Mono',monospace; display:flex; align-items:flex-start; justify-content:center; padding-top:0.55rem; }
-    .tl-cell { padding:0.3rem; border-right:1px solid var(--g200); display:flex; flex-direction:column; gap:0.25rem; }
+    .tl-cell { padding:0.2rem; border-right:1px solid var(--g200); position:relative; overflow:visible; }
     .tl-cell:last-child { border-right:none; }
 
     /* Timeline compact card */
-    .tl-cont { opacity:0.6; padding:0.2rem 0.45rem; min-height:20px; }
-    .tl-card { background:var(--pale); border-radius:5px; padding:0.3rem 0.45rem; border-left:2.5px solid var(--blue); }
-    .tl-card .card-proc { font-size:0.76rem; margin-bottom:0.2rem; }
-    .tl-card .card-hora { font-size:0.65rem; color:var(--blue); font-family:'DM Mono',monospace; font-weight:500; display:block; margin-bottom:0.15rem; }
-    .tl-card .card-mini-row { display:flex; gap:0.5rem; flex-wrap:wrap; }
-    .tl-card .card-mini-item { font-size:0.65rem; color:var(--g600); }
+    .tl-card { 
+      background:var(--pale); 
+      border-radius:5px; 
+      padding:0.35rem 0.5rem; 
+      border-left:3px solid var(--blue);
+      position:absolute;
+      left:3px; right:3px; top:3px;
+      z-index:2;
+      overflow:hidden;
+      box-shadow:0 1px 4px rgba(37,99,235,0.15);
+    }
+    .tl-card .card-proc { font-size:0.76rem; font-weight:600; color:var(--navy); margin-bottom:0.15rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .tl-card .card-hora { font-size:0.62rem; color:var(--blue); font-family:'DM Mono',monospace; font-weight:500; display:block; margin-bottom:0.1rem; }
+    .tl-card .card-mini-row { display:flex; gap:0.4rem; flex-wrap:wrap; }
+    .tl-card .card-mini-item { font-size:0.62rem; color:var(--g600); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
     .tl-card .card-mini-label { color:var(--g400); }
 
     /* NO URL */
@@ -385,12 +394,8 @@
         const startIdx = HOURS.findIndex(h => h === startH);
         const idx = startIdx !== -1 ? startIdx : HOURS.findIndex(x => x <= startH && (HOURS[HOURS.indexOf(x)+1]||'99:00') > startH);
         if (idx === -1) return;
-        for (let d = 0; d < dur; d++) {
-          const slotIdx = idx + d;
-          if (slotIdx >= HOURS.length) break;
-          const slotH = HOURS[slotIdx];
-          cells[slotH][qk].push({ ...r, _spanStart: d === 0, _spanTotal: dur });
-        }
+        // Only place card at start slot with full height
+        cells[HOURS[idx]][qk].push({ ...r, _spanTotal: dur });
       });
 
       return `<div class="timeline-wrap">
@@ -453,14 +458,11 @@
     }
 
     function cardTlHTML(r) {
-      if (!r._spanStart) {
-        // Continuation slot — show a thin bar
-        return `<div class="tl-card tl-cont">
-          <span style="font-size:0.6rem;color:var(--blue);opacity:0.7">${escHtml(r.procedimiento||'—')}</span>
-        </div>`;
-      }
-      return `<div class="tl-card">
-        <span class="card-hora">${r.horaInicio||'--:--'} · ${r.duracion||1}h</span>
+      const ROW_H = 52; // must match .tl-row height in px
+      const dur   = Number(r._spanTotal) || 1;
+      const h     = (dur * ROW_H) - 6; // subtract border/padding
+      return `<div class="tl-card" style="height:${h}px;">
+        <span class="card-hora">${r.horaInicio||'--:--'} · ${dur}h</span>
         <div class="card-proc">${escHtml(r.procedimiento||'Sin procedimiento')}</div>
         <div class="card-mini-row">
           ${r.paciente ? `<span class="card-mini-item"><span class="card-mini-label">Pac: </span>${escHtml(r.paciente)}</span>` : ''}
