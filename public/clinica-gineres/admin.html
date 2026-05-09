@@ -166,6 +166,7 @@
     .tl-cell:last-child { border-right:none; }
 
     /* Timeline compact card */
+    .tl-cont { opacity:0.6; padding:0.2rem 0.45rem; min-height:20px; }
     .tl-card { background:var(--pale); border-radius:5px; padding:0.3rem 0.45rem; border-left:2.5px solid var(--blue); }
     .tl-card .card-proc { font-size:0.76rem; margin-bottom:0.2rem; }
     .tl-card .card-hora { font-size:0.65rem; color:var(--blue); font-family:'DM Mono',monospace; font-weight:500; display:block; margin-bottom:0.15rem; }
@@ -376,12 +377,22 @@
     function renderTl(reservas) {
       const cells = {};
       HOURS.forEach(h => { cells[h] = {}; QUIROFANOS.forEach(q => cells[h][q] = []); });
+
       reservas.forEach(r => {
-        const h  = (r.horaInicio||'07:00').substring(0,5);
-        const hr = HOURS.find(x => x <= h && h < (HOURS[HOURS.indexOf(x)+1]||'99:00')) || HOURS[0];
-        const qk = QUIROFANOS.find(q => q.toLowerCase() === (r.quirofano||'').toLowerCase()) || QUIROFANOS[0];
-        cells[hr][qk].push(r);
+        const startH = (r.horaInicio||'07:00').substring(0,5);
+        const dur    = Number(r.duracion) || 1;
+        const qk     = QUIROFANOS.find(q => q.toLowerCase() === (r.quirofano||'').toLowerCase()) || QUIROFANOS[0];
+        const startIdx = HOURS.findIndex(h => h === startH);
+        const idx = startIdx !== -1 ? startIdx : HOURS.findIndex(x => x <= startH && (HOURS[HOURS.indexOf(x)+1]||'99:00') > startH);
+        if (idx === -1) return;
+        for (let d = 0; d < dur; d++) {
+          const slotIdx = idx + d;
+          if (slotIdx >= HOURS.length) break;
+          const slotH = HOURS[slotIdx];
+          cells[slotH][qk].push({ ...r, _spanStart: d === 0, _spanTotal: dur });
+        }
       });
+
       return `<div class="timeline-wrap">
         <div class="tl-header">
           <div class="tl-hcell time-col">Hora</div>
@@ -442,6 +453,12 @@
     }
 
     function cardTlHTML(r) {
+      if (!r._spanStart) {
+        // Continuation slot — show a thin bar
+        return `<div class="tl-card tl-cont">
+          <span style="font-size:0.6rem;color:var(--blue);opacity:0.7">${escHtml(r.procedimiento||'—')}</span>
+        </div>`;
+      }
       return `<div class="tl-card">
         <span class="card-hora">${r.horaInicio||'--:--'} · ${r.duracion||1}h</span>
         <div class="card-proc">${escHtml(r.procedimiento||'Sin procedimiento')}</div>
