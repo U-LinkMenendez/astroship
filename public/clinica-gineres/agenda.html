@@ -79,8 +79,9 @@
     
 
     /* Sticky grid header */
-    .grid-header { display:grid; grid-template-columns:52px repeat(3,1fr); background:var(--navy); position:sticky; top:0; z-index:170; }
-    .grid-wrap { overflow-y:auto; max-height:calc(100vh - 160px); border-radius:10px; border:1px solid var(--g200); box-shadow:0 1px 3px rgba(0,0,0,0.08); }
+    .grid-header { display:grid; grid-template-columns:52px repeat(3,1fr); background:var(--navy); flex-shrink:0; }
+    .grid-wrap { display:flex; flex-direction:column; max-height:calc(100vh - 160px); border-radius:10px; border:1px solid var(--g200); box-shadow:0 1px 3px rgba(0,0,0,0.08); overflow:hidden; }
+    .grid-body { overflow-y:auto; flex:1; }
     .sel-bar.show ~ .main .grid-header,
     .grid-wrap .grid-header { top:auto; position:relative; }
 
@@ -381,6 +382,7 @@ function renderGrid() {
       ${QUIROFANOS.map((q,i) => `<div class="grid-hcell"><span class="q-num">${i+1} </span>${q.replace('Quirofano','Quirófano')}</div>`).join('')}
     </div>`;
 
+  html += `<div class="grid-body">`;
   HOURS.forEach((h, hi) => {
     html += `<div class="grid-row ${hi%2===0?'alt':''}">
       <div class="grid-time">${h}</div>`;
@@ -421,8 +423,7 @@ function renderGrid() {
 
     html += `</div>`;
   });
-
-  html += `</div>`;
+  html += `</div></div>`;
   document.getElementById('gridArea').innerHTML = html;
 }
 
