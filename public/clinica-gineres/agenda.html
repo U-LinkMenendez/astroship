@@ -76,12 +76,10 @@
     .loader p { font-size:0.82rem; color:var(--g400); }
 
     /* ── GRID ───────────────────────────────────────────────── */
-    
+    .grid-wrap { background:#fff; border-radius:10px; border:1px solid var(--g200); overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,0.08); }
 
     /* Sticky grid header */
-    .grid-header { display:grid; grid-template-columns:52px repeat(3,1fr); background:var(--navy); flex-shrink:0; }
-    .grid-wrap { display:flex; flex-direction:column; max-height:calc(100vh - 160px); border-radius:10px; border:1px solid var(--g200); box-shadow:0 1px 3px rgba(0,0,0,0.08); overflow:hidden; }
-    .grid-body { overflow-y:auto; flex:1; }
+    .grid-header { display:grid; grid-template-columns:52px repeat(3,1fr); background:var(--navy); position:sticky; top:106px; z-index:170; }
     .sel-bar.show ~ .main .grid-header,
     .grid-wrap .grid-header { top:auto; position:relative; }
 
@@ -281,6 +279,7 @@ let currentDate = todayStr();
 let allReservas  = [];
 let selection    = null;
 let urlLeadId    = '';
+let _occupiedMap = {};
 
 // ── Init ──────────────────────────────────────────────────────
 function init() {
@@ -359,7 +358,6 @@ function renderGrid() {
     const startIdx = HOURS.indexOf(startH);
     if (startIdx === -1) return;
 
-    // Mark first slot with full info
     occupied[HOURS[startIdx]][qk] = {
       proc: r.procedimiento || r.tipoCirugia || 'Cirugía',
       hora: startH,
@@ -368,13 +366,13 @@ function renderGrid() {
       height: dur * ROW_H - 6,
     };
 
-    // Mark continuation slots
     for (let d = 1; d < dur; d++) {
       const idx = startIdx + d;
       if (idx >= HOURS.length) break;
       occupied[HOURS[idx]][qk] = { isStart: false, isCont: true };
     }
   });
+  _occupiedMap = occupied; // Store globally for updateSlotVisuals
 
   let html = `<div class="grid-wrap">
     <div class="grid-header">
@@ -382,7 +380,6 @@ function renderGrid() {
       ${QUIROFANOS.map((q,i) => `<div class="grid-hcell"><span class="q-num">${i+1} </span>${q.replace('Quirofano','Quirófano')}</div>`).join('')}
     </div>`;
 
-  html += `<div class="grid-body">`;
   HOURS.forEach((h, hi) => {
     html += `<div class="grid-row ${hi%2===0?'alt':''}">
       <div class="grid-time">${h}</div>`;
@@ -418,12 +415,13 @@ function renderGrid() {
         }
       }
 
-      html += `<div class="grid-cell">${slotHtml}</div>`;
+      html += `<div class="grid-cell" id="gc-${qi}-${hi}">${slotHtml}</div>`;
     });
 
     html += `</div>`;
   });
-  html += `</div></div>`;
+
+  html += `</div>`;
   document.getElementById('gridArea').innerHTML = html;
 }
 
@@ -458,20 +456,37 @@ function toggleSlot(quirofano, hour, e) {
     }
   }
   updateSelBar();
-  renderGrid();
+  updateSlotVisuals();
+}
+
+function updateSlotVisuals() {
+  HOURS.forEach((h, hi) => {
+    QUIROFANOS.forEach((q, qi) => {
+      const cell = document.getElementById('gc-' + qi + '-' + hi);
+      if (!cell) return;
+      const occ = _occupiedMap[h] && _occupiedMap[h][q];
+      if (occ) return;
+      const isSelected = selection && selection.quirofano === q && selection.slots.includes(h);
+      const canSelect  = !selection || (selection.quirofano === q && isAdjacentToSelection(h));
+      let s = '';
+      if (isSelected) {
+        s = '<div class="slot slot-selected" onclick="toggleSlot(\'' + q + '\',\'' + h + '\',event)">' +
+          '<div class="slot-time">' + h + '</div><div class="slot-label">&#10003; Seleccionado</div></div>';
+      } else if (canSelect) {
+        s = '<div class="slot slot-available" onclick="toggleSlot(\'' + q + '\',\'' + h + '\',event)">' +
+          '<div class="slot-time">' + h + '</div><div class="slot-label">Disponible</div></div>';
+      } else {
+        s = '<div class="slot slot-empty"></div>';
+      }
+      cell.innerHTML = s;
+    });
+  });
 }
 
 function clearSelection() {
   selection = null;
-  const gb = document.querySelector('.grid-body');
-  const st = gb ? gb.scrollTop : 0;
-  const sy = window.scrollY || window.pageYOffset;
   updateSelBar();
   renderGrid();
-  requestAnimationFrame(() => {
-    if (gb) gb.scrollTop = st;
-    window.scrollTo(0, sy);
-  });
 }
 
 function updateSelBar() {
