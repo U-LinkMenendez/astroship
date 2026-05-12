@@ -384,7 +384,7 @@ function renderGrid() {
     html += `<div class="grid-row ${hi%2===0?'alt':''}">
       <div class="grid-time">${h}</div>`;
 
-    QUIROFANOS.forEach(q => {
+    QUIROFANOS.forEach((q, qi) => {
       const occ = occupied[h][q];
       let slotHtml = '';
 
