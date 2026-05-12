@@ -348,6 +348,9 @@ async function loadData() {
 // ── Render Grid ───────────────────────────────────────────────
 function renderGrid() {
   const dayR = allReservas.filter(r => r.fecha === currentDate);
+  const now     = new Date();
+  const isToday = currentDate === todayStr();
+  const nowHour = now.getHours() + now.getMinutes() / 60;
 
   // Build occupied map: first slot only, with height based on duration
   const occupied = {};
@@ -398,8 +401,12 @@ function renderGrid() {
       } else if (occ && occ.isCont) {
         slotHtml = `<div class="slot-continuation"></div>`;
       } else {
-        const isSelected = selection && selection.quirofano === q && selection.slots.includes(h);
-        if (isSelected) {
+        const slotHour = parseInt(h.split(':')[0]) + parseInt(h.split(':')[1]) / 60;
+        const isPast   = isToday && slotHour <= nowHour;
+        const isSelected = !isPast && selection && selection.quirofano === q && selection.slots.includes(h);
+        if (isPast) {
+          slotHtml = `<div class="slot slot-empty" style="background:var(--g100);cursor:not-allowed;"></div>`;
+        } else if (isSelected) {
           slotHtml = `<div class="slot slot-selected" onclick="toggleSlot('${q}','${h}',event)">
             <div class="slot-time">${h}</div>
             <div class="slot-label">✓ Seleccionado</div>
