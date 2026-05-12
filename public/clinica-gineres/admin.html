@@ -417,8 +417,11 @@
           const isPast = isToday && (parseInt(h.split(':')[0]) + parseInt(h.split(':')[1])/60) <= nowH;
           let cell = '';
           if (o && o.isStart) {
-            cell = `<div class="rslot-occ" style="height:${o.height}px" onclick="openAdmEdit(${JSON.stringify(o.booking).replace(/"/g,'&quot;')})">
-              <div class="rs-time">${o.hora} · ${o.duracion}h</div>
+            const startH2 = parseInt(o.hora.split(':')[0]) + parseInt(o.hora.split(':')[1])/60;
+          const endH2   = startH2 + o.duracion;
+          const inProgress = isToday && startH2 <= nowH && nowH < endH2;
+          cell = `<div class="rslot-occ" style="height:${o.height}px;${inProgress?'cursor:not-allowed;opacity:0.7':''}" ${inProgress ? 'title="Cirugía en curso"' : `onclick="openAdmEdit(${JSON.stringify(o.booking).replace(/"/g,'&quot;')})"`}>
+              <div class="rs-time">${o.hora} · ${o.duracion}h${inProgress?' 🔄':''}</div>
               <div class="rs-proc">${escHtml(o.proc)}</div>
             </div>`;
           } else if (o && o.isCont) {
