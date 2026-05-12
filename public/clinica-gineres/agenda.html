@@ -436,6 +436,12 @@ function renderGrid() {
 
 // ── Selection ─────────────────────────────────────────────────
 function isAdjacentToSelection(h) {
+  // Never allow past slots to be adjacent
+  const slotHour = parseInt(h.split(':')[0]) + parseInt(h.split(':')[1]) / 60;
+  const now      = new Date();
+  const nowHour  = now.getHours() + now.getMinutes() / 60;
+  if (currentDate === todayStr() && slotHour <= nowHour) return false;
+
   if (!selection || selection.slots.length === 0) return true;
   const slots    = selection.slots;
   const firstIdx = HOURS.indexOf(slots[0]);
