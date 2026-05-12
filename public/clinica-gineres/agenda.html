@@ -462,11 +462,15 @@ function toggleSlot(quirofano, hour) {
 
 function clearSelection() {
   selection = null;
-  updateSelBar();
   const gb = document.querySelector('.grid-body');
   const st = gb ? gb.scrollTop : 0;
+  const sy = window.scrollY || window.pageYOffset;
+  updateSelBar();
   renderGrid();
-  if (gb) gb.scrollTop = st;
+  requestAnimationFrame(() => {
+    if (gb) gb.scrollTop = st;
+    window.scrollTo(0, sy);
+  });
 }
 
 function updateSelBar() {
