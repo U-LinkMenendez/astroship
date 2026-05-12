@@ -401,14 +401,14 @@ function renderGrid() {
       } else {
         const isSelected = selection && selection.quirofano === q && selection.slots.includes(h);
         if (isSelected) {
-          slotHtml = `<div class="slot slot-selected" onclick="toggleSlot('${q}','${h}')">
+          slotHtml = `<div class="slot slot-selected" onclick="toggleSlot('${q}','${h}',event)">
             <div class="slot-time">${h}</div>
             <div class="slot-label">✓ Seleccionado</div>
           </div>`;
         } else {
           const canSelect = !selection || (selection.quirofano === q && isAdjacentToSelection(h));
           if (canSelect) {
-            slotHtml = `<div class="slot slot-available" onclick="toggleSlot('${q}','${h}')">
+            slotHtml = `<div class="slot slot-available" onclick="toggleSlot('${q}','${h}',event)">
               <div class="slot-time">${h}</div>
               <div class="slot-label">Disponible</div>
             </div>`;
@@ -437,7 +437,8 @@ function isAdjacentToSelection(h) {
   return thisIdx === firstIdx - 1 || thisIdx === lastIdx + 1;
 }
 
-function toggleSlot(quirofano, hour) {
+function toggleSlot(quirofano, hour, e) {
+  if (e) { e.preventDefault(); e.stopPropagation(); }
   if (!selection) {
     selection = { quirofano, slots: [hour] };
   } else if (selection.quirofano !== quirofano) {
