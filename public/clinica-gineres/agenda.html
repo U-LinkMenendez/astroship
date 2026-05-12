@@ -585,6 +585,10 @@ async function submitBooking() {
   const enfermeria    = document.getElementById('f-enfermeria').value.trim();
   const svcs = {};
   document.querySelectorAll('#svcGrid input[type=checkbox]').forEach(cb => { svcs[cb.name] = cb.checked; });
+  ['anestesiologoext','primerayudante'].forEach(name => {
+    const cb = document.querySelector(`input[name="${name}"]`);
+    if (cb) svcs[name] = cb.checked;
+  });
 
   const startHour = selection.slots[0];
   const [hh, mm]  = startHour.split(':').map(Number);
