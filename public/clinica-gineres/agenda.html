@@ -766,14 +766,10 @@ async function submitBooking() {
   ...svcs,
 
   primerayudante:
-    document.getElementById('cb-primerayudante').checked
-      ? 'Sí'
-      : 'No',
+  document.getElementById('cb-primerayudante').checked,
 
-  anestesiologoext:
-    document.getElementById('cb-anestesiologoext').checked
-      ? 'Sí'
-      : 'No',
+anestesiologoext:
+  document.getElementById('cb-anestesiologoext').checked,
 
   location: {
     value: 'link',
