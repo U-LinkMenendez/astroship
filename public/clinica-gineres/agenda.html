@@ -547,11 +547,8 @@ async function submitBooking() {
   document.querySelectorAll('#svcGrid input[type=checkbox]').forEach(cb => { svcs[cb.name] = cb.checked; });
 
   const startHour = selection.slots[0];
-  const [hh, mm]  = startHour.split(':').map(Number);
-  const dateObj   = new Date(currentDate + 'T00:00:00');
   const startLocal = new Date(currentDate + 'T' + startHour + ':00');
   const startISO = startLocal.toISOString();
-  const startISO  = startUTC.toISOString();
   const durMin    = selection.slots.length * 60;
 
   const qIdx    = QUIROFANOS.indexOf(selection.quirofano);
