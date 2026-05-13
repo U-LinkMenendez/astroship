@@ -246,9 +246,13 @@
     .adm-modal h2 { font-size:1rem; font-weight:600; color:var(--navy); margin-bottom:0.25rem; }
     .adm-modal .sub { font-size:0.78rem; color:var(--g400); margin-bottom:1.25rem; }
     .adm-summary { background:var(--pale); border:1px solid #BFDBFE; border-radius:var(--r); padding:0.75rem 1rem; margin-bottom:1.25rem; display:flex; flex-direction:column; gap:4px; }
-    .adm-sum-row { display:flex; gap:8px; font-size:0.8rem; }
+    
+    .adm-sum-row { display:flex; align-items:flex-start; gap:8px; font-size:0.8rem; }
+    
     .adm-sum-lbl { color:var(--g400); font-size:0.72rem; font-weight:600; text-transform:uppercase; letter-spacing:0.04em; width:80px; flex-shrink:0; }
-    .adm-sum-val { color:var(--navy); font-weight:500; }
+
+    .adm-sum-val { color:var(--navy); font-weight:500; flex:1; min-width:0; word-break:break-word; overflow-wrap:anywhere; line-height:1.35; }
+    
     .adm-form-grid { display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:0.75rem; }
     .adm-field { display:flex; flex-direction:column; gap:4px; }
     .adm-field label { font-size:0.72rem; font-weight:600; color:var(--g600); text-transform:uppercase; letter-spacing:0.04em; }
