@@ -45,7 +45,7 @@
     .hdr-date  { font-size:0.8rem; font-weight:700; color:#fff; font-family:'DM Sans',sans-serif; }
 
     /* ── TOOLBAR (sticky below header) ─────────────────────── */
-    .toolbar { background:#fff; border-bottom:1px solid var(--g200); padding:0 1rem; display:flex; align-items:center; gap:0.75rem; position:sticky; top:58px; z-index:190; height:48px; }
+    .toolbar { background:#fff; border-bottom:0; padding:0 1rem; display:flex; align-items:center; gap:0.75rem; position:sticky; top:58px; z-index:190; height:48px; }
     .date-tabs { display:flex; gap:3px; flex:1; overflow-x:auto; }
     .date-tabs::-webkit-scrollbar { height:0; }
     .date-tab { flex-shrink:0; padding:0.35rem 0.8rem; border-radius:6px; border:1px solid transparent; background:transparent; font-family:'DM Sans',sans-serif; font-size:0.78rem; font-weight:500; color:var(--g600); cursor:pointer; transition:all 0.15s; white-space:nowrap; }
@@ -77,7 +77,7 @@
 
     /* ── GRID ───────────────────────────────────────────────── */
     .grid-wrap { background:#fff; border-radius:10px; border:1px solid var(--g200); overflow:visible; box-shadow:0 1px 3px rgba(0,0,0,0.08); }
-    .grid-header { position: sticky; top: 106px; z-index: 100; }
+    .grid-header { position: sticky; top: 105px; z-index: 170; transform: translateZ(0); will-change: transform; }
     
     /* Sticky grid header */
     .grid-header { display:grid; grid-template-columns:52px repeat(3,1fr); background:var(--navy); }
