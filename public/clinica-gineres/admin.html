@@ -617,9 +617,24 @@
 
       const isCancelled = (booking.estatus || '').trim() === 'Cancelado';
 
-      document.getElementById('edDatosBtn').disabled = isCancelled;
-      document.getElementById('edHoraBtn').disabled = isCancelled;
-      document.getElementById('edCancelBtn').disabled = isCancelled;
+      const now = new Date();
+
+      const startParts = (booking.horaInicio || '00:00').split(':');
+      const durHours   = Number(booking.duracion || 1);
+
+      const startDate = new Date(
+        booking.fecha + 'T' +
+        startParts[0].padStart(2,'0') + ':' +
+        startParts[1].padStart(2,'0') + ':00'
+      );
+
+      const endDate = new Date(startDate.getTime() + durHours * 60 * 60 * 1000);
+
+      const isEnded = now > endDate;
+
+      document.getElementById('edDatosBtn').disabled  = isCancelled || isEnded;
+      document.getElementById('edHoraBtn').disabled   = isCancelled || isEnded;
+      document.getElementById('edCancelBtn').disabled = isCancelled || isEnded;
 
       [
         'ed-paciente',
@@ -636,6 +651,12 @@
       });
 
       if (isCancelled) {
+
+        if (isEnded && !isCancelled) {
+
+        document.getElementById('admEditSub').textContent += ' · CIRUGÍA FINALIZADA';
+
+      }
 
         document.getElementById('admEditSub').textContent += ' · RESERVA CANCELADA';
 
