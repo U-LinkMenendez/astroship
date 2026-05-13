@@ -306,10 +306,8 @@
           <label class="svc-item" onclick="toggleSvc(this)"><input type="checkbox" name="microscopio"> Microscopio</label>
           <label class="svc-item" onclick="toggleSvc(this)"><input type="checkbox" name="laparoscopia"> Laparoscopia</label>
           <label class="svc-item" onclick="toggleSvc(this)"><input type="checkbox" name="solirrigacion"> Sol. Irrigación</label>
-          <label class="svc-item" onclick="toggleSvc(this)"><input type="checkbox" name="primerayudante"> Primer Ayudante</label>
           <label class="svc-item" onclick="toggleSvc(this)"><input type="checkbox" name="instrumentista"> Instrumentista</label>
-          <label class="svc-item" onclick="toggleSvc(this)"><input type="checkbox" name="anestesiologoext"> Anestesiólogo Ext.</label>
-        </div>
+          </div>
         <div class="modal-actions">
           <button type="button" class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
           <button type="button" class="btn btn-primary" id="btnConfirm" onclick="submitBooking()">Confirmar Reserva</button>
@@ -753,7 +751,37 @@ async function submitBooking() {
     start: startISO,
     lengthInMinutes: durMin,
     attendee: { name: nombre, email: email, timeZone: 'America/Merida', language: 'es' },
-    bookingFieldsResponses: { name: nombre, email: email, paciente, procedimiento, anestesiologo, enfermeria, ...svcs, location: { value: 'link', optionValue: '' } },
+
+    bookingFieldsResponses: {
+
+  name: nombre,
+  email: email,
+
+  paciente,
+  procedimiento,
+
+  anestesiologo,
+  enfermeria,
+
+  ...svcs,
+
+  primerayudante:
+    document.getElementById('cb-primerayudante').checked
+      ? 'Sí'
+      : 'No',
+
+  anestesiologoext:
+    document.getElementById('cb-anestesiologoext').checked
+      ? 'Sí'
+      : 'No',
+
+  location: {
+    value: 'link',
+    optionValue: ''
+  }
+
+},
+    
     metadata: urlLeadId ? { leadid: urlLeadId } : {}
   };
 
