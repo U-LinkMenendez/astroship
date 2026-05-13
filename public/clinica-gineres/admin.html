@@ -620,7 +620,13 @@
       const now = new Date();
 
       const startParts = (booking.horaInicio || '00:00').split(':');
-      const durHours   = Number(booking.duracion || 1);
+
+      const durHours = parseFloat(
+        String(booking.duracion || '1')
+          .replace('horas','')
+          .replace('hora','')
+          .trim()
+      ) || 1;
 
       const startDate = new Date(
         booking.fecha + 'T' +
@@ -645,6 +651,7 @@
         'ed-hora',
         'ed-duracion',
         'ed-motivo'
+        'edSaveBtn'
       ].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.disabled = isCancelled;
