@@ -79,9 +79,7 @@
     .grid-wrap { background:#fff; border-radius:10px; border:1px solid var(--g200); overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,0.08); }
 
     /* Sticky grid header */
-    .grid-header { display:grid; grid-template-columns:52px repeat(3,1fr); background:var(--navy); position:sticky; top:106px; z-index:170; }
-    .sel-bar.show ~ .main .grid-header,
-    .grid-wrap .grid-header { top:auto; position:relative; }
+    .grid-header { display:grid; grid-template-columns:52px repeat(3,1fr); background:var(--navy); position:sticky; top:0; z-index:10; flex-shrink:0; }
 
     .grid-hcell { padding:0.6rem 0.75rem; font-size:0.9rem; font-weight:700; color:#fff; text-align:center; border-right:1px solid rgba(255,255,255,0.08); }
     .grid-hcell:last-child { border-right:none; }
@@ -231,13 +229,9 @@
           <div class="field"><label>Nombre del Paciente</label><input type="text" id="f-paciente" placeholder="Nombre del paciente"/></div>
           <div class="field"><label>Procedimiento / Cirugía *</label><input type="text" id="f-procedimiento" placeholder="Ej: Artroscopía rodilla" required/></div>
         </div>
-        <div class="form-grid single">
-          <div class="field"><label>Nombre del anestesiólogo</label><input type="text" id="f-anestesiologo" placeholder="Nombre del anestesiólogo"/></div>
-          <label class="svc-item" id="lbl-anestext" onclick="toggleSvc(this);toggleInhibe('anestesiologoext','f-anestesiologo')"><input type="checkbox" name="anestesiologoext"> ¿Requiere un anestesiólogo externo?</label>
-        </div>
-        <div class="form-grid single">
-          <div class="field"><label>Nombre del primer ayudante</label><input type="text" id="f-enfermeria" placeholder="Nombre del primer ayudante"/></div>
-          <label class="svc-item" id="lbl-primeray" onclick="toggleSvc(this);toggleInhibe('primerayudante','f-enfermeria')"><input type="checkbox" name="primerayudante"> ¿Requiere un primer ayudante?</label>
+        <div class="form-grid">
+          <div class="field"><label>Anestesiólogo</label><input type="text" id="f-anestesiologo" placeholder="Nombre del anestesiólogo"/></div>
+          <div class="field"><label>Enfermería / Asistente</label><input type="text" id="f-enfermeria" placeholder="Nombre de enfermería"/></div>
         </div>
         <div style="font-size:0.72rem;font-weight:600;color:var(--g600);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:0.5rem;">Servicios Adicionales</div>
         <div class="svc-grid" id="svcGrid">
@@ -246,7 +240,9 @@
           <label class="svc-item" onclick="toggleSvc(this)"><input type="checkbox" name="microscopio"> Microscopio</label>
           <label class="svc-item" onclick="toggleSvc(this)"><input type="checkbox" name="laparoscopia"> Laparoscopia</label>
           <label class="svc-item" onclick="toggleSvc(this)"><input type="checkbox" name="solirrigacion"> Sol. Irrigación</label>
+          <label class="svc-item" onclick="toggleSvc(this)"><input type="checkbox" name="primerayudante"> Primer Ayudante</label>
           <label class="svc-item" onclick="toggleSvc(this)"><input type="checkbox" name="instrumentista"> Instrumentista</label>
+          <label class="svc-item" onclick="toggleSvc(this)"><input type="checkbox" name="anestesiologoext"> Anestesiólogo Ext.</label>
         </div>
         <div class="modal-actions">
           <button type="button" class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
@@ -264,7 +260,7 @@
 </div>
 
 <script>
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzha8m5EgrO1ViLi5yrD-P05pvZeyB4YnUNINPLWKvTUi-HO0sV_4jF9glEhuLJ3plA/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyo3hZpAaS8JlQka9eMlAcKGUQXhifRU0SeO49xX1DrChOzCmpe9q86-oLwcSSAoFZT/exec';
 
 const CAL_ACCOUNTS = [
   { key: 'cal_live_a60f1d08e451c2ca381e99e865717173', eventTypeId: 5574898, quirofano: 'Quirofano 1' },
@@ -282,8 +278,6 @@ let allReservas  = [];
 let selection    = null;
 let urlLeadId    = '';
 let _occupiedMap = {};
-let _isToday  = false;
-let _nowHour  = 0;
 
 // ── Init ──────────────────────────────────────────────────────
 function init() {
@@ -350,11 +344,6 @@ async function loadData() {
 // ── Render Grid ───────────────────────────────────────────────
 function renderGrid() {
   const dayR = allReservas.filter(r => r.fecha === currentDate);
-  const now     = new Date();
-  const isToday = currentDate === todayStr();
-  const nowHour = now.getHours() + now.getMinutes() / 60;
-  _isToday  = isToday;
-  _nowHour  = nowHour;
 
   // Build occupied map: first slot only, with height based on duration
   const occupied = {};
@@ -393,7 +382,7 @@ function renderGrid() {
     html += `<div class="grid-row ${hi%2===0?'alt':''}">
       <div class="grid-time">${h}</div>`;
 
-    QUIROFANOS.forEach((q, qi) => {
+    QUIROFANOS.forEach(q => {
       const occ = occupied[h][q];
       let slotHtml = '';
 
@@ -405,12 +394,8 @@ function renderGrid() {
       } else if (occ && occ.isCont) {
         slotHtml = `<div class="slot-continuation"></div>`;
       } else {
-        const slotHour = parseInt(h.split(':')[0]) + parseInt(h.split(':')[1]) / 60;
-        const isPast   = isToday && slotHour <= nowHour;
-        const isSelected = !isPast && selection && selection.quirofano === q && selection.slots.includes(h);
-        if (isPast) {
-          slotHtml = `<div class="slot slot-empty" style="background:var(--g100);cursor:not-allowed;"></div>`;
-        } else if (isSelected) {
+        const isSelected = selection && selection.quirofano === q && selection.slots.includes(h);
+        if (isSelected) {
           slotHtml = `<div class="slot slot-selected" onclick="toggleSlot('${q}','${h}',event)">
             <div class="slot-time">${h}</div>
             <div class="slot-label">✓ Seleccionado</div>
@@ -440,12 +425,6 @@ function renderGrid() {
 
 // ── Selection ─────────────────────────────────────────────────
 function isAdjacentToSelection(h) {
-  // Never allow past slots to be adjacent
-  const slotHour = parseInt(h.split(':')[0]) + parseInt(h.split(':')[1]) / 60;
-  const now      = new Date();
-  const nowHour  = now.getHours() + now.getMinutes() / 60;
-  if (currentDate === todayStr() && slotHour <= nowHour) return false;
-
   if (!selection || selection.slots.length === 0) return true;
   const slots    = selection.slots;
   const firstIdx = HOURS.indexOf(slots[0]);
@@ -485,11 +464,6 @@ function updateSlotVisuals() {
       if (!cell) return;
       const occ = _occupiedMap[h] && _occupiedMap[h][q];
       if (occ) return;
-      const slotHour = parseInt(h.split(':')[0]) + parseInt(h.split(':')[1]) / 60;
-      if (_isToday && slotHour <= _nowHour) {
-        cell.innerHTML = '<div class="slot slot-empty" style="background:var(--g100);cursor:not-allowed;"></div>';
-        return;
-      }
       const isSelected = selection && selection.quirofano === q && selection.slots.includes(h);
       const canSelect  = !selection || (selection.quirofano === q && isAdjacentToSelection(h));
       let s = '';
@@ -549,20 +523,6 @@ function toggleSvc(label) {
   setTimeout(() => { label.classList.toggle('checked', cb.checked); }, 0);
 }
 
-  function toggleInhibe(cbName, fieldId) {
-  const cb    = document.querySelector(`input[name="${cbName}"]`);
-  const field = document.getElementById(fieldId);
-  if (!field) return;
-  if (cb && cb.checked) {
-    field.value = '';
-    field.disabled = true;
-    field.style.opacity = '0.4';
-  } else {
-    field.disabled = false;
-    field.style.opacity = '1';
-  }
-}
-
 async function submitBooking() {
   const nombre        = document.getElementById('f-nombre').value.trim();
   const email         = document.getElementById('f-email').value.trim();
@@ -585,10 +545,6 @@ async function submitBooking() {
   const enfermeria    = document.getElementById('f-enfermeria').value.trim();
   const svcs = {};
   document.querySelectorAll('#svcGrid input[type=checkbox]').forEach(cb => { svcs[cb.name] = cb.checked; });
-  ['anestesiologoext','primerayudante'].forEach(name => {
-    const cb = document.querySelector(`input[name="${name}"]`);
-    if (cb) svcs[name] = cb.checked;
-  });
 
   const startHour = selection.slots[0];
   const [hh, mm]  = startHour.split(':').map(Number);
