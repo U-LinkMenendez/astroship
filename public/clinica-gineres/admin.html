@@ -651,11 +651,16 @@
         'ed-hora',
         'ed-duracion',
         'ed-motivo'
-        'edSaveBtn'
       ].forEach(id => {
         const el = document.getElementById(id);
-        if (el) el.disabled = isCancelled;
+        if (el) el.disabled = isCancelled || isEnded;
       });
+
+      const saveBtn = document.getElementById('edSaveBtn');
+
+      if (saveBtn) {
+        saveBtn.disabled = isCancelled || isEnded;
+      }
 
       if (isCancelled) {
 
