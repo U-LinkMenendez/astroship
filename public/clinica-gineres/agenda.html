@@ -656,7 +656,19 @@ async function submitBooking() {
         `Reserva en ${selection.quirofano.replace('Quirofano','Quirófano')} el ${formatDateDisplay(currentDate)} de ${selection.slots[0]} confirmada. Recibirá un correo en breve.`;
       await loadData();
     } else {
-      alert('Error: ' + (json.error || 'Intente nuevamente'));
+      let msg = 'No fue posible crear la reserva.';
+
+      if ((json.error || '').includes('not available')) {
+
+      msg = 'El horario seleccionado ya no está disponible. Por favor seleccione otro horario.';
+
+     } else if ((json.error || '').includes('already has booking')) {
+
+      msg = 'Ya existe una reservación en ese horario.';
+
+    }
+
+    alert(msg);
       _bookingInProgress = false;
       btn.disabled = false; btn.textContent = 'Confirmar Reserva';
     }
