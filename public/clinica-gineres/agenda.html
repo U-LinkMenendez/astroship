@@ -549,7 +549,8 @@ async function submitBooking() {
   const startHour = selection.slots[0];
   const [hh, mm]  = startHour.split(':').map(Number);
   const dateObj   = new Date(currentDate + 'T00:00:00');
-  const startUTC  = new Date(Date.UTC(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate(), hh + 6, mm));
+  const startLocal = new Date(currentDate + 'T' + startHour + ':00');
+  const startISO = startLocal.toISOString();
   const startISO  = startUTC.toISOString();
   const durMin    = selection.slots.length * 60;
 
