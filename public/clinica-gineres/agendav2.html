@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+  <title>Agenda de Quirófanos — Clínica Ginerés</title>
+  <meta name="robots" content="noindex, nofollow"/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy:    #0B1F3A;
+      --navy2:   #152D52;
+      --blue:    #2563EB;
+      --blue-lt: #93C5FD;
+      --pale:    #EFF6FF;
+      --ghost:   #F8FAFC;
+      --white:   #FFFFFF;
+      --g100:    #F1F5F9;
+      --g200:    #E2E8F0;
+      --g400:    #94A3B8;
+      --g600:    #475569;
+      --text:    #0F172A;
+      --green:   #059669;
+      --green-bg:#D1FAE5;
+      --green2:  #10B981;
+      --wa:      #25D366;
+    }
+    html, body { min-height:100%; font-family:'DM Sans',sans-serif; background:var(--ghost); color:var(--text); -webkit-font-smoothing:antialiased; }
+
+    /* ── HEADER ─────────────────────────────────────────────── */
+    .hdr { background:var(--navy); padding:0 1.25rem; height:58px; display:flex; align-items:center; gap:10px; position:sticky; top:0; z-index:200; }
+
+    /* Circle icon */
+    .hdr-icon { width:38px; height:38px; background:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .hdr-icon svg { width:20px; height:20px; }
+
+    /* Brand text */
+    .hdr-brand { display:flex; flex-direction:column; gap:1px; }
+    .hdr-brand-name { font-size:1.05rem; font-weight:600; color:#fff; letter-spacing:-0.01em; line-height:1.1; }
+    .hdr-brand-sub  { font-size:0.8rem; font-weight:400; color:var(--blue-lt); line-height:1.1; }
+
+    /* Right side */
+    .hdr-right { margin-left:auto; display:flex; flex-direction:column; align-items:flex-end; gap:2px; }
+    .hdr-date  { font-size:0.8rem; font-weight:700; color:#fff; font-family:'DM Sans',sans-serif; }
+
+    /* ── TOOLBAR (sticky below header) ─────────────────────── */
+    .toolbar { background:#fff; border-bottom:1px solid var(--g200); padding:0 1rem; display:flex; align-items:center; gap:0.75rem; position:sticky; top:58px; z-index:190; height:48px; }
+    .date-tabs { display:flex; gap:3px; flex:1; overflow-x:auto; }
+    .date-tabs::-webkit-scrollbar { height:0; }
+    .date-tab { flex-shrink:0; padding:0.35rem 0.8rem; border-radius:6px; border:1px solid transparent; background:transparent; font-family:'DM Sans',sans-serif; font-size:0.78rem; font-weight:500; color:var(--g600); cursor:pointer; transition:all 0.15s; white-space:nowrap; }
+    .date-tab:hover { background:var(--pale); color:var(--navy); }
+    .date-tab.active { background:var(--navy); color:#fff; }
+    .date-tab.today-tab { border-color:var(--blue); color:var(--blue); }
+    .date-tab.today-tab.active { background:var(--blue); color:#fff; }
+
+    /* WhatsApp button in toolbar */
+    .wa-btn { flex-shrink:0; display:flex; align-items:center; gap:6px; background:var(--wa); color:#fff; border:none; border-radius:20px; padding:6px 12px; font-family:'DM Sans',sans-serif; font-size:0.72rem; font-weight:600; cursor:pointer; text-decoration:none; white-space:nowrap; transition:background 0.15s; }
+    .wa-btn:hover { background:#1ebe5a; }
+    .wa-btn svg { width:14px; height:14px; fill:#fff; flex-shrink:0; }
+
+    /* ── SELECTION BAR ──────────────────────────────────────── */
+    .sel-bar { display:none; background:var(--blue); padding:0.6rem 1rem; align-items:center; gap:1rem; position:sticky; top:106px; z-index:180; }
+    .sel-bar.show { display:flex; }
+    .sel-info { color:#fff; font-size:0.82rem; font-weight:500; flex:1; }
+    .sel-clear { color:var(--blue-lt); font-size:0.75rem; cursor:pointer; text-decoration:underline; flex-shrink:0; }
+    .btn-reservar { background:#fff; color:var(--blue); border:none; border-radius:var(--r,8px); padding:0.45rem 1.1rem; font-family:'DM Sans',sans-serif; font-size:0.82rem; font-weight:600; cursor:pointer; flex-shrink:0; }
+
+    /* ── MAIN ───────────────────────────────────────────────── */
+    .main { padding:0.75rem 1rem 5rem; }
+
+    /* ── LOADER ─────────────────────────────────────────────── */
+    .loader { display:flex; flex-direction:column; align-items:center; gap:1rem; padding:4rem; }
+    .spinner { width:32px; height:32px; border:2.5px solid var(--g200); border-top-color:var(--blue); border-radius:50%; animation:spin 0.7s linear infinite; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    .loader p { font-size:0.82rem; color:var(--g400); }
+
+    /* ── GRID ───────────────────────────────────────────────── */
+    .grid-wrap { background:#fff; border-radius:10px; border:1px solid var(--g200); overflow:hidden; display:flex; flex-direction:column; height:calc(100vh - 185px); box-shadow:0 1px 3px rgba(0,0,0,0.08); }
+
+    /* Sticky grid header */
+    .grid-header { display:grid; grid-template-columns:52px repeat(3,1fr); background:var(--navy); flex-shrink:0; position:sticky; top:0; z-index:10; }
+    .grid-body { overflow-y:auto; overflow-x:hidden; flex:1; min-width:0; }
+    /*.grid-body { overflow-y:auto; flex:1; }*/
+    .grid-hcell { padding:0.6rem 0.75rem; font-size:0.9rem; font-weight:700; color:#fff; text-align:center; border-right:1px solid rgba(255,255,255,0.08); }
+    .grid-hcell:last-child { border-right:none; }
+    .grid-hcell.time-col { font-size:0.9rem; font-weight:700; color:#fff; font-family:'DM Sans',sans-serif; }
+    .grid-hcell .q-num { color:var(--navy); font-size:0.9rem; }
+
+    .grid-row { display:grid; grid-template-columns:52px repeat(3,1fr); border-bottom:1px solid var(--g200); }
+    .grid-row:last-child { border-bottom:none; }
+    .grid-row.alt { background:var(--ghost); }
+    .grid-time { padding:0.5rem 0.25rem; font-size:0.68rem; font-weight:500; color:var(--g400); text-align:center; border-right:1px solid var(--g200); font-family:'DM Mono',monospace; display:flex; align-items:center; justify-content:center; min-height:52px; }
+    .grid-cell { padding:0.25rem; border-right:1px solid var(--g200); min-height:52px; display:flex; align-items:stretch; position:relative; overflow:visible; }
+    .grid-cell:last-child { border-right:none; }
+
+    /* ── SLOTS ──────────────────────────────────────────────── */
+    .slot { width:100%; border-radius:6px; padding:0.3rem 0.5rem; cursor:pointer; transition:all 0.15s; display:flex; flex-direction:column; justify-content:center; border:1.5px solid transparent; }
+
+    /* Available */
+    .slot-available { background:var(--green-bg); border-color:#A7F3D0; }
+    .slot-available:hover { background:#BBF7D0; border-color:var(--green2); transform:scale(1.02); }
+    .slot-available .slot-time  { font-size:0.68rem; font-family:'DM Mono',monospace; color:var(--green); font-weight:500; }
+    .slot-available .slot-label { font-size:0.7rem; color:var(--green); }
+
+    /* Selected */
+    .slot-selected { background:var(--blue); border-color:#1D4ED8; }
+    .slot-selected .slot-time  { font-size:0.68rem; font-family:'DM Mono',monospace; color:#fff; font-weight:500; }
+    .slot-selected .slot-label { font-size:0.7rem; color:rgba(255,255,255,0.8); }
+
+    /* Occupied — first slot */
+    .slot-occupied { background:var(--g100); border-color:var(--g200); cursor:default; border-left:3px solid var(--blue); position:absolute; left:3px; right:3px; top:3px; z-index:2; box-shadow:0 1px 4px rgba(37,99,235,0.1); overflow:hidden; }
+    .slot-occupied .slot-proc { font-size:0.75rem; font-weight:600; color:var(--navy); line-height:1.2; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .slot-occupied .slot-time-occ { font-size:0.62rem; font-family:'DM Mono',monospace; color:var(--blue); margin-bottom:2px; }
+
+    /* Occupied continuation — invisible, just blocks the slot */
+    .slot-continuation { position:absolute; left:3px; right:3px; top:0; bottom:0; z-index:1; background:var(--g100); border-left:3px solid var(--blue); opacity:0.35; cursor:default; border-radius:0; }
+
+    /* Empty */
+    .slot-empty { background:transparent; cursor:default; border-color:transparent; }
+
+    /* ── MODAL ──────────────────────────────────────────────── */
+    .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:500; align-items:flex-end; justify-content:center; backdrop-filter:blur(4px); }
+    .modal-overlay.open { display:flex; }
+    .modal { background:#fff; border-radius:16px 16px 0 0; width:100%; max-width:600px; max-height:92vh; overflow-y:auto; padding:1.5rem; }
+    .modal-handle { width:40px; height:4px; background:var(--g200); border-radius:2px; margin:0 auto 1.25rem; }
+    .modal-title { font-size:1rem; font-weight:600; color:var(--navy); margin-bottom:0.25rem; }
+    .modal-sub   { font-size:0.78rem; color:var(--g400); margin-bottom:1.25rem; }
+
+    .summary-box { background:var(--pale); border:1px solid #BFDBFE; border-radius:8px; padding:0.75rem 1rem; margin-bottom:1.25rem; display:flex; flex-direction:column; gap:4px; }
+    .summary-row { display:flex; align-items:center; gap:8px; font-size:0.8rem; }
+    .summary-label { color:var(--g400); font-size:0.72rem; font-weight:600; text-transform:uppercase; letter-spacing:0.04em; width:80px; flex-shrink:0; }
+    .summary-value { color:var(--navy); font-weight:500; }
+
+    .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:0.75rem; }
+    .field { display:flex; flex-direction:column; gap:4px; }
+    .field label { font-size:0.72rem; font-weight:600; color:var(--g600); text-transform:uppercase; letter-spacing:0.04em; }
+    .field input { border:1.5px solid var(--g200); border-radius:8px; padding:0.55rem 0.75rem; font-family:'DM Sans',sans-serif; font-size:0.85rem; color:var(--text); outline:none; transition:border 0.15s; background:#fff; }
+    .field input:focus { border-color:var(--blue); }
+    .field input.required-err { border-color:#DC2626; }
+
+    .svc-grid { display:grid; grid-template-columns:1fr 1fr; gap:0.4rem; margin-bottom:1rem; }
+    .svc-item { display:flex; align-items:center; gap:6px; padding:0.4rem 0.6rem; border:1.5px solid var(--g200); border-radius:6px; cursor:pointer; transition:all 0.15s; font-size:0.78rem; color:var(--g600); }
+    .svc-item.checked { background:var(--pale); border-color:var(--blue); color:var(--navy); font-weight:500; }
+    .svc-item input { width:14px; height:14px; accent-color:var(--blue); cursor:pointer; }
+
+    .modal-actions { display:flex; gap:0.75rem; }
+    .btn { font-family:'DM Sans',sans-serif; font-size:0.85rem; font-weight:600; padding:0.65rem 1.25rem; border-radius:8px; cursor:pointer; border:none; transition:all 0.15s; flex:1; }
+    .btn-primary { background:var(--blue); color:#fff; }
+    .btn-primary:hover { background:#1D4ED8; }
+    .btn-primary:disabled { background:var(--g200); color:var(--g400); cursor:not-allowed; }
+    .btn-ghost { background:var(--g100); color:var(--g600); }
+    .btn-ghost:hover { background:var(--g200); }
+
+    .success-state { text-align:center; padding:2rem 1rem; }
+    .success-icon { width:56px; height:56px; background:var(--green-bg); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 1rem; }
+    .success-icon svg { width:28px; height:28px; stroke:var(--green); fill:none; stroke-width:2.5; stroke-linecap:round; stroke-linejoin:round; }
+    .success-title { font-size:1.1rem; font-weight:600; color:var(--navy); margin-bottom:0.5rem; }
+    .success-sub   { font-size:0.82rem; color:var(--g400); line-height:1.55; }
+
+    /* ── RESPONSIVE ─────────────────────────────────────────── */
+    @media (max-width:640px) {
+      .hdr { padding:0 0.75rem; }
+      .toolbar { padding:0 0.75rem; }
+      .main { padding:0.5rem 0.5rem 5rem; }
+      .form-grid { grid-template-columns:1fr; }
+      .svc-grid   { grid-template-columns:1fr; }
+      .hdr-date   { display:none; }
+      .wa-btn span { display:none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="hdr">
+  <!-- Circle health icon -->
+  <div class="hdr-icon">
+    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="12" cy="12" r="10" stroke="#0B1F3A" stroke-width="1.5"/>
+      <path d="M12 7v10M7 12h10" stroke="#2563EB" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+  </div>
+  <div class="hdr-brand">
+    <span class="hdr-brand-name">Clínica Ginerés</span>
+    <span class="hdr-brand-sub">Agenda de Quirófanos</span>
+  </div>
+  <div class="hdr-right">
+    <span class="hdr-date" id="hdrDate"></span>
+  </div>
+</header>
+
+<!-- TOOLBAR -->
+<div class="toolbar">
+  <div class="date-tabs" id="dateTabs"></div>
+  <a class="wa-btn" id="waBtn" href="#" target="_blank">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+    </svg>
+    <span>¿Necesitas ayuda?</span>
+  </a>
+</div>
+
+<!-- SELECTION BAR -->
+<div class="sel-bar" id="selBar">
+  <div class="sel-info" id="selInfo">0 horas seleccionadas</div>
+  <span class="sel-clear" onclick="clearSelection()">Limpiar</span>
+  <button class="btn-reservar" onclick="openForm()">Reservar →</button>
+</div>
+
+<div class="main">
+  <div class="loader" id="loader"><div class="spinner"></div><p>Cargando agenda…</p></div>
+  <div id="gridArea"></div>
+</div>
+
+<!-- MODAL FORM -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div id="formState">
+      <div class="modal-title">Confirmar Reserva</div>
+      <div class="modal-sub">Complete los datos para confirmar su reserva</div>
+      <div class="summary-box" id="summaryBox"></div>
+      <form id="bookingForm" onsubmit="return false">
+        <div class="form-grid">
+          <div class="field"><label>Nombre del Doctor *</label><input type="text" id="f-nombre" placeholder="Dr. Nombre Apellido" required/></div>
+          <div class="field"><label>Correo electrónico *</label><input type="email" id="f-email" placeholder="doctor@correo.com" required/></div>
+        </div>
+        <div class="form-grid">
+          <div class="field"><label>Nombre del Paciente</label><input type="text" id="f-paciente" placeholder="Nombre del paciente"/></div>
+          <div class="field"><label>Procedimiento / Cirugía *</label><input type="text" id="f-procedimiento" placeholder="Ej: Artroscopía rodilla" required/></div>
+        </div>
+        <div class="form-grid">
+          <div class="field"><label>Anestesiólogo</label><input type="text" id="f-anestesiologo" placeholder="Nombre del anestesiólogo"/></div>
+          <div class="field"><label>Enfermería / Asistente</label><input type="text" id="f-enfermeria" placeholder="Nombre de enfermería"/></div>
+        </div>
+        <div style="font-size:0.72rem;font-weight:600;color:var(--g600);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:0.5rem;">Servicios Adicionales</div>
+        <div class="svc-grid" id="svcGrid">
+          <label class="svc-item" onclick="toggleSvc(this)"><input type="checkbox" name="rayosx"> Rayos X</label>
+          <label class="svc-item" onclick="toggleSvc(this)"><input type="checkbox" name="usg"> Ultrasonido USG</label>
+          <label class="svc-item" onclick="toggleSvc(this)"><input type="checkbox" name="microscopio"> Microscopio</label>
+          <label class="svc-item" onclick="toggleSvc(this)"><input type="checkbox" name="laparoscopia"> Laparoscopia</label>
+          <label class="svc-item" onclick="toggleSvc(this)"><input type="checkbox" name="solirrigacion"> Sol. Irrigación</label>
+          <label class="svc-item" onclick="toggleSvc(this)"><input type="checkbox" name="primerayudante"> Primer Ayudante</label>
+          <label class="svc-item" onclick="toggleSvc(this)"><input type="checkbox" name="instrumentista"> Instrumentista</label>
+          <label class="svc-item" onclick="toggleSvc(this)"><input type="checkbox" name="anestesiologoext"> Anestesiólogo Ext.</label>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+          <button type="button" class="btn btn-primary" id="btnConfirm" onclick="submitBooking()">Confirmar Reserva</button>
+        </div>
+      </form>
+    </div>
+    <div class="success-state" id="successState" style="display:none">
+      <div class="success-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+      <div class="success-title">¡Reserva Confirmada!</div>
+      <div class="success-sub" id="successMsg">Su quirófano ha sido reservado exitosamente.</div>
+      <button class="btn btn-primary" style="margin-top:1.5rem;width:100%" onclick="closeModalAndReset()">Ver Agenda</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzha8m5EgrO1ViLi5yrD-P05pvZeyB4YnUNINPLWKvTUi-HO0sV_4jF9glEhuLJ3plA/exec';
+
+const CAL_ACCOUNTS = [
+  { key: 'cal_live_a60f1d08e451c2ca381e99e865717173', eventTypeId: 5574898, quirofano: 'Quirofano 1' },
+  { key: 'cal_live_2d84ed9f2245b988e034aaa10bc08dc5', eventTypeId: 5576893, quirofano: 'Quirofano 2' },
+  { key: 'cal_live_a3ae35264250fe02f3b2d5eee9016c94', eventTypeId: 5577080, quirofano: 'Quirofano 3' },
+];
+
+const QUIROFANOS = ['Quirofano 1', 'Quirofano 2', 'Quirofano 3'];
+// 21:00 removed — last bookable slot is 20:00
+const HOURS = ['06:00','07:00','08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00'];
+const ROW_H = 52;
+
+let currentDate = todayStr();
+let allReservas  = [];
+let selection    = null;
+let urlLeadId    = '';
+let _occupiedMap = {};
+
+// ── Init ──────────────────────────────────────────────────────
+function init() {
+  const params = new URLSearchParams(window.location.search);
+  urlLeadId = params.get('metadata[leadid]') || params.get('leadid') || '';
+
+  const now = new Date();
+  document.getElementById('hdrDate').textContent =
+    now.toLocaleDateString('es-MX', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+
+  // WhatsApp button
+  document.getElementById('waBtn').href =
+    'https://wa.me/529999252426?text=Buen+d%C3%ADa%2C+requiero+ayuda+en+la+agenda+de+quir%C3%B3fanos.';
+
+  buildDateTabs();
+  loadData();
+}
+
+// ── Date tabs ─────────────────────────────────────────────────
+function buildDateTabs() {
+  const container = document.getElementById('dateTabs');
+  container.innerHTML = '';
+  const today = new Date();
+  for (let i = 0; i < 8; i++) {
+    const d = new Date(today);
+    d.setDate(today.getDate() + i);
+    const ds = formatDate(d);
+    const label = i === 0 ? 'Hoy' : formatShortDate(d);
+    const btn = document.createElement('button');
+    btn.className = 'date-tab' + (i === 0 ? ' today-tab' : '') + (ds === currentDate ? ' active' : '');
+    btn.textContent = label;
+    btn.onclick = () => selectDate(ds);
+    container.appendChild(btn);
+  }
+}
+
+function selectDate(ds) {
+  currentDate = ds;
+  clearSelection();
+  document.querySelectorAll('.date-tab').forEach((b, i) => {
+    const d = new Date(); d.setDate(d.getDate() + i);
+    b.classList.toggle('active', formatDate(d) === ds);
+  });
+  renderGrid();
+}
+
+// ── Load data ─────────────────────────────────────────────────
+async function loadData() {
+  showLoader(true);
+  const today = todayStr();
+  const end   = addDays(today, 7);
+  try {
+    const res  = await fetch(`${APPS_SCRIPT_URL}?start=${today}&end=${end}`);
+    const json = await res.json();
+    allReservas = json.reservas || [];
+    renderGrid();
+  } catch(e) {
+    document.getElementById('gridArea').innerHTML =
+      `<div style="text-align:center;padding:3rem;color:var(--g400)">Error cargando agenda. <span style="cursor:pointer;color:var(--blue);text-decoration:underline" onclick="loadData()">Reintentar</span></div>`;
+  }
+  showLoader(false);
+}
+
+// ── Render Grid ───────────────────────────────────────────────
+function renderGrid() {
+  const dayR = allReservas.filter(r => r.fecha === currentDate);
+
+  // Build occupied map: first slot only, with height based on duration
+  const occupied = {};
+  HOURS.forEach(h => { occupied[h] = {}; });
+
+  dayR.forEach(r => {
+    const startH = (r.horaInicio || '00:00').substring(0,5);
+    const dur    = Number(r.duracion) || 1;
+    const qk     = r.quirofano || 'Quirofano 1';
+    const startIdx = HOURS.indexOf(startH);
+
+    if (startIdx === -1) return;
+
+    occupied[HOURS[startIdx]][qk] = {
+      proc: r.procedimiento || r.tipoCirugia || 'Cirugía',
+      hora: startH,
+      duracion: dur,
+      isStart: true,
+      height: dur * ROW_H - 6,
+    };
+
+    for (let d = 1; d < dur; d++) {
+      const idx = startIdx + d;
+      if (idx >= HOURS.length) break;
+
+      occupied[HOURS[idx]][qk] = {
+        isStart: false,
+        isCont: true
+      };
+    }
+  });
+
+  _occupiedMap = occupied;
+
+  let html = `
+    <div class="grid-wrap">
+      <div class="grid-header">
+        <div class="grid-hcell time-col">Hora</div>
+        ${QUIROFANOS.map((q,i) => `
+          <div class="grid-hcell">
+            <span class="q-num">${i+1}</span>
+            ${q.replace('Quirofano','Quirófano')}
+          </div>
+        `).join('')}
+      </div>`;
+
+  html += `<div class="grid-body">`;
+
+  HOURS.forEach((h, hi) => {
+
+    html += `
+      <div class="grid-row ${hi%2===0?'alt':''}">
+        <div class="grid-time">${h}</div>`;
+
+    QUIROFANOS.forEach((q, qi) => {
+
+      const occ = occupied[h][q];
+      let slotHtml = '';
+
+      // ===== VALIDACIÓN DE HORARIOS PASADOS =====
+      const now = new Date();
+      const isToday = currentDate === todayStr();
+
+      const slotHourDecimal =
+        parseInt(h.split(':')[0]) +
+        (parseInt(h.split(':')[1]) / 60);
+
+      const nowHourDecimal =
+        now.getHours() +
+        (now.getMinutes() / 60);
+
+      const isPastSlot =
+        isToday && slotHourDecimal <= nowHourDecimal;
+
+      // ==========================================
+
+      if (occ && occ.isStart) {
+
+        slotHtml = `
+          <div class="slot slot-occupied" style="height:${occ.height}px;">
+            <div class="slot-time-occ">${occ.hora} · ${occ.duracion}h</div>
+            <div class="slot-proc">${escHtml(occ.proc)}</div>
+          </div>`;
+
+      } else if (occ && occ.isCont) {
+
+        slotHtml = `<div class="slot-continuation"></div>`;
+
+      } else if (isPastSlot) {
+
+        slotHtml = `
+          <div
+            class="slot slot-empty"
+            style="
+              background:#E5E7EB;
+              opacity:0.45;
+              cursor:not-allowed;
+            ">
+          </div>`;
+
+      } else {
+
+        const isSelected =
+          selection &&
+          selection.quirofano === q &&
+          selection.slots.includes(h);
+
+        if (isSelected) {
+
+          slotHtml = `
+            <div class="slot slot-selected" onclick="toggleSlot('${q}','${h}',event)">
+              <div class="slot-time">${h}</div>
+              <div class="slot-label">✓ Seleccionado</div>
+            </div>`;
+
+        } else {
+
+          const canSelect =
+            !selection ||
+            (selection.quirofano === q && isAdjacentToSelection(h));
+
+          if (canSelect) {
+
+            slotHtml = `
+              <div class="slot slot-available" onclick="toggleSlot('${q}','${h}',event)">
+                <div class="slot-time">${h}</div>
+                <div class="slot-label">Disponible</div>
+              </div>`;
+
+          } else {
+
+            slotHtml = `<div class="slot slot-empty"></div>`;
+          }
+        }
+      }
+
+      html += `
+        <div class="grid-cell" id="gc-${qi}-${hi}">
+          ${slotHtml}
+        </div>`;
+    });
+
+    html += `</div>`;
+  });
+
+   html += `</div>`;
+  
+  html += `</div>`;
+
+  document.getElementById('gridArea').innerHTML = html;
+}
+
+// ── Selection ─────────────────────────────────────────────────
+function isAdjacentToSelection(h) {
+  if (!selection || selection.slots.length === 0) return true;
+  const slots    = selection.slots;
+  const firstIdx = HOURS.indexOf(slots[0]);
+  const lastIdx  = HOURS.indexOf(slots[slots.length - 1]);
+  const thisIdx  = HOURS.indexOf(h);
+  return thisIdx === firstIdx - 1 || thisIdx === lastIdx + 1;
+}
+
+function toggleSlot(quirofano, hour, e) {
+  if (e) { e.preventDefault(); e.stopPropagation(); }
+  if (!selection) {
+    selection = { quirofano, slots: [hour] };
+  } else if (selection.quirofano !== quirofano) {
+    return;
+  } else {
+    const idx = selection.slots.indexOf(hour);
+    if (idx !== -1) {
+      if (idx === 0 || idx === selection.slots.length - 1) {
+        selection.slots.splice(idx, 1);
+        if (selection.slots.length === 0) selection = null;
+      }
+    } else {
+      if (isAdjacentToSelection(hour)) {
+        const slots = [...selection.slots, hour].sort((a,b) => HOURS.indexOf(a) - HOURS.indexOf(b));
+        selection.slots = slots;
+      }
+    }
+  }
+  updateSelBar();
+  updateSlotVisuals();
+}
+
+function updateSlotVisuals() {
+  HOURS.forEach((h, hi) => {
+    QUIROFANOS.forEach((q, qi) => {
+      const cell = document.getElementById('gc-' + qi + '-' + hi);
+      if (!cell) return;
+      const occ = _occupiedMap[h] && _occupiedMap[h][q];
+      if (occ) return;
+      const isSelected = selection && selection.quirofano === q && selection.slots.includes(h);
+      const canSelect  = !selection || (selection.quirofano === q && isAdjacentToSelection(h));
+      let s = '';
+      if (isSelected) {
+        s = '<div class="slot slot-selected" onclick="toggleSlot(\'' + q + '\',\'' + h + '\',event)">' +
+          '<div class="slot-time">' + h + '</div><div class="slot-label">&#10003; Seleccionado</div></div>';
+      } else if (canSelect) {
+        s = '<div class="slot slot-available" onclick="toggleSlot(\'' + q + '\',\'' + h + '\',event)">' +
+          '<div class="slot-time">' + h + '</div><div class="slot-label">Disponible</div></div>';
+      } else {
+        s = '<div class="slot slot-empty"></div>';
+      }
+      cell.innerHTML = s;
+    });
+  });
+}
+
+function clearSelection() {
+  selection = null;
+  updateSelBar();
+  renderGrid();
+}
+
+function updateSelBar() {
+  const bar = document.getElementById('selBar');
+  if (!selection || selection.slots.length === 0) { bar.classList.remove('show'); return; }
+  bar.classList.add('show');
+  const hrs   = selection.slots.length;
+  const q     = selection.quirofano.replace('Quirofano', 'Quirófano');
+  const start = selection.slots[0];
+  const endIdx = HOURS.indexOf(selection.slots[selection.slots.length-1]) + 1;
+  const endH  = endIdx < HOURS.length ? HOURS[endIdx] : (parseInt(selection.slots[selection.slots.length-1].split(':')[0])+1)+':00';
+  document.getElementById('selInfo').textContent = `${q} · ${start}–${endH} · ${hrs} hora${hrs>1?'s':''}`;
+}
+
+// ── Form ──────────────────────────────────────────────────────
+function openForm() {
+  if (!selection || selection.slots.length === 0) return;
+  const q     = selection.quirofano.replace('Quirofano', 'Quirófano');
+  const start = selection.slots[0];
+  const endIdx = HOURS.indexOf(selection.slots[selection.slots.length-1]) + 1;
+  const endH  = endIdx < HOURS.length ? HOURS[endIdx] : (parseInt(selection.slots[selection.slots.length-1].split(':')[0])+1)+':00';
+  const hrs   = selection.slots.length;
+
+  document.getElementById('summaryBox').innerHTML = `
+    <div class="summary-row"><span class="summary-label">Quirófano</span><span class="summary-value">${q}</span></div>
+    <div class="summary-row"><span class="summary-label">Fecha</span><span class="summary-value">${formatDateDisplay(currentDate)}</span></div>
+    <div class="summary-row"><span class="summary-label">Horario</span><span class="summary-value">${start} – ${endH} (${hrs} hora${hrs>1?'s':''})</span></div>`;
+
+  document.getElementById('formState').style.display = '';
+  document.getElementById('successState').style.display = 'none';
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function toggleSvc(label) {
+  const cb = label.querySelector('input');
+  setTimeout(() => { label.classList.toggle('checked', cb.checked); }, 0);
+}
+
+async function submitBooking() {
+  const nombre        = document.getElementById('f-nombre').value.trim();
+  const email         = document.getElementById('f-email').value.trim();
+  const procedimiento = document.getElementById('f-procedimiento').value.trim();
+
+  ['f-nombre','f-email','f-procedimiento'].forEach(id => document.getElementById(id).classList.remove('required-err'));
+  if (!nombre || !email || !procedimiento) {
+    if (!nombre) document.getElementById('f-nombre').classList.add('required-err');
+    if (!email)  document.getElementById('f-email').classList.add('required-err');
+    if (!procedimiento) document.getElementById('f-procedimiento').classList.add('required-err');
+    return;
+  }
+
+  const btn = document.getElementById('btnConfirm');
+  btn.disabled = true;
+  btn.textContent = 'Creando reserva…';
+
+  const paciente      = document.getElementById('f-paciente').value.trim();
+  const anestesiologo = document.getElementById('f-anestesiologo').value.trim();
+  const enfermeria    = document.getElementById('f-enfermeria').value.trim();
+  const svcs = {};
+  document.querySelectorAll('#svcGrid input[type=checkbox]').forEach(cb => { svcs[cb.name] = cb.checked; });
+
+  const startHour = selection.slots[0];
+  const startLocal = new Date(currentDate + 'T' + startHour + ':00');
+  const startISO = startLocal.toISOString();
+  const durMin    = selection.slots.length * 60;
+
+  const qIdx    = QUIROFANOS.indexOf(selection.quirofano);
+  const account = CAL_ACCOUNTS[qIdx];
+
+  const payload = {
+    action: 'crearReserva',
+    eventTypeId: account.eventTypeId,
+    calKey: account.key,
+    start: startISO,
+    lengthInMinutes: durMin,
+    attendee: { name: nombre, email: email, timeZone: 'America/Merida', language: 'es' },
+    bookingFieldsResponses: { name: nombre, email: email, paciente, procedimiento, anestesiologo, enfermeria, ...svcs, location: { value: 'link', optionValue: '' } },
+    metadata: urlLeadId ? { leadid: urlLeadId } : {}
+  };
+
+  try {
+    const res  = await fetch(APPS_SCRIPT_URL, { method:'POST', body: JSON.stringify(payload) });
+    const json = await res.json();
+    if (json.ok) {
+      document.getElementById('formState').style.display = 'none';
+      document.getElementById('successState').style.display = '';
+      document.getElementById('successMsg').textContent =
+        `Reserva en ${selection.quirofano.replace('Quirofano','Quirófano')} el ${formatDateDisplay(currentDate)} de ${selection.slots[0]} confirmada. Recibirá un correo en breve.`;
+      await loadData();
+    } else {
+      alert('Error: ' + (json.error || 'Intente nuevamente'));
+      btn.disabled = false; btn.textContent = 'Confirmar Reserva';
+    }
+  } catch(e) {
+    alert('Error de conexión.'); btn.disabled = false; btn.textContent = 'Confirmar Reserva';
+  }
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  document.getElementById('btnConfirm').disabled = false;
+  document.getElementById('btnConfirm').textContent = 'Confirmar Reserva';
+  document.querySelectorAll('#bookingForm input').forEach(i => { i.value=''; i.classList.remove('required-err'); });
+  document.querySelectorAll('#svcGrid input').forEach(cb => { cb.checked = false; });
+  document.querySelectorAll('#svcGrid .svc-item').forEach(l => l.classList.remove('checked'));
+}
+
+function closeModalAndReset() { closeModal(); clearSelection(); }
+
+// ── Helpers ───────────────────────────────────────────────────
+function showLoader(show) { document.getElementById('loader').style.display = show ? 'flex' : 'none'; }
+
+function todayStr() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function addDays(ds, n) {
+  const d = new Date(ds+'T12:00:00'); d.setDate(d.getDate()+n); return formatDate(d);
+}
+function formatDate(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function formatShortDate(d) {
+  return d.toLocaleDateString('es-MX',{weekday:'short',day:'numeric',month:'short'});
+}
+function formatDateDisplay(ds) {
+  const d = new Date(ds+'T12:00:00');
+  return d.toLocaleDateString('es-MX',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+}
+function escHtml(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+document.getElementById('modalOverlay').addEventListener('click', function(e) { if(e.target===this) closeModal(); });
+init();
+</script>
+
+</body>
+</html>
