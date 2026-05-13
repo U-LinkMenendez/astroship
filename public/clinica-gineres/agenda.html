@@ -378,6 +378,10 @@ function renderGrid() {
       ${QUIROFANOS.map((q,i) => `<div class="grid-hcell"><span class="q-num">${i+1} </span>${q.replace('Quirofano','Quirófano')}</div>`).join('')}
     </div>`;
 
+      const now = new Date();
+      const isToday = currentDate === todayStr();
+      const nowHourDecimal = now.getHours() + (now.getMinutes() / 60);
+  
   HOURS.forEach((h, hi) => {
     html += `<div class="grid-row ${hi%2===0?'alt':''}">
       <div class="grid-time">${h}</div>`;
@@ -386,6 +390,27 @@ function renderGrid() {
       const occ = occupied[h][q];
       let slotHtml = '';
 
+      const now = new Date();
+      const isToday = currentDate === todayStr();
+
+      const slotHourDecimal =
+        parseInt(h.split(':')[0]) +
+        (parseInt(h.split(':')[1]) / 60);
+
+      const nowHourDecimal =
+        now.getHours() +
+        (now.getMinutes() / 60);
+
+      const isPastSlot =
+        isToday && slotHourDecimal <= nowHourDecimal;
+      
+        const slotHourDecimal =
+          parseInt(h.split(':')[0]) +
+          (parseInt(h.split(':')[1]) / 60);
+
+  const isPastSlot =
+    isToday && slotHourDecimal <= nowHourDecimal;
+      
       if (occ && occ.isStart) {
         slotHtml = `<div class="slot slot-occupied" style="height:${occ.height}px;">
           <div class="slot-time-occ">${occ.hora} · ${occ.duracion}h</div>
@@ -393,8 +418,21 @@ function renderGrid() {
         </div>`;
       } else if (occ && occ.isCont) {
         slotHtml = `<div class="slot-continuation"></div>`;
-      } else {
-        const isSelected = selection && selection.quirofano === q && selection.slots.includes(h);
+      } else if (isPastSlot) {
+
+  slotHtml = `
+    <div class="slot slot-empty"
+      style="
+        background:#E5E7EB;
+        opacity:0.45;
+        cursor:not-allowed;
+      ">
+    </div>
+  `;
+
+} else {
+
+  const isSelected = selection && selection.quirofano === q && selection.slots.includes(h);
         if (isSelected) {
           slotHtml = `<div class="slot slot-selected" onclick="toggleSlot('${q}','${h}',event)">
             <div class="slot-time">${h}</div>
