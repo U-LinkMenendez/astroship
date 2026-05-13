@@ -168,6 +168,14 @@
       .hdr-date   { display:none; }
       .wa-btn span { display:none; }
     }
+
+.ulink-powered { position:fixed; right:14px; bottom:10px; z-index:9999; font-size:11px; color:#94A3B8; letter-spacing:0.04em; background:rgba(255,255,255,0.88); padding:4px 8px;
+  border-radius:999px; backdrop-filter:blur(6px); box-shadow:0 1px 4px rgba(0,0,0,0.08); user-select:none; text-decoration:none; transition:all 0.15s; }
+
+    .ulink-powered:hover { transform:translateY(-1px); box-shadow:0 3px 10px rgba(0,0,0,0.12); background:#fff; }
+
+.ulink-powered strong { color:#0F172A; font-weight:600; }
+    
   </style>
 </head>
 <body>
@@ -853,5 +861,13 @@ document.getElementById('modalOverlay').addEventListener('click', function(e) { 
 init();
 </script>
 
+<a
+  class="ulink-powered"
+  href="https://wa.me/529996690192?text=Hola%2C%20estoy%20viendo%20el%20proyecto%20de%20la%20Cl%C3%ADnica%20Giner%C3%A9s.%20%C2%BFPodr%C3%ADamos%20implementar%20algo%20as%C3%AD%20para%20mi%3F"
+  target="_blank"
+>
+  Powered by <strong>U•Link Systems</strong>
+</a>
+  
 </body>
 </html>
