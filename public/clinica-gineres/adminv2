@@ -1,0 +1,1092 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Panel Admin — Clínica Ginerés</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy:     #0B1F3A;
+      --navy2:    #152D52;
+      --blue:     #2563EB;
+      --blue-lt:  #93C5FD;
+      --teal:     #0D9488;
+      --pale:     #EFF6FF;
+      --ghost:    #F8FAFC;
+      --white:    #FFFFFF;
+      --g100:     #F1F5F9;
+      --g200:     #E2E8F0;
+      --g400:     #94A3B8;
+      --g600:     #475569;
+      --text:     #0F172A;
+      --green:    #059669;
+      --green-bg: #D1FAE5;
+      --amber:    #D97706;
+      --amber-bg: #FEF3C7;
+      --red:      #DC2626;
+      --red-bg:   #FEE2E2;
+      --purple:   #7C3AED;
+      --purple-bg:#EDE9FE;
+      --r:        8px;
+      --r-lg:     12px;
+      --sh:       0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.04);
+    }
+    html,body { min-height:100%; font-family:'DM Sans',sans-serif; background:var(--ghost); color:var(--text); -webkit-font-smoothing:antialiased; }
+
+    /* HEADER */
+    .hdr { background:var(--navy); height:54px; display:flex; align-items:center; padding:0 1.5rem; gap:1rem; position:sticky; top:0; z-index:100; }
+    .hdr-logo { display:flex; align-items:center; gap:10px; }
+    .hdr-cross { width:28px; height:28px; background:var(--blue); border-radius:6px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .hdr-cross svg { width:14px; height:14px; stroke:#fff; fill:none; stroke-width:2.5; stroke-linecap:round; }
+    .hdr-brand { font-size:0.9rem; font-weight:600; color:#fff; letter-spacing:-0.01em; }
+    .hdr-brand span { color:var(--blue-lt); font-weight:400; margin-left:6px; font-size:0.75rem; }
+    .hdr-right { margin-left:auto; display:flex; align-items:center; gap:8px; }
+    .hdr-date { font-family:'DM Sans',sans-serif; font-size:0.8rem; font-weight:700; color:#fff; }
+    .status-pill { display:flex; align-items:center; gap:5px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); padding:4px 10px; border-radius:100px; font-size:0.68rem; color:rgba(255,255,255,0.7); }
+    .status-dot { width:6px; height:6px; border-radius:50%; background:#4ADE80; animation:pulse 2s infinite; }
+    .status-dot.off { background:var(--amber); animation:none; }
+    @keyframes pulse { 0%,100%{box-shadow:0 0 0 2px rgba(74,222,128,0.2)} 50%{box-shadow:0 0 0 5px rgba(74,222,128,0.05)} }
+    .setup-btn { font-size:0.7rem; font-family:'DM Sans',sans-serif; font-weight:500; background:rgba(255,255,255,0.07); color:rgba(255,255,255,0.6); border:1px solid rgba(255,255,255,0.12); padding:4px 10px; border-radius:6px; cursor:pointer; transition:all 0.15s; }
+    .setup-btn:hover { background:rgba(255,255,255,0.13); color:#fff; }
+
+    /* MODAL */
+    .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:500; align-items:center; justify-content:center; backdrop-filter:blur(4px); }
+    .modal-overlay.open { display:flex; }
+    .modal { background:#fff; border-radius:var(--r-lg); padding:1.75rem; width:min(460px,90vw); box-shadow:0 24px 64px rgba(0,0,0,0.2); }
+    .modal h2 { font-size:0.95rem; font-weight:600; color:var(--navy); margin-bottom:0.35rem; }
+    .modal p { font-size:0.78rem; color:var(--g600); margin-bottom:1rem; line-height:1.55; }
+    .modal input { width:100%; border:1.5px solid var(--g200); border-radius:var(--r); padding:0.6rem 0.85rem; font-family:'DM Sans',sans-serif; font-size:0.82rem; color:var(--text); outline:none; transition:border 0.15s; }
+    .modal input:focus { border-color:var(--blue); }
+    .modal-actions { display:flex; gap:0.6rem; margin-top:1rem; justify-content:flex-end; }
+    .btn { font-family:'DM Sans',sans-serif; font-size:0.8rem; font-weight:500; padding:0.5rem 1rem; border-radius:var(--r); cursor:pointer; border:none; transition:all 0.15s; }
+    .btn-primary { background:var(--blue); color:#fff; }
+    .btn-primary:hover { background:#1D4ED8; }
+    .btn-ghost { background:transparent; color:var(--g600); border:1px solid var(--g200); }
+    .btn-ghost:hover { background:var(--g100); }
+
+    /* TOOLBAR */
+    .toolbar { background:#fff; border-bottom:1px solid var(--g200); padding:0.65rem 1.5rem; display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap; }
+    .date-tabs { display:flex; gap:3px; flex:1; overflow-x:auto; padding-bottom:2px; }
+    .date-tabs::-webkit-scrollbar { height:0; }
+    .date-tab { flex-shrink:0; padding:0.4rem 0.85rem; border-radius:6px; border:1px solid transparent; background:transparent; font-family:'DM Sans',sans-serif; font-size:0.78rem; font-weight:500; color:var(--g600); cursor:pointer; transition:all 0.15s; white-space:nowrap; }
+    .date-tab:hover { background:var(--pale); color:var(--navy); }
+    .date-tab.active { background:var(--navy); color:#fff; }
+    .date-tab.today-tab { border-color:var(--blue); color:var(--blue); }
+    .date-tab.today-tab.active { background:var(--blue); color:#fff; border-color:var(--blue); }
+    .view-toggle { display:flex; background:var(--g100); border-radius:7px; padding:2px; flex-shrink:0; }
+    .view-btn { padding:0.3rem 0.75rem; border-radius:5px; border:none; background:transparent; font-family:'DM Sans',sans-serif; font-size:0.75rem; font-weight:500; color:var(--g600); cursor:pointer; transition:all 0.15s; display:flex; align-items:center; gap:4px; white-space:nowrap; }
+    .view-btn.active { background:#fff; color:var(--navy); box-shadow:0 1px 3px rgba(0,0,0,0.08); }
+
+    /* MAIN */
+    .main { padding:1.25rem 1.5rem 4rem; }
+
+    /* LOADER */
+    .loader { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1rem; padding:5rem; }
+    .spinner { width:32px; height:32px; border:2.5px solid var(--g200); border-top-color:var(--blue); border-radius:50%; animation:spin 0.7s linear infinite; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    .loader p { font-size:0.82rem; color:var(--g400); }
+
+    /* REFRESH BAR */
+    .refresh-bar { display:flex; align-items:center; justify-content:flex-end; gap:0.75rem; margin-bottom:1rem; }
+    .refresh-bar span { font-size:0.72rem; color:var(--g400); font-family:'DM Mono',monospace; }
+    .refresh-btn { font-family:'DM Sans',sans-serif; font-size:0.72rem; font-weight:500; background:#fff; color:var(--navy); border:1px solid var(--g200); padding:4px 10px; border-radius:6px; cursor:pointer; display:flex; align-items:center; gap:4px; transition:background 0.15s; }
+    .refresh-btn:hover { background:var(--pale); }
+
+    /* ══ COLUMN VIEW ══ */
+    .col-view { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; }
+    .q-col { background:#fff; border-radius:var(--r-lg); border:1px solid var(--g200); overflow:hidden; box-shadow:var(--sh); }
+    .q-col-header { background:var(--navy); padding:0.7rem 1rem; display:flex; align-items:center; justify-content:space-between; }
+    .q-col-title { display:flex; align-items:center; gap:8px; }
+    .q-num { width:22px; height:22px; background:rgba(255,255,255,0.12); border-radius:5px; display:flex; align-items:center; justify-content:center; font-size:0.72rem; font-weight:600; color:#fff; font-family:'DM Mono',monospace; }
+    .q-col-header h3 { font-size:0.85rem; font-weight:600; color:#fff; }
+    .q-count { font-size:0.65rem; font-family:'DM Mono',monospace; background:rgba(255,255,255,0.12); color:rgba(255,255,255,0.8); padding:2px 7px; border-radius:100px; }
+    .q-col-body { padding:0.6rem; display:flex; flex-direction:column; gap:0.5rem; min-height:100px; }
+    .q-empty { font-size:0.75rem; color:var(--g400); text-align:center; padding:1.5rem 0; }
+
+    /* ══ SURGERY CARD ══ */
+    .surgery-card { border-radius:var(--r); border:1px solid var(--g200); background:#fff; overflow:hidden; transition:box-shadow 0.15s; }
+    .surgery-card:hover { box-shadow:0 2px 12px rgba(0,0,0,0.08); }
+
+    /* Card header strip */
+    .card-strip { background:var(--navy); padding:0.45rem 0.7rem; display:flex; align-items:center; justify-content:space-between; gap:0.5rem; }
+    .card-hora { font-family:'DM Mono',monospace; font-size:0.75rem; font-weight:500; color:#fff; }
+    .card-duracion { font-size:0.65rem; color:rgba(255,255,255,0.5); }
+    .card-estatus { font-size:0.62rem; font-weight:600; padding:2px 6px; border-radius:4px; letter-spacing:0.02em; }
+    .card-estatus.Confirmado { background:rgba(5,150,105,0.2); color:#6EE7B7; }
+    .card-estatus.Cancelado  { background:rgba(220,38,38,0.2); color:#FCA5A5; }
+    .card-estatus.Reagendado { background:rgba(245,158,11,0.2); color:#FCD34D; }
+
+    /* Card body */
+    .card-body { padding:0.55rem 0.7rem; }
+
+    /* Procedimiento — prominent */
+    .card-proc { font-size:0.88rem; font-weight:600; color:var(--navy); margin-bottom:0.35rem; line-height:1.2; }
+    .card-proc-empty { font-size:0.82rem; font-weight:500; color:var(--g400); font-style:italic; margin-bottom:0.35rem; }
+
+    /* Grid de personas */
+    .card-grid { display:grid; grid-template-columns:1fr 1fr; gap:0.25rem 0.5rem; margin-bottom:0.4rem; }
+    .card-field { display:flex; flex-direction:column; gap:1px; }
+    .card-field-label { font-size:0.58rem; font-weight:600; color:var(--g400); text-transform:uppercase; letter-spacing:0.06em; }
+    .card-field-value { font-size:0.75rem; font-weight:500; color:var(--text); line-height:1.2; }
+    .card-field-value.empty { color:var(--g400); font-style:italic; font-weight:400; }
+
+    /* Paciente — full width destacado */
+    .card-paciente { display:flex; align-items:center; gap:6px; background:var(--pale); border-radius:5px; padding:0.3rem 0.5rem; margin-bottom:0.4rem; }
+    .card-paciente-icon { width:16px; height:16px; background:var(--blue); border-radius:4px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .card-paciente-icon svg { width:9px; height:9px; stroke:#fff; fill:none; stroke-width:2; stroke-linecap:round; }
+    .card-paciente-name { font-size:0.78rem; font-weight:600; color:var(--navy); }
+    .card-paciente-name.empty { color:var(--g400); font-style:italic; font-weight:400; font-size:0.72rem; }
+
+    /* Servicios */
+    .card-services { display:flex; flex-wrap:wrap; gap:3px; margin-bottom:0.45rem; }
+    .svc-badge { font-size:0.6rem; font-weight:500; background:var(--g100); color:var(--g600); padding:2px 5px; border-radius:3px; }
+
+    /* Footer */
+    .card-footer { display:flex; align-items:center; justify-content:space-between; gap:0.5rem; padding-top:0.35rem; border-top:1px solid var(--g100); }
+    .lmp-btn { font-family:'DM Sans',sans-serif; font-size:0.65rem; font-weight:600; padding:3px 8px; border-radius:5px; border:1px solid; cursor:pointer; transition:all 0.15s; white-space:nowrap; }
+    .lmp-btn.Pendiente { background:var(--amber-bg); color:var(--amber); border-color:#F59E0B; }
+    .lmp-btn.EnProceso { background:var(--pale); color:var(--blue); border-color:var(--blue); }
+    .lmp-btn.Listo     { background:var(--green-bg); color:var(--green); border-color:#10B981; }
+    .lmp-btn:disabled  { opacity:0.5; cursor:not-allowed; }
+
+    /* ══ TIMELINE VIEW ══ */
+    .timeline-wrap { background:#fff; border-radius:var(--r-lg); border:1px solid var(--g200); overflow:hidden; box-shadow:var(--sh); }
+    .tl-header { display:grid; grid-template-columns:52px repeat(3,1fr); background:var(--navy); }
+    .tl-hcell { padding:0.6rem 0.75rem; font-size:0.78rem; font-weight:600; color:#fff; text-align:center; border-right:1px solid rgba(255,255,255,0.08); }
+    .tl-hcell:last-child { border-right:none; }
+    .tl-hcell.time-col { font-size:0.65rem; color:rgba(255,255,255,0.4); font-family:'DM Mono',monospace; }
+    .tl-row { display:grid; grid-template-columns:52px repeat(3,1fr); border-bottom:1px solid var(--g200); height:52px; min-height:52px; }
+    .tl-row:last-child { border-bottom:none; }
+    .tl-row.alt { background:var(--ghost); }
+    .tl-hour { padding:0.5rem 0.25rem; font-size:0.68rem; font-weight:500; color:var(--g400); text-align:center; border-right:1px solid var(--g200); font-family:'DM Mono',monospace; display:flex; align-items:flex-start; justify-content:center; padding-top:0.55rem; }
+    .tl-cell { padding:0.2rem; border-right:1px solid var(--g200); position:relative; overflow:visible; }
+    .tl-cell:last-child { border-right:none; }
+
+    /* Timeline compact card */
+    .tl-card { 
+      background:var(--pale); 
+      border-radius:5px; 
+      padding:0.35rem 0.5rem; 
+      border-left:3px solid var(--blue);
+      position:absolute;
+      left:3px; right:3px; top:3px;
+      z-index:2;
+      overflow:hidden;
+      box-shadow:0 1px 4px rgba(37,99,235,0.15);
+    }
+    .tl-card .card-proc { font-size:0.76rem; font-weight:600; color:var(--navy); margin-bottom:0.15rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .tl-card .card-hora { font-size:0.62rem; color:var(--blue); font-family:'DM Mono',monospace; font-weight:500; display:block; margin-bottom:0.1rem; }
+    .tl-card .card-mini-row { display:flex; gap:0.4rem; flex-wrap:wrap; }
+    .tl-card .card-mini-item { font-size:0.62rem; color:var(--g600); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
+    .tl-card .card-mini-label { color:var(--g400); }
+
+    /* NO URL */
+    .no-url { background:#fff; border:1px solid var(--g200); border-radius:var(--r-lg); padding:2.5rem; text-align:center; max-width:400px; margin:2rem auto; box-shadow:var(--sh); }
+    .no-url h3 { font-size:1rem; font-weight:600; color:var(--navy); margin-bottom:0.5rem; }
+    .no-url p { font-size:0.8rem; color:var(--g600); line-height:1.55; margin-bottom:1.25rem; }
+
+    /* RESPONSIVE */
+    @media (max-width:960px) {
+      .col-view { grid-template-columns:1fr; }
+      .tl-header, .tl-row { grid-template-columns:44px repeat(3,1fr); }
+    }
+    @media (max-width:640px) {
+      .hdr { padding:0 1rem; }
+      .hdr-date { display:none; }
+      .toolbar { padding:0.5rem 1rem; }
+      .main { padding:1rem 1rem 3rem; }
+      .date-tab { font-size:0.72rem; padding:0.35rem 0.65rem; }
+      .col-view { grid-template-columns:1fr; }
+    }
+
+    /* ── RESERVATION TAB GRID ─────────────────────────── */
+    .res-wrap { background:#fff; border-radius:var(--r-lg); border:1px solid var(--g200); overflow:hidden; box-shadow:var(--sh); display:flex; flex-direction:column; max-height:calc(100vh - 220px); }
+    .res-grid-header { display:grid; grid-template-columns:52px repeat(3,1fr); background:var(--navy); flex-shrink:0; position:sticky; top:0; z-index:10; }
+    .res-hcell { padding:0.65rem 0.75rem; font-size:0.8rem; font-weight:600; color:#fff; text-align:center; border-right:1px solid rgba(255,255,255,0.08); }
+    .res-hcell:last-child { border-right:none; }
+    .res-hcell.time-col { font-size:0.65rem; color:rgba(255,255,255,0.4); font-family:'DM Mono',monospace; }
+    .res-body { overflow-y:auto; flex:1; }
+    .res-row { display:grid; grid-template-columns:52px repeat(3,1fr); border-bottom:1px solid var(--g200); }
+    .res-row:last-child { border-bottom:none; }
+    .res-row.alt { background:var(--ghost); }
+    .res-time { padding:0.5rem 0.25rem; font-size:0.68rem; font-weight:500; color:var(--g400); text-align:center; border-right:1px solid var(--g200); font-family:'DM Mono',monospace; display:flex; align-items:center; justify-content:center; min-height:52px; }
+    .res-cell { padding:0.25rem; border-right:1px solid var(--g200); position:relative; min-height:52px; }
+    .res-cell:last-child { border-right:none; }
+
+    /* Available slot in reservation tab */
+    .rslot-avail { width:100%; height:100%; border-radius:6px; background:var(--green-bg); border:1.5px solid #A7F3D0; cursor:pointer; display:flex; flex-direction:column; justify-content:center; padding:0.3rem 0.5rem; transition:all 0.15s; }
+    .rslot-avail:hover { background:#BBF7D0; border-color:var(--green2); }
+    .rslot-avail .rs-time { font-size:0.68rem; font-family:'DM Mono',monospace; color:var(--green); font-weight:500; }
+    .rslot-avail .rs-label { font-size:0.7rem; color:var(--green); }
+    .rslot-avail.rs-selected { background:var(--blue); border-color:#1D4ED8; }
+    .rslot-avail.rs-selected .rs-time, .rslot-avail.rs-selected .rs-label { color:#fff; }
+
+    /* Occupied slot in reservation tab */
+    .rslot-occ { position:absolute; left:3px; right:3px; top:3px; z-index:2; background:var(--pale); border-radius:6px; padding:0.3rem 0.5rem; border-left:3px solid var(--blue); cursor:pointer; overflow:hidden; box-shadow:0 1px 4px rgba(37,99,235,0.1); transition:all 0.15s; }
+    .rslot-occ:hover { background:#DBEAFE; }
+    .rslot-occ .rs-proc { font-size:0.75rem; font-weight:600; color:var(--navy); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .rslot-occ .rs-time { font-size:0.62rem; font-family:'DM Mono',monospace; color:var(--blue); margin-bottom:2px; }
+    .rslot-cont { position:absolute; left:3px; right:3px; top:0; bottom:0; z-index:1; background:var(--pale); border-left:3px solid var(--blue); opacity:0.35; cursor:pointer; }
+    .rslot-past { width:100%; height:100%; background:var(--g100); cursor:not-allowed; border-radius:6px; }
+
+    /* Selection bar for reservation tab */
+    .res-selbar { display:none; background:var(--blue); padding:0.6rem 1rem; align-items:center; gap:1rem; margin-bottom:0.5rem; border-radius:var(--r); }
+    .res-selbar.show { display:flex; }
+    .res-selbar span { color:#fff; font-size:0.82rem; font-weight:500; flex:1; }
+    .res-clear { color:var(--blue-lt); font-size:0.75rem; cursor:pointer; text-decoration:underline; flex-shrink:0; }
+    .res-book-btn { background:#fff; color:var(--blue); border:none; border-radius:var(--r); padding:0.4rem 1rem; font-family:'DM Sans',sans-serif; font-size:0.8rem; font-weight:600; cursor:pointer; flex-shrink:0; }
+
+    /* Modals */
+    .adm-modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:500; align-items:center; justify-content:center; backdrop-filter:blur(4px); }
+    .adm-modal-overlay.open { display:flex; }
+    .adm-modal { background:#fff; border-radius:var(--r-lg); width:min(560px,92vw); max-height:90vh; overflow-y:auto; padding:1.75rem; box-shadow:0 24px 64px rgba(0,0,0,0.2); }
+    .adm-modal h2 { font-size:1rem; font-weight:600; color:var(--navy); margin-bottom:0.25rem; }
+    .adm-modal .sub { font-size:0.78rem; color:var(--g400); margin-bottom:1.25rem; }
+    .adm-summary { background:var(--pale); border:1px solid #BFDBFE; border-radius:var(--r); padding:0.75rem 1rem; margin-bottom:1.25rem; display:flex; flex-direction:column; gap:4px; }
+    .adm-sum-row { display:flex; gap:8px; font-size:0.8rem; }
+    .adm-sum-lbl { color:var(--g400); font-size:0.72rem; font-weight:600; text-transform:uppercase; letter-spacing:0.04em; width:80px; flex-shrink:0; }
+    .adm-sum-val { color:var(--navy); font-weight:500; }
+    .adm-form-grid { display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:0.75rem; }
+    .adm-field { display:flex; flex-direction:column; gap:4px; }
+    .adm-field label { font-size:0.72rem; font-weight:600; color:var(--g600); text-transform:uppercase; letter-spacing:0.04em; }
+    .adm-field input, .adm-field select { border:1.5px solid var(--g200); border-radius:var(--r); padding:0.55rem 0.75rem; font-family:'DM Sans',sans-serif; font-size:0.85rem; color:var(--text); outline:none; transition:border 0.15s; }
+    .adm-field input:focus, .adm-field select:focus { border-color:var(--blue); }
+    .adm-svc-grid { display:grid; grid-template-columns:1fr 1fr; gap:0.4rem; margin-bottom:1rem; }
+    .adm-svc-item { display:flex; align-items:center; gap:6px; padding:0.4rem 0.6rem; border:1.5px solid var(--g200); border-radius:6px; cursor:pointer; font-size:0.78rem; color:var(--g600); transition:all 0.15s; }
+    .adm-svc-item.checked { background:var(--pale); border-color:var(--blue); color:var(--navy); font-weight:500; }
+    .adm-svc-item input { width:14px; height:14px; accent-color:var(--blue); cursor:pointer; }
+    .adm-actions { display:flex; gap:0.6rem; margin-top:1rem; }
+    .adm-btn { font-family:'DM Sans',sans-serif; font-size:0.82rem; font-weight:600; padding:0.55rem 1.1rem; border-radius:var(--r); cursor:pointer; border:none; transition:all 0.15s; flex:1; }
+    .adm-btn-primary { background:var(--blue); color:#fff; }
+    .adm-btn-primary:hover { background:#1D4ED8; }
+    .adm-btn-danger { background:var(--red-bg); color:var(--red); border:1px solid var(--red); }
+    .adm-btn-danger:hover { background:#FCA5A5; }
+    .adm-btn-amber { background:var(--amber-bg); color:var(--amber); border:1px solid var(--amber); }
+    .adm-btn-amber:hover { background:#FCD34D; }
+    .adm-btn-ghost { background:var(--g100); color:var(--g600); }
+    .adm-btn-ghost:hover { background:var(--g200); }
+    .adm-btn:disabled { opacity:0.5; cursor:not-allowed; }
+
+    /* Date picker for reschedule */
+    .adm-date-row { display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:0.75rem; }
+  </style>
+</head>
+<body>
+
+  <header class="hdr">
+    <div class="hdr-logo">
+      <div class="hdr-icon" style="width:38px;height:38px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="12" cy="12" r="10" stroke="#0B1F3A" stroke-width="1.5"/>
+          <path d="M12 7v10M7 12h10" stroke="#2563EB" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="hdr-brand" style="display:flex;flex-direction:column;gap:1px;">
+        <span style="font-size:1.05rem;font-weight:700;color:#fff;letter-spacing:-0.01em;line-height:1.1;">Clínica Ginerés</span>
+        <span style="font-size:0.8rem;font-weight:400;color:#93C5FD;line-height:1.1;">Panel Administración</span>
+      </div>
+    </div>
+    <div class="hdr-right">
+      <span class="hdr-date" id="hdrDate"></span>
+      <div class="status-pill">
+        <div class="status-dot" id="statusDot"></div>
+        <span id="statusTxt">Conectado</span>
+      </div>
+      <button class="setup-btn" onclick="openSetup()">⚙ URL</button>
+    </div>
+  </header>
+
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <h2>URL del Apps Script</h2>
+      <p>Pega aquí la URL de tu Web App de Google Apps Script. Se guarda en este navegador.</p>
+      <input type="url" id="scriptUrlInput" placeholder="https://script.google.com/macros/s/.../exec" />
+      <div class="modal-actions">
+        <button class="btn btn-ghost" onclick="closeSetup()">Cancelar</button>
+        <button class="btn btn-primary" onclick="saveSetup()">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <div class="date-tabs" id="dateTabs"></div>
+    <div class="view-toggle">
+      <button class="view-btn" id="btnCol" onclick="setView('col')">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="5" height="18" rx="1"/><rect x="10" y="3" width="5" height="18" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg>
+        Quirófanos
+      </button>
+      <button class="view-btn" id="btnTl" onclick="setView('tl')" style="display:none">
+        Cronológico
+      </button>
+      <button class="view-btn active" id="btnRes" onclick="setView('res')">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Reservas
+      </button>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="loader" id="loader" style="display:none">
+      <div class="spinner"></div>
+      <p>Cargando agenda…</p>
+    </div>
+    <div id="contentArea"></div>
+  </div>
+
+  <script>
+    const SCRIPT_KEY = 'cg_admin_script_url';
+    const HARDCODED_URL = 'https://script.google.com/macros/s/AKfycbzha8m5EgrO1ViLi5yrD-P05pvZeyB4YnUNINPLWKvTUi-HO0sV_4jF9glEhuLJ3plA/exec';
+    const HOURS = ['06:00','07:00','08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00'];
+    const QUIROFANOS = ['Quirofano 1','Quirofano 2','Quirofano 3'];
+    const LMP_CYCLE = { 'Pendiente':'EnProceso', 'EnProceso':'Listo', 'Listo':'Pendiente' };
+    const LMP_LABEL = { 'Pendiente':'⏳ Pendiente', 'EnProceso':'🧹 En proceso', 'Listo':'✅ Listo' };
+
+    let currentDate = todayStr();
+    let currentView = 'res';
+    let allReservas  = [];
+    let lastUpdate   = null;
+
+
+    // ── RESERVATION TAB CONSTANTS ───────────────────────
+    const CAL_ACCOUNTS_ADM = [
+      { key: 'cal_live_a60f1d08e451c2ca381e99e865717173', eventTypeId: 5574898, quirofano: 'Quirofano 1' },
+      { key: 'cal_live_2d84ed9f2245b988e034aaa10bc08dc5', eventTypeId: 5576893, quirofano: 'Quirofano 2' },
+      { key: 'cal_live_a3ae35264250fe02f3b2d5eee9016c94', eventTypeId: 5577080, quirofano: 'Quirofano 3' },
+    ];
+    const RES_HOURS = ['06:00','07:00','08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00'];
+    const ROW_H_ADM = 52;
+
+    let resSelection = null;   // { quirofano, slots[] }
+    let _resOccMap   = {};
+    let _editBooking = null;   // current booking being edited
+
+    // ── RENDER RESERVATION TAB ───────────────────────────
+    function renderRes() {
+      const area = document.getElementById('contentArea');
+      const dayR = allReservas.filter(r => r.fecha === currentDate);
+
+      // Build occupied map
+      const occ = {};
+      RES_HOURS.forEach(h => { occ[h] = {}; });
+      dayR.forEach(r => {
+        const sh  = (r.horaInicio||'00:00').substring(0,5);
+        const dur = Number(r.duracion)||1;
+        const qk  = r.quirofano||'Quirofano 1';
+        const si  = RES_HOURS.indexOf(sh);
+        if (si === -1) return;
+        occ[RES_HOURS[si]][qk] = { proc: r.procedimiento||r.tipoCirugia||'Cirugía', hora: sh, duracion: dur, isStart: true, height: dur*ROW_H_ADM-6, booking: r };
+        for (let d=1; d<dur; d++) {
+          const idx = si+d;
+          if (idx >= RES_HOURS.length) break;
+          occ[RES_HOURS[idx]][qk] = { isStart:false, isCont:true, booking:r };
+        }
+      });
+      _resOccMap = occ;
+
+      const now     = new Date();
+      const isToday = currentDate === todayStr();
+      const nowH    = now.getHours() + now.getMinutes()/60;
+      _resToday = isToday; _resNowH = nowH;
+
+      // Selection bar
+      let selHtml = `<div class="res-selbar ${resSelection&&resSelection.slots.length?'show':''}" id="resSelBar">
+        <span id="resSelInfo"></span>
+        <span class="res-clear" onclick="clearResSelection()">Limpiar</span>
+        <button class="res-book-btn" onclick="openAdmNew()">Reservar →</button>
+      </div>`;
+
+      // Grid
+      let html = `<div class="refresh-bar">
+        <span>${lastUpdate ? 'Actualizado: ' + lastUpdate.toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'}) : ''}</span>
+        <button class="refresh-btn" onclick="loadData()">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+          Actualizar
+        </button>
+      </div>` + selHtml;
+
+      html += `<div class="res-wrap">
+        <div class="res-grid-header">
+          <div class="res-hcell time-col">Hora</div>
+          ${QUIROFANOS.map((q,i) => `<div class="res-hcell"><span style="color:var(--navy);margin-right:3px">${i+1}</span>${q.replace('Quirofano','Quirófano')}</div>`).join('')}
+        </div>
+        <div class="res-body">`;
+
+      RES_HOURS.forEach((h, hi) => {
+        html += `<div class="res-row ${hi%2===0?'alt':''}"><div class="res-time">${h}</div>`;
+        QUIROFANOS.forEach((q, qi) => {
+          const o = occ[h][q];
+          const slotH = parseInt(h)+parseInt(h.split(':')[1]||0)/60;
+          const isPast = isToday && (parseInt(h.split(':')[0]) + parseInt(h.split(':')[1])/60) <= nowH;
+          let cell = '';
+          if (o && o.isStart) {
+            const startH2 = parseInt(o.hora.split(':')[0]) + parseInt(o.hora.split(':')[1])/60;
+          const endH2   = startH2 + o.duracion;
+          const inProgress = isToday && startH2 <= nowH && nowH < endH2;
+          cell = `<div class="rslot-occ" style="height:${o.height}px;${inProgress?'cursor:not-allowed;opacity:0.7':''}" ${inProgress ? 'title="Cirugía en curso"' : `onclick="openAdmEdit(${JSON.stringify(o.booking).replace(/"/g,'&quot;')})"`}>
+              <div class="rs-time">${o.hora} · ${o.duracion}h${inProgress?' 🔄':''}</div>
+              <div class="rs-proc">${escHtml(o.proc)}</div>
+            </div>`;
+          } else if (o && o.isCont) {
+            cell = `<div class="rslot-cont" onclick="openAdmEdit(${JSON.stringify(o.booking).replace(/"/g,'&quot;')})"></div>`;
+          } else if (isPast) {
+            cell = `<div class="rslot-past"></div>`;
+          } else {
+            const isSel = resSelection && resSelection.quirofano===q && resSelection.slots.includes(h);
+            const canSel = !resSelection || (resSelection.quirofano===q && isResAdjacent(h));
+            if (isSel) {
+              cell = `<div class="rslot-avail rs-selected" id="rsc-${qi}-${hi}" onclick="toggleResSlot('${q}','${h}')"><div class="rs-time">${h}</div><div class="rs-label">✓ Sel.</div></div>`;
+            } else if (canSel) {
+              cell = `<div class="rslot-avail" id="rsc-${qi}-${hi}" onclick="toggleResSlot('${q}','${h}')"><div class="rs-time">${h}</div><div class="rs-label">Disponible</div></div>`;
+            } else {
+              cell = `<div class="rslot-avail" id="rsc-${qi}-${hi}" style="opacity:0.3;cursor:not-allowed"></div>`;
+            }
+          }
+          html += `<div class="res-cell">${cell}</div>`;
+        });
+        html += `</div>`;
+      });
+
+      html += `</div></div>`;
+      area.innerHTML = html;
+      updateResSelBar();
+    }
+
+    let _resToday = false, _resNowH = 0;
+
+    function isResAdjacent(h) {
+      const sh = parseInt(h.split(':')[0]) + parseInt(h.split(':')[1])/60;
+      if (_resToday && sh <= _resNowH) return false;
+      if (!resSelection || !resSelection.slots.length) return true;
+      const fi = RES_HOURS.indexOf(resSelection.slots[0]);
+      const li = RES_HOURS.indexOf(resSelection.slots[resSelection.slots.length-1]);
+      const ti = RES_HOURS.indexOf(h);
+      return ti === fi-1 || ti === li+1;
+    }
+
+    function toggleResSlot(q, h) {
+      if (!resSelection) { resSelection = { quirofano:q, slots:[h] }; }
+      else if (resSelection.quirofano !== q) { return; }
+      else {
+        const idx = resSelection.slots.indexOf(h);
+        if (idx !== -1) {
+          if (idx===0||idx===resSelection.slots.length-1) { resSelection.slots.splice(idx,1); if (!resSelection.slots.length) resSelection=null; }
+        } else if (isResAdjacent(h)) {
+          resSelection.slots = [...resSelection.slots, h].sort((a,b)=>RES_HOURS.indexOf(a)-RES_HOURS.indexOf(b));
+        }
+      }
+      updateResSelBar();
+      // Update only affected cells
+      RES_HOURS.forEach((hr, hi) => {
+        QUIROFANOS.forEach((qu, qi) => {
+          const cell = document.getElementById('rsc-'+qi+'-'+hi);
+          if (!cell) return;
+          const isSel  = resSelection && resSelection.quirofano===qu && resSelection.slots.includes(hr);
+          const canSel = !resSelection || (resSelection.quirofano===qu && isResAdjacent(hr));
+          if (isSel) {
+            cell.className = 'rslot-avail rs-selected';
+            cell.innerHTML = `<div class="rs-time">${hr}</div><div class="rs-label">✓ Sel.</div>`;
+          } else if (canSel) {
+            cell.className = 'rslot-avail';
+            cell.innerHTML = `<div class="rs-time">${hr}</div><div class="rs-label">Disponible</div>`;
+            cell.style.opacity = '';
+          } else {
+            cell.className = 'rslot-avail';
+            cell.style.opacity = '0.3';
+          }
+        });
+      });
+    }
+
+    function clearResSelection() { resSelection=null; updateResSelBar(); renderRes(); }
+
+    function updateResSelBar() {
+      const bar = document.getElementById('resSelBar');
+      if (!bar) return;
+      if (!resSelection||!resSelection.slots.length) { bar.classList.remove('show'); return; }
+      bar.classList.add('show');
+      const hrs = resSelection.slots.length;
+      const q   = resSelection.quirofano.replace('Quirofano','Quirófano');
+      const s   = resSelection.slots[0];
+      const ei  = RES_HOURS.indexOf(resSelection.slots[resSelection.slots.length-1])+1;
+      const e   = ei < RES_HOURS.length ? RES_HOURS[ei] : (parseInt(resSelection.slots[resSelection.slots.length-1].split(':')[0])+1)+':00';
+      document.getElementById('resSelInfo').textContent = `${q} · ${s}–${e} · ${hrs} hora${hrs>1?'s':''}`;
+    }
+
+    // ── NUEVA RESERVA MODAL ───────────────────────────────
+    function openAdmNew() {
+      if (!resSelection||!resSelection.slots.length) return;
+      const q   = resSelection.quirofano.replace('Quirofano','Quirófano');
+      const s   = resSelection.slots[0];
+      const ei  = RES_HOURS.indexOf(resSelection.slots[resSelection.slots.length-1])+1;
+      const e   = ei < RES_HOURS.length ? RES_HOURS[ei] : (parseInt(resSelection.slots[resSelection.slots.length-1].split(':')[0])+1)+':00';
+      const hrs = resSelection.slots.length;
+      document.getElementById('admNewSummary').innerHTML = `
+        <div class="adm-sum-row"><span class="adm-sum-lbl">Quirófano</span><span class="adm-sum-val">${q}</span></div>
+        <div class="adm-sum-row"><span class="adm-sum-lbl">Fecha</span><span class="adm-sum-val">${formatDateDisplay(currentDate)}</span></div>
+        <div class="adm-sum-row"><span class="adm-sum-lbl">Horario</span><span class="adm-sum-val">${s} – ${e} (${hrs} hora${hrs>1?'s':''})</span></div>`;
+      document.getElementById('admNewForm').style.display='';
+      document.getElementById('admNewSuccess').style.display='none';
+      document.getElementById('admNewModal').classList.add('open');
+    }
+
+    function closeAdmNew() {
+      document.getElementById('admNewModal').classList.remove('open');
+      document.querySelectorAll('#admNewForm input').forEach(i=>{i.value='';});
+      document.querySelectorAll('#admNewForm .adm-svc-item').forEach(l=>{l.classList.remove('checked');l.querySelector('input').checked=false;});
+    }
+
+    function admToggleSvc(label) {
+      const cb = label.querySelector('input');
+      setTimeout(()=>{label.classList.toggle('checked',cb.checked);},0);
+    }
+
+    async function submitAdmNew() {
+      const nombre = document.getElementById('an-nombre').value.trim();
+      const email  = document.getElementById('an-email').value.trim();
+      const proc   = document.getElementById('an-procedimiento').value.trim();
+      if (!nombre||!email||!proc) { alert('Completa los campos requeridos: Doctor, Email y Procedimiento'); return; }
+
+      const btn = document.getElementById('admNewConfirm');
+      btn.disabled=true; btn.textContent='Creando…';
+
+      const svcs = {};
+      document.querySelectorAll('#admNewForm .adm-svc-item input').forEach(cb=>{
+        svcs[cb.name.replace('an-','')]=cb.checked;
+      });
+
+      const hh = parseInt(resSelection.slots[0].split(':')[0]);
+      const mm = parseInt(resSelection.slots[0].split(':')[1]);
+      const d  = new Date(currentDate+'T00:00:00');
+      const startUTC = new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate(),hh+6,mm));
+      const qIdx  = QUIROFANOS.indexOf(resSelection.quirofano);
+      const acct  = CAL_ACCOUNTS_ADM[qIdx];
+
+      const url = localStorage.getItem(SCRIPT_KEY)||HARDCODED_URL;
+      try {
+        const res = await fetch(url, { method:'POST', body: JSON.stringify({
+          action:'crearReserva',
+          eventTypeId: acct.eventTypeId,
+          calKey: acct.key,
+          start: startUTC.toISOString(),
+          lengthInMinutes: resSelection.slots.length*60,
+          attendee:{ name:nombre, email:email, timeZone:'America/Merida', language:'es' },
+          bookingFieldsResponses:{ name:nombre, email:email,
+            paciente:document.getElementById('an-paciente').value.trim(),
+            procedimiento:proc,
+            anestesiologo:document.getElementById('an-anestesiologo').value.trim(),
+            enfermeria:document.getElementById('an-enfermeria').value.trim(),
+            ...svcs, location:{value:'link',optionValue:''}
+          },
+          metadata:{}
+        })});
+        const json = await res.json();
+        if (json.ok) {
+          document.getElementById('admNewForm').style.display='none';
+          document.getElementById('admNewSuccess').style.display='';
+          resSelection=null;
+          await loadData();
+        } else { alert('Error: '+(json.error||'Intente nuevamente')); }
+      } catch(e) { alert('Error de conexión'); }
+      btn.disabled=false; btn.textContent='Confirmar Reserva';
+    }
+
+    // ── EDITAR RESERVA MODAL ─────────────────────────────
+    function openAdmEdit(booking) {
+      if (typeof booking === 'string') booking = JSON.parse(booking.replace(/&quot;/g,'"'));
+      _editBooking = booking;
+      const q = (booking.quirofano||'').replace('Quirofano','Quirófano');
+      document.getElementById('admEditSub').textContent = q+' · '+booking.fecha+' · '+booking.horaInicio;
+      document.getElementById('admEditSummary').innerHTML = `
+        <div class="adm-sum-row"><span class="adm-sum-lbl">Doctor</span><span class="adm-sum-val">${escHtml(booking.doctor||'—')}</span></div>
+        <div class="adm-sum-row"><span class="adm-sum-lbl">Procedimiento</span><span class="adm-sum-val">${escHtml(booking.procedimiento||'—')}</span></div>
+        <div class="adm-sum-row"><span class="adm-sum-lbl">Paciente</span><span class="adm-sum-val">${escHtml(booking.paciente||'—')}</span></div>`;
+      // Fill edit data tab
+      document.getElementById('ed-paciente').value      = booking.paciente||'';
+      document.getElementById('ed-procedimiento').value = booking.procedimiento||'';
+      document.getElementById('ed-anestesiologo').value = booking.anestesiologo||'';
+      document.getElementById('ed-enfermeria').value    = booking.enfermeria||'';
+      // Fill reschedule tab
+      document.getElementById('ed-fecha').value    = booking.fecha||'';
+      document.getElementById('ed-hora').value     = booking.horaInicio||'06:00';
+      document.getElementById('ed-duracion').value = String(booking.duracion||1);
+      document.getElementById('ed-motivo').value   = '';
+      showEditTab('datos');
+      document.getElementById('admEditModal').classList.add('open');
+    }
+
+    function closeAdmEdit() { document.getElementById('admEditModal').classList.remove('open'); _editBooking=null; }
+
+    function showEditTab(tab) {
+      ['datos','hora','cancel'].forEach(t => {
+        document.getElementById('editTab'+t.charAt(0).toUpperCase()+t.slice(1)).style.display = t===tab?'':'none';
+        document.getElementById('etab'+t.charAt(0).toUpperCase()+t.slice(1)).className =
+          'adm-btn '+(t===tab ? (t==='cancel'?'adm-btn-danger':t==='hora'?'adm-btn-amber':'adm-btn-primary') : 'adm-btn-ghost');
+      });
+    }
+
+    async function submitEditDatos() {
+      const btn = document.getElementById('edDatosBtn');
+      btn.disabled=true; btn.textContent='Guardando…';
+      const url = localStorage.getItem(SCRIPT_KEY)||HARDCODED_URL;
+      try {
+        const res = await fetch(url, { method:'POST', body: JSON.stringify({
+          action:'actualizarDatos',
+          bookingId: _editBooking.bookingId,
+          paciente:      document.getElementById('ed-paciente').value.trim(),
+          procedimiento: document.getElementById('ed-procedimiento').value.trim(),
+          anestesiologo: document.getElementById('ed-anestesiologo').value.trim(),
+          enfermeria:    document.getElementById('ed-enfermeria').value.trim(),
+          doctorEmail:   _editBooking.email||'',
+          doctorNombre:  _editBooking.doctor||'',
+        })});
+        const json = await res.json();
+        if (json.ok) { closeAdmEdit(); await loadData(); alert('Datos actualizados correctamente.'); }
+        else alert('Error: '+(json.error||''));
+      } catch(e) { alert('Error de conexión'); }
+      btn.disabled=false; btn.textContent='Guardar Cambios';
+    }
+
+    async function submitEditHora() {
+      const btn = document.getElementById('edHoraBtn');
+      btn.disabled=true; btn.textContent='Reagendando…';
+      const fecha = document.getElementById('ed-fecha').value;
+      const hora  = document.getElementById('ed-hora').value;
+      const dur   = parseInt(document.getElementById('ed-duracion').value);
+      const [hh,mm] = hora.split(':').map(Number);
+      const d = new Date(fecha+'T00:00:00');
+      const startUTC = new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate(),hh+6,mm));
+      const url = localStorage.getItem(SCRIPT_KEY)||HARDCODED_URL;
+      try {
+        const res = await fetch(url, { method:'POST', body: JSON.stringify({
+          action:'reagendarReserva',
+          bookingId:      _editBooking.bookingId,
+          quirofano:      _editBooking.quirofano,
+          newStart:       startUTC.toISOString(),
+          lengthInMinutes: dur*60,
+          doctorEmail:    _editBooking.email||'',
+          doctorNombre:   _editBooking.doctor||'',
+          procedimiento:  _editBooking.procedimiento||'',
+          fechaAnterior:  _editBooking.fecha,
+          horaAnterior:   _editBooking.horaInicio,
+        })});
+        const json = await res.json();
+        if (json.ok) { closeAdmEdit(); await loadData(); alert('Reserva reagendada correctamente.'); }
+        else alert('Error: '+(json.error||''));
+      } catch(e) { alert('Error de conexión'); }
+      btn.disabled=false; btn.textContent='Reagendar';
+    }
+
+    async function submitCancelReserva() {
+      const btn = document.getElementById('edCancelBtn');
+      btn.disabled=true; btn.textContent='Cancelando…';
+      const url = localStorage.getItem(SCRIPT_KEY)||HARDCODED_URL;
+      try {
+        const res = await fetch(url, { method:'POST', body: JSON.stringify({
+          action:'cancelarReserva',
+          bookingId:    _editBooking.bookingId,
+          quirofano:    _editBooking.quirofano,
+          motivo:       document.getElementById('ed-motivo').value.trim(),
+          doctorEmail:  _editBooking.email||'',
+          doctorNombre: _editBooking.doctor||'',
+          procedimiento:_editBooking.procedimiento||'',
+          fecha:        _editBooking.fecha,
+          horaInicio:   _editBooking.horaInicio,
+        })});
+        const json = await res.json();
+        if (json.ok) { closeAdmEdit(); await loadData(); alert('Reserva cancelada.'); }
+        else alert('Error: '+(json.error||''));
+      } catch(e) { alert('Error de conexión'); }
+      btn.disabled=false; btn.textContent='Confirmar Cancelación';
+    }
+
+    function formatDateDisplay(ds) {
+      const d = new Date(ds+'T12:00:00');
+      return d.toLocaleDateString('es-MX',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+    }
+
+    function init() {
+      buildDateTabs();
+      updateHdrDate();
+      updateStatusDot(true);
+      loadData();
+    }
+
+    function updateHdrDate() {
+      const d = new Date();
+      document.getElementById('hdrDate').textContent = d.toLocaleDateString('es-MX', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+    }
+
+    function buildDateTabs() {
+      const container = document.getElementById('dateTabs');
+      container.innerHTML = '';
+      const today = new Date();
+      for (let i = 0; i < 8; i++) {
+        const d = new Date(today);
+        d.setDate(today.getDate() + i);
+        const ds = formatDate(d);
+        const label = i === 0 ? 'Hoy' : formatShortDate(d);
+        const btn = document.createElement('button');
+        btn.className = 'date-tab' + (i === 0 ? ' today-tab' : '') + (ds === currentDate ? ' active' : '');
+        btn.textContent = label;
+        btn.onclick = () => selectDate(ds);
+        container.appendChild(btn);
+      }
+    }
+
+    function selectDate(ds) {
+      currentDate = ds;
+      document.querySelectorAll('.date-tab').forEach((b, i) => {
+        const d = new Date(); d.setDate(d.getDate() + i);
+        b.classList.toggle('active', formatDate(d) === ds);
+      });
+      render();
+    }
+
+    function setView(v) {
+      currentView = v;
+      document.getElementById('btnCol').classList.toggle('active', v === 'col');
+      document.getElementById('btnTl').classList.toggle('active',  v === 'tl');
+      document.getElementById('btnRes').classList.toggle('active', v === 'res');
+      render();
+    }
+
+    async function loadData() {
+      const url = localStorage.getItem(SCRIPT_KEY) || HARDCODED_URL;
+      showLoader(true);
+      const today = todayStr();
+      const end   = addDays(today, 7);
+      try {
+        const res  = await fetch(`${url}?start=${today}&end=${end}`);
+        const json = await res.json();
+        if (json.error) throw new Error(json.error);
+        allReservas = json.reservas || [];
+        lastUpdate  = new Date();
+        updateStatusDot(true);
+        render();
+      } catch(e) {
+        updateStatusDot(false);
+        showLoader(false);
+        document.getElementById('contentArea').innerHTML = `
+          <div class="no-url">
+            <h3>Error de conexión</h3>
+            <p>${e.message}</p>
+            <button class="btn btn-primary" style="margin-top:0" onclick="loadData()">Reintentar</button>
+          </div>`;
+        return;
+      }
+      showLoader(false);
+    }
+
+    function render() {
+      const area = document.getElementById('contentArea');
+      const dayR = allReservas.filter(r => r.fecha === currentDate).sort((a,b) => (a.horaInicio||'').localeCompare(b.horaInicio||''));
+
+      let html = `<div class="refresh-bar">
+        <span>${lastUpdate ? lastUpdate.toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'}) : ''}</span>
+        <button class="refresh-btn" onclick="loadData()">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+          Actualizar
+        </button>
+      </div>`;
+
+      if (currentView === 'res') { renderRes(); return; }
+      html += currentView === 'col' ? renderCol(dayR) : renderTl(dayR);
+      area.innerHTML = html;
+    }
+
+    function renderCol(reservas) {
+      const byQ = {};
+      QUIROFANOS.forEach(q => byQ[q] = []);
+      reservas.forEach(r => {
+        const key = QUIROFANOS.find(q => q.toLowerCase() === (r.quirofano||'').toLowerCase()) || QUIROFANOS[0];
+        byQ[key].push(r);
+      });
+      return `<div class="col-view">
+        ${QUIROFANOS.map((q,i) => `
+          <div class="q-col">
+            <div class="q-col-header">
+              <div class="q-col-title">
+                <div class="q-num">${i+1}</div>
+                <h3>${q.replace('Quirofano','Quirófano')}</h3>
+              </div>
+              <span class="q-count">${byQ[q].length} cir.</span>
+            </div>
+            <div class="q-col-body">
+              ${byQ[q].length === 0
+                ? '<div class="q-empty">Sin cirugías programadas</div>'
+                : byQ[q].map(r => cardHTML(r, false)).join('')}
+            </div>
+          </div>`).join('')}
+      </div>`;
+    }
+
+    function renderTl(reservas) {
+      const cells = {};
+      HOURS.forEach(h => { cells[h] = {}; QUIROFANOS.forEach(q => cells[h][q] = []); });
+
+      reservas.forEach(r => {
+        const startH = (r.horaInicio||'07:00').substring(0,5);
+        const dur    = Number(r.duracion) || 1;
+        const qk     = QUIROFANOS.find(q => q.toLowerCase() === (r.quirofano||'').toLowerCase()) || QUIROFANOS[0];
+        const startIdx = HOURS.findIndex(h => h === startH);
+        const idx = startIdx !== -1 ? startIdx : HOURS.findIndex(x => x <= startH && (HOURS[HOURS.indexOf(x)+1]||'99:00') > startH);
+        if (idx === -1) return;
+        // Only place card at start slot with full height
+        cells[HOURS[idx]][qk].push({ ...r, _spanTotal: dur });
+      });
+
+      return `<div class="timeline-wrap">
+        <div class="tl-header">
+          <div class="tl-hcell time-col">Hora</div>
+          ${QUIROFANOS.map((q,i) => `<div class="tl-hcell"><span style="opacity:0.5;font-size:0.65rem;margin-right:4px">${i+1}</span>${q.replace('Quirofano','Quirófano')}</div>`).join('')}
+        </div>
+        ${HOURS.map((h,i) => `
+          <div class="tl-row ${i%2===0?'alt':''}">
+            <div class="tl-hour">${h}</div>
+            ${QUIROFANOS.map(q => `
+              <div class="tl-cell">
+                ${cells[h][q].map(r => cardTlHTML(r)).join('')}
+              </div>`).join('')}
+          </div>`).join('')}
+      </div>`;
+    }
+
+    function cardHTML(r, compact) {
+      const lmp  = r.limpieza || 'Pendiente';
+      const svcs = (r.servicios||[]).map(s => `<span class="svc-badge">${s}</span>`).join('');
+      const proc = r.procedimiento ? `<div class="card-proc">${escHtml(r.procedimiento)}</div>` : `<div class="card-proc-empty">Sin procedimiento</div>`;
+      const pac  = r.paciente
+        ? `<div class="card-paciente"><div class="card-paciente-icon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><span class="card-paciente-name">${escHtml(r.paciente)}</span></div>`
+        : `<div class="card-paciente"><div class="card-paciente-icon" style="background:var(--g400)"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><span class="card-paciente-name empty">Paciente no registrado</span></div>`;
+
+      return `<div class="surgery-card">
+        <div class="card-strip">
+          <span class="card-hora">${r.horaInicio||'--:--'}</span>
+          <span class="card-duracion">${r.duracion ? r.duracion+'h' : ''}</span>
+          <span class="card-estatus ${r.estatus||''}">${r.estatus||''}</span>
+        </div>
+        <div class="card-body">
+          ${proc}
+          ${pac}
+          <div class="card-grid">
+            <div class="card-field">
+              <span class="card-field-label">Cirujano</span>
+              <span class="card-field-value ${r.doctor?'':'empty'}">${escHtml(r.doctor||'—')}</span>
+            </div>
+            <div class="card-field">
+              <span class="card-field-label">Anestesiólogo</span>
+              <span class="card-field-value ${r.anestesiologo?'':'empty'}">${escHtml(r.anestesiologo||'—')}</span>
+            </div>
+            <div class="card-field">
+              <span class="card-field-label">Enfermería</span>
+              <span class="card-field-value ${r.enfermeria?'':'empty'}">${escHtml(r.enfermeria||'—')}</span>
+            </div>
+            <div class="card-field">
+              <span class="card-field-label">Quirófano</span>
+              <span class="card-field-value">${escHtml((r.quirofano||'').replace('Quirofano','Q.'))}</span>
+            </div>
+          </div>
+          ${svcs ? `<div class="card-field" style="grid-column:1/-1;margin-bottom:0.3rem"><span class="card-field-label">Servicios adicionales requeridos</span></div><div class="card-services">${svcs}</div>` : ''}
+          <div class="card-footer">
+            <button class="lmp-btn ${lmp}" onclick="cycleLimpieza('${escHtml(r.bookingId)}','${LMP_CYCLE[lmp]||'Pendiente'}')">${LMP_LABEL[lmp]||lmp}</button>
+          </div>
+        </div>
+      </div>`;
+    }
+
+    function cardTlHTML(r) {
+      const ROW_H = 52; // must match .tl-row height in px
+      const dur   = Number(r._spanTotal) || 1;
+      const h     = (dur * ROW_H) - 6; // subtract border/padding
+      return `<div class="tl-card" style="height:${h}px;">
+        <span class="card-hora">${r.horaInicio||'--:--'} · ${dur}h</span>
+        <div class="card-proc">${escHtml(r.procedimiento||'Sin procedimiento')}</div>
+        <div class="card-mini-row">
+          ${r.paciente ? `<span class="card-mini-item"><span class="card-mini-label">Pac: </span>${escHtml(r.paciente)}</span>` : ''}
+          ${r.doctor   ? `<span class="card-mini-item"><span class="card-mini-label">Cir: </span>${escHtml(r.doctor)}</span>` : ''}
+        </div>
+      </div>`;
+    }
+
+    async function cycleLimpieza(bookingId, nextState) {
+      const url = localStorage.getItem(SCRIPT_KEY) || HARDCODED_URL;
+      const r = allReservas.find(x => x.bookingId === bookingId);
+      if (r) r.limpieza = nextState;
+      render();
+      try {
+        await fetch(url, { method:'POST', body:JSON.stringify({ action:'updateLimpieza', bookingId, estado:nextState }) });
+      } catch(e) { console.warn('Error limpieza:', e); }
+    }
+
+    function openSetup() {
+      document.getElementById('scriptUrlInput').value = localStorage.getItem(SCRIPT_KEY) || '';
+      document.getElementById('modalOverlay').classList.add('open');
+      document.getElementById('scriptUrlInput').focus();
+    }
+    function closeSetup() { document.getElementById('modalOverlay').classList.remove('open'); }
+    function saveSetup() {
+      const val = document.getElementById('scriptUrlInput').value.trim();
+      if (!val) return;
+      localStorage.setItem(SCRIPT_KEY, val);
+      closeSetup();
+      updateStatusDot(true);
+      loadData();
+    }
+
+    function showLoader(show) { document.getElementById('loader').style.display = show ? 'flex' : 'none'; }
+    function updateStatusDot(ok) {
+      document.getElementById('statusDot').classList.toggle('off', !ok);
+      document.getElementById('statusTxt').textContent = ok ? 'Conectado' : 'Sin conexión';
+    }
+
+    function todayStr() {
+      const d = new Date();
+      return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    }
+    function addDays(ds, n) {
+      const d = new Date(ds+'T12:00:00'); d.setDate(d.getDate()+n); return formatDate(d);
+    }
+    function formatDate(d) {
+      return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    }
+    function formatShortDate(d) {
+      return d.toLocaleDateString('es-MX',{weekday:'short',day:'numeric',month:'short'});
+    }
+    function escHtml(s) {
+      return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    document.getElementById('modalOverlay').addEventListener('click', function(e) { if(e.target===this) closeSetup(); });
+    init();
+  </script>
+
+
+<!-- MODAL: NUEVA RESERVA (admin) -->
+<div class="adm-modal-overlay" id="admNewModal">
+  <div class="adm-modal">
+    <h2>Nueva Reserva</h2>
+    <div class="sub" id="admNewSub">Complete los datos</div>
+    <div class="adm-summary" id="admNewSummary"></div>
+    <div id="admNewForm">
+      <div class="adm-form-grid">
+        <div class="adm-field"><label>Nombre del Doctor *</label><input type="text" id="an-nombre" placeholder="Dr. Nombre Apellido"/></div>
+        <div class="adm-field"><label>Correo electrónico *</label><input type="email" id="an-email" placeholder="doctor@correo.com"/></div>
+      </div>
+      <div class="adm-form-grid">
+        <div class="adm-field"><label>Paciente</label><input type="text" id="an-paciente" placeholder="Nombre del paciente"/></div>
+        <div class="adm-field"><label>Procedimiento *</label><input type="text" id="an-procedimiento" placeholder="Ej: Artroscopía"/></div>
+      </div>
+      <div class="adm-form-grid">
+        <div class="adm-field"><label>Anestesiólogo</label><input type="text" id="an-anestesiologo" placeholder="Nombre"/></div>
+        <div class="adm-field"><label>Enfermería</label><input type="text" id="an-enfermeria" placeholder="Nombre"/></div>
+      </div>
+      <div style="font-size:0.72rem;font-weight:600;color:var(--g600);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:0.5rem;">Servicios Adicionales</div>
+      <div class="adm-svc-grid">
+        <label class="adm-svc-item" onclick="admToggleSvc(this)"><input type="checkbox" name="an-rayosx"> Rayos X</label>
+        <label class="adm-svc-item" onclick="admToggleSvc(this)"><input type="checkbox" name="an-usg"> USG</label>
+        <label class="adm-svc-item" onclick="admToggleSvc(this)"><input type="checkbox" name="an-microscopio"> Microscopio</label>
+        <label class="adm-svc-item" onclick="admToggleSvc(this)"><input type="checkbox" name="an-laparoscopia"> Laparoscopia</label>
+        <label class="adm-svc-item" onclick="admToggleSvc(this)"><input type="checkbox" name="an-solirrigacion"> Sol. Irrigación</label>
+        <label class="adm-svc-item" onclick="admToggleSvc(this)"><input type="checkbox" name="an-primerayudante"> Primer Ayudante</label>
+        <label class="adm-svc-item" onclick="admToggleSvc(this)"><input type="checkbox" name="an-instrumentista"> Instrumentista</label>
+        <label class="adm-svc-item" onclick="admToggleSvc(this)"><input type="checkbox" name="an-anestesiologoext"> Anestesiólogo Ext.</label>
+      </div>
+      <div class="adm-actions">
+        <button class="adm-btn adm-btn-ghost" onclick="closeAdmNew()">Cancelar</button>
+        <button class="adm-btn adm-btn-primary" id="admNewConfirm" onclick="submitAdmNew()">Confirmar Reserva</button>
+      </div>
+    </div>
+    <div id="admNewSuccess" style="display:none;text-align:center;padding:1.5rem 0">
+      <div style="font-size:2rem;margin-bottom:0.5rem">✅</div>
+      <div style="font-weight:600;color:var(--navy)">Reserva creada correctamente</div>
+      <button class="adm-btn adm-btn-primary" style="margin-top:1rem;width:100%" onclick="closeAdmNew();resSelection=null;updateResSelBar();renderRes()">Ver Agenda</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: EDITAR RESERVA EXISTENTE -->
+<div class="adm-modal-overlay" id="admEditModal">
+  <div class="adm-modal">
+    <h2 id="admEditTitle">Editar Reserva</h2>
+    <div class="sub" id="admEditSub"></div>
+    <div class="adm-summary" id="admEditSummary"></div>
+
+    <!-- Tab buttons -->
+    <div style="display:flex;gap:4px;margin-bottom:1rem;">
+      <button class="adm-btn adm-btn-primary" style="flex:1;font-size:0.75rem" id="etabDatos" onclick="showEditTab('datos')">Editar Datos</button>
+      <button class="adm-btn adm-btn-ghost" style="flex:1;font-size:0.75rem" id="etabHora" onclick="showEditTab('hora')">Cambiar Fecha/Hora</button>
+      <button class="adm-btn adm-btn-danger" style="flex:1;font-size:0.75rem" id="etabCancel" onclick="showEditTab('cancel')">Cancelar</button>
+    </div>
+
+    <!-- Tab: Datos -->
+    <div id="editTabDatos">
+      <div class="adm-form-grid">
+        <div class="adm-field"><label>Paciente</label><input type="text" id="ed-paciente"/></div>
+        <div class="adm-field"><label>Procedimiento</label><input type="text" id="ed-procedimiento"/></div>
+      </div>
+      <div class="adm-form-grid">
+        <div class="adm-field"><label>Anestesiólogo</label><input type="text" id="ed-anestesiologo"/></div>
+        <div class="adm-field"><label>Enfermería</label><input type="text" id="ed-enfermeria"/></div>
+      </div>
+      <div class="adm-actions">
+        <button class="adm-btn adm-btn-ghost" onclick="closeAdmEdit()">Cancelar</button>
+        <button class="adm-btn adm-btn-primary" id="edDatosBtn" onclick="submitEditDatos()">Guardar Cambios</button>
+      </div>
+    </div>
+
+    <!-- Tab: Fecha/Hora -->
+    <div id="editTabHora" style="display:none">
+      <div class="adm-date-row">
+        <div class="adm-field"><label>Nueva Fecha</label><input type="date" id="ed-fecha"/></div>
+        <div class="adm-field"><label>Nueva Hora inicio</label>
+          <select id="ed-hora">
+            <option value="06:00">06:00</option><option value="07:00">07:00</option>
+            <option value="08:00">08:00</option><option value="09:00">09:00</option>
+            <option value="10:00">10:00</option><option value="11:00">11:00</option>
+            <option value="12:00">12:00</option><option value="13:00">13:00</option>
+            <option value="14:00">14:00</option><option value="15:00">15:00</option>
+            <option value="16:00">16:00</option><option value="17:00">17:00</option>
+            <option value="18:00">18:00</option><option value="19:00">19:00</option>
+            <option value="20:00">20:00</option>
+          </select>
+        </div>
+      </div>
+      <div class="adm-field" style="margin-bottom:0.75rem"><label>Duración</label>
+        <select id="ed-duracion">
+          <option value="1">1 hora</option><option value="2">2 horas</option>
+          <option value="3">3 horas</option><option value="4">4 horas</option>
+          <option value="5">5 horas</option><option value="6">6 horas</option>
+          <option value="7">7 horas</option><option value="8">8 horas</option>
+        </select>
+      </div>
+      <div style="font-size:0.78rem;color:var(--amber);background:var(--amber-bg);border-radius:6px;padding:0.5rem 0.75rem;margin-bottom:1rem;">
+        ⚠ Esta acción cancela la reserva actual en Cal.com y crea una nueva. Se notificará al doctor por correo.
+      </div>
+      <div class="adm-actions">
+        <button class="adm-btn adm-btn-ghost" onclick="closeAdmEdit()">Cancelar</button>
+        <button class="adm-btn adm-btn-amber" id="edHoraBtn" onclick="submitEditHora()">Reagendar</button>
+      </div>
+    </div>
+
+    <!-- Tab: Cancelar -->
+    <div id="editTabCancel" style="display:none">
+      <div style="font-size:0.9rem;color:var(--g600);margin-bottom:1rem;line-height:1.6;">
+        ¿Confirmas que deseas <strong>cancelar</strong> esta reserva?<br/>
+        Se cancelará en Cal.com y se notificará al doctor por correo.
+      </div>
+      <div class="adm-form-grid single" style="grid-template-columns:1fr;margin-bottom:1rem;">
+        <div class="adm-field"><label>Motivo (opcional)</label><input type="text" id="ed-motivo" placeholder="Ej: Solicitud del doctor"/></div>
+      </div>
+      <div class="adm-actions">
+        <button class="adm-btn adm-btn-ghost" onclick="closeAdmEdit()">No cancelar</button>
+        <button class="adm-btn adm-btn-danger" id="edCancelBtn" onclick="submitCancelReserva()">Confirmar Cancelación</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
