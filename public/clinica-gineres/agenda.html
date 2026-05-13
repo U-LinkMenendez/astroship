@@ -76,11 +76,12 @@
     .loader p { font-size:0.82rem; color:var(--g400); }
 
     /* ── GRID ───────────────────────────────────────────────── */
-    .grid-wrap { background:#fff; border-radius:10px; border:1px solid var(--g200); overflow:hidden; display:flex; flex-direction:column; max-height:calc(100vh - 220px); box-shadow:0 1px 3px rgba(0,0,0,0.08); }
-    
+    .grid-wrap { background:#fff; border-radius:10px; border:1px solid var(--g200); overflow:hidden; display:flex; flex-direction:column; height:calc(100vh - 185px); box-shadow:0 1px 3px rgba(0,0,0,0.08); }
+
     /* Sticky grid header */
     .grid-header { display:grid; grid-template-columns:52px repeat(3,1fr); background:var(--navy); flex-shrink:0; position:sticky; top:0; z-index:10; }
-    .grid-body { overflow-y:auto; flex:1; }
+    .grid-body { overflow-y:auto; overflow-x:hidden; flex:1; min-width:0; }
+    /*.grid-body { overflow-y:auto; flex:1; }*/
     .grid-hcell { padding:0.6rem 0.75rem; font-size:0.9rem; font-weight:700; color:#fff; text-align:center; border-right:1px solid rgba(255,255,255,0.08); }
     .grid-hcell:last-child { border-right:none; }
     .grid-hcell.time-col { font-size:0.9rem; font-weight:700; color:#fff; font-family:'DM Sans',sans-serif; }
