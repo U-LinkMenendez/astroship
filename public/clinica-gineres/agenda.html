@@ -539,18 +539,52 @@ function updateSlotVisuals() {
       if (!cell) return;
       const occ = _occupiedMap[h] && _occupiedMap[h][q];
       if (occ) return;
+      
+      const now = new Date();
+const isToday = currentDate === todayStr();
+
+const slotHourDecimal =
+  parseInt(h.split(':')[0]) +
+  (parseInt(h.split(':')[1]) / 60);
+
+const nowHourDecimal =
+  now.getHours() +
+  (now.getMinutes() / 60);
+
+const isPastSlot =
+  isToday && slotHourDecimal <= nowHourDecimal;
+      
       const isSelected = selection && selection.quirofano === q && selection.slots.includes(h);
       const canSelect  = !selection || (selection.quirofano === q && isAdjacentToSelection(h));
       let s = '';
       if (isSelected) {
         s = '<div class="slot slot-selected" onclick="toggleSlot(\'' + q + '\',\'' + h + '\',event)">' +
           '<div class="slot-time">' + h + '</div><div class="slot-label">&#10003; Seleccionado</div></div>';
-      } else if (canSelect) {
+      } else if (canSelect && !isPastSlot) {
         s = '<div class="slot slot-available" onclick="toggleSlot(\'' + q + '\',\'' + h + '\',event)">' +
           '<div class="slot-time">' + h + '</div><div class="slot-label">Disponible</div></div>';
+
       } else {
-        s = '<div class="slot slot-empty"></div>';
-      }
+
+  if (isPastSlot) {
+
+    s = `
+      <div
+        class="slot slot-empty"
+        style="
+          background:#E5E7EB;
+          opacity:0.45;
+          cursor:not-allowed;
+        ">
+      </div>`;
+
+  } else {
+
+    s = '<div class="slot slot-empty"></div>';
+
+  }
+}
+        
       cell.innerHTML = s;
     });
   });
