@@ -354,6 +354,7 @@ function renderGrid() {
     const dur    = Number(r.duracion) || 1;
     const qk     = r.quirofano || 'Quirofano 1';
     const startIdx = HOURS.indexOf(startH);
+
     if (startIdx === -1) return;
 
     occupied[HOURS[startIdx]][qk] = {
@@ -367,29 +368,40 @@ function renderGrid() {
     for (let d = 1; d < dur; d++) {
       const idx = startIdx + d;
       if (idx >= HOURS.length) break;
-      occupied[HOURS[idx]][qk] = { isStart: false, isCont: true };
+
+      occupied[HOURS[idx]][qk] = {
+        isStart: false,
+        isCont: true
+      };
     }
   });
-  _occupiedMap = occupied; // Store globally for updateSlotVisuals
 
-  let html = `<div class="grid-wrap">
-    <div class="grid-header">
-      <div class="grid-hcell time-col">Hora</div>
-      ${QUIROFANOS.map((q,i) => `<div class="grid-hcell"><span class="q-num">${i+1} </span>${q.replace('Quirofano','Quirófano')}</div>`).join('')}
-    </div>`;
+  _occupiedMap = occupied;
 
-      const now = new Date();
-      const isToday = currentDate === todayStr();
-      const nowHourDecimal = now.getHours() + (now.getMinutes() / 60);
-  
+  let html = `
+    <div class="grid-wrap">
+      <div class="grid-header">
+        <div class="grid-hcell time-col">Hora</div>
+        ${QUIROFANOS.map((q,i) => `
+          <div class="grid-hcell">
+            <span class="q-num">${i+1}</span>
+            ${q.replace('Quirofano','Quirófano')}
+          </div>
+        `).join('')}
+      </div>`;
+
   HOURS.forEach((h, hi) => {
-    html += `<div class="grid-row ${hi%2===0?'alt':''}">
-      <div class="grid-time">${h}</div>`;
+
+    html += `
+      <div class="grid-row ${hi%2===0?'alt':''}">
+        <div class="grid-time">${h}</div>`;
 
     QUIROFANOS.forEach((q, qi) => {
+
       const occ = occupied[h][q];
       let slotHtml = '';
 
+      // ===== VALIDACIÓN DE HORARIOS PASADOS =====
       const now = new Date();
       const isToday = currentDate === todayStr();
 
@@ -403,61 +415,80 @@ function renderGrid() {
 
       const isPastSlot =
         isToday && slotHourDecimal <= nowHourDecimal;
-      
-        const slotHourDecimal =
-          parseInt(h.split(':')[0]) +
-          (parseInt(h.split(':')[1]) / 60);
 
-  const isPastSlot =
-    isToday && slotHourDecimal <= nowHourDecimal;
-      
+      // ==========================================
+
       if (occ && occ.isStart) {
-        slotHtml = `<div class="slot slot-occupied" style="height:${occ.height}px;">
-          <div class="slot-time-occ">${occ.hora} · ${occ.duracion}h</div>
-          <div class="slot-proc">${escHtml(occ.proc)}</div>
-        </div>`;
+
+        slotHtml = `
+          <div class="slot slot-occupied" style="height:${occ.height}px;">
+            <div class="slot-time-occ">${occ.hora} · ${occ.duracion}h</div>
+            <div class="slot-proc">${escHtml(occ.proc)}</div>
+          </div>`;
+
       } else if (occ && occ.isCont) {
+
         slotHtml = `<div class="slot-continuation"></div>`;
+
       } else if (isPastSlot) {
 
-  slotHtml = `
-    <div class="slot slot-empty"
-      style="
-        background:#E5E7EB;
-        opacity:0.45;
-        cursor:not-allowed;
-      ">
-    </div>
-  `;
-
-} else {
-
-  const isSelected = selection && selection.quirofano === q && selection.slots.includes(h);
-        if (isSelected) {
-          slotHtml = `<div class="slot slot-selected" onclick="toggleSlot('${q}','${h}',event)">
-            <div class="slot-time">${h}</div>
-            <div class="slot-label">✓ Seleccionado</div>
+        slotHtml = `
+          <div
+            class="slot slot-empty"
+            style="
+              background:#E5E7EB;
+              opacity:0.45;
+              cursor:not-allowed;
+            ">
           </div>`;
-        } else {
-          const canSelect = !selection || (selection.quirofano === q && isAdjacentToSelection(h));
-          if (canSelect) {
-            slotHtml = `<div class="slot slot-available" onclick="toggleSlot('${q}','${h}',event)">
+
+      } else {
+
+        const isSelected =
+          selection &&
+          selection.quirofano === q &&
+          selection.slots.includes(h);
+
+        if (isSelected) {
+
+          slotHtml = `
+            <div class="slot slot-selected" onclick="toggleSlot('${q}','${h}',event)">
               <div class="slot-time">${h}</div>
-              <div class="slot-label">Disponible</div>
+              <div class="slot-label">✓ Seleccionado</div>
             </div>`;
+
+        } else {
+
+          const canSelect =
+            !selection ||
+            (selection.quirofano === q && isAdjacentToSelection(h));
+
+          if (canSelect) {
+
+            slotHtml = `
+              <div class="slot slot-available" onclick="toggleSlot('${q}','${h}',event)">
+                <div class="slot-time">${h}</div>
+                <div class="slot-label">Disponible</div>
+              </div>`;
+
           } else {
+
             slotHtml = `<div class="slot slot-empty"></div>`;
           }
         }
       }
 
-      html += `<div class="grid-cell" id="gc-${qi}-${hi}">${slotHtml}</div>`;
+      html += `
+        <div class="grid-cell" id="gc-${qi}-${hi}">
+          ${slotHtml}
+        </div>`;
     });
 
     html += `</div>`;
   });
 
   html += `</div>`;
+
   document.getElementById('gridArea').innerHTML = html;
 }
 
