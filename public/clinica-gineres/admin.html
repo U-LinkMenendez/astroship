@@ -614,6 +614,33 @@
       document.getElementById('ed-duracion').value = String(booking.duracion||1);
       document.getElementById('ed-motivo').value   = '';
       showEditTab('datos');
+
+      const isCancelled = (booking.estatus || '').trim() === 'Cancelado';
+
+      document.getElementById('edDatosBtn').disabled = isCancelled;
+      document.getElementById('edHoraBtn').disabled = isCancelled;
+      document.getElementById('edCancelBtn').disabled = isCancelled;
+
+      [
+        'ed-paciente',
+        'ed-procedimiento',
+        'ed-anestesiologo',
+        'ed-enfermeria',
+        'ed-fecha',
+        'ed-hora',
+        'ed-duracion',
+        'ed-motivo'
+      ].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.disabled = isCancelled;
+      });
+
+      if (isCancelled) {
+
+        document.getElementById('admEditSub').textContent += ' · RESERVA CANCELADA';
+
+      }
+      
       document.getElementById('admEditModal').classList.add('open');
     }
 
