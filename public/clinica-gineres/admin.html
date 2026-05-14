@@ -446,10 +446,55 @@
             const startH2 = parseInt(o.hora.split(':')[0]) + parseInt(o.hora.split(':')[1])/60;
           const endH2   = startH2 + o.duracion;
           const inProgress = isToday && startH2 <= nowH && nowH < endH2;
-          cell = `<div class="rslot-occ" style="height:${o.height}px;${inProgress?'cursor:not-allowed;opacity:0.7':''}" ${inProgress ? 'title="Cirugía en curso"' : `onclick="openAdmEdit(${JSON.stringify(o.booking).replace(/"/g,'&quot;')})"`}>
-              <div class="rs-time">${o.hora} · ${o.duracion}h${inProgress?' 🔄':''}</div>
-              <div class="rs-proc">${escHtml(o.proc)}</div>
-            </div>`;
+
+            cell = `<div class="rslot-occ" 
+style="height:${o.height}px;${inProgress?'cursor:not-allowed;opacity:0.7':''}" 
+${inProgress ? 'title="Cirugía en curso"' : `onclick="openAdmEdit(${JSON.stringify(o.booking).replace(/"/g,'&quot;')})"`}>
+
+  <div class="rs-time">
+    ${o.hora} · ${o.duracion}h${inProgress?' 🔄':''}
+  </div>
+
+  <div class="rs-proc">
+    ${escHtml(o.proc)}
+  </div>
+
+  <div style="
+    font-size:0.68rem;
+    color:#334155;
+    margin-top:2px;
+    font-weight:600;
+    line-height:1.2;
+  ">
+    👨‍⚕️ ${escHtml(o.booking.doctor || 'Sin doctor')}
+  </div>
+
+  <div style="
+    font-size:0.66rem;
+    color:#64748B;
+    line-height:1.2;
+  ">
+    🧑 ${escHtml(o.booking.paciente || 'Sin paciente')}
+  </div>
+
+  <div style="
+    margin-top:auto;
+    padding-top:6px;
+    font-size:0.63rem;
+    font-weight:700;
+    color:${
+      (o.booking.limpieza || 'Pendiente') === 'Listo'
+        ? '#059669'
+        : (o.booking.limpieza || 'Pendiente') === 'EnProceso'
+        ? '#2563EB'
+        : '#D97706'
+    };
+  ">
+    🧹 ${(o.booking.limpieza || 'Pendiente')}
+  </div>
+
+</div>`;
+            
           } else if (o && o.isCont) {
             cell = `<div class="rslot-cont" onclick="openAdmEdit(${JSON.stringify(o.booking).replace(/"/g,'&quot;')})"></div>`;
           } else if (isPast) {
