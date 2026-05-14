@@ -1028,6 +1028,7 @@ ${[
         const json = await res.json();
         if (json.error) throw new Error(json.error);
         allReservas = json.reservas || [];
+        console.log(json.reservas);
         lastUpdate  = new Date();
         updateStatusDot(true);
         render();
