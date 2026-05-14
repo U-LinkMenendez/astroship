@@ -478,6 +478,66 @@ ${inProgress ? 'title="Cirugía en curso"' : `onclick="openAdmEdit(${JSON.string
   </div>
 
   <div style="
+  font-size:0.64rem;
+  color:#475569;
+  line-height:1.35;
+  margin-top:3px;
+">
+  💉 ${escHtml(o.booking.anestesiologo || 'Sin anestesiólogo')}
+</div>
+
+<div style="
+  font-size:0.64rem;
+  color:#475569;
+  line-height:1.35;
+">
+  🩺 ${escHtml(o.booking.enfermeria || 'Sin primer ayudante')}
+</div>
+
+${[
+  o.booking.microscopio ? '🔬 Microscopio' : '',
+  o.booking.rayosx ? '📡 RX' : '',
+  o.booking.neuro ? '🧠 Neuro' : '',
+  o.booking.ultrasonido ? '🧪 USG' : '',
+  o.booking.arcoenC ? '🩻 Arco C' : '',
+  o.booking.laparoscopia ? '⚕️ Laparoscopía' : ''
+].filter(Boolean).length ? `
+
+<div style="
+  margin-top:6px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:4px;
+">
+
+${[
+  o.booking.microscopio ? '🔬 Microscopio' : '',
+  o.booking.rayosx ? '📡 RX' : '',
+  o.booking.neuro ? '🧠 Neuro' : '',
+  o.booking.ultrasonido ? '🧪 USG' : '',
+  o.booking.arcoenC ? '🩻 Arco C' : '',
+  o.booking.laparoscopia ? '⚕️ Laparoscopía' : ''
+]
+.filter(Boolean)
+.map(s => `
+  <span style="
+    font-size:0.56rem;
+    background:#DBEAFE;
+    color:#1D4ED8;
+    padding:2px 6px;
+    border-radius:999px;
+    font-weight:600;
+    white-space:nowrap;
+  ">
+    ${s}
+  </span>
+`).join('')}
+
+</div>
+
+` : ''}
+
+  <div style="
     margin-top:auto;
     padding-top:6px;
     font-size:0.63rem;
