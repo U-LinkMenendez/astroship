@@ -150,6 +150,12 @@
     .lmp-btn.Pendiente { background:var(--amber-bg); color:var(--amber); border-color:#F59E0B; }
     .lmp-btn.EnProceso { background:var(--pale); color:var(--blue); border-color:var(--blue); }
     .lmp-btn.Listo     { background:var(--green-bg); color:var(--green); border-color:#10B981; }
+
+    .lmp-btn.EnProceso { background:#DBEAFE; color:#1D4ED8; border-color:#60A5FA; }
+    .lmp-btn.Pendiente { background:#FEF3C7; color:#92400E; border-color:#FBBF24; }
+    
+    .lmp-btn.Listo { background:#D1FAE5; color:#065F46; border-color:#34D399; }
+    
     .lmp-btn:disabled  { opacity:0.5; cursor:not-allowed; }
 
     /* ══ TIMELINE VIEW ══ */
@@ -944,7 +950,22 @@
 
     function cardHTML(r, compact) {
       const lmp  = r.limpieza || 'Pendiente';
-      const svcs = (r.servicios||[]).map(s => `<span class="svc-badge">${s}</span>`).join('');
+      
+      const serviciosActivos = [];
+
+        if (r.arcoenC)           serviciosActivos.push('Arco C');
+        if (r.laparoscopia)      serviciosActivos.push('Laparoscopía');
+        if (r.rayosx)            serviciosActivos.push('Rayos X');
+        if (r.ultrasonido)       serviciosActivos.push('Ultrasonido');
+        if (r.neuro)             serviciosActivos.push('Neuro');
+        if (r.microscopio)       serviciosActivos.push('Microscopio');
+        if (r.anestesiologoext)  serviciosActivos.push('Anest. Ext.');
+        if (r.primerayudante)    serviciosActivos.push('1er Ayudante');
+
+        const svcs = serviciosActivos
+          .map(s => `<span class="svc-badge">${s}</span>`)
+          .join('');
+      
       const proc = r.procedimiento ? `<div class="card-proc">${escHtml(r.procedimiento)}</div>` : `<div class="card-proc-empty">Sin procedimiento</div>`;
       const pac  = r.paciente
         ? `<div class="card-paciente"><div class="card-paciente-icon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><span class="card-paciente-name">${escHtml(r.paciente)}</span></div>`
@@ -977,7 +998,7 @@
               <span class="card-field-value">${escHtml((r.quirofano||'').replace('Quirofano','Q.'))}</span>
             </div>
           </div>
-          ${svcs ? `<div class="card-field" style="grid-column:1/-1;margin-bottom:0.3rem"><span class="card-field-label">Servicios adicionales requeridos</span></div><div class="card-services">${svcs}</div>` : ''}
+          ${svcs ? `<div class="card-field" style="grid-column:1/-1;margin-bottom:0.3rem"><span class="card-field-label">Servicios adicionales requeridos</span></div><div class="card-services">${svcs ? `<div class="card-services">${svcs}</div>` : ''}</div>` : ''}
           <div class="card-footer">
             <button class="lmp-btn ${lmp}" onclick="cycleLimpieza('${escHtml(r.bookingId)}','${LMP_CYCLE[lmp]||'Pendiente'}')">${LMP_LABEL[lmp]||lmp}</button>
           </div>
