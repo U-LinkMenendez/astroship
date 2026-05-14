@@ -168,6 +168,14 @@
       .hdr-date   { display:none; }
       .wa-btn span { display:none; }
     }
+
+.ulink-powered { position:fixed; right:14px; bottom:10px; z-index:9999; font-size:11px; color:#94A3B8; letter-spacing:0.04em; background:rgba(255,255,255,0.88); padding:4px 8px;
+  border-radius:999px; backdrop-filter:blur(6px); box-shadow:0 1px 4px rgba(0,0,0,0.08); user-select:none; text-decoration:none; transition:all 0.15s; }
+
+    .ulink-powered:hover { transform:translateY(-1px); box-shadow:0 3px 10px rgba(0,0,0,0.12); background:#fff; }
+
+.ulink-powered strong { color:#0F172A; font-weight:600; }
+    
   </style>
 </head>
 <body>
@@ -230,10 +238,75 @@
           <div class="field"><label>Nombre del Paciente</label><input type="text" id="f-paciente" placeholder="Nombre del paciente"/></div>
           <div class="field"><label>Procedimiento / Cirugía *</label><input type="text" id="f-procedimiento" placeholder="Ej: Artroscopía rodilla" required/></div>
         </div>
+
         <div class="form-grid">
-          <div class="field"><label>Anestesiólogo</label><input type="text" id="f-anestesiologo" placeholder="Nombre del anestesiólogo"/></div>
-          <div class="field"><label>Enfermería / Asistente</label><input type="text" id="f-enfermeria" placeholder="Nombre de enfermería"/></div>
-        </div>
+
+  <div class="field">
+    <label>Anestesiólogo externo</label>
+
+    <input
+      type="text"
+      id="f-anestesiologo"
+      placeholder="Nombre del anestesiólogo"
+    />
+
+    <label
+      style="
+        display:flex;
+        align-items:center;
+        gap:8px;
+        margin-top:8px;
+        font-size:0.8rem;
+        text-transform:none;
+        letter-spacing:0;
+        cursor:pointer;
+      "
+    >
+      <input
+        type="checkbox"
+        id="cb-anestesiologoext"
+        onchange="toggleDisableField('f-anestesiologo', this.checked)"
+      />
+
+      Requiero un anestesiólogo externo
+    </label>
+  </div>
+
+  <div class="field">
+
+    <label>Primer ayudante</label>
+
+    <input
+      type="text"
+      id="f-enfermeria"
+      placeholder="Nombre del primer ayudante"
+    />
+
+    <label
+      style="
+        display:flex;
+        align-items:center;
+        gap:8px;
+        margin-top:8px;
+        font-size:0.8rem;
+        text-transform:none;
+        letter-spacing:0;
+        cursor:pointer;
+      "
+    >
+      <input
+        type="checkbox"
+        id="cb-primerayudante"
+        onchange="toggleDisableField('f-enfermeria', this.checked)"
+      />
+
+      Requiero un primer ayudante
+    </label>
+
+  </div>
+
+</div>
+        
         <div style="font-size:0.72rem;font-weight:600;color:var(--g600);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:0.5rem;">Servicios Adicionales</div>
         <div class="svc-grid" id="svcGrid">
           <label class="svc-item" onclick="toggleSvc(this)"><input type="checkbox" name="rayosx"> Rayos X</label>
@@ -241,10 +314,8 @@
           <label class="svc-item" onclick="toggleSvc(this)"><input type="checkbox" name="microscopio"> Microscopio</label>
           <label class="svc-item" onclick="toggleSvc(this)"><input type="checkbox" name="laparoscopia"> Laparoscopia</label>
           <label class="svc-item" onclick="toggleSvc(this)"><input type="checkbox" name="solirrigacion"> Sol. Irrigación</label>
-          <label class="svc-item" onclick="toggleSvc(this)"><input type="checkbox" name="primerayudante"> Primer Ayudante</label>
           <label class="svc-item" onclick="toggleSvc(this)"><input type="checkbox" name="instrumentista"> Instrumentista</label>
-          <label class="svc-item" onclick="toggleSvc(this)"><input type="checkbox" name="anestesiologoext"> Anestesiólogo Ext.</label>
-        </div>
+          </div>
         <div class="modal-actions">
           <button type="button" class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
           <button type="button" class="btn btn-primary" id="btnConfirm" onclick="submitBooking()">Confirmar Reserva</button>
@@ -279,6 +350,7 @@ let allReservas  = [];
 let selection    = null;
 let urlLeadId    = '';
 let _occupiedMap = {};
+let _bookingInProgress = false;
 
 // ── Init ──────────────────────────────────────────────────────
 function init() {
@@ -538,18 +610,52 @@ function updateSlotVisuals() {
       if (!cell) return;
       const occ = _occupiedMap[h] && _occupiedMap[h][q];
       if (occ) return;
+      
+      const now = new Date();
+const isToday = currentDate === todayStr();
+
+const slotHourDecimal =
+  parseInt(h.split(':')[0]) +
+  (parseInt(h.split(':')[1]) / 60);
+
+const nowHourDecimal =
+  now.getHours() +
+  (now.getMinutes() / 60);
+
+const isPastSlot =
+  isToday && slotHourDecimal <= nowHourDecimal;
+      
       const isSelected = selection && selection.quirofano === q && selection.slots.includes(h);
       const canSelect  = !selection || (selection.quirofano === q && isAdjacentToSelection(h));
       let s = '';
       if (isSelected) {
         s = '<div class="slot slot-selected" onclick="toggleSlot(\'' + q + '\',\'' + h + '\',event)">' +
           '<div class="slot-time">' + h + '</div><div class="slot-label">&#10003; Seleccionado</div></div>';
-      } else if (canSelect) {
+      } else if (canSelect && !isPastSlot) {
         s = '<div class="slot slot-available" onclick="toggleSlot(\'' + q + '\',\'' + h + '\',event)">' +
           '<div class="slot-time">' + h + '</div><div class="slot-label">Disponible</div></div>';
+
       } else {
-        s = '<div class="slot slot-empty"></div>';
-      }
+
+  if (isPastSlot) {
+
+    s = `
+      <div
+        class="slot slot-empty"
+        style="
+          background:#E5E7EB;
+          opacity:0.45;
+          cursor:not-allowed;
+        ">
+      </div>`;
+
+  } else {
+
+    s = '<div class="slot slot-empty"></div>';
+
+  }
+}
+        
       cell.innerHTML = s;
     });
   });
@@ -592,12 +698,30 @@ function openForm() {
   document.getElementById('modalOverlay').classList.add('open');
 }
 
+function toggleDisableField(fieldId, checked) {
+
+  const field = document.getElementById(fieldId);
+
+  if (!field) return;
+
+  field.disabled = checked;
+
+  if (checked) {
+    field.value = '';
+  }
+}
+  
 function toggleSvc(label) {
   const cb = label.querySelector('input');
   setTimeout(() => { label.classList.toggle('checked', cb.checked); }, 0);
 }
 
 async function submitBooking() {
+  
+  if (_bookingInProgress) return;
+  
+  _bookingInProgress = true;
+  
   const nombre        = document.getElementById('f-nombre').value.trim();
   const email         = document.getElementById('f-email').value.trim();
   const procedimiento = document.getElementById('f-procedimiento').value.trim();
@@ -635,7 +759,33 @@ async function submitBooking() {
     start: startISO,
     lengthInMinutes: durMin,
     attendee: { name: nombre, email: email, timeZone: 'America/Merida', language: 'es' },
-    bookingFieldsResponses: { name: nombre, email: email, paciente, procedimiento, anestesiologo, enfermeria, ...svcs, location: { value: 'link', optionValue: '' } },
+
+    bookingFieldsResponses: {
+
+  name: nombre,
+  email: email,
+
+  paciente,
+  procedimiento,
+
+  anestesiologo,
+  enfermeria,
+
+  ...svcs,
+
+  primerayudante:
+  document.getElementById('cb-primerayudante').checked,
+
+anestesiologoext:
+  document.getElementById('cb-anestesiologoext').checked,
+
+  location: {
+    value: 'link',
+    optionValue: ''
+  }
+
+},
+    
     metadata: urlLeadId ? { leadid: urlLeadId } : {}
   };
 
@@ -643,16 +793,31 @@ async function submitBooking() {
     const res  = await fetch(APPS_SCRIPT_URL, { method:'POST', body: JSON.stringify(payload) });
     const json = await res.json();
     if (json.ok) {
+      _bookingInProgress = false;
       document.getElementById('formState').style.display = 'none';
       document.getElementById('successState').style.display = '';
       document.getElementById('successMsg').textContent =
         `Reserva en ${selection.quirofano.replace('Quirofano','Quirófano')} el ${formatDateDisplay(currentDate)} de ${selection.slots[0]} confirmada. Recibirá un correo en breve.`;
       await loadData();
     } else {
-      alert('Error: ' + (json.error || 'Intente nuevamente'));
+      let msg = 'No fue posible crear la reserva.';
+
+      if ((json.error || '').includes('not available')) {
+
+      msg = 'El horario seleccionado ya no está disponible. Por favor seleccione otro horario.';
+
+     } else if ((json.error || '').includes('already has booking')) {
+
+      msg = 'Ya existe una reservación en ese horario.';
+
+    }
+
+    alert(msg);
+      _bookingInProgress = false;
       btn.disabled = false; btn.textContent = 'Confirmar Reserva';
     }
   } catch(e) {
+    _bookingInProgress = false;
     alert('Error de conexión.'); btn.disabled = false; btn.textContent = 'Confirmar Reserva';
   }
 }
@@ -696,5 +861,13 @@ document.getElementById('modalOverlay').addEventListener('click', function(e) { 
 init();
 </script>
 
+<a
+  class="ulink-powered"
+  href="https://wa.me/529996690192?text=Hola%2C%20estoy%20viendo%20el%20proyecto%20de%20la%20Cl%C3%ADnica%20Giner%C3%A9s.%20%C2%BFPodr%C3%ADamos%20implementar%20algo%20as%C3%AD%20para%20mi%3F"
+  target="_blank"
+>
+  Powered by <strong>U•Link Systems</strong>
+</a>
+  
 </body>
 </html>
