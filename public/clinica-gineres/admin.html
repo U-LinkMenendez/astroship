@@ -233,10 +233,11 @@
     .rslot-avail.rs-selected .rs-time, .rslot-avail.rs-selected .rs-label { color:#fff; }
 
     /* Occupied slot in reservation tab */
-    .rslot-occ { position:absolute; left:3px; right:3px; top:3px; z-index:2; background:var(--pale); border-radius:6px; padding:0.3rem 0.5rem; border-left:3px solid var(--blue); cursor:pointer; overflow:hidden; box-shadow:0 1px 4px rgba(37,99,235,0.1); transition:all 0.15s; }
+    .rslot-occ { position:absolute; left:3px; right:3px; top:3px; z-index:2; background:#EFF6FF; border-radius:8px; padding:0.45rem 0.55rem; border-left:4px solid var(--blue);
+       cursor:pointer; overflow:hidden; box-shadow:0 1px 4px rgba(37,99,235,0.10); transition:all 0.15s; display:flex; flex-direction:column; gap:0.18rem; }
     .rslot-occ:hover { background:#DBEAFE; }
-    .rslot-occ .rs-proc { font-size:0.75rem; font-weight:600; color:var(--navy); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    .rslot-occ .rs-time { font-size:0.62rem; font-family:'DM Mono',monospace; color:var(--blue); margin-bottom:2px; }
+    .rslot-occ .rs-proc { font-size:0.78rem; font-weight:700; color:var(--navy); line-height:1.15; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
+    .rslot-occ .rs-time { font-size:0.62rem; font-family:'DM Mono',monospace; color:var(--blue); margin-bottom:2px; font-weight:600; }
     .rslot-cont { position:absolute; left:3px; right:3px; top:0; bottom:0; z-index:1; background:var(--pale); border-left:3px solid var(--blue); opacity:0.35; cursor:pointer; }
     .rslot-past { width:100%; height:100%; background:var(--g100); cursor:not-allowed; border-radius:6px; }
 
