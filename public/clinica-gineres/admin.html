@@ -145,7 +145,9 @@
     .svc-badge { font-size:0.6rem; font-weight:500; background:var(--g100); color:var(--g600); padding:2px 5px; border-radius:3px; }
 
     /* Footer */
-    .card-footer { display:flex; align-items:center; justify-content:space-between; gap:0.5rem; padding-top:0.35rem; border-top:1px solid var(--g100); }
+    .card-footer { display:flex; align-items:center; justify-content:space-between; gap:0.5rem; padding-top:0.35rem; margin-top:0.75rem; border-top:1px solid var(--g100); }
+    .card-cleaning-block{ display:flex; flex-direction:column; gap:0.35rem; }
+    
     .lmp-btn { font-family:'DM Sans',sans-serif; font-size:0.65rem; font-weight:600; padding:3px 8px; border-radius:5px; border:1px solid; cursor:pointer; transition:all 0.15s; white-space:nowrap; }
     .lmp-btn.Pendiente { background:var(--amber-bg); color:var(--amber); border-color:#F59E0B; }
     .lmp-btn.EnProceso { background:var(--pale); color:var(--blue); border-color:var(--blue); }
@@ -1053,7 +1055,7 @@
               <span class="card-field-value ${r.anestesiologo?'':'empty'}">${escHtml(r.anestesiologo||'—')}</span>
             </div>
             <div class="card-field">
-              <span class="card-field-label">Enfermería</span>
+              <span class="card-field-label">1er Ayudante</span>
               <span class="card-field-value ${r.enfermeria?'':'empty'}">${escHtml(r.enfermeria||'—')}</span>
             </div>
             <div class="card-field">
@@ -1062,9 +1064,26 @@
             </div>
           </div>
           ${svcs ? `<div class="card-field" style="grid-column:1/-1;margin-bottom:0.3rem"><span class="card-field-label">Servicios adicionales requeridos</span></div><div class="card-services">${svcs ? `<div class="card-services">${svcs}</div>` : ''}</div>` : ''}
+
           <div class="card-footer">
-            <button class="lmp-btn ${lmp}" onclick="cycleLimpieza('${escHtml(r.bookingId)}','${LMP_CYCLE[lmp]||'Pendiente'}')">${LMP_LABEL[lmp]||lmp}</button>
+
+            <div class="card-cleaning-block">
+
+              <span class="card-field-label">
+                Estatus de limpieza
+              </span>
+
+              <button
+                class="lmp-btn ${lmp}"
+                onclick="cycleLimpieza('${escHtml(r.bookingId)}','${LMP_CYCLE[lmp]||'Pendiente'}')"
+              >
+                ${LMP_LABEL[lmp]||lmp}
+              </button>
+
+            </div>
+
           </div>
+
         </div>
       </div>`;
     }
