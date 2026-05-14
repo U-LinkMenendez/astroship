@@ -235,6 +235,13 @@
     /* Occupied slot in reservation tab */
     .rslot-occ { position:absolute; left:3px; right:3px; top:3px; z-index:2; background:#EFF6FF; border-radius:8px; padding:0.45rem 0.55rem; border-left:4px solid var(--blue);
        cursor:pointer; overflow:hidden; box-shadow:0 1px 4px rgba(37,99,235,0.10); transition:all 0.15s; display:flex; flex-direction:column; gap:0.18rem; }
+
+    /* ===== ESTADOS QUIRÚRGICOS ===== */
+    .rslot-occ.rs-upcoming{ background:#EFF6FF; border-left:4px solid #2563EB; }
+    .rslot-occ.rs-live{ background:#FEF2F2; border-left:4px solid #DC2626; box-shadow:0 0 0 1px rgba(220,38,38,0.08); }
+    .rslot-occ.rs-finished{ background:#F8FAFC; border-left:4px solid #64748B; opacity:0.82; }
+    .rslot-occ.rs-cancelled{ background:#F1F5F9; border-left:4px solid #0F172A; opacity:0.5; filter:grayscale(0.15); }
+    
     .rslot-occ:hover { background:#DBEAFE; }
     .rslot-occ .rs-proc { font-size:0.78rem; font-weight:700; color:var(--navy); line-height:1.15; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
     .rslot-occ .rs-time { font-size:0.62rem; font-family:'DM Mono',monospace; color:var(--blue); margin-bottom:2px; font-weight:600; }
@@ -447,13 +454,74 @@
           const endH2   = startH2 + o.duracion;
           const inProgress = isToday && startH2 <= nowH && nowH < endH2;
 
-            cell = `<div class="rslot-occ" 
-style="height:${o.height}px;${inProgress?'cursor:not-allowed;opacity:0.7':''}" 
-${inProgress ? 'title="Cirugía en curso"' : `onclick="openAdmEdit(${JSON.stringify(o.booking).replace(/"/g,'&quot;')})"`}>
+            const isFinished = isToday && nowH >= endH2;
+
+const isCancelled =
+  (o.booking.estatus || '')
+    .toLowerCase()
+    .includes('cancel');
+
+let statusClass = 'rs-upcoming';
+
+if (isCancelled) {
+  statusClass = 'rs-cancelled';
+} else if (inProgress) {
+  statusClass = 'rs-live';
+} else if (isFinished) {
+  statusClass = 'rs-finished';
+}
+
+            cell = `<div class="rslot-occ ${statusClass}" 
+              style="height:${o.height}px;${inProgress?'cursor:not-allowed;opacity:0.7':''}" 
+                ${inProgress ? 'title="Cirugía en curso"' : `onclick="openAdmEdit(${JSON.stringify(o.booking).replace(/"/g,'&quot;')})"`}>
 
   <div class="rs-time">
-    ${o.hora} · ${o.duracion}h${inProgress?' 🔄':''}
-  </div>
+
+  ${inProgress ? `
+    <span style="
+      background:#DC2626;
+      color:#fff;
+      font-size:0.52rem;
+      padding:2px 6px;
+      border-radius:999px;
+      margin-right:6px;
+      font-weight:700;
+    ">
+      EN CURSO
+    </span>
+  ` : ''}
+
+  ${isFinished && !isCancelled ? `
+    <span style="
+      background:#64748B;
+      color:#fff;
+      font-size:0.52rem;
+      padding:2px 6px;
+      border-radius:999px;
+      margin-right:6px;
+      font-weight:700;
+    ">
+      FINALIZADA
+    </span>
+  ` : ''}
+
+  ${isCancelled ? `
+    <span style="
+      background:#111827;
+      color:#fff;
+      font-size:0.52rem;
+      padding:2px 6px;
+      border-radius:999px;
+      margin-right:6px;
+      font-weight:700;
+    ">
+      CANCELADA
+    </span>
+  ` : ''}
+
+  ${o.hora} · ${o.duracion}h
+
+</div>
 
   <div class="rs-proc">
     ${escHtml(o.proc)}
