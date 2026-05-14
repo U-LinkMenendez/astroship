@@ -617,10 +617,73 @@
       _editBooking = booking;
       const q = (booking.quirofano||'').replace('Quirofano','Quirófano');
       document.getElementById('admEditSub').textContent = q+' · '+booking.fecha+' · '+booking.horaInicio;
+
       document.getElementById('admEditSummary').innerHTML = `
-        <div class="adm-sum-row"><span class="adm-sum-lbl">Doctor</span><span class="adm-sum-val">${escHtml(booking.doctor||'—')}</span></div>
-        <div class="adm-sum-row"><span class="adm-sum-lbl">Procedimiento</span><span class="adm-sum-val">${escHtml(booking.procedimiento||'—')}</span></div>
-        <div class="adm-sum-row"><span class="adm-sum-lbl">Paciente</span><span class="adm-sum-val">${escHtml(booking.paciente||'—')}</span></div>`;
+
+  <div class="adm-sum-row">
+    <span class="adm-sum-lbl">Doctor</span>
+    <span class="adm-sum-val">${escHtml(booking.doctor || '—')}</span>
+  </div>
+
+  <div class="adm-sum-row">
+    <span class="adm-sum-lbl">Paciente</span>
+    <span class="adm-sum-val">${escHtml(booking.paciente || '—')}</span>
+  </div>
+
+  <div class="adm-sum-row">
+    <span class="adm-sum-lbl">Procedimiento</span>
+    <span class="adm-sum-val">${escHtml(booking.procedimiento || '—')}</span>
+  </div>
+
+  <div class="adm-sum-row">
+    <span class="adm-sum-lbl">Anestesiólogo</span>
+    <span class="adm-sum-val">${escHtml(booking.anestesiologo || '—')}</span>
+  </div>
+
+  <div class="adm-sum-row">
+    <span class="adm-sum-lbl">1er Ayudante</span>
+    <span class="adm-sum-val">${escHtml(booking.enfermeria || '—')}</span>
+  </div>
+
+  <div class="adm-sum-row">
+    <span class="adm-sum-lbl">Duración</span>
+    <span class="adm-sum-val">${booking.duracion || '—'} hora(s)</span>
+  </div>
+
+  <div class="adm-sum-row">
+    <span class="adm-sum-lbl">Estatus</span>
+    <span class="adm-sum-val">${escHtml(booking.estatus || '—')}</span>
+  </div>
+
+  <div class="adm-sum-row">
+    <span class="adm-sum-lbl">Limpieza</span>
+    <span class="adm-sum-val">${escHtml(booking.limpieza || 'Pendiente')}</span>
+  </div>
+
+  <div class="adm-sum-row">
+    <span class="adm-sum-lbl">Servicios</span>
+
+    <span class="adm-sum-val">
+
+      ${[
+        booking.arcoenC ? 'Arco C' : '',
+        booking.laparoscopia ? 'Laparoscopía' : '',
+        booking.rayosx ? 'Rayos X' : '',
+        booking.ultrasonido ? 'Ultrasonido' : '',
+        booking.neuro ? 'Neuro' : '',
+        booking.microscopio ? 'Microscopio' : '',
+        booking.anestesiologoext ? 'Anest. Ext.' : '',
+        booking.primerayudante ? '1er Ayudante' : ''
+      ]
+      .filter(Boolean)
+      .join(' · ') || 'Ninguno'}
+
+    </span>
+
+  </div>
+
+`;
+      
       // Fill edit data tab
       document.getElementById('ed-paciente').value      = booking.paciente||'';
       document.getElementById('ed-procedimiento').value = booking.procedimiento||'';
