@@ -246,9 +246,13 @@
     .adm-modal h2 { font-size:1rem; font-weight:600; color:var(--navy); margin-bottom:0.25rem; }
     .adm-modal .sub { font-size:0.78rem; color:var(--g400); margin-bottom:1.25rem; }
     .adm-summary { background:var(--pale); border:1px solid #BFDBFE; border-radius:var(--r); padding:0.75rem 1rem; margin-bottom:1.25rem; display:flex; flex-direction:column; gap:4px; }
-    .adm-sum-row { display:flex; gap:8px; font-size:0.8rem; }
-    .adm-sum-lbl { color:var(--g400); font-size:0.72rem; font-weight:600; text-transform:uppercase; letter-spacing:0.04em; width:80px; flex-shrink:0; }
-    .adm-sum-val { color:var(--navy); font-weight:500; }
+    
+    .adm-sum-row { display:grid; grid-template-columns: 110px 1fr; gap:8px; align-items:start; font-size:0.8rem; }
+    
+    .adm-sum-lbl { color:var(--g400); font-size:0.72rem; font-weight:600; text-transform:uppercase; letter-spacing:0.04em; line-height:1.3; }
+
+    .adm-sum-val { color:var(--navy); font-weight:500; flex:1; min-width:0; word-break:break-word; overflow-wrap:anywhere; line-height:1.35; }
+    
     .adm-form-grid { display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:0.75rem; }
     .adm-field { display:flex; flex-direction:column; gap:4px; }
     .adm-field label { font-size:0.72rem; font-weight:600; color:var(--g600); text-transform:uppercase; letter-spacing:0.04em; }
@@ -272,6 +276,14 @@
 
     /* Date picker for reschedule */
     .adm-date-row { display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:0.75rem; }
+
+  .ulink-powered { position:fixed; right:14px; bottom:10px; z-index:9999; font-size:11px; color:#94A3B8; letter-spacing:0.04em; background:rgba(255,255,255,0.88); padding:4px 8px; border-radius:999px; backdrop-filter:blur(6px); box-shadow:0 1px 4px rgba(0,0,0,0.08);
+  user-select:none; text-decoration:none; transition:all 0.15s; }
+
+    .ulink-powered:hover { transform:translateY(-1px); box-shadow:0 3px 10px rgba(0,0,0,0.12); background:#fff; }
+
+.ulink-powered strong { color:#0F172A; font-weight:600; }
+    
   </style>
 </head>
 <body>
@@ -614,6 +626,81 @@
       document.getElementById('ed-duracion').value = String(booking.duracion||1);
       document.getElementById('ed-motivo').value   = '';
       showEditTab('datos');
+
+      const isCancelled = (booking.estatus || '').trim() === 'Cancelado';
+
+      const now = new Date();
+
+      const startParts = (booking.horaInicio || '00:00').split(':');
+
+      const durHours = parseFloat(
+        String(booking.duracion || '1')
+          .replace('horas','')
+          .replace('hora','')
+          .trim()
+      ) || 1;
+
+      const startDate = new Date(
+        booking.fecha + 'T' +
+        startParts[0].padStart(2,'0') + ':' +
+        startParts[1].padStart(2,'0') + ':00'
+      );
+
+      const endDate = new Date(startDate.getTime() + durHours * 60 * 60 * 1000);
+
+      const isEnded = now > endDate;
+
+      document.getElementById('edDatosBtn').disabled  = isCancelled || isEnded;
+      document.getElementById('edHoraBtn').disabled   = isCancelled || isEnded;
+      document.getElementById('edCancelBtn').disabled = isCancelled || isEnded;
+
+      [
+        'ed-paciente',
+        'ed-procedimiento',
+        'ed-anestesiologo',
+        'ed-enfermeria',
+        'ed-fecha',
+        'ed-hora',
+        'ed-duracion',
+        'ed-motivo'
+      ].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.disabled = isCancelled || isEnded;
+      });
+
+      const saveBtn = document.getElementById('edSaveBtn');
+
+      if (saveBtn) {
+        saveBtn.disabled = isCancelled || isEnded;
+      }
+
+      if (isCancelled) {
+
+        if (isEnded && !isCancelled) {
+
+        document.getElementById('admEditSub').textContent += ' · CIRUGÍA EN CURSO / FINALIZADA';
+
+        document.getElementById('admEditSummary').innerHTML += `
+          <div style="
+            margin-top:10px;
+            padding:10px;
+            border-radius:8px;
+            background:#FEF3C7;
+            color:#92400E;
+            font-size:0.78rem;
+            font-weight:600;
+            border:1px solid #F59E0B;
+          ">
+            Esta reserva ya no puede modificarse porque la cirugía está en curso o finalizó.
+          </div>
+        `;
+
+      }
+
+        document.getElementById('admEditSub').textContent += ' · RESERVA CANCELADA';
+
+      }
+      
       document.getElementById('admEditModal').classList.add('open');
     }
 
@@ -666,8 +753,9 @@
           quirofano:      _editBooking.quirofano,
           newStart:       startUTC.toISOString(),
           lengthInMinutes: dur*60,
-          doctorEmail:    _editBooking.email||'',
-          doctorNombre:   _editBooking.doctor||'',
+          doctorEmail:    _editBooking.doctorEmail || '',
+          doctorNombre:   _editBooking.doctor || '',
+          attendee:       _editBooking.attendee,
           procedimiento:  _editBooking.procedimiento||'',
           fechaAnterior:  _editBooking.fecha,
           horaAnterior:   _editBooking.horaInicio,
@@ -1088,5 +1176,13 @@
   </div>
 </div>
 
+<a
+  class="ulink-powered"
+  href="https://wa.me/529996690192?text=Hola%2C%20estoy%20viendo%20el%20proyecto%20de%20la%20Cl%C3%ADnica%20Giner%C3%A9s.%20%C2%BFPodr%C3%ADamos%20implementar%20algo%20as%C3%AD%20para%20mi%3F"
+  target="_blank"
+>
+  Powered by <strong>U•Link Systems</strong>
+</a>
+  
 </body>
 </html>
