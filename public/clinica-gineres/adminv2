@@ -141,15 +141,23 @@
     .card-paciente-name.empty { color:var(--g400); font-style:italic; font-weight:400; font-size:0.72rem; }
 
     /* Servicios */
-    .card-services { display:flex; flex-wrap:wrap; gap:3px; margin-bottom:0.45rem; }
+    .card-services { display:flex; flex-wrap:wrap; gap:4px; margin-top:8px; margin-bottom:8px; }
     .svc-badge { font-size:0.6rem; font-weight:500; background:var(--g100); color:var(--g600); padding:2px 5px; border-radius:3px; }
 
     /* Footer */
-    .card-footer { display:flex; align-items:center; justify-content:space-between; gap:0.5rem; padding-top:0.35rem; border-top:1px solid var(--g100); }
+    .card-footer { display:flex; align-items:flex-start; justify-content:space-between; gap:10px; margin-top:10px; padding-top:8px; border-top:1px solid #E5E7EB; }
+    .card-cleaning-block{ display:flex; flex-direction:column; gap:0.35rem; min-width:88px; }
+    
     .lmp-btn { font-family:'DM Sans',sans-serif; font-size:0.65rem; font-weight:600; padding:3px 8px; border-radius:5px; border:1px solid; cursor:pointer; transition:all 0.15s; white-space:nowrap; }
     .lmp-btn.Pendiente { background:var(--amber-bg); color:var(--amber); border-color:#F59E0B; }
     .lmp-btn.EnProceso { background:var(--pale); color:var(--blue); border-color:var(--blue); }
     .lmp-btn.Listo     { background:var(--green-bg); color:var(--green); border-color:#10B981; }
+
+    .lmp-btn.EnProceso { background:#DBEAFE; color:#1D4ED8; border-color:#60A5FA; }
+    .lmp-btn.Pendiente { background:#FEF3C7; color:#92400E; border-color:#FBBF24; }
+    
+    .lmp-btn.Listo { background:#D1FAE5; color:#065F46; border-color:#34D399; }
+    
     .lmp-btn:disabled  { opacity:0.5; cursor:not-allowed; }
 
     /* ══ TIMELINE VIEW ══ */
@@ -158,7 +166,7 @@
     .tl-hcell { padding:0.6rem 0.75rem; font-size:0.78rem; font-weight:600; color:#fff; text-align:center; border-right:1px solid rgba(255,255,255,0.08); }
     .tl-hcell:last-child { border-right:none; }
     .tl-hcell.time-col { font-size:0.65rem; color:rgba(255,255,255,0.4); font-family:'DM Mono',monospace; }
-    .tl-row { display:grid; grid-template-columns:52px repeat(3,1fr); border-bottom:1px solid var(--g200); height:52px; min-height:52px; }
+    .tl-row { display:grid; grid-template-columns:52px repeat(3,1fr); border-bottom:1px solid var(--g200); height:72px; min-height:72px; }
     .tl-row:last-child { border-bottom:none; }
     .tl-row.alt { background:var(--ghost); }
     .tl-hour { padding:0.5rem 0.25rem; font-size:0.68rem; font-weight:500; color:var(--g400); text-align:center; border-right:1px solid var(--g200); font-family:'DM Mono',monospace; display:flex; align-items:flex-start; justify-content:center; padding-top:0.55rem; }
@@ -212,8 +220,8 @@
     .res-row { display:grid; grid-template-columns:52px repeat(3,1fr); border-bottom:1px solid var(--g200); }
     .res-row:last-child { border-bottom:none; }
     .res-row.alt { background:var(--ghost); }
-    .res-time { padding:0.5rem 0.25rem; font-size:0.68rem; font-weight:500; color:var(--g400); text-align:center; border-right:1px solid var(--g200); font-family:'DM Mono',monospace; display:flex; align-items:center; justify-content:center; min-height:52px; }
-    .res-cell { padding:0.25rem; border-right:1px solid var(--g200); position:relative; min-height:52px; }
+    .res-time { padding:0.5rem 0.25rem; font-size:0.68rem; font-weight:500; color:var(--g400); text-align:center; border-right:1px solid var(--g200); font-family:'DM Mono',monospace; display:flex; align-items:center; justify-content:center; min-height:110px; }
+    .res-cell { padding:0.25rem; border-right:1px solid var(--g200); position:relative; min-height:110px; }
     .res-cell:last-child { border-right:none; }
 
     /* Available slot in reservation tab */
@@ -225,10 +233,18 @@
     .rslot-avail.rs-selected .rs-time, .rslot-avail.rs-selected .rs-label { color:#fff; }
 
     /* Occupied slot in reservation tab */
-    .rslot-occ { position:absolute; left:3px; right:3px; top:3px; z-index:2; background:var(--pale); border-radius:6px; padding:0.3rem 0.5rem; border-left:3px solid var(--blue); cursor:pointer; overflow:hidden; box-shadow:0 1px 4px rgba(37,99,235,0.1); transition:all 0.15s; }
+    .rslot-occ { position:absolute; left:3px; right:3px; top:3px; z-index:2; background:#EFF6FF; border-radius:8px; padding:0.45rem 0.55rem; border-left:4px solid var(--blue);
+       cursor:pointer; overflow:hidden; box-shadow:0 1px 4px rgba(37,99,235,0.10); transition:all 0.15s; display:flex; flex-direction:column; gap:0.18rem; }
+
+    /* ===== ESTADOS QUIRÚRGICOS ===== */
+    .rslot-occ.rs-upcoming{ background:#EFF6FF; border-left:4px solid #2563EB; }
+    .rslot-occ.rs-live{ background:#FEF2F2; border-left:4px solid #DC2626; box-shadow:0 0 0 1px rgba(220,38,38,0.08); }
+    .rslot-occ.rs-finished{ background:#F8FAFC; border-left:4px solid #64748B; opacity:0.82; }
+    .rslot-occ.rs-cancelled{ background:#F1F5F9; border-left:4px solid #0F172A; opacity:0.5; filter:grayscale(0.15); }
+    
     .rslot-occ:hover { background:#DBEAFE; }
-    .rslot-occ .rs-proc { font-size:0.75rem; font-weight:600; color:var(--navy); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    .rslot-occ .rs-time { font-size:0.62rem; font-family:'DM Mono',monospace; color:var(--blue); margin-bottom:2px; }
+    .rslot-occ .rs-proc { font-size:0.78rem; font-weight:700; color:var(--navy); line-height:1.15; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
+    .rslot-occ .rs-time { font-size:0.62rem; font-family:'DM Mono',monospace; color:var(--blue); margin-bottom:2px; font-weight:600; }
     .rslot-cont { position:absolute; left:3px; right:3px; top:0; bottom:0; z-index:1; background:var(--pale); border-left:3px solid var(--blue); opacity:0.35; cursor:pointer; }
     .rslot-past { width:100%; height:100%; background:var(--g100); cursor:not-allowed; border-radius:6px; }
 
@@ -277,12 +293,18 @@
     /* Date picker for reschedule */
     .adm-date-row { display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:0.75rem; }
 
-  .ulink-powered { position:fixed; right:14px; bottom:10px; z-index:9999; font-size:11px; color:#94A3B8; letter-spacing:0.04em; background:rgba(255,255,255,0.88); padding:4px 8px; border-radius:999px; backdrop-filter:blur(6px); box-shadow:0 1px 4px rgba(0,0,0,0.08);
-  user-select:none; text-decoration:none; transition:all 0.15s; }
+  .ulink-powered{ position:fixed; right:10px; bottom:8px; z-index:9999; font-size:10px; color:#94A3B8; letter-spacing:0.03em; background:rgba(255,255,255,0.72); padding:3px 7px;
+  border-radius:999px; backdrop-filter:blur(4px); box-shadow:0 1px 3px rgba(0,0,0,0.05); user-select:none; text-decoration:none; transition:all 0.15s; }
 
-    .ulink-powered:hover { transform:translateY(-1px); box-shadow:0 3px 10px rgba(0,0,0,0.12); background:#fff; }
+.ulink-powered:hover{ transform:translateY(-1px); background:#fff; }
 
-.ulink-powered strong { color:#0F172A; font-weight:600; }
+.ulink-powered strong{ color:#334155; font-weight:600; }
+
+@media (max-width:640px){
+
+  .ulink-powered{ font-size:8px; padding:2px 5px; right:6px; bottom:5px; opacity:0.72; }
+
+}
     
   </style>
 </head>
@@ -369,7 +391,7 @@
       { key: 'cal_live_a3ae35264250fe02f3b2d5eee9016c94', eventTypeId: 5577080, quirofano: 'Quirofano 3' },
     ];
     const RES_HOURS = ['06:00','07:00','08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00'];
-    const ROW_H_ADM = 52;
+    const ROW_H_ADM = 110;
 
     let resSelection = null;   // { quirofano, slots[] }
     let _resOccMap   = {};
@@ -437,10 +459,176 @@
             const startH2 = parseInt(o.hora.split(':')[0]) + parseInt(o.hora.split(':')[1])/60;
           const endH2   = startH2 + o.duracion;
           const inProgress = isToday && startH2 <= nowH && nowH < endH2;
-          cell = `<div class="rslot-occ" style="height:${o.height}px;${inProgress?'cursor:not-allowed;opacity:0.7':''}" ${inProgress ? 'title="Cirugía en curso"' : `onclick="openAdmEdit(${JSON.stringify(o.booking).replace(/"/g,'&quot;')})"`}>
-              <div class="rs-time">${o.hora} · ${o.duracion}h${inProgress?' 🔄':''}</div>
-              <div class="rs-proc">${escHtml(o.proc)}</div>
-            </div>`;
+
+            const isFinished = isToday && nowH >= endH2;
+
+const isCancelled =
+  (o.booking.estatus || '')
+    .toLowerCase()
+    .includes('cancel');
+
+let statusClass = 'rs-upcoming';
+
+if (isCancelled) {
+  statusClass = 'rs-cancelled';
+} else if (inProgress) {
+  statusClass = 'rs-live';
+} else if (isFinished) {
+  statusClass = 'rs-finished';
+}
+
+            cell = `<div class="rslot-occ ${statusClass}" 
+              style="height:${o.height}px;${inProgress?'cursor:not-allowed;opacity:0.7':''}" 
+                ${inProgress ? 'title="Cirugía en curso"' : `onclick="openAdmEdit(${JSON.stringify(o.booking).replace(/"/g,'&quot;')})"`}>
+
+  <div class="rs-time">
+
+  ${inProgress ? `
+    <span style="
+      background:#DC2626;
+      color:#fff;
+      font-size:0.52rem;
+      padding:2px 6px;
+      border-radius:999px;
+      margin-right:6px;
+      font-weight:700;
+    ">
+      EN CURSO
+    </span>
+  ` : ''}
+
+  ${isFinished && !isCancelled ? `
+    <span style="
+      background:#64748B;
+      color:#fff;
+      font-size:0.52rem;
+      padding:2px 6px;
+      border-radius:999px;
+      margin-right:6px;
+      font-weight:700;
+    ">
+      FINALIZADA
+    </span>
+  ` : ''}
+
+  ${isCancelled ? `
+    <span style="
+      background:#111827;
+      color:#fff;
+      font-size:0.52rem;
+      padding:2px 6px;
+      border-radius:999px;
+      margin-right:6px;
+      font-weight:700;
+    ">
+      CANCELADA
+    </span>
+  ` : ''}
+
+  ${o.hora} · ${o.duracion}h
+
+</div>
+
+  <div class="rs-proc">
+    ${escHtml(o.proc)}
+  </div>
+
+  <div style="
+    font-size:0.68rem;
+    color:#334155;
+    margin-top:2px;
+    font-weight:600;
+    line-height:1.2;
+  ">
+    👨‍⚕️ ${escHtml(o.booking.doctor || 'Sin doctor')}
+  </div>
+
+  <div style="
+    font-size:0.66rem;
+    color:#64748B;
+    line-height:1.2;
+  ">
+    🧑 ${escHtml(o.booking.paciente || 'Sin paciente')}
+  </div>
+
+  <div style="
+  font-size:0.64rem;
+  color:#475569;
+  line-height:1.35;
+  margin-top:3px;
+">
+  💉 ${escHtml(o.booking.anestesiologo || 'Sin anestesiólogo')}
+</div>
+
+<div style="
+  font-size:0.64rem;
+  color:#475569;
+  line-height:1.35;
+">
+  🩺 ${escHtml(o.booking.enfermeria || 'Sin primer ayudante')}
+</div>
+
+${[
+  o.booking.microscopio ? '🔬 Microscopio' : '',
+  o.booking.rayosx ? '📡 RX' : '',
+  o.booking.neuro ? '🧠 Neuro' : '',
+  o.booking.ultrasonido ? '🧪 USG' : '',
+  o.booking.arcoenC ? '🩻 Arco C' : '',
+  o.booking.laparoscopia ? '⚕️ Laparoscopía' : ''
+].filter(Boolean).length ? `
+
+<div style="
+  margin-top:6px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:4px;
+">
+
+${[
+  o.booking.microscopio ? '🔬 Microscopio' : '',
+  o.booking.rayosx ? '📡 RX' : '',
+  o.booking.neuro ? '🧠 Neuro' : '',
+  o.booking.ultrasonido ? '🧪 USG' : '',
+  o.booking.arcoenC ? '🩻 Arco C' : '',
+  o.booking.laparoscopia ? '⚕️ Laparoscopía' : ''
+]
+.filter(Boolean)
+.map(s => `
+  <span style="
+    font-size:0.56rem;
+    background:#DBEAFE;
+    color:#1D4ED8;
+    padding:2px 6px;
+    border-radius:999px;
+    font-weight:600;
+    white-space:nowrap;
+  ">
+    ${s}
+  </span>
+`).join('')}
+
+</div>
+
+` : ''}
+
+  <div style="
+    margin-top:auto;
+    padding-top:6px;
+    font-size:0.63rem;
+    font-weight:700;
+    color:${
+      (o.booking.limpieza || 'Pendiente') === 'Listo'
+        ? '#059669'
+        : (o.booking.limpieza || 'Pendiente') === 'EnProceso'
+        ? '#2563EB'
+        : '#D97706'
+    };
+  ">
+    🧹 ${(o.booking.limpieza || 'Pendiente')}
+  </div>
+
+</div>`;
+            
           } else if (o && o.isCont) {
             cell = `<div class="rslot-cont" onclick="openAdmEdit(${JSON.stringify(o.booking).replace(/"/g,'&quot;')})"></div>`;
           } else if (isPast) {
@@ -611,10 +799,73 @@
       _editBooking = booking;
       const q = (booking.quirofano||'').replace('Quirofano','Quirófano');
       document.getElementById('admEditSub').textContent = q+' · '+booking.fecha+' · '+booking.horaInicio;
+
       document.getElementById('admEditSummary').innerHTML = `
-        <div class="adm-sum-row"><span class="adm-sum-lbl">Doctor</span><span class="adm-sum-val">${escHtml(booking.doctor||'—')}</span></div>
-        <div class="adm-sum-row"><span class="adm-sum-lbl">Procedimiento</span><span class="adm-sum-val">${escHtml(booking.procedimiento||'—')}</span></div>
-        <div class="adm-sum-row"><span class="adm-sum-lbl">Paciente</span><span class="adm-sum-val">${escHtml(booking.paciente||'—')}</span></div>`;
+
+  <div class="adm-sum-row">
+    <span class="adm-sum-lbl">Doctor</span>
+    <span class="adm-sum-val">${escHtml(booking.doctor || '—')}</span>
+  </div>
+
+  <div class="adm-sum-row">
+    <span class="adm-sum-lbl">Paciente</span>
+    <span class="adm-sum-val">${escHtml(booking.paciente || '—')}</span>
+  </div>
+
+  <div class="adm-sum-row">
+    <span class="adm-sum-lbl">Procedimiento</span>
+    <span class="adm-sum-val">${escHtml(booking.procedimiento || '—')}</span>
+  </div>
+
+  <div class="adm-sum-row">
+    <span class="adm-sum-lbl">Anestesiólogo</span>
+    <span class="adm-sum-val">${escHtml(booking.anestesiologo || '—')}</span>
+  </div>
+
+  <div class="adm-sum-row">
+    <span class="adm-sum-lbl">1er Ayudante</span>
+    <span class="adm-sum-val">${escHtml(booking.enfermeria || '—')}</span>
+  </div>
+
+  <div class="adm-sum-row">
+    <span class="adm-sum-lbl">Duración</span>
+    <span class="adm-sum-val">${booking.duracion || '—'} hora(s)</span>
+  </div>
+
+  <div class="adm-sum-row">
+    <span class="adm-sum-lbl">Estatus</span>
+    <span class="adm-sum-val">${escHtml(booking.estatus || '—')}</span>
+  </div>
+
+  <div class="adm-sum-row">
+    <span class="adm-sum-lbl">Limpieza</span>
+    <span class="adm-sum-val">${escHtml(booking.limpieza || 'Pendiente')}</span>
+  </div>
+
+  <div class="adm-sum-row">
+    <span class="adm-sum-lbl">Servicios</span>
+
+    <span class="adm-sum-val">
+
+      ${[
+        booking.arcoenC ? 'Arco C' : '',
+        booking.laparoscopia ? 'Laparoscopía' : '',
+        booking.rayosx ? 'Rayos X' : '',
+        booking.ultrasonido ? 'Ultrasonido' : '',
+        booking.neuro ? 'Neuro' : '',
+        booking.microscopio ? 'Microscopio' : '',
+        booking.anestesiologoext ? 'Anest. Ext.' : '',
+        booking.primerayudante ? '1er Ayudante' : ''
+      ]
+      .filter(Boolean)
+      .join(' · ') || 'Ninguno'}
+
+    </span>
+
+  </div>
+
+`;
+      
       // Fill edit data tab
       document.getElementById('ed-paciente').value      = booking.paciente||'';
       document.getElementById('ed-procedimiento').value = booking.procedimiento||'';
@@ -851,6 +1102,7 @@
         const json = await res.json();
         if (json.error) throw new Error(json.error);
         allReservas = json.reservas || [];
+        console.log(json.reservas);
         lastUpdate  = new Date();
         updateStatusDot(true);
         render();
@@ -944,7 +1196,22 @@
 
     function cardHTML(r, compact) {
       const lmp  = r.limpieza || 'Pendiente';
-      const svcs = (r.servicios||[]).map(s => `<span class="svc-badge">${s}</span>`).join('');
+      
+      const serviciosActivos = [];
+
+        if (r.arcoenC)           serviciosActivos.push('Arco C');
+        if (r.laparoscopia)      serviciosActivos.push('Laparoscopía');
+        if (r.rayosx)            serviciosActivos.push('Rayos X');
+        if (r.ultrasonido)       serviciosActivos.push('Ultrasonido');
+        if (r.neuro)             serviciosActivos.push('Neuro');
+        if (r.microscopio)       serviciosActivos.push('Microscopio');
+        if (r.anestesiologoext)  serviciosActivos.push('Anest. Ext.');
+        if (r.primerayudante)    serviciosActivos.push('1er Ayudante');
+
+        const svcs = serviciosActivos
+          .map(s => `<span class="svc-badge">${s}</span>`)
+          .join('');
+      
       const proc = r.procedimiento ? `<div class="card-proc">${escHtml(r.procedimiento)}</div>` : `<div class="card-proc-empty">Sin procedimiento</div>`;
       const pac  = r.paciente
         ? `<div class="card-paciente"><div class="card-paciente-icon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><span class="card-paciente-name">${escHtml(r.paciente)}</span></div>`
@@ -969,7 +1236,7 @@
               <span class="card-field-value ${r.anestesiologo?'':'empty'}">${escHtml(r.anestesiologo||'—')}</span>
             </div>
             <div class="card-field">
-              <span class="card-field-label">Enfermería</span>
+              <span class="card-field-label">1er Ayudante</span>
               <span class="card-field-value ${r.enfermeria?'':'empty'}">${escHtml(r.enfermeria||'—')}</span>
             </div>
             <div class="card-field">
@@ -977,10 +1244,27 @@
               <span class="card-field-value">${escHtml((r.quirofano||'').replace('Quirofano','Q.'))}</span>
             </div>
           </div>
-          ${svcs ? `<div class="card-field" style="grid-column:1/-1;margin-bottom:0.3rem"><span class="card-field-label">Servicios adicionales requeridos</span></div><div class="card-services">${svcs}</div>` : ''}
+          ${svcs ? `<div class="card-field" style="grid-column:1/-1;margin-bottom:0.3rem"><span class="card-field-label">Servicios adicionales requeridos</span></div><div class="card-services">${svcs ? `<div class="card-services">${svcs}</div>` : ''}</div>` : ''}
+
           <div class="card-footer">
-            <button class="lmp-btn ${lmp}" onclick="cycleLimpieza('${escHtml(r.bookingId)}','${LMP_CYCLE[lmp]||'Pendiente'}')">${LMP_LABEL[lmp]||lmp}</button>
+
+            <div class="card-cleaning-block">
+
+              <span class="card-field-label">
+                Estatus de limpieza
+              </span>
+
+              <button
+                class="lmp-btn ${lmp}"
+                onclick="cycleLimpieza('${escHtml(r.bookingId)}','${LMP_CYCLE[lmp]||'Pendiente'}')"
+              >
+                ${LMP_LABEL[lmp]||lmp}
+              </button>
+
+            </div>
+
           </div>
+
         </div>
       </div>`;
     }
