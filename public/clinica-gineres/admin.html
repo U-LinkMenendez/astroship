@@ -334,6 +334,59 @@
   </header>
 
   <div class="modal-overlay" id="modalOverlay">
+    
+    <div class="adm-modal-overlay" id="blockModal">
+  <div class="adm-modal">
+    <h2>Bloquear quirófano</h2>
+
+    <div class="adm-form-grid">
+
+      <div class="adm-field">
+        <label>Quirófano</label>
+        <select id="blkQx">
+          <option>Quirofano 1</option>
+          <option>Quirofano 2</option>
+          <option>Quirofano 3</option>
+        </select>
+      </div>
+
+      <div class="adm-field">
+        <label>Fecha</label>
+        <input type="date" id="blkFecha">
+      </div>
+
+      <div class="adm-field">
+        <label>Inicio</label>
+        <input type="time" id="blkInicio">
+      </div>
+
+      <div class="adm-field">
+        <label>Fin</label>
+        <input type="time" id="blkFin">
+      </div>
+
+    </div>
+
+    <div class="adm-field">
+      <label>Motivo</label>
+      <input type="text" id="blkMotivo">
+    </div>
+
+    <div class="adm-actions">
+      <button class="adm-btn adm-btn-ghost"
+        onclick="closeBlockModal()">
+        Cancelar
+      </button>
+
+      <button class="adm-btn adm-btn-danger"
+        onclick="saveBlock()">
+        Bloquear
+      </button>
+    </div>
+
+  </div>
+</div>
+    
     <div class="modal">
       <h2>URL del Apps Script</h2>
       <p>Pega aquí la URL de tu Web App de Google Apps Script. Se guarda en este navegador.</p>
@@ -346,21 +399,63 @@
   </div>
 
   <div class="toolbar">
-    <div class="date-tabs" id="dateTabs"></div>
-    <div class="view-toggle">
-      <button class="view-btn" id="btnCol" onclick="setView('col')">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="5" height="18" rx="1"/><rect x="10" y="3" width="5" height="18" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg>
-        Quirófanos
-      </button>
-      <button class="view-btn" id="btnTl" onclick="setView('tl')" style="display:none">
-        Cronológico
-      </button>
-      <button class="view-btn active" id="btnRes" onclick="setView('res')">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-        Reservas
-      </button>
-    </div>
+
+  <div class="date-tabs" id="dateTabs"></div>
+
+  <div class="view-toggle">
+
+    <button
+      class="view-btn"
+      id="btnCol"
+      onclick="setView('col')">
+
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="3" width="5" height="18" rx="1"/>
+        <rect x="10" y="3" width="5" height="18" rx="1"/>
+        <rect x="17" y="3" width="4" height="18" rx="1"/>
+      </svg>
+
+      Quirófanos
+
+    </button>
+
+    <button
+      class="view-btn"
+      id="btnTl"
+      onclick="setView('tl')"
+      style="display:none">
+
+      Cronológico
+
+    </button>
+
+    <button
+      class="view-btn active"
+      id="btnRes"
+      onclick="setView('res')">
+
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="4" width="18" height="18" rx="2"/>
+        <line x1="16" y1="2" x2="16" y2="6"/>
+        <line x1="8" y1="2" x2="8" y2="6"/>
+        <line x1="3" y1="10" x2="21" y2="10"/>
+      </svg>
+
+      Reservas
+
+    </button>
+
+    <button
+      class="view-btn"
+      onclick="openBlockModal()">
+
+      🚫 Bloquear
+
+    </button>
+
   </div>
+
+</div>
 
   <div class="main">
     <div class="loader" id="loader" style="display:none">
@@ -370,19 +465,29 @@
     <div id="contentArea"></div>
   </div>
 
-  <script>
+   <script>
     const SCRIPT_KEY = 'cg_admin_script_url';
     const HARDCODED_URL = 'https://script.google.com/macros/s/AKfycbzha8m5EgrO1ViLi5yrD-P05pvZeyB4YnUNINPLWKvTUi-HO0sV_4jF9glEhuLJ3plA/exec';
     const HOURS = ['06:00','07:00','08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00'];
     const QUIROFANOS = ['Quirofano 1','Quirofano 2','Quirofano 3'];
-    const LMP_CYCLE = { 'Pendiente':'EnProceso', 'EnProceso':'Listo', 'Listo':'Pendiente' };
-    const LMP_LABEL = { 'Pendiente':'⏳ Pendiente', 'EnProceso':'🧹 En proceso', 'Listo':'✅ Listo' };
+    const LMP_CYCLE = {
+      'Pendiente':'EnProceso',
+      'EnProceso':'Listo',
+      'Listo':'Pendiente'
+    };
+
+    const LMP_LABEL = {
+      'Pendiente':'⏳ Pendiente',
+      'EnProceso':'🧹 En proceso',
+      'Listo':'✅ Listo'
+    };
 
     let currentDate = todayStr();
     let currentView = 'res';
-    let allReservas  = [];
-    let lastUpdate   = null;
-
+    let allReservas = [];
+    let allBloqueos = [];
+    let lastUpdate = null;
+    let _processing = false;
 
     // ── RESERVATION TAB CONSTANTS ───────────────────────
     const CAL_ACCOUNTS_ADM = [
@@ -407,6 +512,20 @@
       const occ = {};
       RES_HOURS.forEach(h => { occ[h] = {}; });
       dayR.forEach(r => {
+
+        const dayB = allBloqueos.filter( b => b.fecha === currentDate );
+        dayB.forEach(b => { const si = RES_HOURS.indexOf(b.horaInicio); const ei = RES_HOURS.indexOf(b.horaFin); if (si === -1 || ei === -1) return;
+        occ[RES_HOURS[si]][b.quirofano] = { bloqueo: true, motivo: b.motivo, isStart: true, height: ((ei - si) * ROW_H_ADM) - 6
+        };
+
+        for (let d = si + 1; d < ei; d++) {
+        occ[RES_HOURS[d]][b.quirofano] = {
+          bloqueo: true,
+           isCont: true
+        };
+      }
+   });
+        
         const sh  = (r.horaInicio||'00:00').substring(0,5);
         const dur = Number(r.duracion)||1;
         const qk  = r.quirofano||'Quirofano 1';
@@ -456,7 +575,29 @@
           const slotH = parseInt(h)+parseInt(h.split(':')[1]||0)/60;
           const isPast = isToday && (parseInt(h.split(':')[0]) + parseInt(h.split(':')[1])/60) <= nowH;
           let cell = '';
-          if (o && o.isStart) {
+          
+          if (o && o.bloqueo && o.isStart) {
+           cell = `
+             <div class="rslot-occ"
+             style="
+             height:${o.height}px;
+             background:#E5E7EB;
+             border-left:4px solid #6B7280;
+             cursor:not-allowed;
+          ">
+
+            <div class="rs-time">
+              🚫 BLOQUEADO
+          </div>
+
+          <div class="rs-proc">
+          ${escHtml(o.motivo || 'No disponible')}
+        </div>
+      </div>
+     `;
+    }
+          
+          else if (o && o.isStart) {
             const startH2 = parseInt(o.hora.split(':')[0]) + parseInt(o.hora.split(':')[1])/60;
           const endH2   = startH2 + o.duracion;
           const inProgress = isToday && startH2 <= nowH && nowH < endH2;
@@ -1123,7 +1264,13 @@ ${[
         const json = await res.json();
         if (json.error) throw new Error(json.error);
         allReservas = json.reservas || [];
+        
+        const bloqueosRes = await fetch(url, { method:'POST', body: JSON.stringify({ action:'obtenerBloqueos' })
+        });
+        const bloqueosJson = await bloqueosRes.json();
+        allBloqueos = bloqueosJson.data || [];
         console.log(json.reservas);
+        
         lastUpdate  = new Date();
         updateStatusDot(true);
         render();
