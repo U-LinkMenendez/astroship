@@ -623,17 +623,10 @@
           else if (o && o.isStart) {
             const startH2 = parseInt(o.hora.split(':')[0]) + parseInt(o.hora.split(':')[1])/60;
              const endH2   = startH2 + o.duracion;
+              const isBlocked = (o.booking.doctor || '') .includes('🚫 BLOQUEADO');
                const inProgress = !isBlocked && isToday && startH2 <= nowH && nowH < endH2;
+              const isCancelled = (o.booking.estatus || '') .toLowerCase() .includes('cancel');
             const isFinished = isToday && nowH >= endH2;
-
-    const isCancelled = 
-      (o.booking.estatus || '')
-        .toLowerCase()
-        .includes('cancel');
-
-            const isBlocked =
-             (o.booking.doctor || '')
-               .includes('🚫 BLOQUEADO');
 
             let statusClass = 'rs-upcoming';
             if (isCancelled) { statusClass = 'rs-cancelled'; }
