@@ -628,9 +628,14 @@
                const inProgress = isToday && startH2 <= nowH && nowH < endH2;
             const isFinished = isToday && nowH >= endH2;
 
-    const isCancelled = (o.booking.estatus || '')
+    const isCancelled = 
+      (o.booking.estatus || '')
         .toLowerCase()
         .includes('cancel');
+
+            const isBlocked =
+             (o.booking.doctor || '')
+               .includes('🚫 BLOQUEADO');
 
             let statusClass = 'rs-upcoming';
             if (isCancelled) { statusClass = 'rs-cancelled'; }
