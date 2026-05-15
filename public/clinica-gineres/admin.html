@@ -559,7 +559,7 @@
         const qk  = r.quirofano||'Quirofano 1';
         const si  = RES_HOURS.indexOf(sh);
         if (si === -1) return;
-        occ[RES_HOURS[si]][qk] = { proc: r.procedimiento||r.tipoCirugia||'Cirugía', hora: sh, duracion: dur, isStart: true, height: (dur * ROW_H_ADM) - 16, booking: r };
+        occ[RES_HOURS[si]][qk] = { proc: r.procedimiento||r.tipoCirugia||'Cirugía', hora: sh, duracion: dur, isStart: true, height: ((dur - 1) * ROW_H_ADM) + (ROW_H_ADM - 10), booking: r };
         for (let d=1; d<dur; d++) {
           const idx = si+d;
           if (idx >= RES_HOURS.length) break;
