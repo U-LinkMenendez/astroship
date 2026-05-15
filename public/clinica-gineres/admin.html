@@ -816,6 +816,13 @@ ${[
 
     function toggleResSlot(q, h) {
 
+console.log('CLICK SLOT', {
+  q,
+  h,
+  currentDate,
+  allBloqueos
+});
+      
   const bloqueoExiste = allBloqueos.some(b => {
   const bh = (b.horaInicio || '').substring(0,5);
   return (
