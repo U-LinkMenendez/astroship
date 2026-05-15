@@ -477,7 +477,7 @@
    <script>
     const SCRIPT_KEY = 'cg_admin_script_url';
     const HARDCODED_URL = 'https://script.google.com/macros/s/AKfycbzha8m5EgrO1ViLi5yrD-P05pvZeyB4YnUNINPLWKvTUi-HO0sV_4jF9glEhuLJ3plA/exec';
-    const HOURS = ['06:00','07:00','08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00'];
+    const HOURS = ['06:00','07:00','08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00'];
     const QUIROFANOS = ['Quirofano 1','Quirofano 2','Quirofano 3'];
     const LMP_CYCLE = {
       'Pendiente':'EnProceso',
@@ -606,9 +606,8 @@
           
           if (o && o.bloqueo && o.isStart) {
            cell = `
-             <div class="rslot-occ rs-blocked"
-             <div class="rslot-occ rs-blocked"
-              style="height:${o.height}px;">
+            <div class="rslot-occ rs-blocked"
+             style="height:${o.height}px;">
 
             <div class="rs-time">
               🚫 BLOQUEADO
@@ -799,23 +798,7 @@ ${[
 
 ` : ''}
 
-  <div style="
-    margin-top:auto;
-    padding-top:6px;
-    font-size:0.63rem;
-    font-weight:700;
-    color:${
-      (o.booking.limpieza || 'Pendiente') === 'Listo'
-        ? '#059669'
-        : (o.booking.limpieza || 'Pendiente') === 'EnProceso'
-        ? '#2563EB'
-        : '#D97706'
-    };
-  ">
-    🧹 ${(o.booking.limpieza || 'Pendiente')}
-  </div>
-
-</div>`;
+  </div>`;
             
           } else if (o && o.isCont) {
             cell = `<div class="rslot-cont" onclick="openAdmEdit(${JSON.stringify(o.booking).replace(/"/g,'&quot;')})"></div>`;
