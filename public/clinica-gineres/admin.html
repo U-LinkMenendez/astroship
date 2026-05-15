@@ -814,6 +814,12 @@ ${[
     }
 
     function toggleResSlot(q, h) {
+
+      const o = _resOccMap[h]?.[q];
+      if (o && o.bloqueo) {
+        return;
+    }
+      
       if (!resSelection) { resSelection = { quirofano:q, slots:[h] }; }
       else if (resSelection.quirofano !== q) { return; }
       else {
