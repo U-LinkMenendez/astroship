@@ -515,21 +515,22 @@
       // Build occupied map
       const occ = {};
       RES_HOURS.forEach(h => { occ[h] = {}; });
+
+      const dayB = allBloqueos.filter(
+      b => b.fecha === currentDate
+    );
+      dayB.forEach(b => {
+      if (!occ[b.hora]) return;
+      occ[b.hora][b.quirofano] = {
+        bloqueo: true,
+        motivo: b.motivo,
+        isStart: true,
+        height: ROW_H_ADM - 6
+      };
+    });
+      
       dayR.forEach(r => {
 
-        const dayB = allBloqueos.filter( b => b.fecha === currentDate );
-        dayB.forEach(b => { const si = RES_HOURS.indexOf(b.horaInicio); const ei = RES_HOURS.indexOf(b.horaFin); if (si === -1 || ei === -1) return;
-        occ[RES_HOURS[si]][b.quirofano] = { bloqueo: true, motivo: b.motivo, isStart: true, height: ((ei - si) * ROW_H_ADM) - 6
-        };
-
-        for (let d = si + 1; d < ei; d++) {
-        occ[RES_HOURS[d]][b.quirofano] = {
-          bloqueo: true,
-           isCont: true
-        };
-      }
-   });
-        
         const sh  = (r.horaInicio||'00:00').substring(0,5);
         const dur = Number(r.duracion)||1;
         const qk  = r.quirofano||'Quirofano 1';
