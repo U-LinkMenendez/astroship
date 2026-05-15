@@ -698,40 +698,64 @@
     ${escHtml(o.proc)}
   </div>
 
+  ${isBlocked ? `
+
+  <div style="
+    margin-top:8px;
+    font-size:0.78rem;
+    font-weight:700;
+    color:#DC2626;
+  ">
+    🚫 QUIRÓFANO BLOQUEADO
+  </div>
+
   <div style="
     font-size:0.68rem;
-    color:#334155;
-    margin-top:2px;
-    font-weight:600;
-    line-height:1.2;
+    color:#475569;
+    margin-top:4px;
+    line-height:1.35;
   ">
-    👨‍⚕️ ${escHtml(o.booking.doctor || 'Sin doctor')}
+    ${escHtml(o.proc)}
   </div>
 
-  <div style="
-    font-size:0.66rem;
-    color:#64748B;
-    line-height:1.2;
-  ">
-    🧑 ${escHtml(o.booking.paciente || 'Sin paciente')}
-  </div>
+` : `
 
   <div style="
-  font-size:0.64rem;
-  color:#475569;
-  line-height:1.35;
-  margin-top:3px;
-">
-  💉 ${escHtml(o.booking.anestesiologo || 'Sin anestesiólogo')}
-</div>
+      font-size:0.68rem;
+      color:#334155;
+      margin-top:2px;
+      font-weight:600;
+      line-height:1.2;
+    ">
+      👨‍⚕️ ${escHtml(o.booking.doctor || 'Sin doctor')}
+    </div>
 
-<div style="
-  font-size:0.64rem;
-  color:#475569;
-  line-height:1.35;
-">
-  🩺 ${escHtml(o.booking.enfermeria || 'Sin primer ayudante')}
-</div>
+    <div style="
+      font-size:0.66rem;
+      color:#64748B;
+      line-height:1.2;
+    ">
+      🧑 ${escHtml(o.booking.paciente || 'Sin paciente')}
+    </div>
+
+    <div style="
+      font-size:0.64rem;
+      color:#475569;
+      line-height:1.35;
+      margin-top:3px;
+    ">
+      💉 ${escHtml(o.booking.anestesiologo || 'Sin anestesiólogo')}
+    </div>
+
+    <div style="
+      font-size:0.64rem;
+      color:#475569;
+      line-height:1.35;
+    ">
+      🩺 ${escHtml(o.booking.enfermeria || 'Sin primer ayudante')}
+    </div>
+
+`}
 
 ${[
   o.booking.microscopio ? '🔬 Microscopio' : '',
