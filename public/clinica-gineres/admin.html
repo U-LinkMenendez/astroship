@@ -240,6 +240,7 @@
     .rslot-occ.rs-upcoming{ background:#EFF6FF; border-left:4px solid #2563EB; }
     .rslot-occ.rs-live{ background:#FEF2F2; border-left:4px solid #DC2626; box-shadow:0 0 0 1px rgba(220,38,38,0.08); }
     .rslot-occ.rs-finished{ background:#F8FAFC; border-left:4px solid #64748B; opacity:0.82; }
+    .rs-blocked{ background:#E5E7EB !important; border-left:4px solid #DC2626 !important; opacity:.95; cursor:not-allowed !important; }
     .rslot-occ.rs-cancelled{ background:#F1F5F9; border-left:4px solid #0F172A; opacity:0.5; filter:grayscale(0.15); }
     
     .rslot-occ:hover { background:#DBEAFE; }
@@ -633,13 +634,22 @@ const isCancelled =
     .toLowerCase()
     .includes('cancel');
 
+const isBlocked =
+  (o.booking.doctor || '')
+    .includes('🚫 BLOQUEADO');
+            
 let statusClass = 'rs-upcoming';
 
-if (isCancelled) {
+if (isBlocked) {
+  statusClass = 'rs-blocked';
+}
+else if (isCancelled) {
   statusClass = 'rs-cancelled';
-} else if (inProgress) {
+}
+else if (inProgress) {
   statusClass = 'rs-live';
-} else if (isFinished) {
+}
+else if (isFinished) {
   statusClass = 'rs-finished';
 }
 
@@ -841,14 +851,8 @@ console.log('CLICK SLOT', {
   allBloqueos
 });
       
-  const bloqueoExiste = allBloqueos.some(b => {
-  const bh = (b.horaInicio || '').substring(0,5);
-  return (
-    b.fecha === currentDate &&
-    b.quirofano === q &&
-    bh === h &&
-    String(b.activo).toLowerCase() === 'true'
-  );
+  const bloqueoExiste = allBloqueos.some(b => { return ( b.fecha === currentDate && b.quirofano === q && b.hora === h );
+
 });
 
   if (bloqueoExiste) {
@@ -1193,13 +1197,18 @@ function closeBlockModal() {
 }
      
      async function saveBlock() {
-  const qx = document.getElementById('blkQx').value;
-  const fecha = document.getElementById('blkFecha').value;
-  const motivo = document.getElementById('blkMotivo')
-    .value
-    .trim();
+  const qx =
+    document.getElementById('blkQx').value;
+  const fecha =
+    document.getElementById('blkFecha').value;
+  const motivo =
+    document.getElementById('blkMotivo')
+      .value
+      .trim() || 'Bloqueo operativo';
   const horas = [
-    ...document.querySelectorAll('.blk-hour:checked')
+    ...document.querySelectorAll(
+      '.blk-hour:checked'
+    )
   ].map(x => x.value);
   if (!fecha) {
     alert('Selecciona una fecha');
@@ -1209,33 +1218,91 @@ function closeBlockModal() {
     alert('Selecciona al menos una hora');
     return;
   }
+  horas.sort();
+  const inicio = horas[0];
+  const last =
+    horas[horas.length - 1];
+  const finNum =
+    parseInt(last.split(':')[0]) + 1;
+  const fin =
+    String(finNum)
+      .padStart(2,'0') + ':00';
+  const qIdx =
+    QUIROFANOS.indexOf(qx);
+  const acct =
+    CAL_ACCOUNTS_ADM[qIdx];
+  const hh =
+    parseInt(inicio.split(':')[0]);
+  const mm =
+    parseInt(inicio.split(':')[1]);
+  const d =
+    new Date(fecha + 'T00:00:00');
+  const startUTC =
+    new Date(Date.UTC(
+      d.getFullYear(),
+      d.getMonth(),
+      d.getDate(),
+      hh + 6,
+      mm
+    ));
   try {
     const url =
       localStorage.getItem(SCRIPT_KEY)
       || HARDCODED_URL;
-    const r = await fetch(url, {
+    const res = await fetch(url, {
       method:'POST',
       body: JSON.stringify({
-        action:'crearBloqueos',
-        fecha,
-        quirofano: qx,
-        motivo,
-        horas
+        action:'crearReserva',
+        eventTypeId:
+          acct.eventTypeId,
+        calKey:
+          acct.key,
+        start:
+          startUTC.toISOString(),
+        lengthInMinutes:
+          horas.length * 60,
+        attendee:{
+          name:'🚫 BLOQUEADO',
+          email:'bloqueo@sistema.local',
+          timeZone:'America/Merida',
+          language:'es'
+        },
+        bookingFieldsResponses:{
+          name:'🚫 BLOQUEADO',
+          paciente:'NO DISPONIBLE',
+          procedimiento:motivo,
+          anestesiologo:'',
+          enfermeria:'',
+          location:{
+            value:'link',
+            optionValue:''
+          }
+        },
+        metadata:{
+          sistema:true,
+          bloqueo:true
+        }
       })
     });
-    const j = await r.json();
-    if (!j.ok) {
+    const json =
+      await res.json();
+    if (!json.ok) {
       throw new Error(
-        j.error || 'Error guardando bloqueo'
+        json.error ||
+        'Error creando bloqueo'
       );
     }
     closeBlockModal();
     await loadData();
-    alert('Bloqueo guardado');
+    alert(
+      'Quirófano bloqueado correctamente'
+    );
   }
   catch(err) {
     console.error(err);
-    alert('No se pudo guardar el bloqueo');
+    alert(
+      'No se pudo crear el bloqueo'
+    );
   }
 }
    
