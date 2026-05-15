@@ -242,6 +242,7 @@
     .rslot-occ.rs-finished{ background:#F8FAFC; border-left:4px solid #64748B; opacity:0.82; }
     .rs-blocked{ background:#E5E7EB !important; border-left:4px solid #DC2626 !important; opacity:.95; cursor:not-allowed !important; }
     .rslot-occ.rs-cancelled{ background:#F1F5F9; border-left:4px solid #0F172A; opacity:0.5; filter:grayscale(0.15); }
+    .rslot-occ.rs-blocked{ background:#F3F4F6 !important; border-left:4px solid #DC2626 !important; box-shadow:none !important; opacity:1 !important; }
     
     .rslot-occ:hover { background:#DBEAFE; }
     .rslot-occ .rs-proc { font-size:0.78rem; font-weight:700; color:var(--navy); line-height:1.15; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
@@ -603,7 +604,7 @@
           
           if (o && o.bloqueo && o.isStart) {
            cell = `
-             <div class="rslot-occ"
+             <div class="rslot-occ rs-blocked"
              style="
              height:${o.height}px;
              background:#E5E7EB;
