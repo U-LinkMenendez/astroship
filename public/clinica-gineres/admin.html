@@ -1097,9 +1097,29 @@ ${[
     }
 
     function closeAdmEdit() { document.getElementById('admEditModal').classList.remove('open'); _editBooking=null; }
+
+     function openBlockModal() {
+  document.getElementById('blkFecha').value = currentDate;
+  document.getElementById('blkInicio').value = '07:00';
+  document.getElementById('blkFin').value = '08:00';
+  document.getElementById('blkMotivo').value = '';
+  document.getElementById('blockModal')
+    .classList.add('open');
+}
+
+function closeBlockModal() {
+
+  document.getElementById('blockModal')
+    .classList.remove('open');
+}
     
-    window.addEventListener('click', e => { if (_processing) return; if ( e.target.id === 'admEditModal' || e.target.id === 'admNewModal' ||
-    e.target.id === 'modalOverlay' ) { e.target.classList.remove('open'); }
+    window.addEventListener('click', e => { if (_processing) return; if ( 
+      e.target.id === 'admEditModal' ||
+      e.target.id === 'admNewModal' ||
+      e.target.id === 'modalOverlay' ||
+      e.target.id === 'blockModal' )
+    
+    { e.target.classList.remove('open'); }
 
 });
 
