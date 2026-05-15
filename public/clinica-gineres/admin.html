@@ -514,6 +514,24 @@
 
       // Build occupied map
       const occ = {};
+
+      allBloqueos.forEach(b => {
+
+  if (b.fecha !== currentDate) return;
+
+  if (!occ[b.hora]) {
+    occ[b.hora] = {};
+  }
+
+  occ[b.hora][b.quirofano] = {
+    bloqueo: true,
+    motivo: b.motivo || 'Bloqueado',
+    isStart: true,
+    height: 80
+  };
+
+});
+      
       RES_HOURS.forEach(h => { occ[h] = {}; });
 
       const dayB = allBloqueos.filter(
