@@ -234,13 +234,12 @@
 
     /* Occupied slot in reservation tab */
     .rslot-occ { position:absolute; left:3px; right:3px; top:3px; z-index:2; background:#EFF6FF; border-radius:8px; padding:0.45rem 0.55rem; border-left:4px solid var(--blue);
-       cursor:pointer; overflow:hidden; box-shadow:0 1px 4px rgba(37,99,235,0.10); transition:all 0.15s; display:flex; flex-direction:column; gap:0.18rem; }
+       cursor:pointer; overflow:hidden; box-shadow:0 1px 4px rgba(37,99,235,0.10); transition:none !important; display:flex; flex-direction:column; gap:0.18rem; }
 
     /* ===== ESTADOS QUIRÚRGICOS ===== */
     .rslot-occ.rs-upcoming{ background:#EFF6FF; border-left:4px solid #2563EB; }
     .rslot-occ.rs-live{ background:#FEF2F2; border-left:4px solid #DC2626; box-shadow:0 0 0 1px rgba(220,38,38,0.08); }
     .rslot-occ.rs-finished{ background:#F8FAFC; border-left:4px solid #64748B; opacity:0.82; }
-    .rs-blocked{ background:#E5E7EB !important; border-left:4px solid #DC2626 !important; opacity:.95; cursor:not-allowed !important; }
     .rslot-occ.rs-cancelled{ background:#F1F5F9; border-left:4px solid #0F172A; opacity:0.5; filter:grayscale(0.15); }
     .rslot-occ.rs-blocked{ background:#FEF2F2 !important; border-left:4px solid #DC2626 !important; box-shadow:none !important; opacity:1 !important; }
     .rslot-occ.rs-blocked:hover{ background:#FEE2E2 !important; }
@@ -606,12 +605,8 @@
           if (o && o.bloqueo && o.isStart) {
            cell = `
              <div class="rslot-occ rs-blocked"
-             style="
-             height:${o.height}px;
-             background:#FEF2F2;
-             border-left:4px solid #DC2626;
-             cursor:not-allowed;
-           ">
+             <div class="rslot-occ rs-blocked"
+              style="height:${o.height}px;">
 
             <div class="rs-time">
               🚫 BLOQUEADO
