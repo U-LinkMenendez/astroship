@@ -624,15 +624,18 @@
           
           else if (o && o.isStart) {
             const startH2 = parseInt(o.hora.split(':')[0]) + parseInt(o.hora.split(':')[1])/60;
-          const endH2   = startH2 + o.duracion;
-          const inProgress = isToday && startH2 <= nowH && nowH < endH2;
-
+             const endH2   = startH2 + o.duracion;
+               const inProgress = isToday && startH2 <= nowH && nowH < endH2;
             const isFinished = isToday && nowH >= endH2;
 
-const isCancelled =
-  (o.booking.estatus || '')
-    .toLowerCase()
-    .includes('cancel');
+    const isCancelled = (o.booking.estatus || '')
+        .toLowerCase()
+        .includes('cancel');
+
+            let statusClass = 'rs-upcoming';
+            if (isCancelled) { statusClass = 'rs-cancelled'; }
+            else if (inProgress) { statusClass = 'rs-live'; }
+            else if (isFinished) { statusClass = 'rs-finished'; }
             
             cell = `<div class="rslot-occ ${statusClass}" 
               style="height:${o.height}px;${inProgress?'cursor:not-allowed;opacity:0.7':''}" 
