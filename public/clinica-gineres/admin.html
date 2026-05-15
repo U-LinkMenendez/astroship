@@ -396,7 +396,6 @@
     let resSelection = null;   // { quirofano, slots[] }
     let _resOccMap   = {};
     let _editBooking = null;   // current booking being edited
-    let _processing = false;
 
     // ── RENDER RESERVATION TAB ───────────────────────────
     function renderRes() {
@@ -957,11 +956,6 @@ ${[
     }
 
     function closeAdmEdit() { document.getElementById('admEditModal').classList.remove('open'); _editBooking=null; }
-    
-    window.addEventListener('click', e => { if (_processing) return; if ( e.target.id === 'admEditModal' || e.target.id === 'admNewModal' ||
-    e.target.id === 'modalOverlay' ) { e.target.classList.remove('open'); }
-
-});
 
     function showEditTab(tab) {
       ['datos','hora','cancel'].forEach(t => {
@@ -972,8 +966,6 @@ ${[
     }
 
     async function submitEditDatos() {
-      if (_processing) return;
-        _processing = true;
       const btn = document.getElementById('edDatosBtn');
       btn.disabled=true; btn.textContent='Guardando…';
       const url = localStorage.getItem(SCRIPT_KEY)||HARDCODED_URL;
@@ -989,15 +981,13 @@ ${[
           doctorNombre:  _editBooking.doctor||'',
         })});
         const json = await res.json();
-        if (json.ok) { _processing = false; closeAdmEdit(); await loadData(); alert('Datos actualizados correctamente.'); }
+        if (json.ok) { closeAdmEdit(); await loadData(); alert('Datos actualizados correctamente.'); }
         else alert('Error: '+(json.error||''));
-      } catch(e) {_processing = false; alert('Error de conexión'); }
+      } catch(e) { alert('Error de conexión'); }
       btn.disabled=false; btn.textContent='Guardar Cambios';
     }
 
     async function submitEditHora() {
-      if (_processing) return;
-        _processing = true;
       const btn = document.getElementById('edHoraBtn');
       btn.disabled=true; btn.textContent='Reagendando…';
       const fecha = document.getElementById('ed-fecha').value;
@@ -1022,16 +1012,13 @@ ${[
           horaAnterior:   _editBooking.horaInicio,
         })});
         const json = await res.json();
-        if (json.ok) { _processing = false; closeAdmEdit(); await loadData(); alert('Reserva reagendada correctamente.'); }
+        if (json.ok) { closeAdmEdit(); await loadData(); alert('Reserva reagendada correctamente.'); }
         else alert('Error: '+(json.error||''));
-      } catch(e) {_processing = false; alert('Error de conexión'); }
-      _processing = false;
+      } catch(e) { alert('Error de conexión'); }
       btn.disabled=false; btn.textContent='Reagendar';
     }
 
     async function submitCancelReserva() {
-      if (_processing) return;
-        _processing = true;
       const btn = document.getElementById('edCancelBtn');
       btn.disabled=true; btn.textContent='Cancelando…';
       const url = localStorage.getItem(SCRIPT_KEY)||HARDCODED_URL;
@@ -1048,10 +1035,9 @@ ${[
           horaInicio:   _editBooking.horaInicio,
         })});
         const json = await res.json();
-        if (json.ok) { _processing = false; closeAdmEdit(); await loadData(); alert('Reserva cancelada correctamente.'); }
+        if (json.ok) { closeAdmEdit(); await loadData(); alert('Reserva cancelada.'); }
         else alert('Error: '+(json.error||''));
-      } catch(e) {_processing = false; alert('Error de conexión'); }
-      _processing = false;
+      } catch(e) { alert('Error de conexión'); }
       btn.disabled=false; btn.textContent='Confirmar Cancelación';
     }
 
@@ -1064,14 +1050,7 @@ ${[
       buildDateTabs();
       updateHdrDate();
       updateStatusDot(true);
-      loadData();  // Auto refresh silencioso
-      setInterval(() => {
-        if (_processing) return;
-        const modalOpen =
-          document.querySelector('.adm-modal-overlay.open');
-        if (modalOpen) return;
-        loadData();
-      }, 60000);
+      loadData();
     }
 
     function updateHdrDate() {
