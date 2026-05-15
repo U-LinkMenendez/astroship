@@ -505,7 +505,7 @@
       { key: 'cal_live_a3ae35264250fe02f3b2d5eee9016c94', eventTypeId: 5577080, quirofano: 'Quirofano 3' },
     ];
     const RES_HOURS = ['06:00','07:00','08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00'];
-    const ROW_H_ADM = 132;
+    const ROW_H_ADM = 110;
 
     let resSelection = null;   // { quirofano, slots[] }
     let _resOccMap   = {};
@@ -559,7 +559,7 @@
         const qk  = r.quirofano||'Quirofano 1';
         const si  = RES_HOURS.indexOf(sh);
         if (si === -1) return;
-        occ[RES_HOURS[si]][qk] = { proc: r.procedimiento||r.tipoCirugia||'Cirugía', hora: sh, duracion: dur, isStart: true, height: ((dur - 1) * ROW_H_ADM) + (ROW_H_ADM - 10), booking: r };
+        occ[RES_HOURS[si]][qk] = { proc: r.procedimiento||r.tipoCirugia||'Cirugía', hora: sh, duracion: dur, isStart: true, height: (dur * ROW_H_ADM) - 8, booking: r };
         for (let d=1; d<dur; d++) {
           const idx = si+d;
           if (idx >= RES_HOURS.length) break;
@@ -634,7 +634,7 @@
             else if (isFinished) { statusClass = 'rs-finished'; }
             
             cell = `<div class="rslot-occ ${statusClass}" 
-              style="height:${o.height}px; overflow:hidden;${inProgress?'cursor:not-allowed;opacity:0.7':''}" 
+              style="height:${o.height}px; box-sizing:border-box; overflow:hidden;${inProgress?'cursor:not-allowed;opacity:0.7':''}" 
                 ${inProgress ? 'title="Cirugía en curso"' : `onclick="openAdmEdit(${JSON.stringify(o.booking).replace(/"/g,'&quot;')})"`}>
 
   <div class="rs-time">
