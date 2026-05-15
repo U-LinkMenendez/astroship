@@ -334,7 +334,18 @@
   </header>
 
   <div class="modal-overlay" id="modalOverlay">
-    
+       
+    <div class="modal">
+      <h2>URL del Apps Script</h2>
+      <p>Pega aquí la URL de tu Web App de Google Apps Script. Se guarda en este navegador.</p>
+      <input type="url" id="scriptUrlInput" placeholder="https://script.google.com/macros/s/.../exec" />
+      <div class="modal-actions">
+        <button class="btn btn-ghost" onclick="closeSetup()">Cancelar</button>
+        <button class="btn btn-primary" onclick="saveSetup()">Guardar</button>
+      </div>
+    </div>
+  </div>
+
     <div class="adm-modal-overlay" id="blockModal">
   <div class="adm-modal">
     <h2>Bloquear quirófano</h2>
@@ -386,18 +397,7 @@
 
   </div>
 </div>
-    
-    <div class="modal">
-      <h2>URL del Apps Script</h2>
-      <p>Pega aquí la URL de tu Web App de Google Apps Script. Se guarda en este navegador.</p>
-      <input type="url" id="scriptUrlInput" placeholder="https://script.google.com/macros/s/.../exec" />
-      <div class="modal-actions">
-        <button class="btn btn-ghost" onclick="closeSetup()">Cancelar</button>
-        <button class="btn btn-primary" onclick="saveSetup()">Guardar</button>
-      </div>
-    </div>
-  </div>
-
+  
   <div class="toolbar">
 
   <div class="date-tabs" id="dateTabs"></div>
