@@ -1148,15 +1148,60 @@ function closeBlockModal() {
   document.getElementById('blockModal')
     .classList.remove('open');
 }
-    
+     
+     async function saveBlock() {
+  const qx = document.getElementById('blkQx').value;
+  const fecha = document.getElementById('blkFecha').value;
+  const motivo = document.getElementById('blkMotivo')
+    .value
+    .trim();
+  const horas = [
+    ...document.querySelectorAll('.blk-hour:checked')
+  ].map(x => x.value);
+  if (!fecha) {
+    alert('Selecciona una fecha');
+    return;
+  }
+  if (!horas.length) {
+    alert('Selecciona al menos una hora');
+    return;
+  }
+  try {
+    const url =
+      localStorage.getItem(SCRIPT_KEY)
+      || HARDCODED_URL;
+    const r = await fetch(url, {
+      method:'POST',
+      body: JSON.stringify({
+        action:'crearBloqueos',
+        fecha,
+        quirofano: qx,
+        motivo,
+        horas
+      })
+    });
+    const j = await r.json();
+    if (!j.ok) {
+      throw new Error(
+        j.error || 'Error guardando bloqueo'
+      );
+    }
+    closeBlockModal();
+    await loadData();
+    alert('Bloqueo guardado');
+  }
+  catch(err) {
+    console.error(err);
+    alert('No se pudo guardar el bloqueo');
+  }
+}
+   
     window.addEventListener('click', e => { if (_processing) return; if ( 
       e.target.id === 'admEditModal' ||
       e.target.id === 'admNewModal' ||
       e.target.id === 'modalOverlay' ||
       e.target.id === 'blockModal' )
-    
     { e.target.classList.remove('open'); }
-
 });
 
     function showEditTab(tab) {
