@@ -521,7 +521,8 @@
     );
       dayB.forEach(b => {
       if (!occ[b.hora]) return;
-      occ[b.hora][b.quirofano] = {
+      occ[b.hora][ b.quirofano.replace( 'Quirofano', 'Quirófano' )
+       ] = {
         bloqueo: true,
         motivo: b.motivo,
         isStart: true,
@@ -817,7 +818,7 @@ ${[
 
   const bloqueoExiste = allBloqueos.some(b =>
     b.fecha === currentDate &&
-    b.quirofano === q &&
+    b.quirofano.replace('Quirofano','Quirófano') === q &&
     b.hora === h
   );
 
