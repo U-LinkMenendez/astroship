@@ -816,11 +816,15 @@ ${[
 
     function toggleResSlot(q, h) {
 
-  const bloqueoExiste = allBloqueos.some(b =>
+  const bloqueoExiste = allBloqueos.some(b => {
+  const bh = (b.horaInicio || '').substring(0,5);
+  return (
     b.fecha === currentDate &&
-    b.quirofano.replace('Quirofano','Quirófano') === q &&
-    b.hora === h
+    b.quirofano === q &&
+    bh === h &&
+    String(b.activo).toLowerCase() === 'true'
   );
+});
 
   if (bloqueoExiste) {
     alert('Este horario está bloqueado');
