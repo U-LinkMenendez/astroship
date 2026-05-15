@@ -957,6 +957,11 @@ ${[
     }
 
     function closeAdmEdit() { document.getElementById('admEditModal').classList.remove('open'); _editBooking=null; }
+    
+    window.addEventListener('click', e => { if (_processing) return; if ( e.target.id === 'admEditModal' || e.target.id === 'admNewModal' ||
+    e.target.id === 'modalOverlay' ) { e.target.classList.remove('open'); }
+
+});
 
     function showEditTab(tab) {
       ['datos','hora','cancel'].forEach(t => {
