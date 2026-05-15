@@ -1051,6 +1051,7 @@ ${[
       updateHdrDate();
       updateStatusDot(true);
       loadData();
+      setInterval(() => { loadData(); }, 60000);
     }
 
     function updateHdrDate() {
