@@ -633,26 +633,7 @@ const isCancelled =
   (o.booking.estatus || '')
     .toLowerCase()
     .includes('cancel');
-
-const isBlocked =
-  (o.booking.doctor || '')
-    .includes('🚫 BLOQUEADO');
             
-let statusClass = 'rs-upcoming';
-
-if (isBlocked) {
-  statusClass = 'rs-blocked';
-}
-else if (isCancelled) {
-  statusClass = 'rs-cancelled';
-}
-else if (inProgress) {
-  statusClass = 'rs-live';
-}
-else if (isFinished) {
-  statusClass = 'rs-finished';
-}
-
             cell = `<div class="rslot-occ ${statusClass}" 
               style="height:${o.height}px;${inProgress?'cursor:not-allowed;opacity:0.7':''}" 
                 ${inProgress ? 'title="Cirugía en curso"' : `onclick="openAdmEdit(${JSON.stringify(o.booking).replace(/"/g,'&quot;')})"`}>
