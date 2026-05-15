@@ -366,16 +366,21 @@
         <input type="date" id="blkFecha">
       </div>
 
-      <div class="adm-field">
-        <label>Inicio</label>
-        <input type="time" id="blkInicio">
-      </div>
+<div class="adm-field" style="grid-column:1/-1">
 
-      <div class="adm-field">
-        <label>Fin</label>
-        <input type="time" id="blkFin">
-      </div>
+  <label>Horas a bloquear</label>
 
+  <div id="blkHoras"
+    style="
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:8px;
+      margin-top:8px;
+    ">
+  </div>
+
+</div>
+      
     </div>
 
     <div class="adm-field">
@@ -1099,10 +1104,41 @@ ${[
     function closeAdmEdit() { document.getElementById('admEditModal').classList.remove('open'); _editBooking=null; }
 
      function openBlockModal() {
+
   document.getElementById('blkFecha').value = currentDate;
-  document.getElementById('blkInicio').value = '07:00';
-  document.getElementById('blkFin').value = '08:00';
+
   document.getElementById('blkMotivo').value = '';
+
+  const cont = document.getElementById('blkHoras');
+
+  cont.innerHTML = '';
+
+  HOURS.forEach(h => {
+
+    cont.innerHTML += `
+      <label style="
+        display:flex;
+        align-items:center;
+        gap:6px;
+        font-size:0.85rem;
+        background:#F8FAFC;
+        border:1px solid #E2E8F0;
+        border-radius:8px;
+        padding:8px;
+        cursor:pointer;
+      ">
+
+        <input
+          type="checkbox"
+          value="${h}"
+          class="blk-hour">
+
+        ${h}
+
+      </label>
+    `;
+  });
+
   document.getElementById('blockModal')
     .classList.add('open');
 }
