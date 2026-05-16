@@ -1319,12 +1319,11 @@ function closeBlockModal() {
   }
 }
    
-    window.addEventListener('click', e => { if (_processing) return; if ( 
-      e.target.id === 'admEditModal' ||
-      e.target.id === 'admNewModal' ||
-      e.target.id === 'modalOverlay' ||
-      e.target.id === 'blockModal' )
-    { e.target.classList.remove('open'); }
+    window.addEventListener('click', e => {
+  if (_processing) return;
+  // NO cerrar modales por click en backdrop
+  // Sólo cerrar mediante botones explícitos
+  return;
 });
 
     function showEditTab(tab) {
