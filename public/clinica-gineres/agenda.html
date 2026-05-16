@@ -861,7 +861,12 @@ function escHtml(s) {
   return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-document.getElementById('modalOverlay').addEventListener('click', function(e) { if(e.target===this) closeModal(); });
+document
+  .getElementById('modalOverlay')
+  .addEventListener('click', function(e) {
+    // Bloquear cierre accidental por click fuera
+    return;
+});
 init();
 </script>
 
