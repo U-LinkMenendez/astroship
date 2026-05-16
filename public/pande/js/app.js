@@ -33,16 +33,77 @@ function render(){
 
   cont.innerHTML = "";
 
+  const categorias = {};
+
   productos.forEach(p=>{
+
+    if(!categorias[p.categoria]){
+      categorias[p.categoria] = [];
+    }
+
+    categorias[p.categoria].push(p);
+
+  });
+
+  Object.keys(categorias).forEach(cat=>{
 
     cont.innerHTML += `
 
-      <div class="card">
+      <section class="categoria-section">
 
-        <img src="${
-          p.img_url ||
-          'https://images.unsplash.com/photo-1551024601-bec78aea704b?q=80&w=1200&auto=format&fit=crop'
-        }">
+        <h2 class="categoria-title">
+          ${cat}
+        </h2>
+
+        <div class="categoria-grid" id="cat-${cat}">
+        </div>
+
+      </section>
+
+    `;
+
+    const grid = document.getElementById(`cat-${cat}`);
+
+    categorias[cat].forEach(p=>{
+
+      grid.innerHTML += `
+
+        <div class="card">
+
+          <img src="${
+            p.img_url ||
+            'https://images.unsplash.com/photo-1551024601-bec78aea704b?q=80&w=1200&auto=format&fit=crop'
+          }">
+
+          <div class="info">
+
+            <div class="nombre">
+              ${p.nombre}
+            </div>
+
+            <div class="desc">
+              ${p.descripcion || ''}
+            </div>
+
+            <div class="precio">
+              $${p.precio}
+            </div>
+
+            <button>
+              Agregar
+            </button>
+
+          </div>
+
+        </div>
+
+      `;
+
+    });
+
+  });
+
+}
 
         <div class="info">
 
