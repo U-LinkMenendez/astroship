@@ -431,6 +431,19 @@
         <span id="statusTxt">Conectado</span>
       </div>
       <button class="setup-btn" onclick="openSetup()">⚙ URL</button>
+
+<button
+  class="setup-btn"
+  onclick="logoutAdmin()"
+  style="
+    background:#DC2626;
+    color:#fff;
+    border-color:#DC2626;
+  "
+>
+  Salir
+</button>
+      
     </div>
   </header>
 
@@ -1883,6 +1896,13 @@ function doLogin() {
 
 })();
 
+     function logoutAdmin() {
+      localStorage.removeItem(
+       'cg_admin_ok'
+     );
+
+  location.reload();
+}
      
   </script>
 
