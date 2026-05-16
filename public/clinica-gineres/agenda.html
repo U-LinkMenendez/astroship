@@ -1037,7 +1037,13 @@ function escHtml(s) {
 
 document
   .getElementById('modalOverlay')
-  .addEventListener('click', () => {});
+  document
+  .getElementById('modalOverlay')
+  .addEventListener('click', function(e){
+    if(e.target.id === 'modalOverlay'){
+      return;
+    }
+});
 
 init();
 </script>
