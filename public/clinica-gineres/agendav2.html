@@ -179,7 +179,9 @@
 @media (max-width:640px){
 
   .ulink-powered{ font-size:8px; padding:2px 5px; right:6px; bottom:5px; opacity:0.72; }
-    
+
+}
+  
   </style>
 </head>
 <body>
@@ -346,7 +348,7 @@ const CAL_ACCOUNTS = [
 
 const QUIROFANOS = ['Quirofano 1', 'Quirofano 2', 'Quirofano 3'];
 // 21:00 removed — last bookable slot is 20:00
-const HOURS = ['06:00','07:00','08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00'];
+const HOURS = ['04:00','05:00','06:00','07:00','08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00'];
 const ROW_H = 52;
 
 let currentDate = todayStr();
@@ -495,6 +497,37 @@ function renderGrid() {
       const isPastSlot =
         isToday && slotHourDecimal <= nowHourDecimal;
 
+      const day =
+  new Date(currentDate + 'T00:00:00')
+    .getDay();
+
+const hourNum =
+  parseInt(h.split(':')[0]);
+
+let isClosedSlot = false;
+
+// LUNES → 04,05,06 cerradas
+if (day === 1 && hourNum <= 6) {
+  isClosedSlot = true;
+}
+
+// DOMINGO
+if (day === 0) {
+
+  // Q2 y Q3 cerrados
+  if (q !== 'Quirofano 1') {
+    isClosedSlot = true;
+  }
+
+  // Q1 sólo 08–12
+  else if (
+    hourNum < 8 ||
+    hourNum >= 12
+  ) {
+    isClosedSlot = true;
+  }
+}
+
       // ==========================================
 
       if (occ && occ.isStart) {
@@ -509,7 +542,7 @@ function renderGrid() {
 
         slotHtml = `<div class="slot-continuation"></div>`;
 
-      } else if (isPastSlot) {
+      } else if (isPastSlot || isClosedSlot) {
 
         slotHtml = `
           <div
@@ -628,6 +661,31 @@ const nowHourDecimal =
 
 const isPastSlot =
   isToday && slotHourDecimal <= nowHourDecimal;
+
+      const day =
+  new Date(currentDate + 'T00:00:00')
+    .getDay();
+const hourNum =
+  parseInt(h.split(':')[0]);
+let isClosedSlot = false;
+// LUNES → 04,05,06 cerradas
+if (day === 1 && hourNum <= 6) {
+  isClosedSlot = true;
+}
+// DOMINGO
+if (day === 0) {
+  // Q2 y Q3 cerrados
+  if (q !== 'Quirofano 1') {
+    isClosedSlot = true;
+  }
+  // Q1 sólo 08–12
+  else if (
+    hourNum < 8 ||
+    hourNum >= 12
+  ) {
+    isClosedSlot = true;
+  }
+}
       
       const isSelected = selection && selection.quirofano === q && selection.slots.includes(h);
       const canSelect  = !selection || (selection.quirofano === q && isAdjacentToSelection(h));
@@ -635,7 +693,7 @@ const isPastSlot =
       if (isSelected) {
         s = '<div class="slot slot-selected" onclick="toggleSlot(\'' + q + '\',\'' + h + '\',event)">' +
           '<div class="slot-time">' + h + '</div><div class="slot-label">&#10003; Seleccionado</div></div>';
-      } else if (canSelect && !isPastSlot) {
+      } else if ( canSelect && !isPastSlot && !isClosedSlot ) {
         s = '<div class="slot slot-available" onclick="toggleSlot(\'' + q + '\',\'' + h + '\',event)">' +
           '<div class="slot-time">' + h + '</div><div class="slot-label">Disponible</div></div>';
 
@@ -732,11 +790,18 @@ async function submitBooking() {
 
   ['f-nombre','f-email','f-procedimiento'].forEach(id => document.getElementById(id).classList.remove('required-err'));
   if (!nombre || !email || !procedimiento) {
-    if (!nombre) document.getElementById('f-nombre').classList.add('required-err');
-    if (!email)  document.getElementById('f-email').classList.add('required-err');
-    if (!procedimiento) document.getElementById('f-procedimiento').classList.add('required-err');
-    return;
-  }
+  if (!nombre)
+    document.getElementById('f-nombre')
+      .classList.add('required-err');
+  if (!email)
+    document.getElementById('f-email')
+      .classList.add('required-err');
+  if (!procedimiento)
+    document.getElementById('f-procedimiento')
+      .classList.add('required-err');
+  _bookingInProgress = false;
+  return;
+}
 
   const btn = document.getElementById('btnConfirm');
   btn.disabled = true;
@@ -861,7 +926,10 @@ function escHtml(s) {
   return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-document.getElementById('modalOverlay').addEventListener('click', function(e) { if(e.target===this) closeModal(); });
+document
+  .getElementById('modalOverlay')
+  .addEventListener('click', () => {});
+
 init();
 </script>
 
