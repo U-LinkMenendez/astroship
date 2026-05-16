@@ -1213,6 +1213,10 @@ function closeBlockModal() {
 }
      
      async function saveBlock() {
+
+       if (_processing) return;
+       _processing = true;
+       
   const qx =
     document.getElementById('blkQx').value;
   const fecha =
@@ -1227,13 +1231,15 @@ function closeBlockModal() {
     )
   ].map(x => x.value);
   if (!fecha) {
-    alert('Selecciona una fecha');
-    return;
-  }
-  if (!horas.length) {
-    alert('Selecciona al menos una hora');
-    return;
-  }
+  _processing = false;
+  alert('Selecciona una fecha');
+  return;
+}
+if (!horas.length) {
+  _processing = false;
+  alert('Selecciona al menos una hora');
+  return;
+}
   horas.sort();
   const inicio = horas[0];
   const last =
@@ -1305,6 +1311,7 @@ function closeBlockModal() {
         'Error creando bloqueo'
       );
     }
+    _processing = false;
     closeBlockModal();
     await loadData();
     alert(
@@ -1312,6 +1319,7 @@ function closeBlockModal() {
     );
   }
   catch(err) {
+    _processing = false;
     console.error(err);
     alert(
       'No se pudo crear el bloqueo'
