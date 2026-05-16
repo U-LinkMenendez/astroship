@@ -495,6 +495,37 @@ function renderGrid() {
       const isPastSlot =
         isToday && slotHourDecimal <= nowHourDecimal;
 
+      const day =
+  new Date(currentDate + 'T00:00:00')
+    .getDay();
+
+const hourNum =
+  parseInt(h.split(':')[0]);
+
+let isClosedSlot = false;
+
+// LUNES → 04,05,06 cerradas
+if (day === 1 && hourNum <= 6) {
+  isClosedSlot = true;
+}
+
+// DOMINGO
+if (day === 0) {
+
+  // Q2 y Q3 cerrados
+  if (q !== 'Quirofano 1') {
+    isClosedSlot = true;
+  }
+
+  // Q1 sólo 08–12
+  else if (
+    hourNum < 8 ||
+    hourNum >= 12
+  ) {
+    isClosedSlot = true;
+  }
+}
+
       // ==========================================
 
       if (occ && occ.isStart) {
@@ -509,7 +540,7 @@ function renderGrid() {
 
         slotHtml = `<div class="slot-continuation"></div>`;
 
-      } else if (isPastSlot) {
+      } else if (isPastSlot || isClosedSlot) {
 
         slotHtml = `
           <div
@@ -628,6 +659,31 @@ const nowHourDecimal =
 
 const isPastSlot =
   isToday && slotHourDecimal <= nowHourDecimal;
+
+      const day =
+  new Date(currentDate + 'T00:00:00')
+    .getDay();
+const hourNum =
+  parseInt(h.split(':')[0]);
+let isClosedSlot = false;
+// LUNES → 04,05,06 cerradas
+if (day === 1 && hourNum <= 6) {
+  isClosedSlot = true;
+}
+// DOMINGO
+if (day === 0) {
+  // Q2 y Q3 cerrados
+  if (q !== 'Quirofano 1') {
+    isClosedSlot = true;
+  }
+  // Q1 sólo 08–12
+  else if (
+    hourNum < 8 ||
+    hourNum >= 12
+  ) {
+    isClosedSlot = true;
+  }
+}
       
       const isSelected = selection && selection.quirofano === q && selection.slots.includes(h);
       const canSelect  = !selection || (selection.quirofano === q && isAdjacentToSelection(h));
@@ -635,7 +691,7 @@ const isPastSlot =
       if (isSelected) {
         s = '<div class="slot slot-selected" onclick="toggleSlot(\'' + q + '\',\'' + h + '\',event)">' +
           '<div class="slot-time">' + h + '</div><div class="slot-label">&#10003; Seleccionado</div></div>';
-      } else if (canSelect && !isPastSlot) {
+      } else if ( canSelect && !isPastSlot && !isClosedSlot ) {
         s = '<div class="slot slot-available" onclick="toggleSlot(\'' + q + '\',\'' + h + '\',event)">' +
           '<div class="slot-time">' + h + '</div><div class="slot-label">Disponible</div></div>';
 
