@@ -602,6 +602,34 @@
           const o = occ[h][q];
           const slotH = parseInt(h)+parseInt(h.split(':')[1]||0)/60;
           const isPast = isToday && (parseInt(h.split(':')[0]) + parseInt(h.split(':')[1])/60) <= nowH;
+          const day = new Date(currentDate + 'T00:00:00').getDay();
+
+const hourNum =
+  parseInt(h.split(':')[0]);
+
+let isClosedSlot = false;
+
+// LUNES → 04,05,06 cerradas
+if (day === 1 && hourNum <= 6) {
+  isClosedSlot = true;
+}
+
+// DOMINGO
+if (day === 0) {
+
+  // Q2 y Q3 cerrados todo el día
+  if (q !== 'Quirofano 1') {
+    isClosedSlot = true;
+  }
+
+  // Q1 sólo 08–12
+  else if (
+    hourNum < 8 ||
+    hourNum >= 12
+  ) {
+    isClosedSlot = true;
+  }
+}
           let cell = '';
           
           if (o && o.bloqueo && o.isStart) {
@@ -795,7 +823,7 @@ ${[
             
           } else if (o && o.isCont) {
             cell = `<div class="rslot-cont" onclick="openAdmEdit(${JSON.stringify(o.booking).replace(/"/g,'&quot;')})"></div>`;
-          } else if (isPast) {
+          } else if (isPast || isClosedSlot) {
             cell = `<div class="rslot-past"></div>`;
           } else {
             const isSel = resSelection && resSelection.quirofano===q && resSelection.slots.includes(h);
