@@ -314,6 +314,103 @@
 </head>
 <body>
 
+  <div id="loginScreen" style="
+  position:fixed;
+  inset:0;
+  background:#0F172A;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:999999;
+">
+
+  <div style="
+    width:340px;
+    background:#FFFFFF;
+    border-radius:18px;
+    padding:30px;
+    box-shadow:0 20px 60px rgba(0,0,0,.35);
+  ">
+
+    <div style="
+      font-size:1.5rem;
+      font-weight:800;
+      color:#0F172A;
+      margin-bottom:6px;
+      text-align:center;
+    ">
+      Clínica Ginerés
+    </div>
+
+    <div style="
+      font-size:.92rem;
+      color:#64748B;
+      margin-bottom:22px;
+      text-align:center;
+    ">
+      Panel de administración
+    </div>
+
+    <input
+      id="lgUser"
+      placeholder="Usuario"
+      style="
+        width:100%;
+        padding:12px;
+        border:1px solid #CBD5E1;
+        border-radius:10px;
+        margin-bottom:12px;
+        font-size:14px;
+      "
+    >
+
+    <input
+      id="lgPass"
+      type="password"
+      placeholder="Contraseña"
+      style="
+        width:100%;
+        padding:12px;
+        border:1px solid #CBD5E1;
+        border-radius:10px;
+        margin-bottom:16px;
+        font-size:14px;
+      "
+    >
+
+    <button
+      onclick="doLogin()"
+      style="
+        width:100%;
+        padding:12px;
+        border:none;
+        border-radius:10px;
+        background:#0F172A;
+        color:white;
+        font-weight:700;
+        cursor:pointer;
+        font-size:14px;
+      "
+    >
+      Ingresar
+    </button>
+
+    <div
+      id="lgErr"
+      style="
+        display:none;
+        color:#DC2626;
+        font-size:.85rem;
+        margin-top:12px;
+        text-align:center;
+      "
+    >
+      Usuario o contraseña incorrectos
+    </div>
+
+  </div>
+</div>
+
   <header class="hdr">
     <div class="hdr-logo">
       <div class="hdr-icon" style="width:38px;height:38px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
@@ -1729,6 +1826,64 @@ if (!horas.length) {
 
     document.getElementById('modalOverlay').addEventListener('click', function(e) { if(e.target===this) closeSetup(); });
     init();
+
+<!-- PASSWORD / CONTRASEÑA CLÍNICA GINERÉS -->
+const ADMIN_USER = 'admin';
+const ADMIN_PASS = 'Gineres2026';
+
+function doLogin() {
+
+  const u =
+    document
+      .getElementById('lgUser')
+      .value
+      .trim();
+
+  const p =
+    document
+      .getElementById('lgPass')
+      .value
+      .trim();
+
+  if (
+    u === ADMIN_USER &&
+    p === ADMIN_PASS
+  ) {
+
+    localStorage.setItem(
+      'cg_admin_ok',
+      '1'
+    );
+
+    document
+      .getElementById('loginScreen')
+      .style.display = 'none';
+
+  } else {
+
+    document
+      .getElementById('lgErr')
+      .style.display = 'block';
+  }
+}
+
+(function(){
+
+  const ok =
+    localStorage.getItem(
+      'cg_admin_ok'
+    );
+
+  if (ok === '1') {
+
+    document
+      .getElementById('loginScreen')
+      .style.display = 'none';
+  }
+
+})();
+
+     
   </script>
 
 
