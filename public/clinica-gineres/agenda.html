@@ -242,13 +242,13 @@
         </div>
         <div class="form-grid">
           <div class="field"><label>Nombre del Paciente</label><input type="text" id="f-paciente" placeholder="Nombre del paciente"/></div>
-          <div class="field"><label>Procedimiento / Cirugía *</label><input type="text" id="f-procedimiento" placeholder="Ej: Artroscopía rodilla" required/></div>
+          <div class="field"><label>Cirugía *</label><input type="text" id="f-procedimiento" placeholder="Ej: Artroscopía rodilla" required/></div>
         </div>
 
         <div class="form-grid">
 
   <div class="field">
-    <label>Anestesiólogo externo</label>
+    <label>Anestesiólogo</label>
 
     <input
       type="text"
@@ -278,7 +278,7 @@
     </label>
   </div>
 
-  <div class="field">
+  <div class="field" style="display:none;">
 
     <label>Primer ayudante</label>
 
@@ -320,7 +320,7 @@
           <label class="svc-item" onclick="toggleSvc(this)"><input type="checkbox" name="microscopio"> Microscopio</label>
           <label class="svc-item" onclick="toggleSvc(this)"><input type="checkbox" name="laparoscopia"> Laparoscopia</label>
           <label class="svc-item" onclick="toggleSvc(this)"><input type="checkbox" name="solirrigacion"> Sol. Irrigación</label>
-          <label class="svc-item" onclick="toggleSvc(this)"><input type="checkbox" name="instrumentista"> Instrumentista</label>
+          <label class="svc-item" style="display:none;" onclick="toggleSvc(this)"><input type="checkbox" name="instrumentista"> Instrumentista</label>
           </div>
         <div class="modal-actions">
           <button type="button" class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
@@ -380,7 +380,7 @@ function buildDateTabs() {
   const container = document.getElementById('dateTabs');
   container.innerHTML = '';
   const today = new Date();
-  for (let i = 0; i < 8; i++) {
+  for (let i = 0; i < 15; i++) {
     const d = new Date(today);
     d.setDate(today.getDate() + i);
     const ds = formatDate(d);
@@ -407,7 +407,7 @@ function selectDate(ds) {
 async function loadData() {
   showLoader(true);
   const today = todayStr();
-  const end   = addDays(today, 7);
+  const end   = addDays(today, 14);
   try {
     const res  = await fetch(`${APPS_SCRIPT_URL}?start=${today}&end=${end}`);
     const json = await res.json();
@@ -565,7 +565,9 @@ if (day === 0) {
 
           slotHtml = `
             <div class="slot slot-selected" onclick="toggleSlot('${q}','${h}',event)">
-              <div class="slot-time">${h}</div>
+              <div class="slot-time"> ${h} → ${ String( parseInt(h.split(':')[0]) + 1 ).padStart(2,'0') }:00
+             </div>
+              
               <div class="slot-label">✓ Seleccionado</div>
             </div>`;
 
@@ -579,7 +581,8 @@ if (day === 0) {
 
             slotHtml = `
               <div class="slot slot-available" onclick="toggleSlot('${q}','${h}',event)">
-                <div class="slot-time">${h}</div>
+                <div class="slot-time"> ${h} → ${ String( parseInt(h.split(':')[0]) + 1 ).padStart(2,'0') }:00
+             </div>
                 <div class="slot-label">Disponible</div>
               </div>`;
 
