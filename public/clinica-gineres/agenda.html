@@ -694,11 +694,30 @@ if (day === 0) {
       const canSelect  = !selection || (selection.quirofano === q && isAdjacentToSelection(h));
       let s = '';
       if (isSelected) {
-        s = '<div class="slot slot-selected" onclick="toggleSlot(\'' + q + '\',\'' + h + '\',event)">' +
-          '<div class="slot-time">' + h + '</div><div class="slot-label">&#10003; Seleccionado</div></div>';
+
+  const endHour =
+    String(
+      parseInt(h.split(':')[0]) + 1
+    ).padStart(2,'0') + ':00';
+
+  s =
+    '<div class="slot slot-selected" onclick="toggleSlot(\'' + q + '\',\'' + h + '\',event)">' +
+    '<div class="slot-time">' +
+      h + ' → ' + endHour +
+    '</div>' +
+    '<div class="slot-label">&#10003; Seleccionado</div></div>';
       } else if ( canSelect && !isPastSlot && !isClosedSlot ) {
-        s = '<div class="slot slot-available" onclick="toggleSlot(\'' + q + '\',\'' + h + '\',event)">' +
-          '<div class="slot-time">' + h + '</div><div class="slot-label">Disponible</div></div>';
+        const endHour =
+  String(
+    parseInt(h.split(':')[0]) + 1
+  ).padStart(2,'0') + ':00';
+
+s =
+  '<div class="slot slot-available" onclick="toggleSlot(\'' + q + '\',\'' + h + '\',event)">' +
+  '<div class="slot-time">' +
+    h + ' → ' + endHour +
+  '</div>' +
+  '<div class="slot-label">Disponible</div></div>';
 
       } else {
 
