@@ -732,11 +732,18 @@ async function submitBooking() {
 
   ['f-nombre','f-email','f-procedimiento'].forEach(id => document.getElementById(id).classList.remove('required-err'));
   if (!nombre || !email || !procedimiento) {
-    if (!nombre) document.getElementById('f-nombre').classList.add('required-err');
-    if (!email)  document.getElementById('f-email').classList.add('required-err');
-    if (!procedimiento) document.getElementById('f-procedimiento').classList.add('required-err');
-    return;
-  }
+  if (!nombre)
+    document.getElementById('f-nombre')
+      .classList.add('required-err');
+  if (!email)
+    document.getElementById('f-email')
+      .classList.add('required-err');
+  if (!procedimiento)
+    document.getElementById('f-procedimiento')
+      .classList.add('required-err');
+  _bookingInProgress = false;
+  return;
+}
 
   const btn = document.getElementById('btnConfirm');
   btn.disabled = true;
