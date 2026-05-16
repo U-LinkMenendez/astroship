@@ -90,3 +90,21 @@ button{
 button:hover{
   opacity:.9;
 }
+.categoria-section{
+  margin-bottom:60px;
+}
+
+.categoria-title{
+  padding:0 30px;
+  margin-bottom:24px;
+  font-size:32px;
+  color:#5c3b2e;
+  font-family:'Playfair Display',serif;
+}
+
+.categoria-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+  gap:20px;
+  padding:0 30px;
+}
