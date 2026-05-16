@@ -928,10 +928,8 @@ function escHtml(s) {
 
 document
   .getElementById('modalOverlay')
-  .addEventListener('click', function(e) {
-    // Bloquear cierre accidental por click fuera
-    return;
-});
+  .addEventListener('click', () => {});
+
 init();
 </script>
 
