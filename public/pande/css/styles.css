@@ -104,7 +104,13 @@ button:hover{
 
 .categoria-grid{
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
   gap:20px;
-  padding:0 30px;
+}
+
+#productos{
+  display:flex;
+  flex-direction:column;
+  gap:60px;
+  padding:30px;
 }
