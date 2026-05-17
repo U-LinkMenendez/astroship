@@ -59,8 +59,57 @@
     /* WhatsApp button in toolbar */
     .wa-btn { flex-shrink:0; display:flex; align-items:center; gap:6px; background:var(--wa); color:#fff; border:none; border-radius:20px; padding:6px 12px; font-family:'DM Sans',sans-serif; font-size:0.72rem; font-weight:600; cursor:pointer; text-decoration:none; white-space:nowrap; transition:background 0.15s; }
     .wa-btn:hover { background:#1ebe5a; }
-    .wa-btn svg { width:14px; height:14px; fill:#fff; flex-shrink:0; }
+    
+    .wa-btn svg { 
+      width:14px; 
+      height:14px; 
+      fill:#fff; 
+      flex-shrink:0; 
+    }
 
+    .help-btn{
+
+  appearance:none;
+  -webkit-appearance:none;
+
+  border:none !important;
+  outline:none !important;
+  box-shadow:none !important;
+  background:none !important;
+
+  padding:0;
+
+  width:22px;
+  height:22px;
+
+  color:#94A3B8;
+
+  cursor:pointer;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  transition:.18s;
+
+  flex-shrink:0;
+}
+
+.help-btn:hover{
+  color:#2563EB;
+  transform:scale(1.08);
+}
+
+.help-btn:focus,
+.help-btn:focus-visible,
+.help-btn:active{
+
+  outline:none !important;
+  box-shadow:none !important;
+  border:none !important;
+
+}
+   
     /* ── SELECTION BAR ──────────────────────────────────────── */
     .sel-bar { display:none; background:var(--blue); padding:0.6rem 1rem; align-items:center; gap:1rem; position:sticky; top:106px; z-index:180; }
     .sel-bar.show { display:flex; }
