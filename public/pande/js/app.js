@@ -48,6 +48,17 @@ function render(){
 
   Object.keys(categorias).forEach(cat=>{
 
+        const nombresCategorias = {
+      PedEsp: "Pedidos Especiales",
+      Temporada: "Temporada",
+      Muffin: "Muffins",
+      Rebanada: "Rebanadas",
+      Pan: "Panes"
+    };
+
+    const nombreVisual =
+      nombresCategorias[cat] || cat;
+
     const catId = cat.replace(/\s+/g,'-');
 
     cont.innerHTML += `
@@ -55,7 +66,7 @@ function render(){
       <section class="categoria-section">
 
         <h2 class="categoria-title">
-          ${cat}
+          ${nombreVisual}
         </h2>
 
         <div class="categoria-grid" id="cat-${catId}">
