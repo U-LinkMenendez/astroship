@@ -6,6 +6,27 @@ let productos = [];
 
 let carrito = [];
 
+const cartBtn =
+  document.getElementById("cart-btn");
+
+const cartDrawer =
+  document.getElementById("cart-drawer");
+
+const closeCart =
+  document.getElementById("close-cart");
+
+cartBtn.addEventListener("click",()=>{
+
+  cartDrawer.classList.add("open");
+
+});
+
+closeCart.addEventListener("click",()=>{
+
+  cartDrawer.classList.remove("open");
+
+});
+
 async function cargarCatalogo(){
 
   try{
@@ -152,6 +173,64 @@ function actualizarCarrito(){
 
   document.getElementById("cart-count")
     .innerText = carrito.length;
+
+  const cartItems =
+    document.getElementById("cart-items");
+
+  const cartTotal =
+    document.getElementById("cart-total");
+
+  cartItems.innerHTML = "";
+
+  let total = 0;
+
+  carrito.forEach((p,index)=>{
+
+    total += Number(p.precio);
+
+    cartItems.innerHTML += `
+
+      <div class="cart-item">
+
+        <img src="${
+          p.img_url ||
+          'https://images.unsplash.com/photo-1551024601-bec78aea704b?q=80&w=1200&auto=format&fit=crop'
+        }">
+
+        <div class="cart-item-info">
+
+          <div class="cart-item-name">
+            ${p.nombre}
+          </div>
+
+          <div class="cart-item-price">
+            $${p.precio}
+          </div>
+
+          <button
+            class="remove-btn"
+            onclick="eliminarDelCarrito(${index})"
+          >
+            Eliminar
+          </button>
+
+        </div>
+
+      </div>
+
+    `;
+
+  });
+
+  cartTotal.innerText = `$${total}`;
+
+}
+
+function eliminarDelCarrito(index){
+
+  carrito.splice(index,1);
+
+  actualizarCarrito();
 
 }
 
