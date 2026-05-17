@@ -32,7 +32,19 @@ async function cargarCatalogo(){
 
 function render(){
 
-  function agregarCarrito(id){
+  const cont = document.getElementById("productos");
+
+  cont.innerHTML = "";
+
+  const categorias = {};
+
+  productos.forEach(p=>{
+
+    if(!categorias[p.categoria]){
+      categorias[p.categoria] = [];
+    }
+
+    function agregarCarrito(id){
 
   console.log("CLICK", id);
 
@@ -64,18 +76,6 @@ function render(){
     .innerText = carrito.length;
 
 }
-
-  const cont = document.getElementById("productos");
-
-  cont.innerHTML = "";
-
-  const categorias = {};
-
-  productos.forEach(p=>{
-
-    if(!categorias[p.categoria]){
-      categorias[p.categoria] = [];
-    }
 
     categorias[p.categoria].push(p);
 
