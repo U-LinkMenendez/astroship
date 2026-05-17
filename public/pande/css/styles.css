@@ -40,6 +40,8 @@ h1{
   overflow:hidden;
   box-shadow:0 4px 14px rgba(0,0,0,0.06);
   transition:.2s;
+  display:flex;
+flex-direction:column;
 }
 
 .card:hover{
@@ -53,7 +55,14 @@ h1{
 }
 
 .info{
+
   padding:18px;
+
+  display:flex;
+  flex-direction:column;
+
+  flex:1;
+
 }
 
 .nombre{
@@ -76,6 +85,9 @@ h1{
 }
 
 button{
+  
+  margin-top:auto;
+  
   margin-top:16px;
   width:100%;
   border:none;
@@ -201,29 +213,32 @@ button:hover{
   color:#5c3b2e;
 }
 
-#close-cart{
+.close-cart{
 
-  width:40px;
-  height:40px;
+  width:42px;
+  height:42px;
 
-  border:none;
+  border-radius:50%;
 
-  border-radius:999px;
+  background:#f2f2f2;
 
-  background:#f3f3f3;
-
-  font-size:20px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
 
   cursor:pointer;
 
-  transition:.2s ease;
+  font-size:26px;
+  font-weight:600;
+
+  color:#7a4b38;
+
+  transition:.2s;
 
 }
 
-#close-cart:hover{
-
+.close-cart:hover{
   background:#e5e5e5;
-
 }
 
 #cart-items{
