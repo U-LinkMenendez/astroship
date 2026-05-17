@@ -107,16 +107,7 @@ function render(){
 
 }
 
-        <div class="info">
-
-          <div class="nombre">
-            ${p.nombre}
-          </div>
-
-          <div class="desc">
-            ${p.descripcion || ''}
-          </div>
-
+        
           <div class="precio">
             $${p.precio}
           </div>
