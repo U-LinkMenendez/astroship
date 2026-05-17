@@ -4,6 +4,8 @@ const FRONTEND_KEY = "PANDE_PUBLIC_2026";
 
 let productos = [];
 
+let carrito = [];
+
 async function cargarCatalogo(){
 
   try{
