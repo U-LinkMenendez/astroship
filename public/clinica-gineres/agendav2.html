@@ -59,8 +59,109 @@
     /* WhatsApp button in toolbar */
     .wa-btn { flex-shrink:0; display:flex; align-items:center; gap:6px; background:var(--wa); color:#fff; border:none; border-radius:20px; padding:6px 12px; font-family:'DM Sans',sans-serif; font-size:0.72rem; font-weight:600; cursor:pointer; text-decoration:none; white-space:nowrap; transition:background 0.15s; }
     .wa-btn:hover { background:#1ebe5a; }
-    .wa-btn svg { width:14px; height:14px; fill:#fff; flex-shrink:0; }
+    
+    .wa-btn svg { 
+      width:14px; 
+      height:14px; 
+      fill:#fff; 
+      flex-shrink:0; 
+    }
 
+    .help-btn{
+
+  appearance:none;
+  -webkit-appearance:none;
+
+  border:none !important;
+  outline:none !important;
+  box-shadow:none !important;
+  background:none !important;
+
+  padding:0;
+
+  width:22px;
+  height:22px;
+
+  color:#94A3B8;
+
+  cursor:pointer;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  transition:.18s;
+
+  flex-shrink:0;
+}
+
+    .floating-help{
+
+  position:fixed;
+
+  right:18px;
+  bottom:74px;
+
+  width:54px;
+  height:54px;
+
+  border:none;
+  border-radius:999px;
+
+  background:#2563EB;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  cursor:pointer;
+
+  z-index:999999;
+
+  box-shadow:
+    0 10px 30px rgba(37,99,235,.28);
+
+  transition:.18s;
+}
+
+.floating-help:hover{
+  transform:scale(1.06);
+}
+
+.floating-help svg{
+  width:24px;
+  height:24px;
+  color:#FFFFFF;
+}
+
+@media(max-width:768px){
+
+  .floating-help{
+
+    width:50px;
+    height:50px;
+
+    right:14px;
+    bottom:84px;
+  }
+
+}
+
+.help-btn:hover{
+  color:#2563EB;
+  transform:scale(1.08);
+}
+
+.help-btn:focus,
+.help-btn:focus-visible,
+.help-btn:active{
+
+  outline:none !important;
+  box-shadow:none !important;
+  border:none !important;
+
+}
+   
     /* ── SELECTION BAR ──────────────────────────────────────── */
     .sel-bar { display:none; background:var(--blue); padding:0.6rem 1rem; align-items:center; gap:1rem; position:sticky; top:106px; z-index:180; }
     .sel-bar.show { display:flex; }
@@ -122,9 +223,9 @@
     .slot-empty { background:transparent; cursor:default; border-color:transparent; }
 
     /* ── MODAL ──────────────────────────────────────────────── */
-    .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:500; align-items:flex-end; justify-content:center; backdrop-filter:blur(4px); }
+    .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:500; align-items:center; justify-content:center; backdrop-filter:blur(4px); }
     .modal-overlay.open { display:flex; }
-    .modal { background:#fff; border-radius:16px 16px 0 0; width:100%; max-width:600px; max-height:92vh; overflow-y:auto; padding:1.5rem; padding-bottom:60px; }
+    .modal { background:#fff; border-radius:18px; width:100%; max-width:600px; max-height:92vh; overflow-y:auto; padding:1.5rem; padding-bottom:60px; }
     .modal-handle { width:40px; height:4px; background:var(--g200); border-radius:2px; margin:0 auto 1.25rem; }
     .modal-title { font-size:1rem; font-weight:600; color:var(--navy); margin-bottom:0.25rem; }
     .modal-sub   { font-size:0.78rem; color:var(--g400); margin-bottom:1.25rem; }
@@ -1051,6 +1152,22 @@ function escHtml(s) {
     
 });
 
+  function openHelpModal(){
+
+  document
+    .getElementById('helpModal')
+    .classList.add('open');
+
+}
+
+function closeHelpModal(){
+
+  document
+    .getElementById('helpModal')
+    .classList.remove('open');
+
+}
+  
 init();
 </script>
 
@@ -1079,6 +1196,112 @@ init();
   >
     Reservar →
   </button>
+
+</div>
+
+  <button
+  class="floating-help"
+  onclick="openHelpModal()"
+  title="Ayuda rápida"
+>
+
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+
+    <circle
+      cx="12"
+      cy="12"
+      r="9"
+      stroke="currentColor"
+      stroke-width="1.8"
+    />
+
+    <path
+      d="M9.5 9a2.5 2.5 0 1 1 4.3 1.7c-.8.8-1.8 1.4-1.8 2.8"
+      stroke="currentColor"
+      stroke-width="1.8"
+      stroke-linecap="round"
+    />
+
+    <circle
+      cx="12"
+      cy="17"
+      r="1"
+      fill="currentColor"
+    />
+
+  </svg>
+
+</button>
+
+  <div
+  id="helpModal"
+  class="modal-overlay"
+>
+
+  <div
+    class="modal"
+    style="
+      max-width:420px;
+      padding-bottom:24px;
+    "
+  >
+
+    <div class="modal-handle"></div>
+
+    <div
+      style="
+        font-size:1.05rem;
+        font-weight:700;
+        color:#0F172A;
+        margin-bottom:16px;
+      "
+    >
+      ¿Cómo reservar?
+    </div>
+
+    <div
+      style="
+        color:#475569;
+        line-height:1.75;
+        font-size:.92rem;
+      "
+    >
+
+      1. Seleccione horarios continuos.<br><br>
+
+      2. Presione
+      <strong>“Reservar”</strong>.<br><br>
+
+      3. Complete los datos
+      de la cirugía.<br><br>
+
+      4. Confirme la reservación.<br><br>
+
+      <strong>
+        Cada bloque representa
+        1 hora de quirófano.
+      </strong>
+
+    </div>
+
+    <button
+      onclick="closeHelpModal()"
+      class="btn btn-primary"
+      style="
+        margin-top:22px;
+        padding:10px 22px;
+        display:block;
+        margin-left:auto;
+      "
+    >
+      Entendido
+    </button>
+
+  </div>
 
 </div>
   
