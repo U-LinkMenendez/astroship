@@ -68,7 +68,7 @@
   outline:none !important;
   box-shadow:none !important;
 
-  background:transparent;
+  background:none !important;
 
   padding:0;
 
@@ -92,11 +92,15 @@
   color:#2563EB;
   transform:scale(1.08);
 }
+    .help-btn:focus,
+    .help-btn:focus-visible,
+    .help-btn:active{
 
-    .help-btn:hover{
-      background:#EFF6FF;
-      color:#2563EB;
-    } height:14px; fill:#fff; flex-shrink:0; }
+      outline:none !important;
+      box-shadow:none !important;
+      border:none !important;
+
+    }
 
     /* ── SELECTION BAR ──────────────────────────────────────── */
     .sel-bar { display:none; background:var(--blue); padding:0.6rem 1rem; align-items:center; gap:1rem; position:sticky; top:106px; z-index:180; }
