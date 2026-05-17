@@ -32,6 +32,27 @@ async function cargarCatalogo(){
 
 function render(){
 
+  function agregarCarrito(id){
+
+  const producto = productos.find(
+    p => p.id === id
+  );
+
+  if(!producto) return;
+
+  carrito.push(producto);
+
+  actualizarCarrito();
+
+}
+
+  function actualizarCarrito(){
+
+  document.getElementById("cart-count")
+    .innerText = carrito.length;
+
+}
+
   const cont = document.getElementById("productos");
 
   cont.innerHTML = "";
