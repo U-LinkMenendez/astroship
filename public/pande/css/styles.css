@@ -114,3 +114,39 @@ button:hover{
   gap:60px;
   padding:30px;
 }
+
+.navbar{
+  position:sticky;
+  top:0;
+  z-index:1000;
+
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+
+  padding:18px 30px;
+
+  background:rgba(250,247,242,.95);
+  backdrop-filter:blur(10px);
+
+  border-bottom:1px solid rgba(0,0,0,.05);
+}
+
+.logo{
+  font-family:'Playfair Display',serif;
+  font-size:28px;
+  color:#5c3b2e;
+}
+
+.cart-btn{
+  background:#5c3b2e;
+  color:white;
+
+  padding:10px 16px;
+
+  border-radius:999px;
+
+  font-weight:600;
+
+  cursor:pointer;
+}
