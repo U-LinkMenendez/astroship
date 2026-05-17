@@ -44,57 +44,27 @@ function render(){
       categorias[p.categoria] = [];
     }
 
-    function agregarCarrito(id){
-
-  console.log("CLICK", id);
-
-  const producto = productos.find(
-    p => p.id === id
-  );
-
-  if(!producto){
-    console.log("NO ENCONTRADO");
-    return;
-  }
-
-  carrito.push(producto);
-
-  actualizarCarrito();
-
-}
-  if(!producto) return;
-
-  carrito.push(producto);
-
-  actualizarCarrito();
-
-}
-
-  function actualizarCarrito(){
-
-  document.getElementById("cart-count")
-    .innerText = carrito.length;
-
-}
-
     categorias[p.categoria].push(p);
 
   });
 
-  Object.keys(categorias).forEach(cat=>{
+  const nombresCategorias = {
 
-        const nombresCategorias = {
-      PedEsp: "Pedidos Especiales",
-      Temporada: "Temporada",
-      Muffin: "Muffins",
-      Rebanada: "Rebanadas",
-      Pan: "Panes"
-    };
+    PedEsp: "Pedidos Especiales",
+    Temporada: "Temporada",
+    Muffin: "Muffins",
+    Rebanada: "Rebanadas",
+    Pan: "Panes"
+
+  };
+
+  Object.keys(categorias).forEach(cat=>{
 
     const nombreVisual =
       nombresCategorias[cat] || cat;
 
-    const catId = cat.replace(/\s+/g,'-');
+    const catId =
+      cat.replace(/\s+/g,'-');
 
     cont.innerHTML += `
 
@@ -104,14 +74,19 @@ function render(){
           ${nombreVisual}
         </h2>
 
-        <div class="categoria-grid" id="cat-${catId}">
-        </div>
+        <div
+          class="categoria-grid"
+          id="cat-${catId}"
+        ></div>
 
       </section>
 
     `;
 
-    const grid = document.getElementById(`cat-${catId}`);
+    const grid =
+      document.getElementById(
+        `cat-${catId}`
+      );
 
     categorias[cat].forEach(p=>{
 
@@ -138,9 +113,9 @@ function render(){
               $${p.precio}
             </div>
 
-<button onclick="agregarCarrito('${p.id}')">
-  Agregar
-</button>
+            <button onclick="agregarCarrito('${p.id}')">
+              Agregar
+            </button>
 
           </div>
 
@@ -151,6 +126,32 @@ function render(){
     });
 
   });
+
+}
+
+function agregarCarrito(id){
+
+  console.log("CLICK", id);
+
+  const producto = productos.find(
+    p => p.id === id
+  );
+
+  if(!producto){
+    console.log("NO ENCONTRADO");
+    return;
+  }
+
+  carrito.push(producto);
+
+  actualizarCarrito();
+
+}
+
+function actualizarCarrito(){
+
+  document.getElementById("cart-count")
+    .innerText = carrito.length;
 
 }
 
