@@ -34,10 +34,22 @@ function render(){
 
   function agregarCarrito(id){
 
+  console.log("CLICK", id);
+
   const producto = productos.find(
     p => p.id === id
   );
 
+  if(!producto){
+    console.log("NO ENCONTRADO");
+    return;
+  }
+
+  carrito.push(producto);
+
+  actualizarCarrito();
+
+}
   if(!producto) return;
 
   carrito.push(producto);
