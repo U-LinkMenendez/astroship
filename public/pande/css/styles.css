@@ -87,18 +87,26 @@ h1{
 }
 
 button{
-  
-  margin-top:auto;
-  
+
   margin-top:16px;
-  width:100%;
+
   border:none;
   background:#5c3b2e;
   color:white;
+
   padding:12px;
+
   border-radius:10px;
+
   cursor:pointer;
+
   font-weight:600;
+
+}
+
+.card button{
+  width:100%;
+  margin-top:auto;
 }
 
 button:hover{
@@ -215,12 +223,8 @@ button:hover{
 
 .close-cart{
 
-  all:unset;
-
-  width:36px !important;
+  width:36px;
   height:36px;
-
-  padding:0 !important;
 
   border-radius:50%;
 
@@ -237,7 +241,11 @@ button:hover{
 
   color:#7a4b38;
 
-  transition:.2s;
+  border:none;
+
+  padding:0;
+
+  flex-shrink:0;
 
 }
 
