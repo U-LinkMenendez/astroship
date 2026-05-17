@@ -122,7 +122,7 @@
     /* ── MODAL ──────────────────────────────────────────────── */
     .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:500; align-items:flex-end; justify-content:center; backdrop-filter:blur(4px); }
     .modal-overlay.open { display:flex; }
-    .modal { background:#fff; border-radius:16px 16px 0 0; width:100%; max-width:600px; max-height:92vh; overflow-y:auto; padding:1.5rem; padding-bottom:140px; }
+    .modal { background:#fff; border-radius:16px 16px 0 0; width:100%; max-width:600px; max-height:92vh; overflow-y:auto; padding:1.5rem; padding-bottom:60px; }
     .modal-handle { width:40px; height:4px; background:var(--g200); border-radius:2px; margin:0 auto 1.25rem; }
     .modal-title { font-size:1rem; font-weight:600; color:var(--navy); margin-bottom:0.25rem; }
     .modal-sub   { font-size:0.78rem; color:var(--g400); margin-bottom:1.25rem; }
@@ -867,6 +867,9 @@ function openForm() {
   document.getElementById('formState').style.display = '';
   document.getElementById('successState').style.display = 'none';
   document.getElementById('modalOverlay').classList.add('open');
+  document.getElementById('mobileReserveBar').style.display = 'none';
+  document.body.style.overflow = 'hidden';
+  
 }
 
 function toggleDisableField(fieldId, checked) {
@@ -977,16 +980,15 @@ anestesiologoext:
       document.getElementById('successMsg').textContent =
         `Reserva en ${selection.quirofano.replace('Quirofano','Quirófano')} el ${formatDateDisplay(currentDate)} de ${selection.slots[0]} confirmada. Recibirá un correo en breve.`;
       await loadData();
-    } else {
-      let msg = 'No fue posible crear la reserva.';
-
-      if ((json.error || '').includes('not available')) {
-
-      msg = 'El horario seleccionado ya no está disponible. Por favor seleccione otro horario.';
-
-     } else if ((json.error || '').includes('already has booking')) {
-
-      msg = 'Ya existe una reservación en ese horario.';
+        selection = null;
+          updateSelBar();
+            updateMobileReserveBar();
+        } else {
+          let msg = 'No fue posible crear la reserva.';
+          if ((json.error || '').includes('not available')) {
+          msg = 'El horario seleccionado ya no está disponible. Por favor seleccione otro horario.';
+         } else if ((json.error || '').includes('already has booking')) {
+          msg = 'Ya existe una reservación en ese horario.';
 
     }
 
@@ -1007,6 +1009,8 @@ function closeModal() {
   document.querySelectorAll('#bookingForm input').forEach(i => { i.value=''; i.classList.remove('required-err'); });
   document.querySelectorAll('#svcGrid input').forEach(cb => { cb.checked = false; });
   document.querySelectorAll('#svcGrid .svc-item').forEach(l => l.classList.remove('checked'));
+  document.body.style.overflow = '';
+  updateMobileReserveBar();
 }
 
 function closeModalAndReset() { closeModal(); clearSelection(); }
@@ -1035,14 +1039,14 @@ function escHtml(s) {
   return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-document
-  .getElementById('modalOverlay')
   document
   .getElementById('modalOverlay')
   .addEventListener('click', function(e){
+    
     if(e.target.id === 'modalOverlay'){
       return;
     }
+    
 });
 
 init();
