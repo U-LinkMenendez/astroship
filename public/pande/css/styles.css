@@ -167,13 +167,17 @@ button:hover{
 
   z-index:2000;
 
-  box-shadow:-10px 0 30px rgba(0,0,0,.1);
+  box-shadow:-10px 0 30px rgba(0,0,0,.12);
 
-  transition:.3s ease;
+  transition:right .3s ease;
 
   display:flex;
   flex-direction:column;
 
+}
+
+.cart-drawer.open{
+  right:0;
 }
 
 .cart-drawer.open{
