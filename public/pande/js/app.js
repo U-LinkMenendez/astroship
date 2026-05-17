@@ -126,7 +126,7 @@ function render(){
               $${p.precio}
             </div>
 
-           <button onclick="agregarCarrito('${p.id}')">
+<button onclick="agregarCarrito('${p.id}')">
   Agregar
 </button>
 
