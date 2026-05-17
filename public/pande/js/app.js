@@ -15,15 +15,30 @@ const cartDrawer =
 const closeCart =
   document.getElementById("close-cart");
 
+const overlay =
+  document.getElementById("overlay");
+
 cartBtn.addEventListener("click",()=>{
 
   cartDrawer.classList.add("open");
+
+  overlay.classList.add("show");
 
 });
 
 closeCart.addEventListener("click",()=>{
 
   cartDrawer.classList.remove("open");
+
+  overlay.classList.remove("show");
+
+});
+
+overlay.addEventListener("click",()=>{
+
+  cartDrawer.classList.remove("open");
+
+  overlay.classList.remove("show");
 
 });
 
