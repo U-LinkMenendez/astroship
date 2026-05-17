@@ -1,4 +1,5 @@
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwTKKe_3DpFONr8nN4ZfuCt0kBqEcspB4_WXHnrtarNTqPlldpHBqba-FbqJcr7-nECZw/exec";
+
 const FRONTEND_KEY = "PANDE_PUBLIC_2026";
 
 let productos = [];
@@ -47,6 +48,8 @@ function render(){
 
   Object.keys(categorias).forEach(cat=>{
 
+    const catId = cat.replace(/\s+/g,'-');
+
     cont.innerHTML += `
 
       <section class="categoria-section">
@@ -55,16 +58,14 @@ function render(){
           ${cat}
         </h2>
 
-        <div class="categoria-grid" id="cat-${cat.replace(/\s+/g,'-')}">
+        <div class="categoria-grid" id="cat-${catId}">
         </div>
 
       </section>
 
     `;
 
-    const grid = document.getElementById(
-  `cat-${cat.replace(/\s+/g,'-')}`
-);
+    const grid = document.getElementById(`cat-${catId}`);
 
     categorias[cat].forEach(p=>{
 
@@ -102,25 +103,6 @@ function render(){
       `;
 
     });
-
-  });
-
-}
-
-        
-          <div class="precio">
-            $${p.precio}
-          </div>
-
-          <button>
-            Agregar
-          </button>
-
-        </div>
-
-      </div>
-
-    `;
 
   });
 
