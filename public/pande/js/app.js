@@ -55,14 +55,16 @@ function render(){
           ${cat}
         </h2>
 
-        <div class="categoria-grid" id="cat-${cat}">
+        <div class="categoria-grid" id="cat-${cat.replace(/\s+/g,'-')}">
         </div>
 
       </section>
 
     `;
 
-    const grid = document.getElementById(`cat-${cat}`);
+    const grid = document.getElementById(
+  `cat-${cat.replace(/\s+/g,'-')}`
+);
 
     categorias[cat].forEach(p=>{
 
