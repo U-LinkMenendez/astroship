@@ -428,10 +428,8 @@ window.addEventListener("scroll",()=>{
 
     link.classList.remove("active");
 
-    const href =
-      link.getAttribute("href");
-
-    if(href === `#${current}`){
+    const target = link.getAttribute("data-target");
+       if(target === current){
 
   link.classList.add("active");
 
