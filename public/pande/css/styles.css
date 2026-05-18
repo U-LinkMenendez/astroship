@@ -715,8 +715,7 @@ button:hover{
 }
 
 .category-link:focus,
-.category-link:focus-visible,
-.category-link:active{
+.category-link:focus-visible,{
 
   outline:none !important;
 
@@ -730,6 +729,20 @@ button:hover{
 
 .category-link{
   -webkit-tap-highlight-color: transparent;
+}
+
+.category-link,
+.category-link:focus,
+.category-link:focus-visible,
+.category-link:active,
+.category-link:hover{
+
+  text-decoration:none;
+
+  outline:none !important;
+
+  box-shadow:none !important;
+
 }
 
 .category-nav{
