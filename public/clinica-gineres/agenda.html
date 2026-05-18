@@ -193,8 +193,8 @@
     .grid-row { display:grid; grid-template-columns:52px repeat(3,1fr); border-bottom:1px solid var(--g200); }
     .grid-row:last-child { border-bottom:none; }
     .grid-row.alt { background:var(--ghost); }
-    .grid-time { padding:0.5rem 0.25rem; font-size:0.68rem; font-weight:500; color:var(--g400); text-align:center; border-right:1px solid var(--g200); font-family:'DM Mono',monospace; display:flex; align-items:center; justify-content:center; min-height:52px; }
-    .grid-cell { padding:0.25rem; border-right:1px solid var(--g200); min-height:52px; display:flex; align-items:stretch; position:relative; overflow:visible; }
+    .grid-time { padding:0.5rem 0.25rem; font-size:0.68rem; font-weight:500; color:var(--g400); text-align:center; border-right:1px solid var(--g200); font-family:'DM Mono',monospace; display:flex; align-items:center; justify-content:center; min-height:32px; }
+    .grid-cell { padding:0.25rem; border-right:1px solid var(--g200); min-height:32px; display:flex; align-items:stretch; position:relative; overflow:visible; }
     .grid-cell:last-child { border-right:none; }
 
     /* ── SLOTS ──────────────────────────────────────────────── */
@@ -489,8 +489,26 @@ const CAL_ACCOUNTS = [
 
 const QUIROFANOS = ['Quirofano 1', 'Quirofano 2', 'Quirofano 3'];
 // 21:00 removed — last bookable slot is 20:00
-const HOURS = ['04:00','05:00','06:00','07:00','08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00'];
-const ROW_H = 52;
+const HOURS = [
+  '04:00','04:30',
+  '05:00','05:30',
+  '06:00','06:30',
+  '07:00','07:30',
+  '08:00','08:30',
+  '09:00','09:30',
+  '10:00','10:30',
+  '11:00','11:30',
+  '12:00','12:30',
+  '13:00','13:30',
+  '14:00','14:30',
+  '15:00','15:30',
+  '16:00','16:30',
+  '17:00','17:30',
+  '18:00','18:30',
+  '19:00','19:30',
+  '20:00','20:30'
+];
+const ROW_H = 32;
 
 let currentDate = todayStr();
 let allReservas  = [];
