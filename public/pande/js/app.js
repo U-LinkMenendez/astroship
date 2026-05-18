@@ -355,7 +355,7 @@ function finalizarPedido(){
   mensaje += `%0A💰 Total: $${total}`;
 
   const telefonoNegocio =
-    "529991234567";
+    "529992175116";
 
   const url =
 `https://wa.me/${telefonoNegocio}?text=${mensaje}`;
