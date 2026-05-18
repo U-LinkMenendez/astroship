@@ -424,6 +424,26 @@ window.addEventListener("scroll",()=>{
 
 });
 
+document
+  .querySelectorAll(".category-link")
+  .forEach(link=>{
+
+    link.addEventListener("click",()=>{
+
+      document
+        .querySelectorAll(".category-link")
+        .forEach(l=>{
+
+          l.classList.remove("active");
+
+        });
+
+      link.classList.add("active");
+
+    });
+
+  });
+
 function abrirCheckout(){
 
   if(carrito.length === 0){
