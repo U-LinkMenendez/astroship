@@ -118,7 +118,10 @@ function render(){
 
     categoryNav.innerHTML += `
 
-      <a href="#cat-${catId}">
+      <a
+  href="#cat-${catId}"
+  class="category-link"
+>
         ${nombreVisual}
       </a>
 
