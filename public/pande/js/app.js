@@ -18,6 +18,12 @@ const closeCart =
 const overlay =
   document.getElementById("overlay");
 
+const checkoutModal =
+  document.getElementById("checkout-modal");
+
+const closeCheckout =
+  document.getElementById("close-checkout");
+
 cartBtn.addEventListener("click",()=>{
 
   cartDrawer.classList.add("open");
