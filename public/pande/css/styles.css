@@ -684,6 +684,36 @@ button:hover{
 
 }
 
+.category-link{
+
+  padding:12px 18px;
+
+  background:white;
+
+  border-radius:999px;
+
+  text-decoration:none;
+
+  color:#5c3b2e;
+
+  font-weight:600;
+
+  white-space:nowrap;
+
+  box-shadow:0 2px 8px rgba(0,0,0,.05);
+
+  transition:.2s;
+
+}
+
+.category-link.active{
+
+  background:#5c3b2e;
+
+  color:white;
+
+}
+
 .category-nav{
 
   position:sticky;
