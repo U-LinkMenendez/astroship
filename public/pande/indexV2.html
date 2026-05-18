@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+  <title>Pandé Repostería</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@300;400;500;600&display=swap"
+    rel="stylesheet"
+  />
+  <link
+    rel="stylesheet"
+    href="./css/styles.css"
+  />
+</head>
+<body>
+  <nav class="navbar">
+  <div class="logo">
+  <img
+    src="./img/logo-pande.png"
+    alt="Pandé Repostería"
+    class="logo-img"
+  >
+</div>
+    <div class="cart-btn" id="cart-btn">
+      🛒 <span id="cart-count">0</span>
+    </div>
+  </nav>
+  <div class="category-nav" id="category-nav">
+</div>
+  <div class="overlay" id="overlay"></div>
+  <!-- CARRITO -->
+  <div class="cart-drawer" id="cart-drawer">
+    <div class="cart-header">
+      <h2>Carrito</h2>
+      <button
+        id="close-cart"
+        class="close-cart"
+      >
+        ✕
+      </button>
+    </div>
+    <div id="cart-items"></div>
+    <div class="cart-footer">
+      <div class="subtotal">
+        Total:
+        <span id="cart-total">$0</span>
+      </div>
+      <button
+        class="checkout-btn"
+        onclick="abrirCheckout()"
+      >
+        Finalizar pedido
+      </button>
+    </div>
+  </div>
+  <!-- CHECKOUT -->
+  <div
+    class="checkout-modal"
+    id="checkout-modal"
+  >
+    <div class="checkout-content">
+      <button
+        id="close-checkout"
+        class="close-checkout"
+      >
+        ✕
+      </button>
+      <h2>Finalizar pedido</h2>
+      <input
+        type="text"
+        id="cliente-nombre"
+        placeholder="Nombre"
+      >
+      <input
+        type="text"
+        id="cliente-telefono"
+        placeholder="WhatsApp"
+      >
+      <select id="tipo-entrega">
+        <option value="pickup">
+          Recoger en tienda
+        </option>
+        <option value="domicilio">
+          Envío a domicilio
+        </option>
+      </select>
+      <textarea
+        id="cliente-direccion"
+        placeholder="Dirección de entrega"
+      ></textarea>
+      <select id="metodo-pago">
+        <option value="Efectivo">
+          Efectivo
+        </option>
+        <option value="Transferencia">
+          Transferencia
+        </option>
+        <option value="Tarjeta">
+          Tarjeta
+        </option>
+      </select>
+      <textarea
+        id="cliente-notas"
+        placeholder="Notas adicionales"
+      ></textarea>
+      <button
+        class="confirm-btn"
+        onclick="finalizarPedido()"
+      >
+        Confirmar pedido
+      </button>
+    </div>
+  </div>
+  <!-- HEADER -->
+  <header>
+    <h1>Pandé</h1>
+    <div class="sub">
+      Repostería artesanal en Mérida
+    </div>
+  </header>
+  <!-- PRODUCTOS -->
+  <main>
+    <div id="productos"></div>
+  </main>
+  <script src="./js/app.js"></script>
+</body>
+</html>
