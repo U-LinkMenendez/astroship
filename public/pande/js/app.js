@@ -365,3 +365,154 @@ function finalizarPedido(){
 }
 
 cargarCatalogo();
+
+function abrirCheckout(){
+
+  if(carrito.length === 0){
+
+    alert("Tu carrito está vacío");
+
+    return;
+
+  }
+
+  checkoutModal.classList.add("show");
+
+}
+
+function cerrarCheckout(){
+
+  checkoutModal.classList.remove("show");
+
+}
+
+closeCheckout.addEventListener("click", cerrarCheckout);
+
+async function enviarPedido(){
+
+  const nombre =
+    document.getElementById("cliente-nombre").value;
+
+  const telefono =
+    document.getElementById("cliente-telefono").value;
+
+  const entrega =
+    document.getElementById("tipo-entrega").value;
+
+  const pago =
+    document.getElementById("metodo-pago").value;
+
+  const notas =
+    document.getElementById("cliente-notas").value;
+
+  if(!nombre || !telefono){
+
+    alert("Completa nombre y teléfono");
+
+    return;
+
+  }
+
+  let total = 0;
+
+  carrito.forEach(p=>{
+
+    total += Number(p.precio);
+
+  });
+
+  const pedido = {
+
+    action:"crearPedido",
+
+    key:FRONTEND_KEY,
+
+    cliente:nombre,
+
+    telefono:telefono,
+
+    entrega:entrega,
+
+    metodo_pago:pago,
+
+    notas:notas,
+
+    total:total,
+
+    productos:carrito
+
+  };
+
+  try{
+
+    const res = await fetch(SCRIPT_URL,{
+
+      method:"POST",
+
+      body:JSON.stringify(pedido)
+
+    });
+
+    const data = await res.json();
+
+    if(data.ok){
+
+      const resumen =
+        carrito.map(p=>
+          `• ${p.nombre} - $${p.precio}`
+        ).join("%0A");
+
+      const mensaje =
+
+`Hola Pandé 👋
+
+Quiero confirmar mi pedido:
+
+${resumen}
+
+Total: $${total}
+
+Nombre:
+${nombre}
+
+Entrega:
+${entrega}
+
+Pago:
+${pago}
+
+Notas:
+${notas}`;
+
+      const whatsapp =
+`https://wa.me/529992175116?text=${mensaje}`;
+
+      window.open(whatsapp,"_blank");
+
+      carrito = [];
+
+      actualizarCarrito();
+
+      cerrarCheckout();
+
+      cartDrawer.classList.remove("open");
+
+      overlay.classList.remove("show");
+
+      alert("Pedido enviado correctamente");
+
+    }else{
+
+      alert("Error enviando pedido");
+
+    }
+
+  }catch(err){
+
+    console.error(err);
+
+    alert("Error de conexión");
+
+  }
+
+}
