@@ -118,12 +118,12 @@ function render(){
 
     categoryNav.innerHTML += `
 
-  <a
-    href="#cat-${catId}"
-    class="category-link"
-  >
+  <button
+  class="category-link"
+  data-target="cat-${catId}"
+>
     ${nombreVisual}
-  </a>
+  </button>
 
 `;
 
@@ -368,6 +368,33 @@ function finalizarPedido(){
 }
 
 cargarCatalogo();
+
+document.addEventListener("click",(e)=>{
+
+  const btn =
+    e.target.closest(".category-link");
+
+  if(!btn) return;
+
+  const target =
+    btn.dataset.target;
+
+  const section =
+    document.getElementById(target);
+
+  if(section){
+
+    section.scrollIntoView({
+
+      behavior:"smooth",
+
+      block:"start"
+
+    });
+
+  }
+
+});
 
 window.addEventListener("scroll",()=>{
 
