@@ -723,14 +723,17 @@ if (day === 0) {
         if (isSelected) {
 
           slotHtml = `
-            <div class="slot slot-selected" onclick="toggleSlot('${q}','${h}',event)">
-              <div class="slot-time">
-                ${h} → ${getSlotEnd(h)}
-                </div>
-             </div>
-              
-              <div class="slot-label">✓ Seleccionado</div>
-            </div>`;
+  <div class="slot slot-selected" onclick="toggleSlot('${q}','${h}',event)">
+
+    <div class="slot-time">
+      ${h} → ${getSlotEnd(h)}
+    </div>
+
+    <div class="slot-label">
+      ✓ Seleccionado
+    </div>
+
+  </div>`;
 
         } else {
 
@@ -741,13 +744,17 @@ if (day === 0) {
           if (canSelect) {
 
             slotHtml = `
-              <div class="slot slot-available" onclick="toggleSlot('${q}','${h}',event)">
-                <div class="slot-time">
-                  ${h} → ${getSlotEnd(h)}
-                </div>
-             </div>
-                <div class="slot-label">Disponible</div>
-              </div>`;
+  <div class="slot slot-available" onclick="toggleSlot('${q}','${h}',event)">
+    
+    <div class="slot-time">
+      ${h} → ${getSlotEnd(h)}
+    </div>
+
+    <div class="slot-label">
+      Disponible
+    </div>
+
+  </div>`;
 
           } else {
 
