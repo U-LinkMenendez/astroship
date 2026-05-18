@@ -715,15 +715,21 @@ button:hover{
 }
 
 .category-link:focus,
+.category-link:focus-visible,
 .category-link:active{
-  outline:none;
-  box-shadow:none;
+
+  outline:none !important;
+
+  box-shadow:none !important;
+
+  background:inherit;
+
+  color:inherit;
+
 }
 
 .category-link{
-
   -webkit-tap-highlight-color: transparent;
-
 }
 
 .category-nav{
