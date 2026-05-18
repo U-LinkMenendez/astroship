@@ -406,9 +406,19 @@ window.addEventListener("scroll",()=>{
 
     if(href === `#${current}`){
 
-      link.classList.add("active");
+  link.classList.add("active");
 
-    }
+  link.scrollIntoView({
+
+    behavior:"smooth",
+
+    inline:"center",
+
+    block:"nearest"
+
+  });
+
+}
 
   });
 
