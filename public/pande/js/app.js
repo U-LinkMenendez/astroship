@@ -74,16 +74,24 @@ async function cargarCatalogo(){
 
 function render(){
 
-  const cont = document.getElementById("productos");
+  const cont =
+    document.getElementById("productos");
 
   cont.innerHTML = "";
+
+  const categoryNav =
+    document.getElementById("category-nav");
+
+  categoryNav.innerHTML = "";
 
   const categorias = {};
 
   productos.forEach(p=>{
 
     if(!categorias[p.categoria]){
+
       categorias[p.categoria] = [];
+
     }
 
     categorias[p.categoria].push(p);
@@ -108,26 +116,34 @@ function render(){
     const catId =
       cat.replace(/\s+/g,'-');
 
+    categoryNav.innerHTML += `
+
+      <a href="#cat-${catId}">
+        ${nombreVisual}
+      </a>
+
+    `;
+
     cont.innerHTML += `
 
-      <section class="categoria-section">
+      <section
+        class="categoria-section"
+        id="cat-${catId}"
+      >
 
         <h2 class="categoria-title">
           ${nombreVisual}
         </h2>
 
-        <div
-          class="categoria-grid"
-          id="cat-${catId}"
-        ></div>
+        <div class="categoria-grid"></div>
 
       </section>
 
     `;
 
     const grid =
-      document.getElementById(
-        `cat-${catId}`
+      cont.querySelector(
+        `#cat-${catId} .categoria-grid`
       );
 
     categorias[cat].forEach(p=>{
@@ -173,15 +189,14 @@ function render(){
 
 function agregarCarrito(id){
 
-  console.log("CLICK", id);
-
   const producto = productos.find(
     p => p.id === id
   );
 
   if(!producto){
-    console.log("NO ENCONTRADO");
+
     return;
+
   }
 
   carrito.push(producto);
@@ -254,8 +269,6 @@ function eliminarDelCarrito(index){
   actualizarCarrito();
 
 }
-
-cargarCatalogo();
 
 function abrirCheckout(){
 
@@ -350,3 +363,5 @@ function finalizarPedido(){
   window.open(url,"_blank");
 
 }
+
+cargarCatalogo();
