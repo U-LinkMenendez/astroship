@@ -256,3 +256,97 @@ function eliminarDelCarrito(index){
 }
 
 cargarCatalogo();
+
+function abrirCheckout(){
+
+  if(carrito.length === 0){
+
+    alert("Tu carrito está vacío");
+
+    return;
+
+  }
+
+  checkoutModal.classList.add("show");
+
+}
+
+function cerrarCheckout(){
+
+  checkoutModal.classList.remove("show");
+
+}
+
+document.querySelector(".checkout-btn")
+  .addEventListener("click",abrirCheckout);
+
+closeCheckout.addEventListener(
+  "click",
+  cerrarCheckout
+);
+
+function finalizarPedido(){
+
+  const nombre =
+    document.getElementById("cliente-nombre").value;
+
+  const telefono =
+    document.getElementById("cliente-telefono").value;
+
+  const tipoEntrega =
+    document.getElementById("tipo-entrega").value;
+
+  const direccion =
+    document.getElementById("cliente-direccion").value;
+
+  if(!nombre || !telefono){
+
+    alert("Completa nombre y teléfono");
+
+    return;
+
+  }
+
+  let mensaje =
+`🧁 *Nuevo pedido Pandé* %0A%0A`;
+
+  mensaje +=
+`👤 Cliente: ${nombre}%0A`;
+
+  mensaje +=
+`📱 Teléfono: ${telefono}%0A`;
+
+  mensaje +=
+`🚚 Entrega: ${tipoEntrega}%0A`;
+
+  if(tipoEntrega === "domicilio"){
+
+    mensaje +=
+`📍 Dirección: ${direccion}%0A`;
+
+  }
+
+  mensaje += `%0A🛒 *Productos:*%0A`;
+
+  let total = 0;
+
+  carrito.forEach(p=>{
+
+    mensaje +=
+`- ${p.nombre} ($${p.precio})%0A`;
+
+    total += Number(p.precio);
+
+  });
+
+  mensaje += `%0A💰 Total: $${total}`;
+
+  const telefonoNegocio =
+    "529991234567";
+
+  const url =
+`https://wa.me/${telefonoNegocio}?text=${mensaje}`;
+
+  window.open(url,"_blank");
+
+}
