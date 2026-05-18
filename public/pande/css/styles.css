@@ -715,7 +715,7 @@ button:hover{
 }
 
 .category-link:focus,
-.category-link:focus-visible,{
+.category-link:focus-visible {
 
   outline:none !important;
 
