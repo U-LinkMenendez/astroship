@@ -366,6 +366,51 @@ function finalizarPedido(){
 
 cargarCatalogo();
 
+window.addEventListener("scroll",()=>{
+
+  const sections =
+    document.querySelectorAll(
+      ".categoria-section"
+    );
+
+  const links =
+    document.querySelectorAll(
+      ".category-link"
+    );
+
+  let current = "";
+
+  sections.forEach(section=>{
+
+    const top =
+      section.offsetTop - 180;
+
+    if(scrollY >= top){
+
+      current =
+        section.id;
+
+    }
+
+  });
+
+  links.forEach(link=>{
+
+    link.classList.remove("active");
+
+    const href =
+      link.getAttribute("href");
+
+    if(href === `#${current}`){
+
+      link.classList.add("active");
+
+    }
+
+  });
+
+});
+
 function abrirCheckout(){
 
   if(carrito.length === 0){
@@ -516,3 +561,5 @@ ${notas}`;
   }
 
 }
+
+
