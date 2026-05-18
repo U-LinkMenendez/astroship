@@ -40,13 +40,18 @@
 
   <div class="overlay" id="overlay"></div>
 
+  <!-- CARRITO -->
+
   <div class="cart-drawer" id="cart-drawer">
 
     <div class="cart-header">
 
       <h2>Carrito</h2>
 
-      <button id="close-cart" class="close-cart">
+      <button
+        id="close-cart"
+        class="close-cart"
+      >
         ✕
       </button>
 
@@ -72,24 +77,23 @@
 
   </div>
 
-  <!-- CHECKOUT MODAL -->
+  <!-- CHECKOUT -->
 
-  <div class="checkout-modal" id="checkout-modal">
+  <div
+    class="checkout-modal"
+    id="checkout-modal"
+  >
 
-    <div class="checkout-box">
+    <div class="checkout-content">
 
-      <div class="checkout-header">
+      <button
+        id="close-checkout"
+        class="close-checkout"
+      >
+        ✕
+      </button>
 
-        <h2>Finalizar pedido</h2>
-
-        <button
-          id="close-checkout"
-          class="close-cart"
-        >
-          ✕
-        </button>
-
-      </div>
+      <h2>Finalizar pedido</h2>
 
       <input
         type="text"
@@ -105,15 +109,20 @@
 
       <select id="tipo-entrega">
 
-        <option value="Recoger">
+        <option value="pickup">
           Recoger en tienda
         </option>
 
-        <option value="Delivery">
-          Delivery
+        <option value="domicilio">
+          Envío a domicilio
         </option>
 
       </select>
+
+      <textarea
+        id="cliente-direccion"
+        placeholder="Dirección de entrega"
+      ></textarea>
 
       <select id="metodo-pago">
 
@@ -138,7 +147,7 @@
 
       <button
         class="confirm-btn"
-        onclick="enviarPedido()"
+        onclick="finalizarPedido()"
       >
         Confirmar pedido
       </button>
@@ -146,6 +155,8 @@
     </div>
 
   </div>
+
+  <!-- HEADER -->
 
   <header>
 
@@ -156,6 +167,8 @@
     </div>
 
   </header>
+
+  <!-- PRODUCTOS -->
 
   <main>
 
