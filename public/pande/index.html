@@ -28,47 +28,125 @@
 
   <nav class="navbar">
 
-  <div class="logo">
-    Pandé
-  </div>
-
-  <div class="cart-btn" id="cart-btn">
-    🛒 <span id="cart-count">0</span>
-  </div>
-
-</nav>
-
-  <div class="overlay" id="overlay"></div>
-  
-  <div class="cart-drawer" id="cart-drawer">
-
-  <div class="cart-header">
-
-    <h2>Carrito</h2>
-
-    <button id="close-cart">
-      ✕
-    </button>
-
-  </div>
-
-  <div id="cart-items"></div>
-
-  <div class="cart-footer">
-
-    <div class="subtotal">
-      Total:
-      <span id="cart-total">$0</span>
+    <div class="logo">
+      Pandé
     </div>
 
-    <button class="checkout-btn">
-      Finalizar pedido
-    </button>
+    <div class="cart-btn" id="cart-btn">
+      🛒 <span id="cart-count">0</span>
+    </div>
+
+  </nav>
+
+  <div class="overlay" id="overlay"></div>
+
+  <div class="cart-drawer" id="cart-drawer">
+
+    <div class="cart-header">
+
+      <h2>Carrito</h2>
+
+      <button id="close-cart" class="close-cart">
+        ✕
+      </button>
+
+    </div>
+
+    <div id="cart-items"></div>
+
+    <div class="cart-footer">
+
+      <div class="subtotal">
+        Total:
+        <span id="cart-total">$0</span>
+      </div>
+
+      <button
+        class="checkout-btn"
+        onclick="abrirCheckout()"
+      >
+        Finalizar pedido
+      </button>
+
+    </div>
 
   </div>
 
-</div>
-  
+  <!-- CHECKOUT MODAL -->
+
+  <div class="checkout-modal" id="checkout-modal">
+
+    <div class="checkout-box">
+
+      <div class="checkout-header">
+
+        <h2>Finalizar pedido</h2>
+
+        <button
+          id="close-checkout"
+          class="close-cart"
+        >
+          ✕
+        </button>
+
+      </div>
+
+      <input
+        type="text"
+        id="cliente-nombre"
+        placeholder="Nombre"
+      >
+
+      <input
+        type="text"
+        id="cliente-telefono"
+        placeholder="WhatsApp"
+      >
+
+      <select id="tipo-entrega">
+
+        <option value="Recoger">
+          Recoger en tienda
+        </option>
+
+        <option value="Delivery">
+          Delivery
+        </option>
+
+      </select>
+
+      <select id="metodo-pago">
+
+        <option value="Efectivo">
+          Efectivo
+        </option>
+
+        <option value="Transferencia">
+          Transferencia
+        </option>
+
+        <option value="Tarjeta">
+          Tarjeta
+        </option>
+
+      </select>
+
+      <textarea
+        id="cliente-notas"
+        placeholder="Notas adicionales"
+      ></textarea>
+
+      <button
+        class="confirm-btn"
+        onclick="enviarPedido()"
+      >
+        Confirmar pedido
+      </button>
+
+    </div>
+
+  </div>
+
   <header>
 
     <h1>Pandé</h1>
