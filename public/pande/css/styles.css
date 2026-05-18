@@ -38,15 +38,19 @@ body{
 
 .logo{
 
-  font-family:'Playfair Display',serif;
+  display:flex;
 
-  font-size:30px;
+  align-items:center;
 
-  color:#caa15a;
+}
 
-  font-weight:700;
+.logo img{
 
-  letter-spacing:.5px;
+  height:52px;
+
+  width:auto;
+
+  object-fit:contain;
 
 }
 
