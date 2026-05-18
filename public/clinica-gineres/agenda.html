@@ -508,7 +508,7 @@ const HOURS = [
   '19:00','19:30',
   '20:00','20:30'
 ];
-const ROW_H = 40;
+const ROW_H = 32;
 
 let currentDate = todayStr();
 let allReservas  = [];
@@ -600,7 +600,7 @@ function renderGrid() {
       hora: startH,
       duracion: dur,
       isStart: true,
-      height: (dur * 2 * ROW_H) - 4,
+      height: ((dur * 2) * 32) - 2,
     };
 
     for (let d = 1; d < (dur * 2); d++) {
