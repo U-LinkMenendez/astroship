@@ -39,12 +39,11 @@ body{
 .logo{
 
   display:flex;
-
   align-items:center;
 
 }
 
-.logo img{
+.logo-img{
 
   height:52px;
 
