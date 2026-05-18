@@ -671,3 +671,61 @@ button:hover{
   color:white;
 
 }
+
+.category-nav{
+
+  position:sticky;
+
+  top:76px;
+
+  z-index:900;
+
+  display:flex;
+
+  gap:12px;
+
+  overflow-x:auto;
+
+  padding:14px 20px;
+
+  background:#faf7f2;
+
+  border-bottom:1px solid rgba(0,0,0,.05);
+
+  scrollbar-width:none;
+
+}
+
+.category-nav::-webkit-scrollbar{
+  display:none;
+}
+
+.category-nav a{
+
+  text-decoration:none;
+
+  color:#5c3b2e;
+
+  background:white;
+
+  padding:10px 18px;
+
+  border-radius:999px;
+
+  white-space:nowrap;
+
+  font-weight:600;
+
+  box-shadow:0 2px 8px rgba(0,0,0,.05);
+
+  transition:.2s;
+
+}
+
+.category-nav a:hover{
+
+  background:#5c3b2e;
+
+  color:white;
+
+}
