@@ -600,7 +600,7 @@ function renderGrid() {
       hora: startH,
       duracion: dur,
       isStart: true,
-      height: dur * ROW_H - 6,
+      height: (dur / 2) * ROW_H - 6,
     };
 
     for (let d = 1; d < dur; d++) {
@@ -866,10 +866,7 @@ if (day === 0) {
       let s = '';
       if (isSelected) {
 
-  const endHour =
-    String(
-      parseInt(h.split(':')[0]) + 1
-    ).padStart(2,'0') + ':00';
+  const endHour = getSlotEnd(h);
 
   s =
     '<div class="slot slot-selected" onclick="toggleSlot(\'' + q + '\',\'' + h + '\',event)">' +
@@ -878,10 +875,7 @@ if (day === 0) {
     '</div>' +
     '<div class="slot-label">&#10003; Seleccionado</div></div>';
       } else if ( canSelect && !isPastSlot && !isClosedSlot ) {
-        const endHour =
-  String(
-    parseInt(h.split(':')[0]) + 1
-  ).padStart(2,'0') + ':00';
+        const endHour = getSlotEnd(h);
 
 s =
   '<div class="slot slot-available" onclick="toggleSlot(\'' + q + '\',\'' + h + '\',event)">' +
@@ -926,7 +920,7 @@ function updateSelBar() {
   const bar = document.getElementById('selBar');
   if (!selection || selection.slots.length === 0) { bar.classList.remove('show'); return; }
   bar.classList.add('show');
-  const hrs   = selection.slots.length;
+  const hrs   = selection.slots.length / 2;
   const q     = selection.quirofano.replace('Quirofano', 'Quirófano');
   const start = selection.slots[0];
   const endIdx = HOURS.indexOf(selection.slots[selection.slots.length-1]) + 1;
@@ -963,12 +957,7 @@ function updateSelBar() {
       selection.slots.length - 1
     ];
 
-  const endHour =
-    String(
-      parseInt(
-        last.split(':')[0]
-      ) + 1
-    ).padStart(2,'0') + ':00';
+  const endHour = getSlotEnd(last);
 
   info.innerHTML =
     '<strong>' +
@@ -976,8 +965,8 @@ function updateSelBar() {
     '</strong><br>' +
     start + '–' + endHour +
     ' · ' +
-    selection.slots.length +
-    ' hora(s)';
+    (selection.slots.length / 2) +
+' hora(s)'
 
   bar.style.display = 'flex';
 }
@@ -989,7 +978,7 @@ function openForm() {
   const start = selection.slots[0];
   const endIdx = HOURS.indexOf(selection.slots[selection.slots.length-1]) + 1;
   const endH  = endIdx < HOURS.length ? HOURS[endIdx] : getSlotEnd(selection.slots[selection.slots.length-1]);
-  const hrs   = selection.slots.length;
+  const hrs   = selection.slots.length / 2;
 
   document.getElementById('summaryBox').innerHTML = `
     <div class="summary-row"><span class="summary-label">Quirófano</span><span class="summary-value">${q}</span></div>
@@ -1060,7 +1049,7 @@ async function submitBooking() {
   const startHour = selection.slots[0];
   const startLocal = new Date(currentDate + 'T' + startHour + ':00');
   const startISO = startLocal.toISOString();
-  const durMin    = selection.slots.length * 60;
+  const durMin    = selection.slots.length * 30;
 
   const qIdx    = QUIROFANOS.indexOf(selection.quirofano);
   const account = CAL_ACCOUNTS[qIdx];
