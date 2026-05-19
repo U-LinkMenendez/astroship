@@ -219,13 +219,17 @@
   }
 
   .hdr-right{
-    width:100%;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    gap:8px;
-    flex-wrap:wrap;
-  }
+  width:100%;
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  gap:12px;
+  flex-wrap:nowrap;
+}
+
+      .status-pill{
+  margin-left:auto;
+}
 
   .hdr-date{
     display:none;
@@ -288,7 +292,7 @@
     /* ── RESERVATION TAB GRID ─────────────────────────── */
     .res-wrap { background:#fff; border-radius:var(--r-lg); border:1px solid var(--g200); overflow:hidden; box-shadow:var(--sh); display:flex; flex-direction:column; max-height:calc(100vh - 220px); }
     .res-grid-header { display:grid; grid-template-columns:52px repeat(3,1fr); background:var(--navy); flex-shrink:0; position:sticky; top:0; z-index:10; }
-    .res-hcell { padding:0.65rem 0.75rem; font-size:0.8rem; font-weight:600; color:#fff; text-align:center; border-right:1px solid rgba(255,255,255,0.08); }
+    .res-hcell { padding:0.65rem 0.75rem; font-size:0.8rem; font-weight:600; color:#fff; text-align:center; border-right:1px solid rgba(255,255,255,0.08); line-height:1.15; }
     .res-hcell:last-child { border-right:none; }
     .res-hcell.time-col { font-size:0.65rem; color:rgba(255,255,255,0.4); font-family:'DM Mono',monospace; }
     .res-body { overflow-y:auto; flex:1; }
@@ -793,7 +797,7 @@
       html += `<div class="res-wrap">
         <div class="res-grid-header">
           <div class="res-hcell time-col">Hora</div>
-          ${QUIROFANOS.map((q,i) => `<div class="res-hcell"><span style="color:var(--navy);margin-right:3px">${i+1}</span>${q.replace('Quirofano','Quirófano')}</div>`).join('')}
+          ${QUIROFANOS.map((q,i) => `<div class="res-hcell"><span style="color:var(--navy);margin-right:3px">${i+1}</span>${q.replace('Quirofano ','Q')}</div>`).join('')}
         </div>
         <div class="res-body">`;
 
