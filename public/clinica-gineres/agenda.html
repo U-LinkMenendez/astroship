@@ -1106,7 +1106,7 @@ anestesiologoext:
       document.getElementById('formState').style.display = 'none';
       document.getElementById('successState').style.display = '';
       document.getElementById('successMsg').textContent =
-        `Reserva en ${selection.quirofano.replace('Quirofano','Quirófano')} el ${formatDateDisplay(currentDate)} de ${selection.slots[0]} confirmada. Recibirá un correo en breve.`;
+        `Su reserva en el ${selection.quirofano.replace('Quirofano','Quirófano')} para el ${formatDateDisplay(currentDate)} a las ${selection.slots[0]} horas, está confirmada. En unos minutos recibirá una confirmación por email.`;
       await loadData();
         selection = null;
           updateSelBar();
