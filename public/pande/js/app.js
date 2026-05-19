@@ -186,7 +186,7 @@ function render(){
 
     });
 
-}
+});
 
 function actualizarCarrito(){
 
