@@ -212,7 +212,20 @@
     .slot-selected .slot-label { font-size:0.7rem; color:rgba(255,255,255,0.8); }
 
     /* Occupied — first slot */
-    .slot-occupied { background:var(--g100); border-color:var(--g200); cursor:default; border-left:3px solid var(--blue); position:absolute; left:3px; right:3px; top:3px; z-index:2; box-shadow:0 1px 4px rgba(37,99,235,0.1); overflow:hidden; }
+    .slot-occupied {
+      background:var(--g100);
+      border-color:var(--g200);
+      cursor:default;
+      border-left:3px solid var(--blue);
+      position:absolute;
+      left:3px;
+      right:3px;
+      top:1px;
+      z-index:2;
+      box-shadow:0 1px 4px rgba(37,99,235,0.1);
+      overflow:hidden;
+      box-sizing:border-box;
+    }
     .slot-occupied .slot-proc { font-size:0.75rem; font-weight:600; color:var(--navy); line-height:1.2; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
     .slot-occupied .slot-time-occ { font-size:0.62rem; font-family:'DM Mono',monospace; color:var(--blue); margin-bottom:2px; }
 
