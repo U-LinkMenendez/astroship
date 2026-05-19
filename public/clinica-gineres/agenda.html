@@ -194,7 +194,13 @@
     .grid-row:last-child { border-bottom:none; }
     .grid-row.alt { background:var(--ghost); }
     .grid-time { padding:0.5rem 0.25rem; font-size:0.68rem; font-weight:500; color:var(--g400); text-align:center; border-right:1px solid var(--g200); font-family:'DM Mono',monospace; display:flex; align-items:center; justify-content:center; height:32px; }
-    .grid-cell { padding:0; border-right:1px solid var(--g200); height:32px; display:flex; align-items:stretch; position:relative; overflow:hidden; }
+    .grid-cell {
+      padding:0;
+      border-right:1px solid var(--g200);
+      height:32px;
+      position:relative;
+      overflow:visible;
+    }
     .grid-cell:last-child { border-right:none; }
 
     /* ── SLOTS ──────────────────────────────────────────────── */
@@ -218,13 +224,14 @@
       cursor:default;
       border-left:3px solid var(--blue);
       position:absolute;
-      left:0;
-      right:0;
+      left:2px;
+      right:2px;
       top:0;
       z-index:2;
       box-shadow:0 1px 4px rgba(37,99,235,0.1);
       overflow:hidden;
       box-sizing:border-box;
+      min-height:32px;
     }
     .slot-occupied .slot-proc { font-size:0.75rem; font-weight:600; color:var(--navy); line-height:1.2; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
     .slot-occupied .slot-time-occ { font-size:0.62rem; font-family:'DM Mono',monospace; color:var(--blue); margin-bottom:2px; }
