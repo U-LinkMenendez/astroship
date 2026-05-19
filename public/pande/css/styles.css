@@ -542,3 +542,21 @@ select.error {
 .whatsapp-btn:hover {
   background: #1ebe5d !important;
 }
+
+/* FEEDBACK BOTÓN AGREGAR */
+
+.card button {
+  transition: transform .15s ease,
+              background .15s ease,
+              box-shadow .15s ease;
+}
+
+.card button:active {
+  transform: scale(.96);
+  background: #3d271e;
+  box-shadow: 0 2px 6px rgba(0,0,0,.18);
+}
+
+.card button.agregado {
+  background: #2e7d32;
+}
