@@ -190,28 +190,16 @@ function render(){
 
 }
 
-function agregarCarrito(id){
-
-  const producto = productos.find(
-    p => p.id === id
-  );
-
-  if(!producto){
-
-    return;
-
-  }
-
-  carrito.push(producto);
-
-  actualizarCarrito();
-
-}
-
 function actualizarCarrito(){
 
-  document.getElementById("cart-count")
-    .innerText = carrito.length;
+ const totalItems =
+  carrito.reduce(
+    (acc,item)=>acc + item.cantidad,
+    0
+  );
+
+document.getElementById("cart-count")
+  .innerText = totalItems;
 
   const cartItems =
     document.getElementById("cart-items");
@@ -223,11 +211,13 @@ function actualizarCarrito(){
 
   let total = 0;
 
-  carrito.forEach((p,index)=>{
+  carrito.forEach((item,index)=>{
 
-    total += Number(p.precio);
+  const p = item.producto;
 
-    cartItems.innerHTML += `
+  total += Number(p.precio) * item.cantidad;
+
+  cartItems.innerHTML += `
 
       <div class="cart-item">
 
@@ -239,11 +229,11 @@ function actualizarCarrito(){
         <div class="cart-item-info">
 
           <div class="cart-item-name">
-            ${p.nombre}
+           ${p.nombre} x${item.cantidad}
           </div>
 
           <div class="cart-item-price">
-            $${p.precio}
+            $${Number(p.precio) * item.cantidad}
           </div>
 
           <button
