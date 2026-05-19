@@ -226,39 +226,38 @@
 
   .hdr{
   height:auto;
-  padding:12px 14px;
-  display:grid;
-  grid-template-columns:1fr auto;
-  grid-template-areas:
-    "logo url"
-    "status salir";
-  align-items:center;
-  row-gap:10px;
-  column-gap:12px;
+  padding:14px;
+  display:flex;
+  flex-direction:column;
+  gap:14px;
 }
 
-  .hdr-logo{
-  grid-area:logo;
+.hdr-top{
   width:100%;
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
 }
 
-  .hdr-right{
-  display:contents;
+.hdr-logo{
+  flex:1;
 }
-      
-      .setup-btn{
-  grid-area:url;
-  justify-self:end;
+
+.hdr-right{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-end;
+  gap:10px;
+}
+
+.hdr-actions{
+  display:flex;
+  gap:10px;
+  align-items:center;
 }
 
 .status-pill{
-  grid-area:status;
-  margin-left:0;
-}
-
-.logout-btn{
-  grid-area:salir;
-  justify-self:end;
+  align-self:flex-start;
 }
 
       .status-pill{
@@ -541,26 +540,33 @@
       </div>
     </div>
     <div class="hdr-right">
-      <span class="hdr-date" id="hdrDate"></span>
-      <div class="status-pill">
-        <div class="status-dot" id="statusDot"></div>
-        <span id="statusTxt">Conectado</span>
-      </div>
-      <button class="setup-btn" onclick="openSetup()">⚙ URL</button>
 
-<button
-  class="setup-btn"
-  onclick="logoutAdmin()"
-  style="
-    background:#DC2626;
-    color:#fff;
-    border-color:#DC2626;
-  "
->
-  Salir
-</button>
-      
-    </div>
+      <div class="hdr-actions">
+
+        <button class="setup-btn" onclick="openSetup()">
+          ⚙ URL
+        </button>
+
+        <button
+          class="setup-btn"
+          onclick="logoutAdmin()"
+          style="
+            background:#DC2626;
+            color:#fff;
+            border-color:#DC2626;
+          "
+        >
+          Salir
+       </button>
+
+     </div>
+
+     <div class="status-pill">
+       <div class="status-dot" id="statusDot"></div>
+       <span id="statusTxt">Conectado</span>
+     </div>
+
+   </div>
   </header>
 
   <div class="modal-overlay" id="modalOverlay">
