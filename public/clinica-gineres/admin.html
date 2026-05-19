@@ -77,7 +77,25 @@
     .date-tab.today-tab { border-color:var(--blue); color:var(--blue); }
     .date-tab.today-tab.active { background:var(--blue); color:#fff; border-color:var(--blue); }
     .view-toggle { display:flex; background:var(--g100); border-radius:7px; padding:2px; flex-shrink:0; }
-    .view-btn { padding:0.3rem 0.75rem; border-radius:5px; border:none; background:transparent; font-family:'DM Sans',sans-serif; font-size:0.75rem; font-weight:500; color:var(--g600); cursor:pointer; transition:all 0.15s; display:flex; align-items:center; gap:4px; white-space:nowrap; }
+    .view-btn {
+      padding:0.3rem 0.75rem;
+      border-radius:5px;
+      border:none;
+      background:transparent;
+      font-family:'DM Sans',sans-serif;
+      font-size:0.75rem;
+      font-weight:600;
+      color:var(--g600);
+      cursor:pointer;
+      transition:all 0.15s;
+      display:flex;
+      align-items:center;
+      gap:4px;
+      white-space:nowrap;
+
+      border:1px solid rgba(0,0,0,0.08);
+      box-shadow:0 1px 2px rgba(0,0,0,0.08);
+    }
     .view-btn.active { background:#fff; color:var(--navy); box-shadow:0 1px 3px rgba(0,0,0,0.08); }
 
     /* MAIN */
@@ -207,24 +225,40 @@
   /* HEADER */
 
   .hdr{
-    height:auto;
-    padding:12px 14px;
-    align-items:flex-start;
-    flex-direction:column;
-    gap:12px;
-  }
+  height:auto;
+  padding:12px 14px;
+  display:grid;
+  grid-template-columns:1fr auto;
+  grid-template-areas:
+    "logo url"
+    "status salir";
+  align-items:center;
+  row-gap:10px;
+  column-gap:12px;
+}
 
   .hdr-logo{
-    width:100%;
-  }
+  grid-area:logo;
+  width:100%;
+}
 
   .hdr-right{
-  width:100%;
-  display:flex;
-  align-items:center;
-  justify-content:flex-start;
-  gap:12px;
-  flex-wrap:nowrap;
+  display:contents;
+}
+      
+      .setup-btn{
+  grid-area:url;
+  justify-self:end;
+}
+
+.status-pill{
+  grid-area:status;
+  margin-left:0;
+}
+
+.logout-btn{
+  grid-area:salir;
+  justify-self:end;
 }
 
       .status-pill{
@@ -267,10 +301,13 @@
   }
 
   .view-toggle{
-    width:100%;
-    overflow-x:auto;
-    padding:3px;
-  }
+  width:100%;
+  display:flex;
+  justify-content:flex-end;
+  gap:8px;
+  overflow-x:auto;
+  padding:4px;
+}
 
   .view-btn{
     flex-shrink:0;
