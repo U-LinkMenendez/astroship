@@ -63,57 +63,81 @@
     id="checkout-modal"
   >
     <div class="checkout-content">
-      <button
-        id="close-checkout"
-        class="close-checkout"
-      >
-        ✕
-      </button>
-      <h2>Finalizar pedido</h2>
-      <input
-        type="text"
-        id="cliente-nombre"
-        placeholder="Nombre"
-      >
-      <input
-        type="text"
-        id="cliente-telefono"
-        placeholder="WhatsApp"
-      >
-      <select id="tipo-entrega">
-        <option value="pickup">
-          Recoger en tienda
-        </option>
-        <option value="domicilio">
-          Envío a domicilio
-        </option>
-      </select>
-      <textarea
-        id="cliente-direccion"
-        placeholder="Dirección de entrega"
-      ></textarea>
-      <select id="metodo-pago">
-        <option value="Efectivo">
-          Efectivo
-        </option>
-        <option value="Transferencia">
-          Transferencia
-        </option>
-        <option value="Tarjeta">
-          Tarjeta
-        </option>
-      </select>
-      <textarea
-        id="cliente-notas"
-        placeholder="Notas adicionales"
-      ></textarea>
-      <button
-        class="confirm-btn"
-        onclick="finalizarPedido()"
-      >
-        Confirmar pedido
-      </button>
+  <button
+    id="close-checkout"
+    class="close-checkout"
+  >
+    ✕
+  </button>
+  <h2>Finalizar pedido</h2>
+
+  <input
+    type="text"
+    id="cliente-nombre"
+    placeholder="Nombre completo"
+  >
+
+  <input
+    type="tel"
+    id="cliente-telefono"
+    placeholder="WhatsApp (10 dígitos)"
+    maxlength="10"
+  >
+  <span class="field-error" id="error-telefono">
+    Ingresa 10 dígitos sin espacios ni guiones
+  </span>
+
+  <select id="tipo-entrega">
+    <option value="pickup">
+      Recoger en tienda
+    </option>
+    <option value="domicilio">
+      Envío a domicilio
+    </option>
+  </select>
+
+  <div id="direccion-wrapper" class="hidden">
+    <textarea
+      id="cliente-direccion"
+      placeholder="Dirección completa de entrega"
+    ></textarea>
+  </div>
+
+  <select id="metodo-pago">
+    <option value="Efectivo">Efectivo</option>
+    <option value="Transferencia">Transferencia</option>
+    <option value="Tarjeta">Tarjeta</option>
+  </select>
+
+  <textarea
+    id="cliente-notas"
+    placeholder="Notas adicionales (opcional)"
+  ></textarea>
+
+  <!-- RESUMEN DE CONFIRMACIÓN -->
+  <div id="resumen-pedido" class="hidden">
+    <div class="resumen-titulo">
+      Confirma tu pedido
     </div>
+    <div id="resumen-contenido"></div>
+  </div>
+
+  <button
+    class="confirm-btn"
+    id="btn-confirmar"
+    onclick="validarPedido()"
+  >
+    Revisar pedido
+  </button>
+
+  <button
+    class="confirm-btn whatsapp-btn hidden"
+    id="btn-whatsapp"
+    onclick="enviarPorWhatsapp()"
+  >
+    📲 Enviar por WhatsApp
+  </button>
+</div>
   </div>
   <!-- HEADER -->
   <header>
