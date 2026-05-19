@@ -462,3 +462,33 @@ button:hover {
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   }
 }
+
+/* CANTIDAD EN CARRITO */
+
+.qty-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 8px 0;
+}
+
+.qty-controls span {
+  font-weight: 700;
+  font-size: 16px;
+  min-width: 20px;
+  text-align: center;
+}
+
+.qty-btn {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border-radius: 50%;
+  font-size: 18px;
+  line-height: 1;
+  background: #5c3b2e;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
