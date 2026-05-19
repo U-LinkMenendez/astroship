@@ -612,6 +612,37 @@ function enviarPorWhatsapp(){
   if(notas){
     mensaje += `\n\nNotas: ${notas}`;
   }
+
+// Registrar pedido en Sheets
+try{
+  fetch(SCRIPT_URL, {
+    method: "POST",
+    body: JSON.stringify({
+      action: "registrarPedido",
+      nombre: nombre,
+      telefono: telefono,
+      tipo_entrega: entrega === "domicilio"
+        ? "Domicilio"
+        : "Recoger",
+      direccion_entrega: direccion,
+      metodo_pago: pago,
+      notas: notas,
+      subtotal: carrito.reduce(
+        (acc, item) =>
+          acc + Number(item.producto.precio) * item.cantidad,
+        0
+      ),
+      costo_envio: entrega === "domicilio" ? 40 : 0,
+      productos: carrito.map(item => ({
+        id: item.id,
+        nombre: item.producto.nombre,
+        categoria: item.producto.categoria,
+        precio: item.producto.precio,
+        qty: item.cantidad
+      }))
+    })
+  });
+}catch(_){}
   
   window.open(
     `https://wa.me/529992175116?text=${encodeURIComponent(mensaje)}`,
