@@ -262,6 +262,7 @@ function abrirCheckout(){
 
 function cerrarCheckout(){
   checkoutModal.classList.remove("show");
+  limpiarFormulario();
 }
 
 document.querySelector(".checkout-btn")
@@ -271,25 +272,6 @@ closeCheckout.addEventListener(
   "click",
   cerrarCheckout
 );
-
-function finalizarPedido(){
-
-  const nombre =
-    document.getElementById("cliente-nombre").value;
-
-  const telefono =
-    document.getElementById("cliente-telefono").value;
-
-  const tipoEntrega =
-    document.getElementById("tipo-entrega").value;
-
-  const direccion =
-    document.getElementById("cliente-direccion").value;
-
-  if(!nombre || !telefono){
-    alert("Completa nombre y teléfono");
-    return;
-  }
 
   let mensaje =
     `🧁 *Nuevo pedido Pandé* %0A%0A`;
@@ -459,5 +441,254 @@ window.addEventListener("scroll",()=>{
   });
 
 });
+
+// Mostrar/ocultar dirección según tipo de entrega
+document.getElementById("tipo-entrega")
+  .addEventListener("change",(e)=>{
+    const wrapper =
+      document.getElementById("direccion-wrapper");
+    if(e.target.value === "domicilio"){
+      wrapper.classList.remove("hidden");
+    }else{
+      wrapper.classList.add("hidden");
+    }
+  });
+
+// Validar y mostrar resumen
+function validarPedido(){
+
+  const nombre =
+    document.getElementById("cliente-nombre");
+
+  const telefono =
+    document.getElementById("cliente-telefono");
+
+  const entrega =
+    document.getElementById("tipo-entrega").value;
+
+  const direccion =
+    document.getElementById("cliente-direccion");
+
+  const errorTel =
+    document.getElementById("error-telefono");
+
+  let valido = true;
+
+  // Limpiar errores previos
+  [nombre, telefono, direccion].forEach(el=>{
+    el.classList.remove("error");
+  });
+
+  errorTel.classList.remove("visible");
+
+  // Validar nombre
+  if(!nombre.value.trim()){
+    nombre.classList.add("error");
+    valido = false;
+  }
+
+  // Validar teléfono 10 dígitos
+  if(!/^\d{10}$/.test(telefono.value.trim())){
+    telefono.classList.add("error");
+    errorTel.classList.add("visible");
+    valido = false;
+  }
+
+  // Validar dirección solo si es domicilio
+  if(
+    entrega === "domicilio" &&
+    !direccion.value.trim()
+  ){
+    direccion.classList.add("error");
+    valido = false;
+  }
+
+  if(!valido) return;
+
+  // Construir resumen
+  const pago =
+    document.getElementById("metodo-pago").value;
+
+  const notas =
+    document.getElementById("cliente-notas").value;
+
+  let total = 0;
+  let itemsHtml = "";
+
+  carrito.forEach(item=>{
+    const subtotal =
+      Number(item.producto.precio) * item.cantidad;
+    total += subtotal;
+    itemsHtml += `
+      <div>
+        ${item.producto.nombre}
+        x${item.cantidad} —
+        <strong>$${subtotal}</strong>
+      </div>
+    `;
+  });
+
+  document.getElementById("resumen-contenido")
+    .innerHTML = `
+      <div>
+        <strong>Cliente:</strong>
+        ${nombre.value.trim()}
+      </div>
+      <div>
+        <strong>WhatsApp:</strong>
+        ${telefono.value.trim()}
+      </div>
+      <div>
+        <strong>Entrega:</strong>
+        ${entrega === "domicilio"
+          ? "A domicilio"
+          : "Recoger en tienda"}
+      </div>
+      ${entrega === "domicilio"
+        ? `<div>
+            <strong>Dirección:</strong>
+            ${direccion.value.trim()}
+           </div>`
+        : ""}
+      <div>
+        <strong>Pago:</strong> ${pago}
+      </div>
+      <hr style="margin:8px 0;border:none;border-top:1px solid #ddd">
+      ${itemsHtml}
+      <div style="margin-top:6px">
+        <strong>Total: $${total}</strong>
+      </div>
+      ${notas
+        ? `<div><strong>Notas:</strong> ${notas}</div>`
+        : ""}
+    `;
+
+  document.getElementById("resumen-pedido")
+    .classList.remove("hidden");
+
+  document.getElementById("btn-whatsapp")
+    .classList.remove("hidden");
+
+  document.getElementById("btn-confirmar")
+    .classList.add("hidden");
+
+}
+
+// Enviar por WhatsApp
+function enviarPorWhatsapp(){
+
+  const nombre =
+    document.getElementById("cliente-nombre")
+      .value.trim();
+
+  const telefono =
+    document.getElementById("cliente-telefono")
+      .value.trim();
+
+  const entrega =
+    document.getElementById("tipo-entrega").value;
+
+  const direccion =
+    document.getElementById("cliente-direccion")
+      .value.trim();
+
+  const pago =
+    document.getElementById("metodo-pago").value;
+
+  const notas =
+    document.getElementById("cliente-notas")
+      .value.trim();
+
+  let mensaje =
+    `🧁 *Nuevo pedido Pandé* %0A%0A`;
+
+  mensaje += `👤 Cliente: ${nombre}%0A`;
+  mensaje += `📱 Teléfono: ${telefono}%0A`;
+  mensaje +=
+    `🚚 Entrega: ${
+      entrega === "domicilio"
+        ? "A domicilio"
+        : "Recoger en tienda"
+    }%0A`;
+
+  if(entrega === "domicilio"){
+    mensaje += `📍 Dirección: ${direccion}%0A`;
+  }
+
+  mensaje += `💳 Pago: ${pago}%0A`;
+  mensaje += `%0A🛒 *Productos:*%0A`;
+
+  let total = 0;
+
+  carrito.forEach(item=>{
+    const subtotal =
+      Number(item.producto.precio) * item.cantidad;
+    mensaje +=
+      `- ${item.producto.nombre} x${item.cantidad} ($${subtotal})%0A`;
+    total += subtotal;
+  });
+
+  mensaje += `%0A💰 *Total: $${total}*`;
+
+  if(notas){
+    mensaje += `%0A%0A📝 Notas: ${notas}`;
+  }
+
+  window.open(
+    `https://wa.me/529992175116?text=${mensaje}`,
+    "_blank"
+  );
+
+  carrito = [];
+  actualizarCarrito();
+  cerrarCheckout();
+  cartDrawer.classList.remove("open");
+  overlay.classList.remove("show");
+
+}
+
+// Limpiar formulario al cerrar
+function limpiarFormulario(){
+
+  document.getElementById("cliente-nombre")
+    .value = "";
+
+  document.getElementById("cliente-telefono")
+    .value = "";
+
+  document.getElementById("cliente-direccion")
+    .value = "";
+
+  document.getElementById("cliente-notas")
+    .value = "";
+
+  document.getElementById("tipo-entrega")
+    .value = "pickup";
+
+  document.getElementById("metodo-pago")
+    .value = "Efectivo";
+
+  document.getElementById("direccion-wrapper")
+    .classList.add("hidden");
+
+  document.getElementById("resumen-pedido")
+    .classList.add("hidden");
+
+  document.getElementById("btn-whatsapp")
+    .classList.add("hidden");
+
+  document.getElementById("btn-confirmar")
+    .classList.remove("hidden");
+
+  ["cliente-nombre","cliente-telefono","cliente-direccion"]
+    .forEach(id=>{
+      document.getElementById(id)
+        .classList.remove("error");
+    });
+
+  document.getElementById("error-telefono")
+    .classList.remove("visible");
+
+}
 
 cargarCatalogo();
