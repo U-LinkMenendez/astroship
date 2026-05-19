@@ -193,8 +193,8 @@
     .grid-row { display:grid; grid-template-columns:52px repeat(3,1fr); border-bottom:1px solid var(--g200); }
     .grid-row:last-child { border-bottom:none; }
     .grid-row.alt { background:var(--ghost); }
-    .grid-time { padding:0.5rem 0.25rem; font-size:0.68rem; font-weight:500; color:var(--g400); text-align:center; border-right:1px solid var(--g200); font-family:'DM Mono',monospace; display:flex; align-items:center; justify-content:center; min-height:32px; }
-    .grid-cell { padding:0.25rem; border-right:1px solid var(--g200); min-height:32px; display:flex; align-items:stretch; position:relative; overflow:visible; }
+    .grid-time { padding:0.5rem 0.25rem; font-size:0.68rem; font-weight:500; color:var(--g400); text-align:center; border-right:1px solid var(--g200); font-family:'DM Mono',monospace; display:flex; align-items:center; justify-content:center; height:32px; }
+    .grid-cell { padding:0; border-right:1px solid var(--g200); height:32px; display:flex; align-items:stretch; position:relative; overflow:hidden; }
     .grid-cell:last-child { border-right:none; }
 
     /* ── SLOTS ──────────────────────────────────────────────── */
@@ -218,9 +218,9 @@
       cursor:default;
       border-left:3px solid var(--blue);
       position:absolute;
-      left:3px;
-      right:3px;
-      top:1px;
+      left:0;
+      right:0;
+      top:0;
       z-index:2;
       box-shadow:0 1px 4px rgba(37,99,235,0.1);
       overflow:hidden;
@@ -230,7 +230,7 @@
     .slot-occupied .slot-time-occ { font-size:0.62rem; font-family:'DM Mono',monospace; color:var(--blue); margin-bottom:2px; }
 
     /* Occupied continuation — invisible, just blocks the slot */
-    .slot-continuation { position:absolute; left:3px; right:3px; top:0; bottom:0; z-index:1; background:var(--g100); border-left:3px solid var(--blue); opacity:0.35; cursor:default; border-radius:0; }
+    .slot-continuation { position:absolute; left:0; right:0; top:0; bottom:0; z-index:1; background:var(--g100); border-left:3px solid var(--blue); opacity:0.35; cursor:default; border-radius:0; }
 
     /* Empty */
     .slot-empty { background:transparent; cursor:default; border-color:transparent; }
@@ -613,7 +613,7 @@ function renderGrid() {
       hora: startH,
       duracion: dur,
       isStart: true,
-      height: ((dur * 2) * 32),
+      height: ((dur * 2) * ROW_H) - 1,
     };
 
     for (let d = 1; d < (dur * 2); d++) {
@@ -667,7 +667,7 @@ function renderGrid() {
         (now.getMinutes() / 60);
 
       const isPastSlot =
-        isToday && slotHourDecimal <= nowHourDecimal;
+  isToday && slotHourDecimal <= nowHourDecimal;
 
       const day =
   new Date(currentDate + 'T00:00:00')
