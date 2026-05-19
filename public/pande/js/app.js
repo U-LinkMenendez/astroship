@@ -581,21 +581,21 @@ function enviarPorWhatsapp(){
     document.getElementById("cliente-notas")
       .value.trim();
 
-  let mensaje = `🧁 *Nuevo pedido Pandé*\n\n`;
-  mensaje += `👤 Cliente: ${nombre}\n`;
-  mensaje += `📱 Teléfono: ${telefono}\n`;
-  mensaje += `🚚 Entrega: ${
+ let mensaje = `*Nuevo pedido Pandé*\n\n`;
+  mensaje += `Cliente: ${nombre}\n`;
+  mensaje += `WhatsApp: ${telefono}\n`;
+  mensaje += `Entrega: ${
     entrega === "domicilio"
       ? "A domicilio"
       : "Recoger en tienda"
   }\n`;
 
   if(entrega === "domicilio"){
-    mensaje += `📍 Dirección: ${direccion}\n`;
+    mensaje += `Direccion: ${direccion}\n`;
   }
 
-  mensaje += `💳 Pago: ${pago}\n`;
-  mensaje += `\n🛒 *Productos:*\n`;
+  mensaje += `Pago: ${pago}\n`;
+  mensaje += `\n*Productos:*\n`;
 
   let total = 0;
 
@@ -603,16 +603,16 @@ function enviarPorWhatsapp(){
     const subtotal =
       Number(item.producto.precio) * item.cantidad;
     mensaje +=
-      `• ${item.producto.nombre} x${item.cantidad} ($${subtotal})\n`;
+      `- ${item.producto.nombre} x${item.cantidad} ($${subtotal})\n`;
     total += subtotal;
   });
 
-  mensaje += `\n💰 *Total: $${total}*`;
+  mensaje += `\n*Total: $${total}*`;
 
   if(notas){
-    mensaje += `\n\n📝 Notas: ${notas}`;
+    mensaje += `\n\nNotas: ${notas}`;
   }
-
+  
   window.open(
     `https://wa.me/529992175116?text=${encodeURIComponent(mensaje)}`,
     "_blank"
