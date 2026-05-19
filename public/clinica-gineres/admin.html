@@ -47,8 +47,7 @@
     .hdr-top{ width:100%; display:flex; justify-content:space-between; align-items:center; gap:1rem; }
     .hdr-bottom{ width:100%; display:flex; justify-content:space-between; align-items:center; gap:12px; }
     .logout-btn{ background:#DC2626 !important; color:#fff !important; border-color:#DC2626 !important; }
-    .hdr-date{ display:none; }
-    .hdr-date { font-family:'DM Sans',sans-serif; font-size:0.8rem; font-weight:700; color:#fff; }
+    .hdr-date{ display:none; font-family:'DM Sans',sans-serif; font-size:0.8rem; font-weight:700; color:#fff; }
     .status-pill { display:flex; align-items:center; gap:5px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); padding:4px 10px; border-radius:100px; font-size:0.68rem; color:rgba(255,255,255,0.7); }
     .status-dot { width:6px; height:6px; border-radius:50%; background:#4ADE80; animation:pulse 2s infinite; }
     .status-dot.off { background:var(--amber); animation:none; }
@@ -240,11 +239,13 @@
   width:100%;
   display:flex;
   justify-content:space-between;
-  align-items:flex-start;
+  align-items:center;
+  gap:12px;
 }
 
 .hdr-logo{
   flex:1;
+  min-width:0;
 }
 
 .hdr-bottom{
