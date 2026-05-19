@@ -671,10 +671,13 @@
     </div>
 
     <div class="adm-actions">
-      <button class="adm-btn adm-btn-ghost"
-        onclick="closeBlockModal()">
-        Cancelar
-      </button>
+      <button
+  type="button"
+  class="adm-btn adm-btn-ghost"
+  onclick="event.preventDefault(); event.stopPropagation(); closeBlockModal();"
+>
+  Cancelar
+</button>
 
       <button class="adm-btn adm-btn-danger"
         onclick="saveBlock()">
@@ -1483,6 +1486,23 @@ console.log('CLICK SLOT', {
 
   document.getElementById('blockModal')
     .classList.add('open');
+}
+
+     function closeBlockModal() {
+
+  _processing = false;
+
+  const modal = document.getElementById('blockModal');
+
+  if (modal) {
+    modal.classList.remove('open');
+  }
+
+  document
+    .querySelectorAll('.blk-hour:checked')
+    .forEach(cb => {
+      cb.checked = false;
+    });
 }
      
      async function saveBlock() {
