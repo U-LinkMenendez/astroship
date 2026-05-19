@@ -5,6 +5,7 @@ const FRONTEND_KEY = "PANDE_PUBLIC_2026";
 let productos = [];
 
 let carrito = [];
+// estructura: [{id, cantidad, producto:{...}}]
 
 const cartBtn =
   document.getElementById("cart-btn");
@@ -25,51 +26,32 @@ const closeCheckout =
   document.getElementById("close-checkout");
 
 cartBtn.addEventListener("click",()=>{
-
   cartDrawer.classList.add("open");
-
   overlay.classList.add("show");
-
 });
 
 closeCart.addEventListener("click",()=>{
-
   cartDrawer.classList.remove("open");
-
   overlay.classList.remove("show");
-
 });
 
 overlay.addEventListener("click",()=>{
-
   cartDrawer.classList.remove("open");
-
   overlay.classList.remove("show");
-
 });
 
 async function cargarCatalogo(){
-
   try{
-
     const res = await fetch(
       `${SCRIPT_URL}?action=getCatalogoPublico&key=${FRONTEND_KEY}`
     );
-
     const data = await res.json();
-
     productos = data.productos;
-
     render();
-
   }catch(err){
-
     console.error(err);
-
     alert("Error cargando catálogo");
-
   }
-
 }
 
 function render(){
@@ -87,25 +69,18 @@ function render(){
   const categorias = {};
 
   productos.forEach(p=>{
-
     if(!categorias[p.categoria]){
-
       categorias[p.categoria] = [];
-
     }
-
     categorias[p.categoria].push(p);
-
   });
 
   const nombresCategorias = {
-
     PedEsp: "Pedidos Especiales",
     Temporada: "Temporada",
     Muffin: "Muffins",
     Rebanada: "Rebanadas",
     Pan: "Panes"
-
   };
 
   Object.keys(categorias).forEach(cat=>{
@@ -117,31 +92,24 @@ function render(){
       cat.replace(/\s+/g,'-');
 
     categoryNav.innerHTML += `
-
-  <button
-  class="category-link"
-  data-target="cat-${catId}"
->
-    ${nombreVisual}
-  </button>
-
-`;
+      <button
+        class="category-link"
+        data-target="cat-${catId}"
+      >
+        ${nombreVisual}
+      </button>
+    `;
 
     cont.innerHTML += `
-
       <section
         class="categoria-section"
         id="cat-${catId}"
       >
-
         <h2 class="categoria-title">
           ${nombreVisual}
         </h2>
-
         <div class="categoria-grid"></div>
-
       </section>
-
     `;
 
     const grid =
@@ -152,52 +120,79 @@ function render(){
     categorias[cat].forEach(p=>{
 
       grid.innerHTML += `
-
         <div class="card">
-
           <img src="${
             p.img_url ||
             'https://images.unsplash.com/photo-1551024601-bec78aea704b?q=80&w=1200&auto=format&fit=crop'
           }">
-
           <div class="info">
-
-            <div class="nombre">
-              ${p.nombre}
-            </div>
-
-            <div class="desc">
-              ${p.descripcion || ''}
-            </div>
-
-            <div class="precio">
-              $${p.precio}
-            </div>
-
+            <div class="nombre">${p.nombre}</div>
+            <div class="desc">${p.descripcion || ''}</div>
+            <div class="precio">$${p.precio}</div>
             <button onclick="agregarCarrito('${p.id}')">
               Agregar
             </button>
-
           </div>
-
         </div>
-
       `;
 
     });
 
-});
+  }); // ← cierre que faltaba
+
+}
+
+function agregarCarrito(id){
+
+  const producto =
+    productos.find(p => p.id === id);
+
+  if(!producto) return;
+
+  const existente =
+    carrito.find(item => item.id === id);
+
+  if(existente){
+    existente.cantidad++;
+  }else{
+    carrito.push({
+      id,
+      cantidad: 1,
+      producto
+    });
+  }
+
+  actualizarCarrito();
+
+}
+
+function cambiarCantidad(index, delta){
+
+  carrito[index].cantidad += delta;
+
+  if(carrito[index].cantidad <= 0){
+    carrito.splice(index, 1);
+  }
+
+  actualizarCarrito();
+
+}
+
+function eliminarDelCarrito(index){
+  carrito.splice(index, 1);
+  actualizarCarrito();
+}
 
 function actualizarCarrito(){
 
- const totalItems =
-  carrito.reduce(
-    (acc,item)=>acc + item.cantidad,
-    0
-  );
+  const totalItems =
+    carrito.reduce(
+      (acc, item) => acc + item.cantidad,
+      0
+    );
 
-document.getElementById("cart-count")
-  .innerText = totalItems;
+  document.getElementById("cart-count")
+    .innerText = totalItems;
 
   const cartItems =
     document.getElementById("cart-items");
@@ -209,42 +204,46 @@ document.getElementById("cart-count")
 
   let total = 0;
 
-  carrito.forEach((item,index)=>{
+  carrito.forEach((item, index)=>{
 
-  const p = item.producto;
+    const p = item.producto;
+    const subtotal =
+      Number(p.precio) * item.cantidad;
 
-  total += Number(p.precio) * item.cantidad;
+    total += subtotal;
 
-  cartItems.innerHTML += `
-
+    cartItems.innerHTML += `
       <div class="cart-item">
-
         <img src="${
           p.img_url ||
           'https://images.unsplash.com/photo-1551024601-bec78aea704b?q=80&w=1200&auto=format&fit=crop'
         }">
-
         <div class="cart-item-info">
-
           <div class="cart-item-name">
-           ${p.nombre} x${item.cantidad}
+            ${p.nombre}
           </div>
-
+          <div class="qty-controls">
+            <button
+              class="qty-btn"
+              onclick="cambiarCantidad(${index},-1)"
+            >−</button>
+            <span>${item.cantidad}</span>
+            <button
+              class="qty-btn"
+              onclick="cambiarCantidad(${index},1)"
+            >+</button>
+          </div>
           <div class="cart-item-price">
-            $${Number(p.precio) * item.cantidad}
+            $${subtotal}
           </div>
-
           <button
             class="remove-btn"
             onclick="eliminarDelCarrito(${index})"
           >
             Eliminar
           </button>
-
         </div>
-
       </div>
-
     `;
 
   });
@@ -253,36 +252,20 @@ document.getElementById("cart-count")
 
 }
 
-function eliminarDelCarrito(index){
-
-  carrito.splice(index,1);
-
-  actualizarCarrito();
-
-}
-
 function abrirCheckout(){
-
   if(carrito.length === 0){
-
     alert("Tu carrito está vacío");
-
     return;
-
   }
-
   checkoutModal.classList.add("show");
-
 }
 
 function cerrarCheckout(){
-
   checkoutModal.classList.remove("show");
-
 }
 
 document.querySelector(".checkout-btn")
-  .addEventListener("click",abrirCheckout);
+  .addEventListener("click", abrirCheckout);
 
 closeCheckout.addEventListener(
   "click",
@@ -304,160 +287,41 @@ function finalizarPedido(){
     document.getElementById("cliente-direccion").value;
 
   if(!nombre || !telefono){
-
     alert("Completa nombre y teléfono");
-
     return;
-
   }
 
   let mensaje =
-`🧁 *Nuevo pedido Pandé* %0A%0A`;
+    `🧁 *Nuevo pedido Pandé* %0A%0A`;
 
-  mensaje +=
-`👤 Cliente: ${nombre}%0A`;
-
-  mensaje +=
-`📱 Teléfono: ${telefono}%0A`;
-
-  mensaje +=
-`🚚 Entrega: ${tipoEntrega}%0A`;
+  mensaje += `👤 Cliente: ${nombre}%0A`;
+  mensaje += `📱 Teléfono: ${telefono}%0A`;
+  mensaje += `🚚 Entrega: ${tipoEntrega}%0A`;
 
   if(tipoEntrega === "domicilio"){
-
-    mensaje +=
-`📍 Dirección: ${direccion}%0A`;
-
+    mensaje += `📍 Dirección: ${direccion}%0A`;
   }
 
   mensaje += `%0A🛒 *Productos:*%0A`;
 
   let total = 0;
 
-  carrito.forEach(p=>{
-
+  carrito.forEach(item=>{
+    const subtotal =
+      Number(item.producto.precio) * item.cantidad;
     mensaje +=
-`- ${p.nombre} ($${p.precio})%0A`;
-
-    total += Number(p.precio);
-
+      `- ${item.producto.nombre} x${item.cantidad} ($${subtotal})%0A`;
+    total += subtotal;
   });
 
   mensaje += `%0A💰 Total: $${total}`;
 
-  const telefonoNegocio =
-    "529992175116";
-
   const url =
-`https://wa.me/${telefonoNegocio}?text=${mensaje}`;
+    `https://wa.me/529992175116?text=${mensaje}`;
 
-  window.open(url,"_blank");
-
-}
-
-cargarCatalogo();
-
-document.addEventListener("click",(e)=>{
-
-  const btn =
-    e.target.closest(".category-link");
-
-  if(!btn) return;
-
-  const target =
-    btn.dataset.target;
-
-  const section =
-    document.getElementById(target);
-
-  if(section){
-
-    section.scrollIntoView({
-
-      behavior:"smooth",
-
-      block:"start"
-
-    });
-
-  }
-
-});
-
-window.addEventListener("scroll",()=>{
-
-  const sections =
-    document.querySelectorAll(
-      ".categoria-section"
-    );
-
-  const links =
-    document.querySelectorAll(
-      ".category-link"
-    );
-
-  let current = "";
-
-  sections.forEach(section=>{
-
-    const top =
-      section.offsetTop - 180;
-
-    if(scrollY >= top){
-
-      current =
-        section.id;
-
-    }
-
-  });
-
-  links.forEach(link=>{
-
-    link.classList.remove("active");
-
-    const target = link.getAttribute("data-target");
-       if(target === current){
-
-  link.classList.add("active");
-
-  link.scrollIntoView({
-
-    behavior:"smooth",
-
-    inline:"center",
-
-    block:"nearest"
-
-  });
+  window.open(url, "_blank");
 
 }
-
-  });
-
-});
-
-function abrirCheckout(){
-
-  if(carrito.length === 0){
-
-    alert("Tu carrito está vacío");
-
-    return;
-
-  }
-
-  checkoutModal.classList.add("show");
-
-}
-
-function cerrarCheckout(){
-
-  checkoutModal.classList.remove("show");
-
-}
-
-closeCheckout.addEventListener("click", cerrarCheckout);
 
 async function enviarPedido(){
 
@@ -477,51 +341,34 @@ async function enviarPedido(){
     document.getElementById("cliente-notas").value;
 
   if(!nombre || !telefono){
-
     alert("Completa nombre y teléfono");
-
     return;
-
   }
 
   let total = 0;
 
-  carrito.forEach(p=>{
-
-    total += Number(p.precio);
-
+  carrito.forEach(item=>{
+    total +=
+      Number(item.producto.precio) * item.cantidad;
   });
 
   const pedido = {
-
-    action:"crearPedido",
-
-    key:FRONTEND_KEY,
-
-    cliente:nombre,
-
-    telefono:telefono,
-
-    entrega:entrega,
-
-    metodo_pago:pago,
-
-    notas:notas,
-
-    total:total,
-
-    productos:carrito
-
+    action: "crearPedido",
+    key: FRONTEND_KEY,
+    cliente: nombre,
+    telefono,
+    entrega,
+    metodo_pago: pago,
+    notas,
+    total,
+    productos: carrito
   };
 
   try{
 
     const res = await fetch(SCRIPT_URL,{
-
-      method:"POST",
-
-      body:JSON.stringify(pedido)
-
+      method: "POST",
+      body: JSON.stringify(pedido)
     });
 
     const data = await res.json();
@@ -529,63 +376,88 @@ async function enviarPedido(){
     if(data.ok){
 
       const resumen =
-        carrito.map(p=>
-          `• ${p.nombre} - $${p.precio}`
+        carrito.map(item=>
+          `• ${item.producto.nombre} x${item.cantidad} - $${Number(item.producto.precio) * item.cantidad}`
         ).join("%0A");
 
       const mensaje =
+        `Hola Pandé 👋%0AQuiero confirmar mi pedido:%0A%0A${resumen}%0A%0ATotal: $${total}%0ANombre: ${nombre}%0AEntrega: ${entrega}%0APago: ${pago}%0ANotas: ${notas}`;
 
-`Hola Pandé 👋
-
-Quiero confirmar mi pedido:
-
-${resumen}
-
-Total: $${total}
-
-Nombre:
-${nombre}
-
-Entrega:
-${entrega}
-
-Pago:
-${pago}
-
-Notas:
-${notas}`;
-
-      const whatsapp =
-`https://wa.me/529992175116?text=${mensaje}`;
-
-      window.open(whatsapp,"_blank");
+      window.open(
+        `https://wa.me/529992175116?text=${mensaje}`,
+        "_blank"
+      );
 
       carrito = [];
-
       actualizarCarrito();
-
       cerrarCheckout();
-
       cartDrawer.classList.remove("open");
-
       overlay.classList.remove("show");
-
       alert("Pedido enviado correctamente");
 
     }else{
-
       alert("Error enviando pedido");
-
     }
 
   }catch(err){
-
     console.error(err);
-
     alert("Error de conexión");
-
   }
 
 }
 
+document.addEventListener("click",(e)=>{
 
+  const btn =
+    e.target.closest(".category-link");
+
+  if(!btn) return;
+
+  const target = btn.dataset.target;
+
+  const section =
+    document.getElementById(target);
+
+  if(section){
+    section.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+  }
+
+});
+
+window.addEventListener("scroll",()=>{
+
+  const sections =
+    document.querySelectorAll(".categoria-section");
+
+  const links =
+    document.querySelectorAll(".category-link");
+
+  let current = "";
+
+  sections.forEach(section=>{
+    const top = section.offsetTop - 180;
+    if(scrollY >= top){
+      current = section.id;
+    }
+  });
+
+  links.forEach(link=>{
+    link.classList.remove("active");
+    const target =
+      link.getAttribute("data-target");
+    if(target === current){
+      link.classList.add("active");
+      link.scrollIntoView({
+        behavior: "smooth",
+        inline: "center",
+        block: "nearest"
+      });
+    }
+  });
+
+});
+
+cargarCatalogo();
