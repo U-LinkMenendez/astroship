@@ -201,14 +201,89 @@
       .col-view { grid-template-columns:1fr; }
       .tl-header, .tl-row { grid-template-columns:44px repeat(3,1fr); }
     }
+
     @media (max-width:640px) {
-      .hdr { padding:0 1rem; }
-      .hdr-date { display:none; }
-      .toolbar { padding:0.5rem 1rem; }
-      .main { padding:1rem 1rem 3rem; }
-      .date-tab { font-size:0.72rem; padding:0.35rem 0.65rem; }
-      .col-view { grid-template-columns:1fr; }
-    }
+
+  /* HEADER */
+
+  .hdr{
+    height:auto;
+    padding:12px 14px;
+    align-items:flex-start;
+    flex-direction:column;
+    gap:12px;
+  }
+
+  .hdr-logo{
+    width:100%;
+  }
+
+  .hdr-right{
+    width:100%;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:8px;
+    flex-wrap:wrap;
+  }
+
+  .hdr-date{
+    display:none;
+  }
+
+  .status-pill{
+    order:1;
+  }
+
+  .setup-btn{
+    padding:6px 10px;
+    font-size:0.72rem;
+  }
+
+  /* TOOLBAR */
+
+  .toolbar{
+    padding:10px 12px;
+    flex-direction:column;
+    align-items:stretch;
+    gap:10px;
+  }
+
+  .date-tabs{
+    width:100%;
+    overflow-x:auto;
+    flex:none;
+    padding-bottom:4px;
+  }
+
+  .date-tab{
+    flex-shrink:0;
+    font-size:0.72rem;
+    padding:0.4rem 0.7rem;
+  }
+
+  .view-toggle{
+    width:100%;
+    overflow-x:auto;
+    padding:3px;
+  }
+
+  .view-btn{
+    flex-shrink:0;
+    white-space:nowrap;
+  }
+
+  /* MAIN */
+
+  .main{
+    padding:1rem 0.7rem 3rem;
+  }
+
+  .col-view{
+    grid-template-columns:1fr;
+  }
+
+}
 
     /* ── RESERVATION TAB GRID ─────────────────────────── */
     .res-wrap { background:#fff; border-radius:var(--r-lg); border:1px solid var(--g200); overflow:hidden; box-shadow:var(--sh); display:flex; flex-direction:column; max-height:calc(100vh - 220px); }
