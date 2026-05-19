@@ -670,20 +670,42 @@
       <input type="text" id="blkMotivo">
     </div>
 
-    <div class="adm-actions">
-      <button
-  type="button"
-  class="adm-btn adm-btn-ghost"
-  onclick="event.preventDefault(); event.stopPropagation(); closeBlockModal();"
+    <div
+  id="blkMsg"
+  style="
+    display:none;
+    margin-top:12px;
+    padding:10px;
+    border-radius:8px;
+    background:#FEF3C7;
+    color:#92400E;
+    font-size:0.82rem;
+    font-weight:600;
+    text-align:center;
+  "
 >
-  Cancelar
-</button>
+  Creando bloqueo, por favor espera...
+</div>
 
-      <button class="adm-btn adm-btn-danger"
-        onclick="saveBlock()">
-        Bloquear
-      </button>
-    </div>
+<div class="adm-actions">
+  <button
+    type="button"
+    id="blkCancelBtn"
+    class="adm-btn adm-btn-ghost"
+    onclick="event.preventDefault(); event.stopPropagation(); closeBlockModal();"
+  >
+    Cancelar
+  </button>
+
+  <button
+    type="button"
+    id="blkSaveBtn"
+    class="adm-btn adm-btn-danger"
+    onclick="saveBlock()"
+  >
+    Bloquear
+  </button>
+</div>
 
   </div>
 </div>
@@ -850,14 +872,27 @@
       
       dayR.forEach(r => {
 
-        const sh  = (r.horaInicio||'00:00').substring(0,5);
-        const dur = Number(r.duracion)||1;
-        const durHoras = dur / 2;
-        const qk  = r.quirofano||'Quirofano 1';
-        const si  = RES_HOURS.indexOf(sh);
-        if (si === -1) return;
-        occ[RES_HOURS[si]][qk] = { proc: r.procedimiento||r.tipoCirugia||'Cirugía', hora: sh, duracion: dur, isStart: true, height: (dur * ROW_H_ADM) - 6, booking: r };
-        for (let d=1; d<dur; d++) {
+        const sh = (r.horaInicio || '00:00').substring(0,5);
+
+const durHoras = Number(r.duracion) || 1;
+const durSlots = Math.max(1, Math.round(durHoras * 2));
+
+const qk = r.quirofano || 'Quirofano 1';
+const si = RES_HOURS.indexOf(sh);
+
+if (si === -1) return;
+
+occ[RES_HOURS[si]][qk] = {
+  proc: r.procedimiento || r.tipoCirugia || 'Cirugía',
+  hora: sh,
+  duracion: durHoras,
+  durSlots: durSlots,
+  isStart: true,
+  height: (durSlots * ROW_H_ADM) - 6,
+  booking: r
+};
+
+for (let d = 1; d < durSlots; d++) {
           const idx = si+d;
           if (idx >= RES_HOURS.length) break;
           occ[RES_HOURS[idx]][qk] = { isStart:false, isCont:true, booking:r };
@@ -1006,7 +1041,7 @@ if (day === 0) {
     </span>
   ` : ''}
 
-  ${o.hora} · ${o.duracion / 2}h
+  ${o.hora} · ${fmtHours(o.duracion)}h
 
 </div>
 
@@ -1510,6 +1545,23 @@ console.log('CLICK SLOT', {
   if (_processing) return;
   _processing = true;
 
+  const saveBtn = document.getElementById('blkSaveBtn');
+  const cancelBtn = document.getElementById('blkCancelBtn');
+  const msg = document.getElementById('blkMsg');
+
+  if (saveBtn) {
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'Bloqueando...';
+  }
+
+  if (cancelBtn) {
+    cancelBtn.disabled = true;
+  }
+
+  if (msg) {
+    msg.style.display = 'block';
+  }
+
   const qx = document.getElementById('blkQx').value;
   const fecha = document.getElementById('blkFecha').value;
 
@@ -1522,14 +1574,31 @@ console.log('CLICK SLOT', {
     ...document.querySelectorAll('.blk-hour:checked')
   ].map(x => x.value);
 
-  if (!fecha) {
+  const resetBlockButtons = () => {
     _processing = false;
+
+    if (saveBtn) {
+      saveBtn.disabled = false;
+      saveBtn.textContent = 'Bloquear';
+    }
+
+    if (cancelBtn) {
+      cancelBtn.disabled = false;
+    }
+
+    if (msg) {
+      msg.style.display = 'none';
+    }
+  };
+
+  if (!fecha) {
+    resetBlockButtons();
     alert('Selecciona una fecha');
     return;
   }
 
   if (!horas.length) {
-    _processing = false;
+    resetBlockButtons();
     alert('Selecciona al menos una hora');
     return;
   }
@@ -1539,14 +1608,14 @@ console.log('CLICK SLOT', {
     .sort((a,b) => a - b);
 
   if (indices.some(i => i === -1)) {
-    _processing = false;
+    resetBlockButtons();
     alert('Hay una hora inválida seleccionada');
     return;
   }
 
   for (let i = 1; i < indices.length; i++) {
     if (indices[i] !== indices[i - 1] + 1) {
-      _processing = false;
+      resetBlockButtons();
       alert('Selecciona horarios continuos. No dejes espacios entre horas.');
       return;
     }
@@ -1611,20 +1680,17 @@ console.log('CLICK SLOT', {
     const json = await res.json();
 
     if (!json.ok) {
-      throw new Error(
-        json.error ||
-        'Error creando bloqueo'
-      );
+      throw new Error(json.error || 'Error creando bloqueo');
     }
 
-    _processing = false;
+    resetBlockButtons();
     closeBlockModal();
     await loadData();
 
     alert('Quirófano bloqueado correctamente');
   }
   catch(err) {
-    _processing = false;
+    resetBlockButtons();
     console.error(err);
     alert('No se pudo crear el bloqueo');
   }
@@ -2028,6 +2094,11 @@ console.log('CLICK SLOT', {
     }
     function escHtml(s) {
       return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+     function fmtHours(n) {
+      const value = Number(n) || 0;
+      return Number.isInteger(value) ? String(value) : String(value).replace('.', '.');
     }
 
     document.getElementById('modalOverlay').addEventListener('click', function(e) { if(e.target===this) closeSetup(); });
