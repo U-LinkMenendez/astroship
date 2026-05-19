@@ -492,3 +492,53 @@ button:hover {
   align-items: center;
   justify-content: center;
 }
+
+/* VALIDACIONES CHECKOUT */
+
+.field-error {
+  display: none;
+  color: #b00020;
+  font-size: 13px;
+  margin-top: -8px;
+}
+
+.field-error.visible {
+  display: block;
+}
+
+input.error,
+textarea.error,
+select.error {
+  border-color: #b00020;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* RESUMEN DE PEDIDO */
+
+.resumen-titulo {
+  font-weight: 700;
+  font-size: 16px;
+  color: #5c3b2e;
+  margin-bottom: 12px;
+}
+
+#resumen-contenido {
+  font-size: 14px;
+  line-height: 1.8;
+  color: #444;
+  background: #faf7f2;
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 4px;
+}
+
+.whatsapp-btn {
+  background: #25d366 !important;
+}
+
+.whatsapp-btn:hover {
+  background: #1ebe5d !important;
+}
