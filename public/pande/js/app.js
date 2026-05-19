@@ -273,38 +273,6 @@ closeCheckout.addEventListener(
   cerrarCheckout
 );
 
-  let mensaje =
-    `🧁 *Nuevo pedido Pandé* %0A%0A`;
-
-  mensaje += `👤 Cliente: ${nombre}%0A`;
-  mensaje += `📱 Teléfono: ${telefono}%0A`;
-  mensaje += `🚚 Entrega: ${tipoEntrega}%0A`;
-
-  if(tipoEntrega === "domicilio"){
-    mensaje += `📍 Dirección: ${direccion}%0A`;
-  }
-
-  mensaje += `%0A🛒 *Productos:*%0A`;
-
-  let total = 0;
-
-  carrito.forEach(item=>{
-    const subtotal =
-      Number(item.producto.precio) * item.cantidad;
-    mensaje +=
-      `- ${item.producto.nombre} x${item.cantidad} ($${subtotal})%0A`;
-    total += subtotal;
-  });
-
-  mensaje += `%0A💰 Total: $${total}`;
-
-  const url =
-    `https://wa.me/529992175116?text=${mensaje}`;
-
-  window.open(url, "_blank");
-
-}
-
 async function enviarPedido(){
 
   const nombre =
