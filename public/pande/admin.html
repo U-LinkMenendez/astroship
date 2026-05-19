@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pandé — Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --cafe:      #5c3b2e;
+      --cafe-dark: #3d271e;
+      --cafe-light:#8a5c47;
+      --cream:     #f5f1ea;
+      --cream2:    #ede8df;
+      --dark:      #0d0d0d;
+      --white:     #ffffff;
+      --verde:     #2e7d32;
+      --azul:      #1565c0;
+      --naranja:   #e65100;
+      --amarillo:  #f9a825;
+      --gris:      #757575;
+      --rojo:      #b00020;
+      --radius:    14px;
+      --shadow:    0 4px 20px rgba(0,0,0,.08);
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      color: var(--dark);
+      min-height: 100vh;
+    }
+
+    /* ── LOGIN ── */
+    #login-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--dark);
+    }
+
+    .login-box {
+      background: var(--white);
+      border-radius: 24px;
+      padding: 48px 40px;
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0,0,0,.4);
+    }
+
+    .login-box h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 36px;
+      color: var(--cafe);
+      margin-bottom: 6px;
+    }
+
+    .login-box .sub {
+      color: var(--gris);
+      font-size: 14px;
+      margin-bottom: 32px;
+    }
+
+    .login-box input {
+      width: 100%;
+      padding: 14px 18px;
+      border: 2px solid var(--cream2);
+      border-radius: var(--radius);
+      font-size: 15px;
+      font-family: inherit;
+      margin-bottom: 16px;
+      transition: .2s;
+      text-align: center;
+      letter-spacing: 2px;
+    }
+
+    .login-box input:focus {
+      outline: none;
+      border-color: var(--cafe);
+    }
+
+    .login-box button {
+      width: 100%;
+      padding: 14px;
+      background: var(--cafe);
+      color: white;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 15px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: .2s;
+    }
+
+    .login-box button:hover { background: var(--cafe-dark); }
+
+    .login-error {
+      color: var(--rojo);
+      font-size: 13px;
+      margin-top: 12px;
+      display: none;
+    }
+
+    /* ── LAYOUT ── */
+    #app { display: none; }
+
+    .topbar {
+      background: var(--dark);
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .topbar-brand {
+      font-family: 'Playfair Display', serif;
+      color: white;
+      font-size: 22px;
+    }
+
+    .topbar-brand span {
+      color: var(--cafe-light);
+      font-size: 13px;
+      font-family: 'DM Sans', sans-serif;
+      margin-left: 8px;
+      font-weight: 400;
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .refresh-btn {
+      background: rgba(255,255,255,.1);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 999px;
+      font-size: 13px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: .2s;
+    }
+
+    .refresh-btn:hover { background: rgba(255,255,255,.2); }
+
+    .logout-btn {
+      background: none;
+      color: rgba(255,255,255,.5);
+      border: none;
+      font-size: 13px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .logout-btn:hover { color: white; }
+
+    /* ── TABS ── */
+    .tabs {
+      display: flex;
+      gap: 0;
+      background: var(--white);
+      border-bottom: 2px solid var(--cream2);
+      padding: 0 24px;
+    }
+
+    .tab {
+      padding: 16px 24px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--gris);
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -2px;
+      transition: .2s;
+      background: none;
+      border-top: none;
+      border-left: none;
+      border-right: none;
+      font-family: inherit;
+    }
+
+    .tab:hover { color: var(--cafe); }
+
+    .tab.active {
+      color: var(--cafe);
+      border-bottom-color: var(--cafe);
+    }
+
+    /* ── CONTENT ── */
+    .content {
+      padding: 24px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ── SECCIÓN HEADER ── */
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 26px;
+      color: var(--cafe);
+    }
+
+    .badge-count {
+      background: var(--cafe);
+      color: white;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 999px;
+      margin-left: 10px;
+    }
+
+    /* ── PEDIDO CARD ── */
+    .pedidos-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .pedido-card {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      box-shadow: var(--shadow);
+      border-left: 5px solid var(--cafe);
+    }
+
+    .pedido-card.estatus-Nuevo       { border-left-color: var(--azul); }
+    .pedido-card.estatus-Confirmado  { border-left-color: var(--naranja); }
+    .pedido-card.estatus-En_Prep     { border-left-color: var(--amarillo); }
+    .pedido-card.estatus-Listo       { border-left-color: var(--verde); }
+
+    .pedido-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .pedido-id {
+      font-size: 12px;
+      color: var(--gris);
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+
+    .pedido-cliente {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--cafe-dark);
+    }
+
+    .pedido-meta {
+      font-size: 13px;
+      color: var(--gris);
+      margin-top: 2px;
+    }
+
+    .pedido-total {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--cafe);
+      white-space: nowrap;
+    }
+
+    .pedido-productos {
+      margin-top: 12px;
+      padding: 12px 14px;
+      background: var(--cream);
+      border-radius: 10px;
+      font-size: 14px;
+      line-height: 1.7;
+      color: var(--cafe-dark);
+    }
+
+    .pedido-actions {
+      margin-top: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .estatus-badge {
+      padding: 5px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .5px;
+    }
+
+    .badge-Nuevo      { background: #e3f0ff; color: var(--azul); }
+    .badge-Confirmado { background: #fff3e0; color: var(--naranja); }
+    .badge-En_Prep    { background: #fffde7; color: #c6a000; }
+    .badge-Listo      { background: #e8f5e9; color: var(--verde); }
+    .badge-Entregado  { background: #f5f5f5; color: var(--gris); }
+    .badge-Cancelado  { background: #fce4e8; color: var(--rojo); }
+
+    .btn-accion {
+      padding: 8px 16px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      font-family: inherit;
+      transition: .2s;
+    }
+
+    .btn-confirmar  { background: #fff3e0; color: var(--naranja); }
+    .btn-preparar   { background: #fffde7; color: #c6a000; }
+    .btn-listo      { background: #e8f5e9; color: var(--verde); }
+    .btn-entregar   { background: #f5f5f5; color: var(--gris); }
+    .btn-cancelar   { background: #fce4e8; color: var(--rojo); }
+
+    .btn-accion:hover { opacity: .8; transform: translateY(-1px); }
+
+    /* ── CATÁLOGO ── */
+    .catalogo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 14px;
+    }
+
+    .producto-card {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 16px 18px;
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .producto-info {}
+
+    .producto-nombre {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--cafe-dark);
+      margin-bottom: 4px;
+    }
+
+    .producto-meta {
+      font-size: 12px;
+      color: var(--gris);
+    }
+
+    .producto-precio {
+      font-weight: 700;
+      color: var(--cafe);
+    }
+
+    /* Toggle switch */
+    .toggle-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+
+    .toggle {
+      position: relative;
+      width: 44px;
+      height: 24px;
+    }
+
+    .toggle input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      inset: 0;
+      background: #ccc;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: .3s;
+    }
+
+    .toggle-slider:before {
+      content: "";
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      left: 3px;
+      bottom: 3px;
+      background: white;
+      border-radius: 50%;
+      transition: .3s;
+    }
+
+    .toggle input:checked + .toggle-slider {
+      background: var(--verde);
+    }
+
+    .toggle input:checked + .toggle-slider:before {
+      transform: translateX(20px);
+    }
+
+    .toggle-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--gris);
+    }
+
+    /* ── EMPTY / LOADING ── */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--gris);
+    }
+
+    .empty-state .icon {
+      font-size: 48px;
+      margin-bottom: 12px;
+    }
+
+    .empty-state p {
+      font-size: 16px;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: var(--gris);
+      font-size: 14px;
+    }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--cafe-dark);
+      color: white;
+      padding: 14px 20px;
+      border-radius: var(--radius);
+      font-size: 14px;
+      font-weight: 500;
+      box-shadow: 0 8px 24px rgba(0,0,0,.2);
+      opacity: 0;
+      transform: translateY(10px);
+      transition: .3s;
+      z-index: 9999;
+      pointer-events: none;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 600px) {
+      .content { padding: 16px; }
+      .login-box { padding: 36px 24px; }
+      .topbar { padding: 14px 16px; }
+      .tabs { padding: 0 16px; }
+      .tab { padding: 14px 16px; font-size: 13px; }
+      .pedido-card { padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <h1>Pandé</h1>
+    <div class="sub">Panel de administración</div>
+    <input
+      type="password"
+      id="token-input"
+      placeholder="Token de acceso"
+      autocomplete="off"
+    />
+    <button onclick="iniciarSesion()">Entrar</button>
+    <div class="login-error" id="login-error">
+      Token incorrecto
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+
+  <div class="topbar">
+    <div class="topbar-brand">
+      Pandé <span>Admin</span>
+    </div>
+    <div class="topbar-right">
+      <button class="refresh-btn" onclick="recargarTodo()">
+        Actualizar
+      </button>
+      <button class="logout-btn" onclick="cerrarSesion()">
+        Salir
+      </button>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button
+      class="tab active"
+      onclick="cambiarTab('pedidos')"
+      id="tab-pedidos"
+    >
+      Pedidos pendientes
+      <span class="badge-count" id="badge-pedidos">0</span>
+    </button>
+    <button
+      class="tab"
+      onclick="cambiarTab('catalogo')"
+      id="tab-catalogo"
+    >
+      Catálogo
+    </button>
+  </div>
+
+  <div class="content">
+
+    <!-- PEDIDOS -->
+    <div class="tab-panel active" id="panel-pedidos">
+      <div class="section-header">
+        <div class="section-title">Pedidos activos</div>
+      </div>
+      <div id="pedidos-lista">
+        <div class="loading">Cargando pedidos...</div>
+      </div>
+    </div>
+
+    <!-- CATÁLOGO -->
+    <div class="tab-panel" id="panel-catalogo">
+      <div class="section-header">
+        <div class="section-title">Disponibilidad</div>
+      </div>
+      <div id="catalogo-lista">
+        <div class="loading">Cargando catálogo...</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+  const SCRIPT_URL =
+    "https://script.google.com/macros/s/AKfycbwTKKe_3DpFONr8nN4ZfuCt0kBqEcspB4_WXHnrtarNTqPlldpHBqba-FbqJcr7-nECZw/exec";
+
+  let TOKEN = "";
+
+  const SIGUIENTE_ESTATUS = {
+    "Nuevo":      "Confirmado",
+    "Confirmado": "En_Prep",
+    "En_Prep":    "Listo",
+    "Listo":      "Entregado"
+  };
+
+  const LABEL_SIGUIENTE = {
+    "Nuevo":      "Confirmar",
+    "Confirmado": "En preparacion",
+    "En_Prep":    "Listo",
+    "Listo":      "Entregado"
+  };
+
+  // ── LOGIN ──
+
+  document.getElementById("token-input")
+    .addEventListener("keydown", e => {
+      if(e.key === "Enter") iniciarSesion();
+    });
+
+  async function iniciarSesion(){
+
+    const input =
+      document.getElementById("token-input");
+
+    TOKEN = input.value.trim();
+
+    if(!TOKEN){
+      mostrarError("Ingresa el token");
+      return;
+    }
+
+    try {
+
+      const res = await fetch(
+        `${SCRIPT_URL}?action=getPedidosPendientes&token=${TOKEN}`
+      );
+
+      const data = await res.json();
+
+      if(data.ok){
+
+        sessionStorage.setItem("pande_token", TOKEN);
+
+        document.getElementById("login-screen")
+          .style.display = "none";
+
+        document.getElementById("app")
+          .style.display = "block";
+
+        cargarPedidos();
+        cargarCatalogo();
+
+      }else{
+
+        mostrarError("Token incorrecto");
+        TOKEN = "";
+
+      }
+
+    }catch(err){
+
+      mostrarError("Error de conexion");
+      TOKEN = "";
+
+    }
+  }
+
+  function mostrarError(msg){
+    const el = document.getElementById("login-error");
+    el.textContent = msg;
+    el.style.display = "block";
+    setTimeout(() => el.style.display = "none", 3000);
+  }
+
+  function cerrarSesion(){
+    sessionStorage.removeItem("pande_token");
+    TOKEN = "";
+    document.getElementById("login-screen")
+      .style.display = "flex";
+    document.getElementById("app")
+      .style.display = "none";
+    document.getElementById("token-input")
+      .value = "";
+  }
+
+  // ── TABS ──
+
+  function cambiarTab(tab){
+
+    document.querySelectorAll(".tab")
+      .forEach(t => t.classList.remove("active"));
+
+    document.querySelectorAll(".tab-panel")
+      .forEach(p => p.classList.remove("active"));
+
+    document.getElementById(`tab-${tab}`)
+      .classList.add("active");
+
+    document.getElementById(`panel-${tab}`)
+      .classList.add("active");
+  }
+
+  // ── PEDIDOS ──
+
+  async function cargarPedidos(){
+
+    const lista =
+      document.getElementById("pedidos-lista");
+
+    lista.innerHTML =
+      '<div class="loading">Cargando pedidos...</div>';
+
+    try{
+
+      const res = await fetch(
+        `${SCRIPT_URL}?action=getPedidosPendientes&token=${TOKEN}`
+      );
+
+      const data = await res.json();
+
+      if(!data.ok){
+        lista.innerHTML =
+          '<div class="empty-state"><div class="icon">⚠️</div><p>Error cargando pedidos</p></div>';
+        return;
+      }
+
+      const pedidos = data.pedidos || [];
+
+      document.getElementById("badge-pedidos")
+        .textContent = pedidos.length;
+
+      if(pedidos.length === 0){
+        lista.innerHTML = `
+          <div class="empty-state">
+            <div class="icon">✅</div>
+            <p>No hay pedidos pendientes</p>
+          </div>
+        `;
+        return;
+      }
+
+      lista.innerHTML = "";
+
+      const div = document.createElement("div");
+      div.className = "pedidos-grid";
+
+      pedidos.forEach(p => {
+        div.innerHTML += renderPedido(p);
+      });
+
+      lista.appendChild(div);
+
+    }catch(err){
+
+      lista.innerHTML =
+        '<div class="empty-state"><div class="icon">⚠️</div><p>Error de conexion</p></div>';
+
+    }
+  }
+
+  function renderPedido(p){
+
+    const estatus = p.estatus_pedido || "Nuevo";
+    const siguiente = SIGUIENTE_ESTATUS[estatus];
+    const labelSig = LABEL_SIGUIENTE[estatus];
+
+    const fecha = p.fecha_pedido
+      ? new Date(p.fecha_pedido)
+          .toLocaleString("es-MX", {
+            day:"numeric", month:"short",
+            hour:"2-digit", minute:"2-digit"
+          })
+      : "";
+
+    const btnSiguiente = siguiente
+      ? `<button
+          class="btn-accion btn-${siguiente.toLowerCase().replace('_','')}"
+          onclick="avanzarEstatus('${p.id_pedido}','${siguiente}')"
+        >
+          ${labelSig}
+        </button>`
+      : "";
+
+    return `
+      <div
+        class="pedido-card estatus-${estatus}"
+        id="card-${p.id_pedido}"
+      >
+        <div class="pedido-top">
+          <div>
+            <div class="pedido-id">${p.id_pedido} · ${fecha}</div>
+            <div class="pedido-cliente">${p.nombre_cliente || "—"}</div>
+            <div class="pedido-meta">
+              ${p.sucursal || ""} ·
+              ${p.estatus_pago || ""}
+            </div>
+          </div>
+          <div class="pedido-total">$${p.total || 0}</div>
+        </div>
+        <div class="pedido-productos">
+          ${p.productos || "—"}
+        </div>
+        <div class="pedido-actions">
+          <span class="estatus-badge badge-${estatus}">
+            ${estatus}
+          </span>
+          ${btnSiguiente}
+          <button
+            class="btn-accion btn-cancelar"
+            onclick="cancelarPedido('${p.id_pedido}')"
+          >
+            Cancelar
+          </button>
+        </div>
+      </div>
+    `;
+  }
+
+  async function avanzarEstatus(idPedido, nuevoEstatus){
+
+    try{
+
+      const res = await fetch(SCRIPT_URL, {
+        method: "POST",
+        body: JSON.stringify({
+          action: "actualizarEstatus",
+          token: TOKEN,
+          id_pedido: idPedido,
+          estatus_pedido: nuevoEstatus
+        })
+      });
+
+      const data = await res.json();
+
+      if(data.ok){
+        toast(`Pedido actualizado: ${nuevoEstatus}`);
+        cargarPedidos();
+      }else{
+        toast("Error al actualizar");
+      }
+
+    }catch(err){
+      toast("Error de conexion");
+    }
+  }
+
+  async function cancelarPedido(idPedido){
+
+    if(!confirm(`Cancelar pedido ${idPedido}?`)) return;
+
+    try{
+
+      const res = await fetch(SCRIPT_URL, {
+        method: "POST",
+        body: JSON.stringify({
+          action: "actualizarEstatus",
+          token: TOKEN,
+          id_pedido: idPedido,
+          estatus_pedido: "Cancelado"
+        })
+      });
+
+      const data = await res.json();
+
+      if(data.ok){
+        toast("Pedido cancelado");
+        cargarPedidos();
+      }
+
+    }catch(err){
+      toast("Error de conexion");
+    }
+  }
+
+  // ── CATÁLOGO ──
+
+  async function cargarCatalogo(){
+
+    const lista =
+      document.getElementById("catalogo-lista");
+
+    lista.innerHTML =
+      '<div class="loading">Cargando catálogo...</div>';
+
+    try{
+
+      const res = await fetch(
+        `${SCRIPT_URL}?action=getCatalogo&token=${TOKEN}`
+      );
+
+      const data = await res.json();
+
+      if(!data.ok){
+        lista.innerHTML =
+          '<div class="empty-state"><p>Error cargando catálogo</p></div>';
+        return;
+      }
+
+      const productos = data.productos || [];
+
+      if(productos.length === 0){
+        lista.innerHTML =
+          '<div class="empty-state"><p>Sin productos</p></div>';
+        return;
+      }
+
+      // Agrupar por categoría
+      const grupos = {};
+
+      productos.forEach(p => {
+        const cat = p.categoria || "Otros";
+        if(!grupos[cat]) grupos[cat] = [];
+        grupos[cat].push(p);
+      });
+
+      let html = "";
+
+      Object.keys(grupos).forEach(cat => {
+
+        html += `<h3 style="
+          font-family:'Playfair Display',serif;
+          color:var(--cafe);
+          margin:24px 0 12px;
+          font-size:20px;
+        ">${cat}</h3>`;
+
+        html += '<div class="catalogo-grid">';
+
+        grupos[cat].forEach(p => {
+          html += `
+            <div class="producto-card">
+              <div class="producto-info">
+                <div class="producto-nombre">
+                  ${p.nombre}
+                </div>
+                <div class="producto-meta">
+                  ${p.linea || ""} ·
+                  <span class="producto-precio">
+                    $${p.precio}
+                  </span>
+                </div>
+              </div>
+              <div class="toggle-wrap">
+                <label class="toggle">
+                  <input
+                    type="checkbox"
+                    ${p.disponible ? "checked" : ""}
+                    onchange="toggleDisponible('${p.id}', this.checked)"
+                  />
+                  <span class="toggle-slider"></span>
+                </label>
+                <span class="toggle-label">
+                  ${p.disponible ? "ACTIVO" : "OFF"}
+                </span>
+              </div>
+            </div>
+          `;
+        });
+
+        html += "</div>";
+
+      });
+
+      lista.innerHTML = html;
+
+    }catch(err){
+
+      lista.innerHTML =
+        '<div class="empty-state"><p>Error de conexion</p></div>';
+
+    }
+  }
+
+  async function toggleDisponible(idProducto, disponible){
+
+    try{
+
+      const res = await fetch(SCRIPT_URL, {
+        method: "POST",
+        body: JSON.stringify({
+          action: "updateDisponible",
+          token: TOKEN,
+          id_producto: idProducto,
+          disponible: disponible
+        })
+      });
+
+      const data = await res.json();
+
+      if(data.ok){
+        toast(disponible ? "Producto activado" : "Producto desactivado");
+      }else{
+        toast("Error al actualizar");
+      }
+
+    }catch(err){
+      toast("Error de conexion");
+    }
+  }
+
+  // ── HELPERS ──
+
+  function recargarTodo(){
+    cargarPedidos();
+    cargarCatalogo();
+    toast("Actualizado");
+  }
+
+  function toast(msg){
+    const el = document.getElementById("toast");
+    el.textContent = msg;
+    el.classList.add("show");
+    setTimeout(() => el.classList.remove("show"), 2500);
+  }
+
+  // Auto-refresh pedidos cada 60s
+  setInterval(() => {
+    if(TOKEN) cargarPedidos();
+  }, 60000);
+
+  // Restaurar sesión si existe
+  const savedToken =
+    sessionStorage.getItem("pande_token");
+
+  if(savedToken){
+    TOKEN = savedToken;
+    document.getElementById("token-input")
+      .value = savedToken;
+    iniciarSesion();
+  }
+</script>
+</body>
+</html>
