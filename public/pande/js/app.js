@@ -164,6 +164,20 @@ function agregarCarrito(id){
 
   actualizarCarrito();
 
+  // Feedback visual
+  const botones = document.querySelectorAll(
+    `.card button[onclick="agregarCarrito('${id}')"]`
+  );
+
+  botones.forEach(btn => {
+    btn.textContent = "✓ Agregado";
+    btn.classList.add("agregado");
+    setTimeout(()=>{
+      btn.textContent = "Agregar";
+      btn.classList.remove("agregado");
+    }, 1000);
+  });
+
 }
 
 function cambiarCantidad(index, delta){
