@@ -193,8 +193,14 @@
     .grid-row { display:grid; grid-template-columns:52px repeat(3,1fr); border-bottom:1px solid var(--g200); }
     .grid-row:last-child { border-bottom:none; }
     .grid-row.alt { background:var(--ghost); }
-    .grid-time { padding:0.5rem 0.25rem; font-size:0.68rem; font-weight:500; color:var(--g400); text-align:center; border-right:1px solid var(--g200); font-family:'DM Mono',monospace; display:flex; align-items:center; justify-content:center; min-height:52px; }
-    .grid-cell { padding:0.25rem; border-right:1px solid var(--g200); min-height:52px; display:flex; align-items:stretch; position:relative; overflow:visible; }
+    .grid-time { padding:0.5rem 0.25rem; font-size:0.68rem; font-weight:500; color:var(--g400); text-align:center; border-right:1px solid var(--g200); font-family:'DM Mono',monospace; display:flex; align-items:center; justify-content:center; height:32px; }
+    .grid-cell {
+      padding:0;
+      border-right:1px solid var(--g200);
+      height:32px;
+      position:relative;
+      overflow:visible;
+    }
     .grid-cell:last-child { border-right:none; }
 
     /* ── SLOTS ──────────────────────────────────────────────── */
@@ -212,13 +218,27 @@
     .slot-selected .slot-label { font-size:0.7rem; color:rgba(255,255,255,0.8); }
 
     /* Occupied — first slot */
-    .slot-occupied { background:var(--g100); border-color:var(--g200); cursor:default; border-left:3px solid var(--blue); position:absolute; left:3px; right:3px; top:3px; z-index:2; box-shadow:0 1px 4px rgba(37,99,235,0.1); overflow:hidden; }
+    .slot-occupied {
+      background:var(--g100);
+      border-color:var(--g200);
+      cursor:default;
+      border-left:3px solid var(--blue);
+      position:absolute;
+      left:2px;
+      right:2px;
+      top:0;
+      z-index:2;
+      box-shadow:0 1px 4px rgba(37,99,235,0.1);
+      overflow:hidden;
+      box-sizing:border-box;
+      min-height:32px;
+    }
     .slot-occupied .slot-proc { font-size:0.75rem; font-weight:600; color:var(--navy); line-height:1.2; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
     .slot-occupied .slot-time-occ { font-size:0.62rem; font-family:'DM Mono',monospace; color:var(--blue); margin-bottom:2px; }
 
     /* Occupied continuation — invisible, just blocks the slot */
-    .slot-continuation { position:absolute; left:3px; right:3px; top:0; bottom:0; z-index:1; background:var(--g100); border-left:3px solid var(--blue); opacity:0.35; cursor:default; border-radius:0; }
 
+    
     /* Empty */
     .slot-empty { background:transparent; cursor:default; border-color:transparent; }
 
@@ -489,8 +509,26 @@ const CAL_ACCOUNTS = [
 
 const QUIROFANOS = ['Quirofano 1', 'Quirofano 2', 'Quirofano 3'];
 // 21:00 removed — last bookable slot is 20:00
-const HOURS = ['04:00','05:00','06:00','07:00','08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00'];
-const ROW_H = 52;
+const HOURS = [
+  '04:00','04:30',
+  '05:00','05:30',
+  '06:00','06:30',
+  '07:00','07:30',
+  '08:00','08:30',
+  '09:00','09:30',
+  '10:00','10:30',
+  '11:00','11:30',
+  '12:00','12:30',
+  '13:00','13:30',
+  '14:00','14:30',
+  '15:00','15:30',
+  '16:00','16:30',
+  '17:00','17:30',
+  '18:00','18:30',
+  '19:00','19:30',
+  '20:00','20:30'
+];
+const ROW_H = 32;
 
 let currentDate = todayStr();
 let allReservas  = [];
@@ -582,18 +620,9 @@ function renderGrid() {
       hora: startH,
       duracion: dur,
       isStart: true,
-      height: dur * ROW_H - 6,
+      height: ((dur * 2) * ROW_H) - 1,
     };
 
-    for (let d = 1; d < dur; d++) {
-      const idx = startIdx + d;
-      if (idx >= HOURS.length) break;
-
-      occupied[HOURS[idx]][qk] = {
-        isStart: false,
-        isCont: true
-      };
-    }
   });
 
   _occupiedMap = occupied;
@@ -636,7 +665,7 @@ function renderGrid() {
         (now.getMinutes() / 60);
 
       const isPastSlot =
-        isToday && slotHourDecimal <= nowHourDecimal;
+  isToday && slotHourDecimal <= nowHourDecimal;
 
       const day =
   new Date(currentDate + 'T00:00:00')
@@ -679,10 +708,6 @@ if (day === 0) {
             <div class="slot-proc">${escHtml(occ.proc)}</div>
           </div>`;
 
-      } else if (occ && occ.isCont) {
-
-        slotHtml = `<div class="slot-continuation"></div>`;
-
       } else if (isPastSlot || isClosedSlot) {
 
         slotHtml = `
@@ -705,12 +730,17 @@ if (day === 0) {
         if (isSelected) {
 
           slotHtml = `
-            <div class="slot slot-selected" onclick="toggleSlot('${q}','${h}',event)">
-              <div class="slot-time"> ${h} → ${ String( parseInt(h.split(':')[0]) + 1 ).padStart(2,'0') }:00
-             </div>
-              
-              <div class="slot-label">✓ Seleccionado</div>
-            </div>`;
+  <div class="slot slot-selected" onclick="toggleSlot('${q}','${h}',event)">
+
+    <div class="slot-time">
+      ${h} → ${getSlotEnd(h)}
+    </div>
+
+    <div class="slot-label">
+      ✓ Seleccionado
+    </div>
+
+  </div>`;
 
         } else {
 
@@ -721,11 +751,17 @@ if (day === 0) {
           if (canSelect) {
 
             slotHtml = `
-              <div class="slot slot-available" onclick="toggleSlot('${q}','${h}',event)">
-                <div class="slot-time"> ${h} → ${ String( parseInt(h.split(':')[0]) + 1 ).padStart(2,'0') }:00
-             </div>
-                <div class="slot-label">Disponible</div>
-              </div>`;
+  <div class="slot slot-available" onclick="toggleSlot('${q}','${h}',event)">
+    
+    <div class="slot-time">
+      ${h} → ${getSlotEnd(h)}
+    </div>
+
+    <div class="slot-label">
+      Disponible
+    </div>
+
+  </div>`;
 
           } else {
 
@@ -837,10 +873,7 @@ if (day === 0) {
       let s = '';
       if (isSelected) {
 
-  const endHour =
-    String(
-      parseInt(h.split(':')[0]) + 1
-    ).padStart(2,'0') + ':00';
+  const endHour = getSlotEnd(h);
 
   s =
     '<div class="slot slot-selected" onclick="toggleSlot(\'' + q + '\',\'' + h + '\',event)">' +
@@ -849,10 +882,7 @@ if (day === 0) {
     '</div>' +
     '<div class="slot-label">&#10003; Seleccionado</div></div>';
       } else if ( canSelect && !isPastSlot && !isClosedSlot ) {
-        const endHour =
-  String(
-    parseInt(h.split(':')[0]) + 1
-  ).padStart(2,'0') + ':00';
+        const endHour = getSlotEnd(h);
 
 s =
   '<div class="slot slot-available" onclick="toggleSlot(\'' + q + '\',\'' + h + '\',event)">' +
@@ -897,11 +927,11 @@ function updateSelBar() {
   const bar = document.getElementById('selBar');
   if (!selection || selection.slots.length === 0) { bar.classList.remove('show'); return; }
   bar.classList.add('show');
-  const hrs   = selection.slots.length;
+  const hrs   = selection.slots.length / 2;
   const q     = selection.quirofano.replace('Quirofano', 'Quirófano');
   const start = selection.slots[0];
   const endIdx = HOURS.indexOf(selection.slots[selection.slots.length-1]) + 1;
-  const endH  = endIdx < HOURS.length ? HOURS[endIdx] : (parseInt(selection.slots[selection.slots.length-1].split(':')[0])+1)+':00';
+  const endH  = endIdx < HOURS.length ? HOURS[endIdx] : getSlotEnd(selection.slots[selection.slots.length-1]);
   document.getElementById('selInfo').textContent = `${q} · ${start}–${endH} · ${hrs} hora${hrs>1?'s':''}`;
 }
 
@@ -934,12 +964,7 @@ function updateSelBar() {
       selection.slots.length - 1
     ];
 
-  const endHour =
-    String(
-      parseInt(
-        last.split(':')[0]
-      ) + 1
-    ).padStart(2,'0') + ':00';
+  const endHour = getSlotEnd(last);
 
   info.innerHTML =
     '<strong>' +
@@ -947,8 +972,8 @@ function updateSelBar() {
     '</strong><br>' +
     start + '–' + endHour +
     ' · ' +
-    selection.slots.length +
-    ' hora(s)';
+    (selection.slots.length / 2) +
+' hora(s)'
 
   bar.style.display = 'flex';
 }
@@ -959,8 +984,8 @@ function openForm() {
   const q     = selection.quirofano.replace('Quirofano', 'Quirófano');
   const start = selection.slots[0];
   const endIdx = HOURS.indexOf(selection.slots[selection.slots.length-1]) + 1;
-  const endH  = endIdx < HOURS.length ? HOURS[endIdx] : (parseInt(selection.slots[selection.slots.length-1].split(':')[0])+1)+':00';
-  const hrs   = selection.slots.length;
+  const endH  = endIdx < HOURS.length ? HOURS[endIdx] : getSlotEnd(selection.slots[selection.slots.length-1]);
+  const hrs   = selection.slots.length / 2;
 
   document.getElementById('summaryBox').innerHTML = `
     <div class="summary-row"><span class="summary-label">Quirófano</span><span class="summary-value">${q}</span></div>
@@ -1031,7 +1056,7 @@ async function submitBooking() {
   const startHour = selection.slots[0];
   const startLocal = new Date(currentDate + 'T' + startHour + ':00');
   const startISO = startLocal.toISOString();
-  const durMin    = selection.slots.length * 60;
+  const durMin    = selection.slots.length * 30;
 
   const qIdx    = QUIROFANOS.indexOf(selection.quirofano);
   const account = CAL_ACCOUNTS[qIdx];
@@ -1138,6 +1163,22 @@ function formatDateDisplay(ds) {
   const d = new Date(ds+'T12:00:00');
   return d.toLocaleDateString('es-MX',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
 }
+
+  function getSlotEnd(startHour){
+
+  const idx = HOURS.indexOf(startHour);
+
+  if(idx === -1) return startHour;
+
+  const nextIdx = idx + 1;
+
+  if(nextIdx >= HOURS.length){
+    return startHour;
+  }
+
+  return HOURS[nextIdx];
+}
+  
 function escHtml(s) {
   return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
