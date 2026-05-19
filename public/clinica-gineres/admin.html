@@ -37,13 +37,17 @@
     html,body { min-height:100%; font-family:'DM Sans',sans-serif; background:var(--ghost); color:var(--text); -webkit-font-smoothing:antialiased; }
 
     /* HEADER */
-    .hdr { background:var(--navy); height:54px; display:flex; align-items:center; padding:0 1.5rem; gap:1rem; position:sticky; top:0; z-index:100; }
+    .hdr { background:var(--navy); height:auto; min-height:54px; display:flex; flex-direction:column; align-items:stretch; padding:10px 1.5rem; gap:8px; position:sticky;
+     top:0; z-index:100; }
     .hdr-logo { display:flex; align-items:center; gap:10px; }
     .hdr-cross { width:28px; height:28px; background:var(--blue); border-radius:6px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
     .hdr-cross svg { width:14px; height:14px; stroke:#fff; fill:none; stroke-width:2.5; stroke-linecap:round; }
     .hdr-brand { font-size:0.9rem; font-weight:600; color:#fff; letter-spacing:-0.01em; }
     .hdr-brand span { color:var(--blue-lt); font-weight:400; margin-left:6px; font-size:0.75rem; }
-    .hdr-right { margin-left:auto; display:flex; align-items:center; gap:8px; }
+    .hdr-top{ width:100%; display:flex; justify-content:space-between; align-items:center; gap:1rem; }
+    .hdr-bottom{ width:100%; display:flex; justify-content:space-between; align-items:center; gap:12px; }
+    .logout-btn{ background:#DC2626 !important; color:#fff !important; border-color:#DC2626 !important; }
+    .hdr-date{ display:none; }
     .hdr-date { font-family:'DM Sans',sans-serif; font-size:0.8rem; font-weight:700; color:#fff; }
     .status-pill { display:flex; align-items:center; gap:5px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); padding:4px 10px; border-radius:100px; font-size:0.68rem; color:rgba(255,255,255,0.7); }
     .status-dot { width:6px; height:6px; border-radius:50%; background:#4ADE80; animation:pulse 2s infinite; }
@@ -243,19 +247,6 @@
   flex:1;
 }
 
-.hdr-right{
-  width:100%;
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-}
-
-.hdr-actions{
-  width:100%;
-  display:flex;
-  justify-content:flex-end;
-}
-
 .hdr-bottom{
   width:100%;
   display:flex;
@@ -263,19 +254,11 @@
   align-items:center;
 }
 
-      .status-pill{
-  margin-left:auto;
-}
-
-  .hdr-date{
+.hdr-date{
     display:none;
   }
 
-  .status-pill{
-    order:1;
-  }
-
-  .setup-btn{
+.setup-btn{
     padding:6px 10px;
     font-size:0.72rem;
   }
@@ -530,6 +513,9 @@
 </div>
 
   <header class="hdr">
+
+  <div class="hdr-top">
+
     <div class="hdr-logo">
       <div class="hdr-icon" style="width:38px;height:38px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -537,14 +523,12 @@
           <path d="M12 7v10M7 12h10" stroke="#2563EB" stroke-width="2" stroke-linecap="round"/>
         </svg>
       </div>
+
       <div class="hdr-brand" style="display:flex;flex-direction:column;gap:1px;">
         <span style="font-size:1.05rem;font-weight:700;color:#fff;letter-spacing:-0.01em;line-height:1.1;">Clínica Ginerés</span>
         <span style="font-size:0.8rem;font-weight:400;color:#93C5FD;line-height:1.1;">Panel Administración</span>
       </div>
     </div>
-    <div class="hdr-right">
-
-  <div class="hdr-actions">
 
     <button class="setup-btn" onclick="openSetup()">
       ⚙ URL
@@ -559,41 +543,15 @@
       <span id="statusTxt">Conectado</span>
     </div>
 
-    <button
-      class="setup-btn"
-      onclick="logoutAdmin()"
-      style="
-        background:#DC2626;
-        color:#fff;
-        border-color:#DC2626;
-      "
-    >
+    <button class="setup-btn logout-btn" onclick="logoutAdmin()">
       Salir
     </button>
 
   </div>
 
-</div>
-          style="
-            background:#DC2626;
-            color:#fff;
-            border-color:#DC2626;
-          "
-        >
-          Salir
-       </button>
-
-     </div>
-
   <span class="hdr-date" id="hdrDate"></span>
-      
-     <div class="status-pill">
-       <div class="status-dot" id="statusDot"></div>
-       <span id="statusTxt">Conectado</span>
-     </div>
 
-   </div>
-  </header>
+</header>
 
   <div class="modal-overlay" id="modalOverlay">
        
