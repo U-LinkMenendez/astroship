@@ -230,8 +230,8 @@
     .slot-occupied .slot-time-occ { font-size:0.62rem; font-family:'DM Mono',monospace; color:var(--blue); margin-bottom:2px; }
 
     /* Occupied continuation — invisible, just blocks the slot */
-    .slot-continuation { position:absolute; left:0; right:0; top:0; bottom:0; z-index:1; background:var(--g100); border-left:3px solid var(--blue); opacity:0.35; cursor:default; border-radius:0; }
 
+    
     /* Empty */
     .slot-empty { background:transparent; cursor:default; border-color:transparent; }
 
@@ -616,15 +616,6 @@ function renderGrid() {
       height: ((dur * 2) * ROW_H) - 1,
     };
 
-    for (let d = 1; d < (dur * 2); d++) {
-      const idx = startIdx + d;
-      if (idx >= HOURS.length) break;
-
-      occupied[HOURS[idx]][qk] = {
-        isStart: false,
-        isCont: true
-      };
-    }
   });
 
   _occupiedMap = occupied;
@@ -709,10 +700,6 @@ if (day === 0) {
             <div class="slot-time-occ">${occ.hora} · ${occ.duracion}h</div>
             <div class="slot-proc">${escHtml(occ.proc)}</div>
           </div>`;
-
-      } else if (occ && occ.isCont) {
-
-        slotHtml = `<div class="slot-continuation"></div>`;
 
       } else if (isPastSlot || isClosedSlot) {
 
