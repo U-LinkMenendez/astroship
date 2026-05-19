@@ -411,6 +411,67 @@
   .ulink-powered{ font-size:8px; padding:2px 5px; right:6px; bottom:5px; opacity:0.72; }
 
 }
+
+    /* BLOQUEOS - MODAL */
+#blkHoras{
+  display:grid !important;
+  grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+  gap:8px !important;
+  margin-top:8px;
+}
+
+.blk-hour-chip{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:0.85rem;
+  background:#F8FAFC;
+  border:1px solid #E2E8F0;
+  border-radius:8px;
+  padding:8px;
+  cursor:pointer;
+  min-width:0;
+  white-space:nowrap;
+}
+
+.blk-hour-chip input{
+  width:18px;
+  height:18px;
+  flex-shrink:0;
+  accent-color:#DC2626;
+}
+
+@media (max-width:640px){
+  #blockModal .adm-modal{
+    width:94vw;
+    max-height:86vh;
+    padding:1.25rem;
+  }
+
+  #blockModal .adm-form-grid{
+    grid-template-columns:1fr;
+    gap:0.7rem;
+  }
+
+  #blkHoras{
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    max-height:260px;
+    overflow-y:auto;
+    padding-right:2px;
+  }
+
+  .blk-hour-chip{
+    font-size:0.9rem;
+    padding:10px 8px;
+  }
+
+  #blockModal .adm-actions{
+    position:sticky;
+    bottom:0;
+    background:#fff;
+    padding-top:0.75rem;
+  }
+}
     
   </style>
 </head>
@@ -1402,96 +1463,85 @@ console.log('CLICK SLOT', {
      function openBlockModal() {
 
   document.getElementById('blkFecha').value = currentDate;
-
   document.getElementById('blkMotivo').value = '';
 
   const cont = document.getElementById('blkHoras');
-
   cont.innerHTML = '';
 
-  HOURS.forEach(h => {
-
-    cont.innerHTML += `
-      <label style="
-        display:flex;
-        align-items:center;
-        gap:6px;
-        font-size:0.85rem;
-        background:#F8FAFC;
-        border:1px solid #E2E8F0;
-        border-radius:8px;
-        padding:8px;
-        cursor:pointer;
-      ">
-
+  RES_HOURS.forEach(h => {
+    cont.insertAdjacentHTML('beforeend', `
+      <label class="blk-hour-chip">
         <input
           type="checkbox"
           value="${h}"
-          class="blk-hour">
-
+          class="blk-hour"
+        >
         ${h}
-
       </label>
-    `;
+    `);
   });
 
   document.getElementById('blockModal')
     .classList.add('open');
 }
-
-function closeBlockModal() {
-
-  document.getElementById('blockModal')
-    .classList.remove('open');
-}
      
      async function saveBlock() {
 
-       if (_processing) return;
-       _processing = true;
-       
-  const qx =
-    document.getElementById('blkQx').value;
-  const fecha =
-    document.getElementById('blkFecha').value;
+  if (_processing) return;
+  _processing = true;
+
+  const qx = document.getElementById('blkQx').value;
+  const fecha = document.getElementById('blkFecha').value;
+
   const motivo =
     document.getElementById('blkMotivo')
       .value
       .trim() || 'Bloqueo operativo';
+
   const horas = [
-    ...document.querySelectorAll(
-      '.blk-hour:checked'
-    )
+    ...document.querySelectorAll('.blk-hour:checked')
   ].map(x => x.value);
+
   if (!fecha) {
-  _processing = false;
-  alert('Selecciona una fecha');
-  return;
-}
-if (!horas.length) {
-  _processing = false;
-  alert('Selecciona al menos una hora');
-  return;
-}
-  horas.sort();
-  const inicio = horas[0];
-  const last =
-    horas[horas.length - 1];
-  const finNum =
-    parseInt(last.split(':')[0]) + 1;
-  const fin =
-    String(finNum)
-      .padStart(2,'0') + ':00';
-  const qIdx =
-    QUIROFANOS.indexOf(qx);
-  const acct =
-    CAL_ACCOUNTS_ADM[qIdx];
-  const hh =
-    parseInt(inicio.split(':')[0]);
-  const mm =
-    parseInt(inicio.split(':')[1]);
-  const d =
-    new Date(fecha + 'T00:00:00');
+    _processing = false;
+    alert('Selecciona una fecha');
+    return;
+  }
+
+  if (!horas.length) {
+    _processing = false;
+    alert('Selecciona al menos una hora');
+    return;
+  }
+
+  const indices = horas
+    .map(h => RES_HOURS.indexOf(h))
+    .sort((a,b) => a - b);
+
+  if (indices.some(i => i === -1)) {
+    _processing = false;
+    alert('Hay una hora inválida seleccionada');
+    return;
+  }
+
+  for (let i = 1; i < indices.length; i++) {
+    if (indices[i] !== indices[i - 1] + 1) {
+      _processing = false;
+      alert('Selecciona horarios continuos. No dejes espacios entre horas.');
+      return;
+    }
+  }
+
+  const inicio = RES_HOURS[indices[0]];
+
+  const qIdx = QUIROFANOS.indexOf(qx);
+  const acct = CAL_ACCOUNTS_ADM[qIdx];
+
+  const hh = parseInt(inicio.split(':')[0]);
+  const mm = parseInt(inicio.split(':')[1]);
+
+  const d = new Date(fecha + 'T00:00:00');
+
   const startUTC =
     new Date(Date.UTC(
       d.getFullYear(),
@@ -1500,22 +1550,20 @@ if (!horas.length) {
       hh + 6,
       mm
     ));
+
   try {
     const url =
       localStorage.getItem(SCRIPT_KEY)
       || HARDCODED_URL;
+
     const res = await fetch(url, {
       method:'POST',
       body: JSON.stringify({
         action:'crearReserva',
-        eventTypeId:
-          acct.eventTypeId,
-        calKey:
-          acct.key,
-        start:
-          startUTC.toISOString(),
-        lengthInMinutes:
-          horas.length * 60,
+        eventTypeId: acct.eventTypeId,
+        calKey: acct.key,
+        start: startUTC.toISOString(),
+        lengthInMinutes: horas.length * 30,
         attendee:{
           name:'🚫 BLOQUEADO',
           email:'bloqueo@sistema.local',
@@ -1533,30 +1581,32 @@ if (!horas.length) {
             optionValue:''
           }
         },
-        metadata:{ sistema:'true', bloqueo:'true' }
+        metadata:{
+          sistema:'true',
+          bloqueo:'true'
+        }
       })
     });
-    const json =
-      await res.json();
+
+    const json = await res.json();
+
     if (!json.ok) {
       throw new Error(
         json.error ||
         'Error creando bloqueo'
       );
     }
+
     _processing = false;
     closeBlockModal();
     await loadData();
-    alert(
-      'Quirófano bloqueado correctamente'
-    );
+
+    alert('Quirófano bloqueado correctamente');
   }
   catch(err) {
     _processing = false;
     console.error(err);
-    alert(
-      'No se pudo crear el bloqueo'
-    );
+    alert('No se pudo crear el bloqueo');
   }
 }
    
