@@ -244,20 +244,23 @@
 }
 
 .hdr-right{
+  width:100%;
   display:flex;
   flex-direction:column;
-  align-items:flex-end;
   gap:10px;
 }
 
 .hdr-actions{
+  width:100%;
   display:flex;
-  gap:10px;
-  align-items:center;
+  justify-content:flex-end;
 }
 
-.status-pill{
-  align-self:flex-start;
+.hdr-bottom{
+  width:100%;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
 }
 
       .status-pill{
@@ -541,15 +544,36 @@
     </div>
     <div class="hdr-right">
 
-      <div class="hdr-actions">
+  <div class="hdr-actions">
 
-        <button class="setup-btn" onclick="openSetup()">
-          ⚙ URL
-        </button>
+    <button class="setup-btn" onclick="openSetup()">
+      ⚙ URL
+    </button>
 
-        <button
-          class="setup-btn"
-          onclick="logoutAdmin()"
+  </div>
+
+  <div class="hdr-bottom">
+
+    <div class="status-pill">
+      <div class="status-dot" id="statusDot"></div>
+      <span id="statusTxt">Conectado</span>
+    </div>
+
+    <button
+      class="setup-btn"
+      onclick="logoutAdmin()"
+      style="
+        background:#DC2626;
+        color:#fff;
+        border-color:#DC2626;
+      "
+    >
+      Salir
+    </button>
+
+  </div>
+
+</div>
           style="
             background:#DC2626;
             color:#fff;
