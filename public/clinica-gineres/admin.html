@@ -1138,13 +1138,15 @@ if (day === 0) {
       💉 ${escHtml(o.booking.anestesiologo || 'Sin anestesiólogo')}
     </div>
 
-    <div style="
-      font-size:0.64rem;
-      color:#475569;
-      line-height:1.35;
-    ">
-      🩺 ${escHtml(o.booking.enfermeria || 'Sin primer ayudante')}
-    </div>
+    ${o.booking.enfermeria ? `
+  <div style="
+    font-size:0.64rem;
+    color:#475569;
+    line-height:1.35;
+  ">
+    🩺 ${escHtml(o.booking.enfermeria)}
+  </div>
+` : ''}
 
 `}
 
