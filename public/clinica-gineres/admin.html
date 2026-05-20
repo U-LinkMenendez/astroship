@@ -1643,18 +1643,32 @@ document.getElementById('ed-fecha').onchange = function() {
   const cont = document.getElementById('blkHoras');
   cont.innerHTML = '';
 
-  RES_HOURS.forEach(h => {
-    cont.insertAdjacentHTML('beforeend', `
-      <label class="blk-hour-chip">
-        <input
-          type="checkbox"
-          value="${h}"
-          class="blk-hour"
-        >
-        ${h}
-      </label>
-    `);
-  });
+  const now = new Date();
+const today = todayStr();
+const nowH = now.getHours() + now.getMinutes() / 60;
+
+RES_HOURS.forEach(h => {
+  const hNum =
+    parseInt(h.split(':')[0]) +
+    parseInt(h.split(':')[1]) / 60;
+
+  const isPastToday =
+    currentDate === today &&
+    hNum <= nowH;
+
+  if (isPastToday) return;
+
+  cont.insertAdjacentHTML('beforeend', `
+    <label class="blk-hour-chip">
+      <input
+        type="checkbox"
+        value="${h}"
+        class="blk-hour"
+      >
+      ${h}
+    </label>
+  `);
+});
 
   document.getElementById('blockModal')
     .classList.add('open');
