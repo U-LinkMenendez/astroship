@@ -472,6 +472,46 @@
     padding-top:0.75rem;
   }
 }
+
+    /* NUEVA RESERVA - MODAL MOBILE */
+#admNewModal .adm-modal{
+  overflow-x:hidden;
+}
+
+#admNewModal .adm-form-grid,
+#admNewModal .adm-svc-grid{
+  min-width:0;
+}
+
+#admNewModal .adm-field,
+#admNewModal input{
+  min-width:0;
+  max-width:100%;
+}
+
+@media (max-width:640px){
+  #admNewModal .adm-modal{
+    width:94vw;
+    max-height:86vh;
+    padding:1.25rem;
+  }
+
+  #admNewModal .adm-form-grid{
+    grid-template-columns:1fr;
+    gap:0.7rem;
+  }
+
+  #admNewModal .adm-svc-grid{
+    grid-template-columns:1fr;
+  }
+
+  #admNewModal .adm-actions{
+    position:sticky;
+    bottom:0;
+    background:#fff;
+    padding-top:0.75rem;
+  }
+}
     
   </style>
 </head>
@@ -1244,40 +1284,78 @@ console.log('CLICK SLOT', {
     function clearResSelection() { resSelection=null; updateResSelBar(); renderRes(); }
 
     function updateResSelBar() {
-      const bar = document.getElementById('resSelBar');
-      if (!bar) return;
-      if (!resSelection||!resSelection.slots.length) { bar.classList.remove('show'); return; }
-      bar.classList.add('show');
-      const hrs = resSelection.slots.length;
-      const q   = resSelection.quirofano.replace('Quirofano','Quirófano');
-      const s   = resSelection.slots[0];
-      const ei  = RES_HOURS.indexOf(resSelection.slots[resSelection.slots.length-1])+1;
-      const e   = ei < RES_HOURS.length ? RES_HOURS[ei] : (parseInt(resSelection.slots[resSelection.slots.length-1].split(':')[0])+1)+':00';
-      document.getElementById('resSelInfo').textContent = `${q} · ${s}–${e} · ${hrs} hora${hrs>1?'s':''}`;
-    }
+  const bar = document.getElementById('resSelBar');
+  if (!bar) return;
+
+  if (!resSelection || !resSelection.slots.length) {
+    bar.classList.remove('show');
+    return;
+  }
+
+  bar.classList.add('show');
+
+  const hrs = resSelection.slots.length * 0.5;
+  const q = resSelection.quirofano.replace('Quirofano','Quirófano');
+  const s = resSelection.slots[0];
+  const ei = RES_HOURS.indexOf(resSelection.slots[resSelection.slots.length - 1]) + 1;
+  const e = ei < RES_HOURS.length
+    ? RES_HOURS[ei]
+    : (parseInt(resSelection.slots[resSelection.slots.length - 1].split(':')[0]) + 1) + ':00';
+
+  document.getElementById('resSelInfo').textContent =
+    `${q} · ${s}–${e} · ${formatHorasTxt(hrs)}`;
+}
 
     // ── NUEVA RESERVA MODAL ───────────────────────────────
     function openAdmNew() {
-      if (!resSelection||!resSelection.slots.length) return;
-      const q   = resSelection.quirofano.replace('Quirofano','Quirófano');
-      const s   = resSelection.slots[0];
-      const ei  = RES_HOURS.indexOf(resSelection.slots[resSelection.slots.length-1])+1;
-      const e   = ei < RES_HOURS.length ? RES_HOURS[ei] : (parseInt(resSelection.slots[resSelection.slots.length-1].split(':')[0])+1)+':00';
-      const hrs = resSelection.slots.length;
-      document.getElementById('admNewSummary').innerHTML = `
-        <div class="adm-sum-row"><span class="adm-sum-lbl">Quirófano</span><span class="adm-sum-val">${q}</span></div>
-        <div class="adm-sum-row"><span class="adm-sum-lbl">Fecha</span><span class="adm-sum-val">${formatDateDisplay(currentDate)}</span></div>
-        <div class="adm-sum-row"><span class="adm-sum-lbl">Horario</span><span class="adm-sum-val">${s} – ${e} (${hrs} hora${hrs>1?'s':''})</span></div>`;
-      document.getElementById('admNewForm').style.display='';
-      document.getElementById('admNewSuccess').style.display='none';
-      document.getElementById('admNewModal').classList.add('open');
-    }
+  if (!resSelection || !resSelection.slots.length) return;
+
+  const q = resSelection.quirofano.replace('Quirofano','Quirófano');
+  const s = resSelection.slots[0];
+  const ei = RES_HOURS.indexOf(resSelection.slots[resSelection.slots.length - 1]) + 1;
+  const e = ei < RES_HOURS.length
+    ? RES_HOURS[ei]
+    : (parseInt(resSelection.slots[resSelection.slots.length - 1].split(':')[0]) + 1) + ':00';
+
+  const hrs = resSelection.slots.length * 0.5;
+
+  document.getElementById('admNewSummary').innerHTML = `
+    <div class="adm-sum-row"><span class="adm-sum-lbl">Quirófano</span><span class="adm-sum-val">${q}</span></div>
+    <div class="adm-sum-row"><span class="adm-sum-lbl">Fecha</span><span class="adm-sum-val">${formatDateDisplay(currentDate)}</span></div>
+    <div class="adm-sum-row"><span class="adm-sum-lbl">Horario</span><span class="adm-sum-val">${s} – ${e} (${formatHorasTxt(hrs)})</span></div>`;
+
+  document.getElementById('admNewForm').style.display = '';
+  document.getElementById('admNewSuccess').style.display = 'none';
+
+  const msg = document.getElementById('admNewMsg');
+  if (msg) msg.style.display = 'none';
+
+  const btn = document.getElementById('admNewConfirm');
+  if (btn) {
+    btn.disabled = false;
+    btn.textContent = 'Confirmar Reserva';
+  }
+
+  const cancelBtn = document.getElementById('admNewCancelBtn');
+  if (cancelBtn) cancelBtn.disabled = false;
+
+  document.getElementById('admNewModal').classList.add('open');
+}
 
     function closeAdmNew() {
-      document.getElementById('admNewModal').classList.remove('open');
-      document.querySelectorAll('#admNewForm input').forEach(i=>{i.value='';});
-      document.querySelectorAll('#admNewForm .adm-svc-item').forEach(l=>{l.classList.remove('checked');l.querySelector('input').checked=false;});
-    }
+  if (_processing) return;
+
+  document.getElementById('admNewModal').classList.remove('open');
+
+  document.querySelectorAll('#admNewForm input').forEach(i => {
+    i.value = '';
+    if (i.type === 'checkbox') i.checked = false;
+  });
+
+  document.querySelectorAll('#admNewForm .adm-svc-item').forEach(l => {
+    l.classList.remove('checked');
+  });
+}
 
     function admToggleSvc(label) {
       const cb = label.querySelector('input');
@@ -1285,54 +1363,97 @@ console.log('CLICK SLOT', {
     }
 
     async function submitAdmNew() {
-      const nombre = document.getElementById('an-nombre').value.trim();
-      const email  = document.getElementById('an-email').value.trim();
-      const proc   = document.getElementById('an-procedimiento').value.trim();
-      if (!nombre||!email||!proc) { alert('Completa los campos requeridos: Doctor, Email y Procedimiento'); return; }
+  if (_processing) return;
 
-      const btn = document.getElementById('admNewConfirm');
-      btn.disabled=true; btn.textContent='Creando…';
+  const nombre = document.getElementById('an-nombre').value.trim();
+  const email  = document.getElementById('an-email').value.trim();
+  const proc   = document.getElementById('an-procedimiento').value.trim();
 
-      const svcs = {};
-      document.querySelectorAll('#admNewForm .adm-svc-item input').forEach(cb=>{
-        svcs[cb.name.replace('an-','')]=cb.checked;
-      });
+  if (!nombre || !email || !proc) {
+    alert('Completa los campos requeridos: Doctor, Email y Cirugía');
+    return;
+  }
 
-      const hh = parseInt(resSelection.slots[0].split(':')[0]);
-      const mm = parseInt(resSelection.slots[0].split(':')[1]);
-      const d  = new Date(currentDate+'T00:00:00');
-      const startUTC = new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate(),hh+6,mm));
-      const qIdx  = QUIROFANOS.indexOf(resSelection.quirofano);
-      const acct  = CAL_ACCOUNTS_ADM[qIdx];
+  _processing = true;
 
-      const url = localStorage.getItem(SCRIPT_KEY)||HARDCODED_URL;
-      try {
-        const res = await fetch(url, { method:'POST', body: JSON.stringify({
-          action:'crearReserva',
-          eventTypeId: acct.eventTypeId,
-          calKey: acct.key,
-          start: startUTC.toISOString(),
-          lengthInMinutes: resSelection.slots.length*60,
-          attendee:{ name:nombre, email:email, timeZone:'America/Merida', language:'es' },
-          bookingFieldsResponses:{ name:nombre, email:email,
-            paciente:document.getElementById('an-paciente').value.trim(),
-            procedimiento:proc,
-            anestesiologo:document.getElementById('an-anestesiologo').value.trim(),
-            enfermeria:document.getElementById('an-enfermeria').value.trim(),
-            ...svcs, location:{value:'link',optionValue:''}
-          },
-          metadata:{}
-        })});
-        const json = await res.json();
-        if (json.ok) {
-          document.getElementById('admNewForm').style.display='none';
-          document.getElementById('admNewSuccess').style.display='';
-          resSelection=null;
-          await loadData();
-        } else { alert('Error: '+(json.error||'Intente nuevamente')); }
-      } catch(e) { alert('Error de conexión'); }
-      btn.disabled=false; btn.textContent='Confirmar Reserva';
+  const btn = document.getElementById('admNewConfirm');
+  const cancelBtn = document.getElementById('admNewCancelBtn');
+  const msg = document.getElementById('admNewMsg');
+
+  btn.disabled = true;
+  btn.textContent = 'Creando...';
+
+  if (cancelBtn) cancelBtn.disabled = true;
+  if (msg) msg.style.display = 'block';
+
+  const resetNewButtons = () => {
+    _processing = false;
+    btn.disabled = false;
+    btn.textContent = 'Confirmar Reserva';
+    if (cancelBtn) cancelBtn.disabled = false;
+    if (msg) msg.style.display = 'none';
+  };
+
+  const svcs = {};
+  document.querySelectorAll('#admNewForm .adm-svc-item input').forEach(cb => {
+    svcs[cb.name.replace('an-','')] = cb.checked;
+  });
+
+  const hh = parseInt(resSelection.slots[0].split(':')[0]);
+  const mm = parseInt(resSelection.slots[0].split(':')[1]);
+  const d  = new Date(currentDate + 'T00:00:00');
+  const startUTC = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), hh + 6, mm));
+
+  const qIdx = QUIROFANOS.indexOf(resSelection.quirofano);
+  const acct = CAL_ACCOUNTS_ADM[qIdx];
+
+  const url = localStorage.getItem(SCRIPT_KEY) || HARDCODED_URL;
+
+  try {
+    const res = await fetch(url, {
+      method:'POST',
+      body: JSON.stringify({
+        action:'crearReserva',
+        eventTypeId: acct.eventTypeId,
+        calKey: acct.key,
+        start: startUTC.toISOString(),
+        lengthInMinutes: resSelection.slots.length * 30,
+        attendee:{
+          name:nombre,
+          email:email,
+          timeZone:'America/Merida',
+          language:'es'
+        },
+        bookingFieldsResponses:{
+          name:nombre,
+          email:email,
+          paciente:document.getElementById('an-paciente').value.trim(),
+          procedimiento:proc,
+          anestesiologo:document.getElementById('an-anestesiologo').value.trim(),
+          enfermeria:document.getElementById('an-enfermeria').value.trim(),
+          ...svcs,
+          location:{value:'link',optionValue:''}
+        },
+        metadata:{}
+      })
+    });
+
+    const json = await res.json();
+
+    if (json.ok) {
+      document.getElementById('admNewForm').style.display = 'none';
+      document.getElementById('admNewSuccess').style.display = '';
+      resSelection = null;
+      await loadData();
+    } else {
+      alert('Error: ' + (json.error || 'Intente nuevamente'));
     }
+  } catch(e) {
+    alert('Error de conexión');
+  }
+
+  resetNewButtons();
+}
 
     // ── EDITAR RESERVA MODAL ─────────────────────────────
     function openAdmEdit(booking) {
@@ -2101,6 +2222,12 @@ console.log('CLICK SLOT', {
       return Number.isInteger(value) ? String(value) : String(value).replace('.', '.');
     }
 
+     function formatHorasTxt(horas) {
+  const n = Number(horas) || 0;
+  const txt = Number.isInteger(n) ? String(n) : String(n);
+  return txt + ' hora' + (n === 1 ? '' : 's');
+}
+
     document.getElementById('modalOverlay').addEventListener('click', function(e) { if(e.target===this) closeSetup(); });
     init();
 
@@ -2170,42 +2297,103 @@ function doLogin() {
      
   </script>
 
-
 <!-- MODAL: NUEVA RESERVA (admin) -->
 <div class="adm-modal-overlay" id="admNewModal">
   <div class="adm-modal">
     <h2>Nueva Reserva</h2>
     <div class="sub" id="admNewSub">Complete los datos</div>
     <div class="adm-summary" id="admNewSummary"></div>
+
     <div id="admNewForm">
       <div class="adm-form-grid">
-        <div class="adm-field"><label>Nombre del Doctor *</label><input type="text" id="an-nombre" placeholder="Dr. Nombre Apellido"/></div>
-        <div class="adm-field"><label>Correo electrónico *</label><input type="email" id="an-email" placeholder="doctor@correo.com"/></div>
+        <div class="adm-field">
+          <label>Nombre del Doctor *</label>
+          <input type="text" id="an-nombre" placeholder="Dr. Nombre Apellido"/>
+        </div>
+
+        <div class="adm-field">
+          <label>Correo electrónico *</label>
+          <input type="email" id="an-email" placeholder="doctor@correo.com"/>
+        </div>
       </div>
+
       <div class="adm-form-grid">
-        <div class="adm-field"><label>Paciente</label><input type="text" id="an-paciente" placeholder="Nombre del paciente"/></div>
-        <div class="adm-field"><label>Procedimiento *</label><input type="text" id="an-procedimiento" placeholder="Ej: Artroscopía"/></div>
+        <div class="adm-field">
+          <label>Paciente</label>
+          <input type="text" id="an-paciente" placeholder="Nombre del paciente"/>
+        </div>
+
+        <div class="adm-field">
+          <label>Cirugía *</label>
+          <input type="text" id="an-procedimiento" placeholder="Ej: Artroscopía"/>
+        </div>
       </div>
+
       <div class="adm-form-grid">
-        <div class="adm-field"><label>Anestesiólogo</label><input type="text" id="an-anestesiologo" placeholder="Nombre"/></div>
-        <div class="adm-field"><label>Enfermería</label><input type="text" id="an-enfermeria" placeholder="Nombre"/></div>
+        <div class="adm-field">
+          <label>Anestesiólogo</label>
+          <input type="text" id="an-anestesiologo" placeholder="Nombre"/>
+        </div>
+
+        <div class="adm-field" style="display:none">
+          <label>Enfermería</label>
+          <input type="text" id="an-enfermeria" placeholder="Nombre"/>
+        </div>
       </div>
-      <div style="font-size:0.72rem;font-weight:600;color:var(--g600);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:0.5rem;">Servicios Adicionales</div>
+
+      <div style="font-size:0.72rem;font-weight:600;color:var(--g600);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:0.5rem;">
+        Servicios Adicionales
+      </div>
+
       <div class="adm-svc-grid">
         <label class="adm-svc-item" onclick="admToggleSvc(this)"><input type="checkbox" name="an-rayosx"> Rayos X</label>
         <label class="adm-svc-item" onclick="admToggleSvc(this)"><input type="checkbox" name="an-usg"> USG</label>
         <label class="adm-svc-item" onclick="admToggleSvc(this)"><input type="checkbox" name="an-microscopio"> Microscopio</label>
         <label class="adm-svc-item" onclick="admToggleSvc(this)"><input type="checkbox" name="an-laparoscopia"> Laparoscopia</label>
         <label class="adm-svc-item" onclick="admToggleSvc(this)"><input type="checkbox" name="an-solirrigacion"> Sol. Irrigación</label>
-        <label class="adm-svc-item" onclick="admToggleSvc(this)"><input type="checkbox" name="an-primerayudante"> Primer Ayudante</label>
+        <label class="adm-svc-item" style="display:none" onclick="admToggleSvc(this)"><input type="checkbox" name="an-primerayudante"> Primer Ayudante</label>
         <label class="adm-svc-item" onclick="admToggleSvc(this)"><input type="checkbox" name="an-instrumentista"> Instrumentista</label>
-        <label class="adm-svc-item" onclick="admToggleSvc(this)"><input type="checkbox" name="an-anestesiologoext"> Anestesiólogo Ext.</label>
+        <label class="adm-svc-item" style="display:none" onclick="admToggleSvc(this)"><input type="checkbox" name="an-anestesiologoext"> Anestesiólogo Ext.</label>
       </div>
+
+      <div
+        id="admNewMsg"
+        style="
+          display:none;
+          margin-top:12px;
+          padding:10px;
+          border-radius:8px;
+          background:#FEF3C7;
+          color:#92400E;
+          font-size:0.82rem;
+          font-weight:600;
+          text-align:center;
+        "
+      >
+        Creando reserva, por favor espera...
+      </div>
+
       <div class="adm-actions">
-        <button class="adm-btn adm-btn-ghost" onclick="closeAdmNew()">Cancelar</button>
-        <button class="adm-btn adm-btn-primary" id="admNewConfirm" onclick="submitAdmNew()">Confirmar Reserva</button>
+        <button
+          type="button"
+          class="adm-btn adm-btn-ghost"
+          id="admNewCancelBtn"
+          onclick="closeAdmNew()"
+        >
+          Cancelar
+        </button>
+
+        <button
+          type="button"
+          class="adm-btn adm-btn-primary"
+          id="admNewConfirm"
+          onclick="submitAdmNew()"
+        >
+          Confirmar Reserva
+        </button>
       </div>
     </div>
+
     <div id="admNewSuccess" style="display:none;text-align:center;padding:1.5rem 0">
       <div style="font-size:2rem;margin-bottom:0.5rem">✅</div>
       <div style="font-weight:600;color:var(--navy)">Reserva creada correctamente</div>
