@@ -419,10 +419,12 @@ button:hover {
   font-size: inherit;
 }
 
-.category-nav a:hover,
-.category-link:hover {
-  background: #5c3b2e;
-  color: white;
+@media (hover: hover) and (pointer: fine) {
+  .category-nav a:hover,
+  .category-link:hover {
+    background: #5c3b2e;
+    color: white;
+  }
 }
 
 .category-link.active {
@@ -439,8 +441,7 @@ button:hover {
 .category-link,
 .category-link:focus,
 .category-link:focus-visible,
-.category-link:active,
-.category-link:hover {
+.category-link:active {
   text-decoration: none;
   outline: none !important;
   -webkit-tap-highlight-color: transparent;
