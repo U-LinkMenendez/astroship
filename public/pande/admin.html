@@ -647,7 +647,7 @@
         document.getElementById("app")
           .style.display = "block";
 
-        cargarPedidos();
+        pintarPedidos(data.pedidos || []);
         cargarCatalogo();
 
       }else{
@@ -702,6 +702,35 @@
 
   // ── PEDIDOS ──
 
+  function pintarPedidos(pedidos){
+
+  const lista =
+    document.getElementById("pedidos-lista");
+
+  document.getElementById("badge-pedidos")
+    .textContent = pedidos.length;
+
+  if(pedidos.length === 0){
+    lista.innerHTML = `
+      <div class="empty-state">
+        <div class="icon">✅</div>
+        <p>No hay pedidos pendientes</p>
+      </div>
+    `;
+    return;
+  }
+
+  lista.innerHTML = "";
+
+  const div = document.createElement("div");
+  div.className = "pedidos-grid";
+
+  pedidos.forEach(p => {
+    div.innerHTML += renderPedido(p);
+  });
+
+  lista.appendChild(div);
+}
   async function cargarPedidos(){
 
     const lista =
@@ -725,30 +754,7 @@
       }
 
       const pedidos = data.pedidos || [];
-
-      document.getElementById("badge-pedidos")
-        .textContent = pedidos.length;
-
-      if(pedidos.length === 0){
-        lista.innerHTML = `
-          <div class="empty-state">
-            <div class="icon">✅</div>
-            <p>No hay pedidos pendientes</p>
-          </div>
-        `;
-        return;
-      }
-
-      lista.innerHTML = "";
-
-      const div = document.createElement("div");
-      div.className = "pedidos-grid";
-
-      pedidos.forEach(p => {
-        div.innerHTML += renderPedido(p);
-      });
-
-      lista.appendChild(div);
+      pintarPedidos(pedidos);
 
     }catch(err){
 
