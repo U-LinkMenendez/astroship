@@ -1534,10 +1534,24 @@ console.log('CLICK SLOT', {
       document.getElementById('ed-anestesiologo').value = booking.anestesiologo||'';
       document.getElementById('ed-enfermeria').value    = booking.enfermeria||'';
       // Fill reschedule tab
-      document.getElementById('ed-fecha').value    = booking.fecha||'';
-      document.getElementById('ed-hora').value     = booking.horaInicio||'06:00';
-      document.getElementById('ed-duracion').value = String(booking.duracion||1);
-      document.getElementById('ed-motivo').value   = '';
+      document.getElementById('ed-fecha').value = booking.fecha || '';
+document.getElementById('ed-motivo').value = '';
+
+buildEditHourOptions(
+  booking.fecha || currentDate,
+  booking.horaInicio || '06:00'
+);
+
+buildEditDurationOptions(
+  Number(booking.duracion) || 1
+);
+
+document.getElementById('ed-fecha').onchange = function() {
+  buildEditHourOptions(
+    this.value,
+    document.getElementById('ed-hora').value
+  );
+};
       showEditTab('datos');
 
       const isCancelled = (booking.estatus || '').trim() === 'Cancelado';
@@ -1863,7 +1877,7 @@ console.log('CLICK SLOT', {
       btn.disabled=true; btn.textContent='Reagendando…';
       const fecha = document.getElementById('ed-fecha').value;
       const hora  = document.getElementById('ed-hora').value;
-      const dur   = parseInt(document.getElementById('ed-duracion').value);
+      const dur = parseFloat(document.getElementById('ed-duracion').value);
       const [hh,mm] = hora.split(':').map(Number);
       const d = new Date(fecha+'T00:00:00');
       const startUTC = new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate(),hh+6,mm));
@@ -1874,7 +1888,7 @@ console.log('CLICK SLOT', {
           bookingId:      _editBooking.bookingId,
           quirofano:      _editBooking.quirofano,
           newStart:       startUTC.toISOString(),
-          lengthInMinutes: dur*60,
+          lengthInMinutes: Math.round(dur * 60),
           doctorEmail:    _editBooking.doctorEmail || '',
           doctorNombre:   _editBooking.doctor || '',
           attendee:       _editBooking.attendee,
@@ -1894,7 +1908,14 @@ console.log('CLICK SLOT', {
       if (_processing) return;
         _processing = true;
       const btn = document.getElementById('edCancelBtn');
-      btn.disabled=true; btn.textContent='Cancelando…';
+const noCancelBtn = document.getElementById('edNoCancelBtn');
+
+btn.disabled = true;
+btn.textContent = 'Cancelando…';
+
+if (noCancelBtn) {
+  noCancelBtn.disabled = true;
+}
       const url = localStorage.getItem(SCRIPT_KEY)||HARDCODED_URL;
       try {
         const res = await fetch(url, { method:'POST', body: JSON.stringify({
@@ -1913,9 +1934,68 @@ console.log('CLICK SLOT', {
         else alert('Error: '+(json.error||''));
       } catch(e) {_processing = false; alert('Error de conexión'); }
       _processing = false;
-      btn.disabled=false; btn.textContent='Confirmar Cancelación';
+      btn.disabled = false;
+btn.textContent = 'Confirmar Cancelación';
+
+if (noCancelBtn) {
+  noCancelBtn.disabled = false;
+}
     }
 
+     function buildEditHourOptions(selectedFecha, selectedHora) {
+  const select = document.getElementById('ed-hora');
+  if (!select) return;
+
+  const now = new Date();
+  const today = todayStr();
+  const nowH = now.getHours() + now.getMinutes() / 60;
+
+  select.innerHTML = '';
+
+  RES_HOURS.forEach(h => {
+    const hNum =
+      parseInt(h.split(':')[0]) +
+      parseInt(h.split(':')[1]) / 60;
+
+    const isPastToday =
+      selectedFecha === today &&
+      hNum <= nowH;
+
+    if (isPastToday && h !== selectedHora) return;
+
+    const opt = document.createElement('option');
+    opt.value = h;
+    opt.textContent = h;
+
+    select.appendChild(opt);
+  });
+
+  if (selectedHora) {
+    select.value = selectedHora;
+  }
+}
+
+function buildEditDurationOptions(selectedDuracion) {
+  const select = document.getElementById('ed-duracion');
+  if (!select) return;
+
+  const values = [
+    0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4,
+    4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8
+  ];
+
+  select.innerHTML = '';
+
+  values.forEach(v => {
+    const opt = document.createElement('option');
+    opt.value = String(v);
+    opt.textContent = formatHorasTxt(v);
+    select.appendChild(opt);
+  });
+
+  select.value = String(selectedDuracion || 1);
+}
+     
     function formatDateDisplay(ds) {
       const d = new Date(ds+'T12:00:00');
       return d.toLocaleDateString('es-MX',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
@@ -2437,34 +2517,11 @@ function doLogin() {
       <div class="adm-date-row">
         <div class="adm-field"><label>Nueva Fecha</label><input type="date" id="ed-fecha"/></div>
         <div class="adm-field"><label>Nueva Hora inicio</label>
-          <select id="ed-hora">
-             <option value="04:00">04:00</option>
-             <option value="05:00">05:00</option>
-             <option value="06:00">06:00</option>
-             <option value="07:00">07:00</option>
-             <option value="08:00">08:00</option>
-             <option value="09:00">09:00</option>
-             <option value="10:00">10:00</option>
-             <option value="11:00">11:00</option>
-             <option value="12:00">12:00</option>
-             <option value="13:00">13:00</option>
-             <option value="14:00">14:00</option>
-             <option value="15:00">15:00</option>
-             <option value="16:00">16:00</option>
-             <option value="17:00">17:00</option>
-             <option value="18:00">18:00</option>
-             <option value="19:00">19:00</option>
-             <option value="20:00">20:00</option>
-          </select>
+          <select id="ed-hora"></select>
         </div>
       </div>
       <div class="adm-field" style="margin-bottom:0.75rem"><label>Duración</label>
-        <select id="ed-duracion">
-          <option value="1">1 hora</option><option value="2">2 horas</option>
-          <option value="3">3 horas</option><option value="4">4 horas</option>
-          <option value="5">5 horas</option><option value="6">6 horas</option>
-          <option value="7">7 horas</option><option value="8">8 horas</option>
-        </select>
+        <select id="ed-duracion"></select>
       </div>
       <div style="font-size:0.78rem;color:var(--amber);background:var(--amber-bg);border-radius:6px;padding:0.5rem 0.75rem;margin-bottom:1rem;">
         ⚠ Esta acción cancela la reserva actual en Cal.com y crea una nueva. Se notificará al doctor por correo.
@@ -2485,7 +2542,14 @@ function doLogin() {
         <div class="adm-field"><label>Motivo (opcional)</label><input type="text" id="ed-motivo" placeholder="Ej: Solicitud del doctor"/></div>
       </div>
       <div class="adm-actions">
-        <button class="adm-btn adm-btn-ghost" onclick="closeAdmEdit()">No cancelar</button>
+        <button
+  type="button"
+  class="adm-btn adm-btn-ghost"
+  id="edNoCancelBtn"
+  onclick="closeAdmEdit()"
+>
+  No cancelar
+</button>
         <button class="adm-btn adm-btn-danger" id="edCancelBtn" onclick="submitCancelReserva()">Confirmar Cancelación</button>
       </div>
     </div>
