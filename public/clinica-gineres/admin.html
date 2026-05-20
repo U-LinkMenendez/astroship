@@ -1477,18 +1477,13 @@ console.log('CLICK SLOT', {
   </div>
 
   <div class="adm-sum-row">
-    <span class="adm-sum-lbl">Procedimiento</span>
+    <span class="adm-sum-lbl">Cirugía</span>
     <span class="adm-sum-val">${escHtml(booking.procedimiento || '—')}</span>
   </div>
 
   <div class="adm-sum-row">
     <span class="adm-sum-lbl">Anestesiólogo</span>
     <span class="adm-sum-val">${escHtml(booking.anestesiologo || '—')}</span>
-  </div>
-
-  <div class="adm-sum-row">
-    <span class="adm-sum-lbl">1er Ayudante</span>
-    <span class="adm-sum-val">${escHtml(booking.enfermeria || '—')}</span>
   </div>
 
   <div class="adm-sum-row">
@@ -1499,11 +1494,6 @@ console.log('CLICK SLOT', {
   <div class="adm-sum-row">
     <span class="adm-sum-lbl">Estatus</span>
     <span class="adm-sum-val">${escHtml(booking.estatus || '—')}</span>
-  </div>
-
-  <div class="adm-sum-row">
-    <span class="adm-sum-lbl">Limpieza</span>
-    <span class="adm-sum-val">${escHtml(booking.limpieza || 'Pendiente')}</span>
   </div>
 
   <div class="adm-sum-row">
@@ -2522,14 +2512,27 @@ function doLogin() {
 
     <!-- Tab: Datos -->
     <div id="editTabDatos">
-      <div class="adm-form-grid">
-        <div class="adm-field"><label>Paciente</label><input type="text" id="ed-paciente"/></div>
-        <div class="adm-field"><label>Procedimiento</label><input type="text" id="ed-procedimiento"/></div>
-      </div>
-      <div class="adm-form-grid">
-  <div class="adm-field"><label>Anestesiólogo</label><input type="text" id="ed-anestesiologo"/></div>
-  <div class="adm-field" style="display:none"><label>Enfermería</label><input type="text" id="ed-enfermeria"/></div>
-</div>
+  <div class="adm-form-grid single" style="grid-template-columns:1fr;">
+    <div class="adm-field">
+      <label>Paciente</label>
+      <input type="text" id="ed-paciente"/>
+    </div>
+
+    <div class="adm-field">
+      <label>Cirugía</label>
+      <input type="text" id="ed-procedimiento"/>
+    </div>
+
+    <div class="adm-field">
+      <label>Anestesiólogo</label>
+      <input type="text" id="ed-anestesiologo"/>
+    </div>
+
+    <div class="adm-field" style="display:none">
+      <label>Enfermería</label>
+      <input type="text" id="ed-enfermeria"/>
+    </div>
+  </div>
       <div class="adm-actions">
         <button class="adm-btn adm-btn-ghost" onclick="closeAdmEdit()">Cancelar</button>
         <button class="adm-btn adm-btn-primary" id="edDatosBtn" onclick="submitEditDatos()">Guardar Cambios</button>
