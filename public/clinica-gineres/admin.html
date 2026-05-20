@@ -2456,7 +2456,7 @@ function doLogin() {
         <label class="adm-svc-item" onclick="admToggleSvc(this)"><input type="checkbox" name="an-laparoscopia"> Laparoscopia</label>
         <label class="adm-svc-item" onclick="admToggleSvc(this)"><input type="checkbox" name="an-solirrigacion"> Sol. Irrigación</label>
         <label class="adm-svc-item" style="display:none" onclick="admToggleSvc(this)"><input type="checkbox" name="an-primerayudante"> Primer Ayudante</label>
-        <label class="adm-svc-item" onclick="admToggleSvc(this)"><input type="checkbox" name="an-instrumentista"> Instrumentista</label>
+        <label class="adm-svc-item" style="display:none" onclick="admToggleSvc(this)"><input type="checkbox" name="an-instrumentista"> Instrumentista</label>
         <label class="adm-svc-item" style="display:none" onclick="admToggleSvc(this)"><input type="checkbox" name="an-anestesiologoext"> Anestesiólogo Ext.</label>
       </div>
 
@@ -2527,9 +2527,9 @@ function doLogin() {
         <div class="adm-field"><label>Procedimiento</label><input type="text" id="ed-procedimiento"/></div>
       </div>
       <div class="adm-form-grid">
-        <div class="adm-field"><label>Anestesiólogo</label><input type="text" id="ed-anestesiologo"/></div>
-        <div class="adm-field"><label>Enfermería</label><input type="text" id="ed-enfermeria"/></div>
-      </div>
+  <div class="adm-field"><label>Anestesiólogo</label><input type="text" id="ed-anestesiologo"/></div>
+  <div class="adm-field" style="display:none"><label>Enfermería</label><input type="text" id="ed-enfermeria"/></div>
+</div>
       <div class="adm-actions">
         <button class="adm-btn adm-btn-ghost" onclick="closeAdmEdit()">Cancelar</button>
         <button class="adm-btn adm-btn-primary" id="edDatosBtn" onclick="submitEditDatos()">Guardar Cambios</button>
