@@ -41,16 +41,41 @@ overlay.addEventListener("click",()=>{
 });
 
 async function cargarCatalogo(){
+
+  const cache =
+    localStorage.getItem("pande_catalogo_cache");
+
+  if(cache){
+    try{
+      productos = JSON.parse(cache);
+      render();
+    }catch(_){}
+  }
+
   try{
     const res = await fetch(
       `${SCRIPT_URL}?action=getCatalogoPublico&key=${FRONTEND_KEY}`
     );
+
     const data = await res.json();
-    productos = data.productos;
-    render();
+
+    if(data.productos){
+      productos = data.productos;
+
+      localStorage.setItem(
+        "pande_catalogo_cache",
+        JSON.stringify(productos)
+      );
+
+      render();
+    }
+
   }catch(err){
     console.error(err);
-    alert("Error cargando catálogo");
+
+    if(!productos.length){
+      alert("Error cargando catálogo");
+    }
   }
 }
 
@@ -121,10 +146,14 @@ function render(){
 
       grid.innerHTML += `
         <div class="card">
-          <img src="${
-            p.img_url ||
-            'https://images.unsplash.com/photo-1551024601-bec78aea704b?q=80&w=1200&auto=format&fit=crop'
-          }">
+          <img
+            src="${
+              p.img_url ||
+              'https://images.unsplash.com/photo-1551024601-bec78aea704b?q=80&w=800&auto=format&fit=crop'
+            }"
+            loading="lazy"
+              decoding="async"
+            >
           <div class="info">
             <div class="nombre">${p.nombre}</div>
             <div class="desc">${p.descripcion || ''}</div>
@@ -382,44 +411,65 @@ document.addEventListener("click",(e)=>{
   const section =
     document.getElementById(target);
 
-  if(section){
-    section.scrollIntoView({
-      behavior: "smooth",
-      block: "start"
-    });
-  }
+ if(section){
+  section.scrollIntoView({
+    behavior: "auto",
+    block: "start"
+  });
+}
 
 });
 
+let categoriaActiva = "";
+let scrollPendiente = false;
+
 window.addEventListener("scroll",()=>{
 
-  const sections =
-    document.querySelectorAll(".categoria-section");
+  if(scrollPendiente) return;
 
-  const links =
-    document.querySelectorAll(".category-link");
+  scrollPendiente = true;
 
-  let current = "";
+  requestAnimationFrame(()=>{
 
-  sections.forEach(section=>{
-    const top = section.offsetTop - 180;
-    if(scrollY >= top){
-      current = section.id;
-    }
-  });
+    const sections =
+      document.querySelectorAll(".categoria-section");
 
-  links.forEach(link=>{
-    link.classList.remove("active");
-    const target =
-      link.getAttribute("data-target");
-    if(target === current){
-      link.classList.add("active");
-      link.scrollIntoView({
-        behavior: "smooth",
-        inline: "center",
-        block: "nearest"
+    const links =
+      document.querySelectorAll(".category-link");
+
+    let current = "";
+
+    sections.forEach(section=>{
+      const top = section.offsetTop - 180;
+      if(scrollY >= top){
+        current = section.id;
+      }
+    });
+
+    if(current && current !== categoriaActiva){
+
+      categoriaActiva = current;
+
+      links.forEach(link=>{
+        link.classList.remove("active");
+
+        const target =
+          link.getAttribute("data-target");
+
+        if(target === current){
+          link.classList.add("active");
+          link.scrollIntoView({
+            behavior: "auto",
+            inline: "center",
+            block: "nearest"
+          });
+        }
       });
+
     }
+
+    scrollPendiente = false;
+
   });
 
 });
