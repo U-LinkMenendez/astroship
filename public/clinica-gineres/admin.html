@@ -1640,38 +1640,46 @@ document.getElementById('ed-fecha').onchange = function() {
   document.getElementById('blkFecha').value = currentDate;
   document.getElementById('blkMotivo').value = '';
 
+  renderBlockHours(currentDate);
+
+  document.getElementById('blkFecha').onchange = function() {
+    renderBlockHours(this.value);
+  };
+
+  document.getElementById('blockModal')
+    .classList.add('open');
+}
+
+     function renderBlockHours(selectedDate) {
   const cont = document.getElementById('blkHoras');
   cont.innerHTML = '';
 
   const now = new Date();
-const today = todayStr();
-const nowH = now.getHours() + now.getMinutes() / 60;
+  const today = todayStr();
+  const nowH = now.getHours() + now.getMinutes() / 60;
 
-RES_HOURS.forEach(h => {
-  const hNum =
-    parseInt(h.split(':')[0]) +
-    parseInt(h.split(':')[1]) / 60;
+  RES_HOURS.forEach(h => {
+    const hNum =
+      parseInt(h.split(':')[0]) +
+      parseInt(h.split(':')[1]) / 60;
 
-  const isPastToday =
-    currentDate === today &&
-    hNum <= nowH;
+    const isPastToday =
+      selectedDate === today &&
+      hNum <= nowH;
 
-  if (isPastToday) return;
+    if (isPastToday) return;
 
-  cont.insertAdjacentHTML('beforeend', `
-    <label class="blk-hour-chip">
-      <input
-        type="checkbox"
-        value="${h}"
-        class="blk-hour"
-      >
-      ${h}
-    </label>
-  `);
-});
-
-  document.getElementById('blockModal')
-    .classList.add('open');
+    cont.insertAdjacentHTML('beforeend', `
+      <label class="blk-hour-chip">
+        <input
+          type="checkbox"
+          value="${h}"
+          class="blk-hour"
+        >
+        ${h}
+      </label>
+    `);
+  });
 }
 
      function closeBlockModal() {
