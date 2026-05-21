@@ -1,0 +1,591 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pandé — Master</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --cafe:#5c3b2e; --cafe-dark:#3d271e; --cafe-light:#8a5c47;
+      --cream:#f5f1ea; --cream2:#ede8df; --dark:#0d0d0d; --white:#fff;
+      --verde:#2e7d32; --azul:#1565c0; --naranja:#e65100;
+      --gris:#757575; --rojo:#b00020; --radius:14px;
+      --shadow:0 4px 20px rgba(0,0,0,.08);
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'DM Sans',sans-serif; background:var(--cream); color:var(--dark); min-height:100vh; }
+    #login-screen { min-height:100vh; display:flex; align-items:center; justify-content:center; background:var(--dark); }
+    .login-box { background:var(--white); border-radius:24px; padding:48px 40px; width:100%; max-width:400px; text-align:center; box-shadow:0 20px 60px rgba(0,0,0,.4); }
+    .login-box h1 { font-family:'Playfair Display',serif; font-size:36px; color:var(--cafe); margin-bottom:6px; }
+    .login-box .sub { color:var(--gris); font-size:14px; margin-bottom:32px; }
+    .login-box input { width:100%; padding:14px 18px; border:2px solid var(--cream2); border-radius:var(--radius); font-size:15px; font-family:inherit; margin-bottom:16px; text-align:center; letter-spacing:2px; }
+    .login-box input:focus { outline:none; border-color:var(--cafe); }
+    button { font-family:inherit; }
+    .login-box button, .primary-btn { width:100%; padding:14px; background:var(--cafe); color:white; border:none; border-radius:var(--radius); font-size:15px; font-weight:600; cursor:pointer; }
+    .login-error { color:var(--rojo); font-size:13px; margin-top:12px; display:none; }
+    #app { display:none; }
+    .topbar { background:var(--dark); padding:16px 24px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:100; }
+    .topbar-brand { font-family:'Playfair Display',serif; color:white; font-size:22px; }
+    .topbar-brand span { color:var(--cafe-light); font-size:13px; font-family:'DM Sans',sans-serif; margin-left:8px; font-weight:400; }
+    .topbar-right { display:flex; align-items:center; gap:16px; }
+    .refresh-btn { background:rgba(255,255,255,.1); color:white; border:none; padding:8px 16px; border-radius:999px; font-size:13px; cursor:pointer; }
+    .logout-btn { background:none; color:rgba(255,255,255,.5); border:none; font-size:13px; cursor:pointer; }
+    .tabs { display:flex; gap:0; background:var(--white); border-bottom:2px solid var(--cream2); padding:0 24px; overflow-x:auto; }
+    .tab { padding:16px 24px; font-size:14px; font-weight:600; color:var(--gris); cursor:pointer; border-bottom:3px solid transparent; margin-bottom:-2px; background:none; border-top:none; border-left:none; border-right:none; white-space:nowrap; }
+    .tab.active { color:var(--cafe); border-bottom-color:var(--cafe); }
+    .content { padding:24px; max-width:1150px; margin:0 auto; }
+    .tab-panel { display:none; }
+    .tab-panel.active { display:block; }
+    .section-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; gap:12px; flex-wrap:wrap; }
+    .section-title { font-family:'Playfair Display',serif; font-size:26px; color:var(--cafe); }
+    .badge-count { background:var(--cafe); color:white; font-size:12px; font-weight:700; padding:4px 10px; border-radius:999px; margin-left:10px; }
+    .pedidos-grid { display:flex; flex-direction:column; gap:16px; }
+    .pedido-card { background:var(--white); border-radius:var(--radius); padding:20px 24px; box-shadow:var(--shadow); border-left:5px solid var(--cafe); }
+    .pedido-card.estatus-Nuevo { border-left-color:var(--azul); }
+    .pedido-card.estatus-Confirmado { border-left-color:var(--naranja); }
+    .pedido-card.estatus-Listo { border-left-color:var(--verde); }
+    .pedido-top { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+    .pedido-id { font-size:12px; color:var(--gris); font-weight:500; margin-bottom:4px; }
+    .pedido-cliente { font-size:18px; font-weight:700; color:var(--cafe-dark); }
+    .pedido-meta { font-size:13px; color:var(--gris); margin-top:2px; }
+    .pedido-total { font-size:22px; font-weight:700; color:var(--cafe); white-space:nowrap; }
+    .pedido-productos { margin-top:12px; padding:12px 14px; background:var(--cream); border-radius:10px; font-size:14px; line-height:1.7; color:var(--cafe-dark); }
+    .pedido-actions { margin-top:16px; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+    .estatus-badge { padding:5px 12px; border-radius:999px; font-size:12px; font-weight:700; letter-spacing:.5px; }
+    .badge-Nuevo { background:#e3f0ff; color:var(--azul); }
+    .badge-Confirmado { background:#fff3e0; color:var(--naranja); }
+    .badge-Listo { background:#e8f5e9; color:var(--verde); }
+    .btn-accion { padding:8px 16px; border-radius:999px; font-size:13px; font-weight:600; cursor:pointer; border:none; }
+    .btn-pago { background:#e8f5e9; color:var(--verde); }
+    .btn-entregar { background:#f5f5f5; color:var(--gris); }
+    .btn-cancelar { background:#fce4e8; color:var(--rojo); }
+    .catalogo-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:14px; }
+    .categoria-stock { font-family:'Playfair Display',serif; color:var(--cafe); margin:24px 0 12px; font-size:20px; }
+    .producto-card { background:var(--white); border-radius:var(--radius); padding:16px 18px; box-shadow:var(--shadow); display:flex; flex-direction:column; gap:12px; }
+    .producto-top { display:flex; justify-content:space-between; gap:12px; align-items:flex-start; }
+    .producto-nombre { font-size:15px; font-weight:700; color:var(--cafe-dark); margin-bottom:4px; }
+    .producto-meta { font-size:12px; color:var(--gris); }
+    .producto-precio { font-weight:700; color:var(--cafe); }
+    .producto-actions { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+    .small-btn { border:none; border-radius:999px; padding:8px 13px; font-size:12px; font-weight:700; cursor:pointer; }
+    .edit-btn { background:#fff3e0; color:var(--naranja); }
+    .toggle-wrap { display:flex; flex-direction:column; align-items:center; gap:4px; flex-shrink:0; }
+    .toggle { position:relative; width:44px; height:24px; }
+    .toggle input { opacity:0; width:0; height:0; }
+    .toggle-slider { position:absolute; inset:0; background:#ccc; border-radius:999px; cursor:pointer; transition:.3s; }
+    .toggle-slider:before { content:""; position:absolute; width:18px; height:18px; left:3px; bottom:3px; background:white; border-radius:50%; transition:.3s; }
+    .toggle input:checked + .toggle-slider { background:var(--verde); }
+    .toggle input:checked + .toggle-slider:before { transform:translateX(20px); }
+    .toggle-label { font-size:10px; font-weight:700; color:var(--gris); }
+    .form-card { background:var(--white); border-radius:var(--radius); padding:20px; box-shadow:var(--shadow); margin-bottom:22px; }
+    .form-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+    .field { display:flex; flex-direction:column; gap:6px; }
+    .field.full { grid-column:1 / -1; }
+    .field label { font-size:12px; font-weight:700; color:var(--cafe-dark); }
+    .field input, .field select, .field textarea { width:100%; padding:11px 12px; border:1px solid var(--cream2); border-radius:10px; font-family:inherit; font-size:14px; background:white; }
+    .field textarea { min-height:80px; resize:vertical; }
+    .check-row { display:flex; align-items:center; gap:8px; font-size:13px; color:var(--cafe-dark); }
+    .empty-state, .loading { text-align:center; padding:60px 20px; color:var(--gris); }
+    .toast { position:fixed; bottom:24px; right:24px; background:var(--cafe-dark); color:white; padding:14px 20px; border-radius:var(--radius); font-size:14px; font-weight:500; box-shadow:0 8px 24px rgba(0,0,0,.2); opacity:0; transform:translateY(10px); transition:.3s; z-index:9999; pointer-events:none; }
+    .toast.show { opacity:1; transform:translateY(0); }
+    @media (max-width:700px) {
+      .content { padding:16px; }
+      .login-box { padding:36px 24px; }
+      .topbar { padding:14px 16px; }
+      .tabs { padding:0 16px; }
+      .tab { padding:14px 16px; font-size:13px; }
+      .pedido-card { padding:16px; }
+      .form-grid { grid-template-columns:1fr; }
+      .catalogo-grid { grid-template-columns:1fr; }
+    }
+  </style>
+</head>
+<body>
+<div id="login-screen">
+  <div class="login-box">
+    <h1>Pandé</h1>
+    <div class="sub">Panel Master</div>
+    <input type="password" id="token-input" placeholder="Token Master" autocomplete="off" />
+    <button onclick="iniciarSesion()">Entrar</button>
+    <div class="login-error" id="login-error">Token incorrecto</div>
+  </div>
+</div>
+<div id="app">
+  <div class="topbar">
+    <div class="topbar-brand">Pandé <span>Master</span></div>
+    <div class="topbar-right">
+      <button class="refresh-btn" onclick="recargarTodo()">Actualizar</button>
+      <button class="logout-btn" onclick="cerrarSesion()">Salir</button>
+    </div>
+  </div>
+  <div class="tabs">
+    <button class="tab active" onclick="cambiarTab('pedidos')" id="tab-pedidos">
+      Pedidos <span class="badge-count" id="badge-pedidos">0</span>
+    </button>
+    <button class="tab" onclick="cambiarTab('catalogo')" id="tab-catalogo">Catálogo</button>
+    <button class="tab" onclick="cambiarTab('nuevo')" id="tab-nuevo">Nuevo producto</button>
+  </div>
+  <div class="content">
+    <div class="tab-panel active" id="panel-pedidos">
+      <div class="section-header"><div class="section-title">Pedidos activos</div></div>
+      <div id="pedidos-lista"><div class="loading">Cargando pedidos...</div></div>
+    </div>
+    <div class="tab-panel" id="panel-catalogo">
+      <div class="section-header"><div class="section-title">Editar catálogo</div></div>
+      <div id="catalogo-lista"><div class="loading">Cargando catálogo...</div></div>
+    </div>
+    <div class="tab-panel" id="panel-nuevo">
+      <div class="section-header"><div class="section-title">Nuevo producto</div></div>
+      <div class="form-card">
+        <div class="form-grid">
+          <div class="field"><label>ID</label><input id="nuevo-id" placeholder="M03" /></div>
+          <div class="field"><label>Nombre</label><input id="nuevo-nombre" placeholder="Muffin..." /></div>
+          <div class="field">
+            <label>Categoría</label>
+            <select id="nuevo-categoria">
+              <option value="Muffin">Muffin</option>
+              <option value="Pan">Pan</option>
+              <option value="Temporada">Temporada</option>
+              <option value="Rebanada">Rebanada</option>
+              <option value="PedEsp">PedEsp</option>
+            </select>
+          </div>
+          <div class="field"><label>Línea</label><input id="nuevo-linea" placeholder="Keto" /></div>
+          <div class="field"><label>Precio</label><input id="nuevo-precio" type="number" min="0" step="1" /></div>
+          <div class="field"><label>Imagen URL</label><input id="nuevo-img" placeholder="https://..." /></div>
+          <div class="field full"><label>Descripción</label><textarea id="nuevo-desc"></textarea></div>
+          <label class="check-row"><input id="nuevo-disponible" type="checkbox" checked /> Disponible</label>
+          <label class="check-row"><input id="nuevo-delivery" type="checkbox" checked /> Delivery OK</label>
+          <label class="check-row"><input id="nuevo-especial" type="checkbox" /> Pedido especial</label>
+          <div class="field full"><button class="primary-btn" onclick="crearProducto()">Crear producto</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+  const SCRIPT_URL =
+    "https://script.google.com/macros/s/AKfycbwGxnv1CbQvLTF9fnQwa3kg6aICwHLWM4n05kGT6x5P7Osjt16-BIe2_AXZ0L-5MmR0/exec";
+
+  let TOKEN = "";
+  let PRODUCTOS = [];
+
+  document.getElementById("token-input")
+    .addEventListener("keydown", e => {
+      if(e.key === "Enter") iniciarSesion();
+    });
+
+  async function iniciarSesion(){
+    const input = document.getElementById("token-input");
+    TOKEN = input.value.trim();
+
+    if(!TOKEN){
+      mostrarError("Ingresa el token");
+      return;
+    }
+
+    try {
+      const res = await fetch(
+        `${SCRIPT_URL}?action=getCatalogo&token=${TOKEN}`
+      );
+      const data = await res.json();
+
+      if(data.ok){
+        sessionStorage.setItem("pande_master_token", TOKEN);
+        document.getElementById("login-screen").style.display = "none";
+        document.getElementById("app").style.display = "block";
+        pintarCatalogo(data.productos || []);
+        cargarPedidos();
+      }else{
+        mostrarError("Token Master incorrecto");
+        TOKEN = "";
+      }
+    }catch(err){
+      mostrarError("Error de conexion");
+      TOKEN = "";
+    }
+  }
+
+  function mostrarError(msg){
+    const el = document.getElementById("login-error");
+    el.textContent = msg;
+    el.style.display = "block";
+    setTimeout(() => el.style.display = "none", 3000);
+  }
+
+  function cerrarSesion(){
+    sessionStorage.removeItem("pande_master_token");
+    TOKEN = "";
+    document.getElementById("login-screen").style.display = "flex";
+    document.getElementById("app").style.display = "none";
+    document.getElementById("token-input").value = "";
+  }
+
+  function cambiarTab(tab){
+    document.querySelectorAll(".tab")
+      .forEach(t => t.classList.remove("active"));
+    document.querySelectorAll(".tab-panel")
+      .forEach(p => p.classList.remove("active"));
+    document.getElementById(`tab-${tab}`).classList.add("active");
+    document.getElementById(`panel-${tab}`).classList.add("active");
+  }
+
+  async function cargarPedidos(){
+    const lista = document.getElementById("pedidos-lista");
+    lista.innerHTML = '<div class="loading">Cargando pedidos...</div>';
+
+    try{
+      const res = await fetch(
+        `${SCRIPT_URL}?action=getPedidosPendientes&token=${TOKEN}`
+      );
+      const data = await res.json();
+
+      if(!data.ok){
+        lista.innerHTML =
+          '<div class="empty-state"><p>Error cargando pedidos</p></div>';
+        return;
+      }
+
+      pintarPedidos(data.pedidos || []);
+    }catch(err){
+      lista.innerHTML =
+        '<div class="empty-state"><p>Error de conexion</p></div>';
+    }
+  }
+
+  function pintarPedidos(pedidos){
+    const lista = document.getElementById("pedidos-lista");
+    document.getElementById("badge-pedidos").textContent = pedidos.length;
+
+    if(pedidos.length === 0){
+      lista.innerHTML = '<div class="empty-state"><p>No hay pedidos activos</p></div>';
+      return;
+    }
+
+    let html = '<div class="pedidos-grid">';
+    pedidos.forEach(p => html += renderPedido(p));
+    html += '</div>';
+    lista.innerHTML = html;
+  }
+
+  function renderPedido(p){
+    const estatus = p.estatus_pedido || "Nuevo";
+    const metodoPago = p.metodo_pago || "";
+    const estatusPago = p.estatus_pago || "Pendiente";
+    const esTransferencia = metodoPago.toLowerCase().includes("transfer");
+    const pagoPendiente = esTransferencia && estatusPago !== "Pagado";
+    const fecha = p.fecha_pedido
+      ? new Date(p.fecha_pedido).toLocaleString("es-MX", {
+          day:"numeric", month:"short", hour:"2-digit", minute:"2-digit"
+        })
+      : "";
+    const btnPago = pagoPendiente
+      ? `<button class="btn-accion btn-pago" onclick="aprobarPago('${p.id_pedido}')">Aprobar pago</button>`
+      : "";
+    const btnEntregar = estatus === "Listo"
+      ? `<button class="btn-accion btn-entregar" onclick="entregarPedido('${p.id_pedido}')">Marcar entregado</button>`
+      : "";
+
+    return `
+      <div class="pedido-card estatus-${estatus}">
+        <div class="pedido-top">
+          <div>
+            <div class="pedido-id">${p.id_pedido} · ${fecha}</div>
+            <div class="pedido-cliente">${p.nombre_cliente || "—"}</div>
+            <div class="pedido-meta">
+              ${p.sucursal || ""} · Pago: ${metodoPago || "—"} · ${estatusPago}
+            </div>
+          </div>
+          <div class="pedido-total">$${p.total || 0}</div>
+        </div>
+        <div class="pedido-productos">${p.productos || "—"}</div>
+        <div class="pedido-actions">
+          <span class="estatus-badge badge-${estatus}">${estatus}</span>
+          ${btnPago}
+          ${btnEntregar}
+          <button class="btn-accion btn-cancelar" onclick="cancelarPedido('${p.id_pedido}')">Cancelar</button>
+        </div>
+      </div>
+    `;
+  }
+
+  async function aprobarPago(idPedido){
+    try{
+      const res = await fetch(SCRIPT_URL, {
+        method: "POST",
+        body: JSON.stringify({
+          action: "aprobarPago",
+          token: TOKEN,
+          id_pedido: idPedido
+        })
+      });
+      const data = await res.json();
+      if(data.ok){
+        toast("Pago aprobado");
+        cargarPedidos();
+      }else{
+        toast("Error al aprobar pago");
+      }
+    }catch(err){
+      toast("Error de conexion");
+    }
+  }
+
+  async function entregarPedido(idPedido){
+    await actualizarEstatus(idPedido, "Entregado", "Pedido entregado");
+  }
+
+  async function cancelarPedido(idPedido){
+    if(!confirm(`Cancelar pedido ${idPedido}?`)) return;
+    await actualizarEstatus(idPedido, "Cancelado", "Pedido cancelado");
+  }
+
+  async function actualizarEstatus(idPedido, estatus, mensaje){
+    try{
+      const res = await fetch(SCRIPT_URL, {
+        method: "POST",
+        body: JSON.stringify({
+          action: "actualizarEstatus",
+          token: TOKEN,
+          id_pedido: idPedido,
+          estatus_pedido: estatus
+        })
+      });
+      const data = await res.json();
+      if(data.ok){
+        toast(mensaje);
+        cargarPedidos();
+      }else{
+        toast("Error al actualizar");
+      }
+    }catch(err){
+      toast("Error de conexion");
+    }
+  }
+
+  async function cargarCatalogo(){
+    const lista = document.getElementById("catalogo-lista");
+    lista.innerHTML = '<div class="loading">Cargando catálogo...</div>';
+
+    try{
+      const res = await fetch(
+        `${SCRIPT_URL}?action=getCatalogo&token=${TOKEN}`
+      );
+      const data = await res.json();
+
+      if(!data.ok){
+        lista.innerHTML =
+          '<div class="empty-state"><p>Error cargando catálogo</p></div>';
+        return;
+      }
+
+      pintarCatalogo(data.productos || []);
+    }catch(err){
+      lista.innerHTML =
+        '<div class="empty-state"><p>Error de conexion</p></div>';
+    }
+  }
+
+  function pintarCatalogo(productos){
+    PRODUCTOS = productos;
+    const lista = document.getElementById("catalogo-lista");
+
+    if(productos.length === 0){
+      lista.innerHTML =
+        '<div class="empty-state"><p>Sin productos</p></div>';
+      return;
+    }
+
+    const grupos = {};
+    productos.forEach(p => {
+      const cat = p.categoria || "Otros";
+      if(!grupos[cat]) grupos[cat] = [];
+      grupos[cat].push(p);
+    });
+
+    let html = "";
+    Object.keys(grupos).forEach(cat => {
+      html += `<h3 class="categoria-stock">${cat}</h3>`;
+      html += '<div class="catalogo-grid">';
+      grupos[cat].forEach(p => html += renderProducto(p));
+      html += "</div>";
+    });
+
+    lista.innerHTML = html;
+  }
+
+  function renderProducto(p){
+    return `
+      <div class="producto-card" id="producto-${p.id}">
+        <div class="producto-top">
+          <div>
+            <div class="producto-nombre">${p.nombre}</div>
+            <div class="producto-meta">
+              ${p.id} · ${p.linea || ""} ·
+              <span class="producto-precio">$${p.precio}</span>
+            </div>
+          </div>
+          <div class="toggle-wrap">
+            <label class="toggle">
+              <input
+                type="checkbox"
+                ${p.disponible ? "checked" : ""}
+                onchange="toggleDisponible('${p.id}', this.checked, this)"
+              />
+              <span class="toggle-slider"></span>
+            </label>
+            <span class="toggle-label">${p.disponible ? "ACTIVO" : "OFF"}</span>
+          </div>
+        </div>
+        <div class="producto-actions">
+          <button class="small-btn edit-btn" onclick="editarProducto('${p.id}')">Editar</button>
+        </div>
+      </div>
+    `;
+  }
+
+  async function toggleDisponible(idProducto, disponible, input){
+    const label = input.closest(".toggle-wrap").querySelector(".toggle-label");
+    input.disabled = true;
+    try{
+      const res = await fetch(SCRIPT_URL, {
+        method: "POST",
+        body: JSON.stringify({
+          action: "updateDisponible",
+          token: TOKEN,
+          id_producto: idProducto,
+          disponible
+        })
+      });
+      const data = await res.json();
+      if(data.ok){
+        label.textContent = disponible ? "ACTIVO" : "OFF";
+        toast(disponible ? "Producto activado" : "Producto desactivado");
+      }else{
+        input.checked = !disponible;
+        toast("Error al actualizar");
+      }
+    }catch(err){
+      input.checked = !disponible;
+      toast("Error de conexion");
+    }
+    input.disabled = false;
+  }
+
+  async function editarProducto(idProducto){
+    const p = PRODUCTOS.find(item => item.id === idProducto);
+    if(!p) return;
+
+    const nombre = prompt("Nombre del producto:", p.nombre || "");
+    if(nombre === null) return;
+
+    const precio = prompt("Precio:", p.precio || "");
+    if(precio === null) return;
+
+    const descripcion = prompt("Descripción:", p.descripcion || "");
+    if(descripcion === null) return;
+
+    try{
+      const res = await fetch(SCRIPT_URL, {
+        method: "POST",
+        body: JSON.stringify({
+          action: "updateProducto",
+          token: TOKEN,
+          id_producto: idProducto,
+          nombre: nombre.trim(),
+          precio,
+          descripcion: descripcion.trim()
+        })
+      });
+      const data = await res.json();
+
+      if(data.ok){
+        toast("Producto actualizado");
+        cargarCatalogo();
+      }else{
+        toast(data.error || "Error al actualizar");
+      }
+    }catch(err){
+      toast("Error de conexion");
+    }
+  }
+
+  async function crearProducto(){
+    const payload = {
+      action: "crearProducto",
+      token: TOKEN,
+      id_producto: document.getElementById("nuevo-id").value.trim(),
+      nombre: document.getElementById("nuevo-nombre").value.trim(),
+      categoria: document.getElementById("nuevo-categoria").value,
+      linea: document.getElementById("nuevo-linea").value.trim(),
+      precio: document.getElementById("nuevo-precio").value,
+      img_url: document.getElementById("nuevo-img").value.trim(),
+      descripcion: document.getElementById("nuevo-desc").value.trim(),
+      disponible: document.getElementById("nuevo-disponible").checked,
+      delivery_ok: document.getElementById("nuevo-delivery").checked,
+      pedido_especial: document.getElementById("nuevo-especial").checked
+    };
+
+    if(!payload.id_producto || !payload.nombre || !payload.categoria){
+      toast("Completa ID, nombre y categoría");
+      return;
+    }
+
+    try{
+      const res = await fetch(SCRIPT_URL, {
+        method: "POST",
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+
+      if(data.ok){
+        toast("Producto creado");
+        limpiarNuevoProducto();
+        cargarCatalogo();
+        cambiarTab("catalogo");
+      }else{
+        toast(data.error || "Error al crear producto");
+      }
+    }catch(err){
+      toast("Error de conexion");
+    }
+  }
+
+  function limpiarNuevoProducto(){
+    ["nuevo-id","nuevo-nombre","nuevo-linea","nuevo-precio","nuevo-img","nuevo-desc"]
+      .forEach(id => document.getElementById(id).value = "");
+    document.getElementById("nuevo-categoria").value = "Muffin";
+    document.getElementById("nuevo-disponible").checked = true;
+    document.getElementById("nuevo-delivery").checked = true;
+    document.getElementById("nuevo-especial").checked = false;
+  }
+
+  function recargarTodo(){
+    cargarPedidos();
+    cargarCatalogo();
+    toast("Actualizado");
+  }
+
+  function toast(msg){
+    const el = document.getElementById("toast");
+    el.textContent = msg;
+    el.classList.add("show");
+    setTimeout(() => el.classList.remove("show"), 2500);
+  }
+
+  setInterval(() => {
+    if(TOKEN) cargarPedidos();
+  }, 60000);
+
+  const savedToken = sessionStorage.getItem("pande_master_token");
+  if(savedToken){
+    TOKEN = savedToken;
+    document.getElementById("token-input").value = savedToken;
+    iniciarSesion();
+  }
+</script>
+</body>
+</html>
