@@ -1155,7 +1155,7 @@ ${[
   o.booking.rayosx ? '📡 RX' : '',
   o.booking.neuro ? '🧠 Neuro' : '',
   o.booking.ultrasonido ? '🧪 USG' : '',
-  o.booking.solIrrigacion ? '💧 Sol. Irrigación' : '',
+  o.booking.solirrigacion ? '💧 Sol. Irrigación' : '',
   o.booking.arcoenC ? '🩻 Arco C' : '',
   o.booking.laparoscopia ? '⚕️ Laparoscopía' : ''
 ].filter(Boolean).length ? `
@@ -1172,7 +1172,7 @@ ${[
   o.booking.rayosx ? '📡 RX' : '',
   o.booking.neuro ? '🧠 Neuro' : '',
   o.booking.ultrasonido ? '🧪 USG' : '',
-  o.booking.solIrrigacion ? '💧 Sol. Irrigación' : '',
+  o.booking.solirrigacion ? '💧 Sol. Irrigación' : '',
   o.booking.arcoenC ? '🩻 Arco C' : '',
   o.booking.laparoscopia ? '⚕️ Laparoscopía' : ''
 ]
@@ -1508,7 +1508,7 @@ console.log('CLICK SLOT', {
         booking.laparoscopia ? 'Laparoscopía' : '',
         booking.rayosx ? 'Rayos X' : '',
         booking.ultrasonido ? 'Ultrasonido' : '',
-        booking.solIrrigacion ? 'Sol. Irrigación' : '',
+        booking.solirrigacion ? 'Sol. Irrigación' : '',
         booking.neuro ? 'Neuro' : '',
         booking.microscopio ? 'Microscopio' : '',
         booking.anestesiologoext ? 'Anest. Ext.' : '',
@@ -2186,6 +2186,7 @@ function buildEditDurationOptions(selectedDuracion) {
         if (r.laparoscopia)      serviciosActivos.push('Laparoscopía');
         if (r.rayosx)            serviciosActivos.push('Rayos X');
         if (r.ultrasonido)       serviciosActivos.push('Ultrasonido');
+        if (r.solirrigacion)     serviciosActivos.push('Sol. Irrigación');
         if (r.neuro)             serviciosActivos.push('Neuro');
         if (r.microscopio)       serviciosActivos.push('Microscopio');
         if (r.anestesiologoext)  serviciosActivos.push('Anest. Ext.');
