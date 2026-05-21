@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pandé — Admin</title>
+  <title>Pandé — Empleadas</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
   <style>
     :root {
@@ -33,7 +33,6 @@
       min-height: 100vh;
     }
 
-    /* ── LOGIN ── */
     #login-screen {
       min-height: 100vh;
       display: flex;
@@ -106,7 +105,6 @@
       display: none;
     }
 
-    /* ── LAYOUT ── */
     #app { display: none; }
 
     .topbar {
@@ -165,7 +163,6 @@
 
     .logout-btn:hover { color: white; }
 
-    /* ── TABS ── */
     .tabs {
       display: flex;
       gap: 0;
@@ -178,11 +175,10 @@
       padding: 16px 24px;
       font-size: 14px;
       font-weight: 600;
-      color: var(--gris);
-      cursor: pointer;
-      border-bottom: 3px solid transparent;
+      color: var(--cafe);
+      cursor: default;
+      border-bottom: 3px solid var(--cafe);
       margin-bottom: -2px;
-      transition: .2s;
       background: none;
       border-top: none;
       border-left: none;
@@ -190,24 +186,12 @@
       font-family: inherit;
     }
 
-    .tab:hover { color: var(--cafe); }
-
-    .tab.active {
-      color: var(--cafe);
-      border-bottom-color: var(--cafe);
-    }
-
-    /* ── CONTENT ── */
     .content {
       padding: 24px;
       max-width: 1100px;
       margin: 0 auto;
     }
 
-    .tab-panel { display: none; }
-    .tab-panel.active { display: block; }
-
-    /* ── SECCIÓN HEADER ── */
     .section-header {
       display: flex;
       align-items: center;
@@ -231,7 +215,6 @@
       margin-left: 10px;
     }
 
-    /* ── PEDIDO CARD ── */
     .pedidos-grid {
       display: flex;
       flex-direction: column;
@@ -248,7 +231,6 @@
 
     .pedido-card.estatus-Nuevo       { border-left-color: var(--azul); }
     .pedido-card.estatus-Confirmado  { border-left-color: var(--naranja); }
-    .pedido-card.estatus-En_Prep     { border-left-color: var(--amarillo); }
     .pedido-card.estatus-Listo       { border-left-color: var(--verde); }
 
     .pedido-top {
@@ -295,6 +277,26 @@
       color: var(--cafe-dark);
     }
 
+    .pago-alerta {
+      margin-top: 12px;
+      padding: 10px 12px;
+      background: #fff8e1;
+      color: #8a5c00;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .pago-ok {
+      margin-top: 12px;
+      padding: 10px 12px;
+      background: #e8f5e9;
+      color: var(--verde);
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
     .pedido-actions {
       margin-top: 16px;
       display: flex;
@@ -313,7 +315,6 @@
 
     .badge-Nuevo      { background: #e3f0ff; color: var(--azul); }
     .badge-Confirmado { background: #fff3e0; color: var(--naranja); }
-    .badge-En_Prep    { background: #fffde7; color: #c6a000; }
     .badge-Listo      { background: #e8f5e9; color: var(--verde); }
     .badge-Entregado  { background: #f5f5f5; color: var(--gris); }
     .badge-Cancelado  { background: #fce4e8; color: var(--rojo); }
@@ -329,108 +330,15 @@
       transition: .2s;
     }
 
-    .btn-confirmar  { background: #fff3e0; color: var(--naranja); }
-    .btn-preparar   { background: #fffde7; color: #c6a000; }
+    .btn-confirmado { background: #fff3e0; color: var(--naranja); }
     .btn-listo      { background: #e8f5e9; color: var(--verde); }
-    .btn-entregar   { background: #f5f5f5; color: var(--gris); }
     .btn-cancelar   { background: #fce4e8; color: var(--rojo); }
 
-    .btn-accion:hover { opacity: .8; transform: translateY(-1px); }
-
-    /* ── CATÁLOGO ── */
-    .catalogo-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 14px;
+    .btn-accion:hover {
+      opacity: .8;
+      transform: translateY(-1px);
     }
 
-    .producto-card {
-      background: var(--white);
-      border-radius: var(--radius);
-      padding: 16px 18px;
-      box-shadow: var(--shadow);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-    }
-
-    .producto-info {}
-
-    .producto-nombre {
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--cafe-dark);
-      margin-bottom: 4px;
-    }
-
-    .producto-meta {
-      font-size: 12px;
-      color: var(--gris);
-    }
-
-    .producto-precio {
-      font-weight: 700;
-      color: var(--cafe);
-    }
-
-    /* Toggle switch */
-    .toggle-wrap {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-      flex-shrink: 0;
-    }
-
-    .toggle {
-      position: relative;
-      width: 44px;
-      height: 24px;
-    }
-
-    .toggle input {
-      opacity: 0;
-      width: 0;
-      height: 0;
-    }
-
-    .toggle-slider {
-      position: absolute;
-      inset: 0;
-      background: #ccc;
-      border-radius: 999px;
-      cursor: pointer;
-      transition: .3s;
-    }
-
-    .toggle-slider:before {
-      content: "";
-      position: absolute;
-      width: 18px;
-      height: 18px;
-      left: 3px;
-      bottom: 3px;
-      background: white;
-      border-radius: 50%;
-      transition: .3s;
-    }
-
-    .toggle input:checked + .toggle-slider {
-      background: var(--verde);
-    }
-
-    .toggle input:checked + .toggle-slider:before {
-      transform: translateX(20px);
-    }
-
-    .toggle-label {
-      font-size: 10px;
-      font-weight: 700;
-      color: var(--gris);
-    }
-
-    /* ── EMPTY / LOADING ── */
     .empty-state {
       text-align: center;
       padding: 60px 20px;
@@ -453,7 +361,6 @@
       font-size: 14px;
     }
 
-    /* ── TOAST ── */
     .toast {
       position: fixed;
       bottom: 24px;
@@ -477,7 +384,6 @@
       transform: translateY(0);
     }
 
-    /* ── RESPONSIVE ── */
     @media (max-width: 600px) {
       .content { padding: 16px; }
       .login-box { padding: 36px 24px; }
@@ -486,34 +392,33 @@
       .tab { padding: 14px 16px; font-size: 13px; }
       .pedido-card { padding: 16px; }
     }
+
     @media (max-width: 480px) {
-  .topbar {
-    padding: 12px 16px;
-  }
-  .topbar-brand span {
-    display: none;
-  }
-  .refresh-btn {
-    padding: 6px 10px;
-    font-size: 12px;
-  }
-  .logout-btn {
-    font-size: 12px;
-  }
-  .tab {
-    padding: 12px 14px;
-    font-size: 13px;
-  }
-}
+      .topbar {
+        padding: 12px 16px;
+      }
+
+      .topbar-brand span {
+        display: none;
+      }
+
+      .refresh-btn {
+        padding: 6px 10px;
+        font-size: 12px;
+      }
+
+      .logout-btn {
+        font-size: 12px;
+      }
+    }
   </style>
 </head>
 <body>
 
-<!-- LOGIN -->
 <div id="login-screen">
   <div class="login-box">
     <h1>Pandé</h1>
-    <div class="sub">Panel de administración</div>
+    <div class="sub">Panel de empleadas</div>
     <input
       type="password"
       id="token-input"
@@ -527,12 +432,11 @@
   </div>
 </div>
 
-<!-- APP -->
 <div id="app">
 
   <div class="topbar">
     <div class="topbar-brand">
-      Pandé <span>Admin</span>
+      Pandé <span>Empleadas</span>
     </div>
     <div class="topbar-right">
       <button class="refresh-btn" onclick="recargarTodo()">
@@ -545,49 +449,23 @@
   </div>
 
   <div class="tabs">
-    <button
-      class="tab active"
-      onclick="cambiarTab('pedidos')"
-      id="tab-pedidos"
-    >
-      Pedidos pendientes
+    <button class="tab" id="tab-pedidos">
+      Pedidos activos
       <span class="badge-count" id="badge-pedidos">0</span>
-    </button>
-    <button
-      class="tab"
-      onclick="cambiarTab('catalogo')"
-      id="tab-catalogo"
-    >
-      Catálogo
     </button>
   </div>
 
   <div class="content">
-
-    <!-- PEDIDOS -->
-    <div class="tab-panel active" id="panel-pedidos">
-      <div class="section-header">
-        <div class="section-title">Pedidos activos</div>
-      </div>
-      <div id="pedidos-lista">
-        <div class="loading">Cargando pedidos...</div>
-      </div>
+    <div class="section-header">
+      <div class="section-title">Pedidos activos</div>
     </div>
 
-    <!-- CATÁLOGO -->
-    <div class="tab-panel" id="panel-catalogo">
-      <div class="section-header">
-        <div class="section-title">Disponibilidad</div>
-      </div>
-      <div id="catalogo-lista">
-        <div class="loading">Cargando catálogo...</div>
-      </div>
+    <div id="pedidos-lista">
+      <div class="loading">Cargando pedidos...</div>
     </div>
-
   </div>
 </div>
 
-<!-- TOAST -->
 <div class="toast" id="toast"></div>
 
 <script>
@@ -597,20 +475,14 @@
   let TOKEN = "";
 
   const SIGUIENTE_ESTATUS = {
-    "Nuevo":      "Confirmado",
-    "Confirmado": "En_Prep",
-    "En_Prep":    "Listo",
-    "Listo":      "Entregado"
+    "Nuevo": "Confirmado",
+    "Confirmado": "Listo"
   };
 
   const LABEL_SIGUIENTE = {
-    "Nuevo":      "Confirmar",
-    "Confirmado": "En preparacion",
-    "En_Prep":    "Listo",
-    "Listo":      "Entregado"
+    "Nuevo": "Confirmar pedido",
+    "Confirmado": "Marcar listo"
   };
-
-  // ── LOGIN ──
 
   document.getElementById("token-input")
     .addEventListener("keydown", e => {
@@ -639,7 +511,7 @@
 
       if(data.ok){
 
-        sessionStorage.setItem("pande_token", TOKEN);
+        sessionStorage.setItem("pande_empleadas_token", TOKEN);
 
         document.getElementById("login-screen")
           .style.display = "none";
@@ -648,7 +520,6 @@
           .style.display = "block";
 
         pintarPedidos(data.pedidos || []);
-        cargarCatalogo();
 
       }else{
 
@@ -673,7 +544,7 @@
   }
 
   function cerrarSesion(){
-    sessionStorage.removeItem("pande_token");
+    sessionStorage.removeItem("pande_empleadas_token");
     TOKEN = "";
     document.getElementById("login-screen")
       .style.display = "flex";
@@ -683,54 +554,36 @@
       .value = "";
   }
 
-  // ── TABS ──
-
-  function cambiarTab(tab){
-
-    document.querySelectorAll(".tab")
-      .forEach(t => t.classList.remove("active"));
-
-    document.querySelectorAll(".tab-panel")
-      .forEach(p => p.classList.remove("active"));
-
-    document.getElementById(`tab-${tab}`)
-      .classList.add("active");
-
-    document.getElementById(`panel-${tab}`)
-      .classList.add("active");
-  }
-
-  // ── PEDIDOS ──
-
   function pintarPedidos(pedidos){
 
-  const lista =
-    document.getElementById("pedidos-lista");
+    const lista =
+      document.getElementById("pedidos-lista");
 
-  document.getElementById("badge-pedidos")
-    .textContent = pedidos.length;
+    document.getElementById("badge-pedidos")
+      .textContent = pedidos.length;
 
-  if(pedidos.length === 0){
-    lista.innerHTML = `
-      <div class="empty-state">
-        <div class="icon">✅</div>
-        <p>No hay pedidos pendientes</p>
-      </div>
-    `;
-    return;
+    if(pedidos.length === 0){
+      lista.innerHTML = `
+        <div class="empty-state">
+          <div class="icon">✅</div>
+          <p>No hay pedidos activos</p>
+        </div>
+      `;
+      return;
+    }
+
+    lista.innerHTML = "";
+
+    const div = document.createElement("div");
+    div.className = "pedidos-grid";
+
+    pedidos.forEach(p => {
+      div.innerHTML += renderPedido(p);
+    });
+
+    lista.appendChild(div);
   }
 
-  lista.innerHTML = "";
-
-  const div = document.createElement("div");
-  div.className = "pedidos-grid";
-
-  pedidos.forEach(p => {
-    div.innerHTML += renderPedido(p);
-  });
-
-  lista.appendChild(div);
-}
   async function cargarPedidos(){
 
     const lista =
@@ -753,8 +606,7 @@
         return;
       }
 
-      const pedidos = data.pedidos || [];
-      pintarPedidos(pedidos);
+      pintarPedidos(data.pedidos || []);
 
     }catch(err){
 
@@ -770,22 +622,49 @@
     const siguiente = SIGUIENTE_ESTATUS[estatus];
     const labelSig = LABEL_SIGUIENTE[estatus];
 
+    const metodoPago =
+      p.metodo_pago || "";
+
+    const estatusPago =
+      p.estatus_pago || "Pendiente";
+
+    const transferenciaPendiente =
+      metodoPago.toLowerCase().includes("transfer") &&
+      estatusPago !== "Pagado";
+
+    const transferenciaPagada =
+      metodoPago.toLowerCase().includes("transfer") &&
+      estatusPago === "Pagado";
+
     const fecha = p.fecha_pedido
       ? new Date(p.fecha_pedido)
           .toLocaleString("es-MX", {
-            day:"numeric", month:"short",
-            hour:"2-digit", minute:"2-digit"
+            day:"numeric",
+            month:"short",
+            hour:"2-digit",
+            minute:"2-digit"
           })
       : "";
 
     const btnSiguiente = siguiente
       ? `<button
-          class="btn-accion btn-${siguiente.toLowerCase().replace('_','')}"
+          class="btn-accion btn-${siguiente.toLowerCase()}"
           onclick="avanzarEstatus('${p.id_pedido}','${siguiente}')"
         >
           ${labelSig}
         </button>`
       : "";
+
+    const avisoPago = transferenciaPendiente
+      ? `<div class="pago-alerta">
+          Transferencia pendiente de aprobación por Master.
+          No entregar hasta que aparezca como pagado.
+        </div>`
+      : transferenciaPagada
+        ? `<div class="pago-ok">
+            Transferencia aprobada por Master.
+          </div>`
+        : "";
 
     return `
       <div
@@ -798,14 +677,19 @@
             <div class="pedido-cliente">${p.nombre_cliente || "—"}</div>
             <div class="pedido-meta">
               ${p.sucursal || ""} ·
-              ${p.estatus_pago || ""}
+              Pago: ${metodoPago || "—"} ·
+              ${estatusPago}
             </div>
           </div>
           <div class="pedido-total">$${p.total || 0}</div>
         </div>
+
         <div class="pedido-productos">
           ${p.productos || "—"}
         </div>
+
+        ${avisoPago}
+
         <div class="pedido-actions">
           <span class="estatus-badge badge-${estatus}">
             ${estatus}
@@ -871,144 +755,17 @@
       if(data.ok){
         toast("Pedido cancelado");
         cargarPedidos();
-      }
-
-    }catch(err){
-      toast("Error de conexion");
-    }
-  }
-
-  // ── CATÁLOGO ──
-
-  async function cargarCatalogo(){
-
-    const lista =
-      document.getElementById("catalogo-lista");
-
-    lista.innerHTML =
-      '<div class="loading">Cargando catálogo...</div>';
-
-    try{
-
-      const res = await fetch(
-        `${SCRIPT_URL}?action=getCatalogo&token=${TOKEN}`
-      );
-
-      const data = await res.json();
-
-      if(!data.ok){
-        lista.innerHTML =
-          '<div class="empty-state"><p>Error cargando catálogo</p></div>';
-        return;
-      }
-
-      const productos = data.productos || [];
-
-      if(productos.length === 0){
-        lista.innerHTML =
-          '<div class="empty-state"><p>Sin productos</p></div>';
-        return;
-      }
-
-      // Agrupar por categoría
-      const grupos = {};
-
-      productos.forEach(p => {
-        const cat = p.categoria || "Otros";
-        if(!grupos[cat]) grupos[cat] = [];
-        grupos[cat].push(p);
-      });
-
-      let html = "";
-
-      Object.keys(grupos).forEach(cat => {
-
-        html += `<h3 style="
-          font-family:'Playfair Display',serif;
-          color:var(--cafe);
-          margin:24px 0 12px;
-          font-size:20px;
-        ">${cat}</h3>`;
-
-        html += '<div class="catalogo-grid">';
-
-        grupos[cat].forEach(p => {
-          html += `
-            <div class="producto-card">
-              <div class="producto-info">
-                <div class="producto-nombre">
-                  ${p.nombre}
-                </div>
-                <div class="producto-meta">
-                  ${p.linea || ""} ·
-                  <span class="producto-precio">
-                    $${p.precio}
-                  </span>
-                </div>
-              </div>
-              <div class="toggle-wrap">
-                <label class="toggle">
-                  <input
-                    type="checkbox"
-                    ${p.disponible ? "checked" : ""}
-                    onchange="toggleDisponible('${p.id}', this.checked)"
-                  />
-                  <span class="toggle-slider"></span>
-                </label>
-                <span class="toggle-label">
-                  ${p.disponible ? "ACTIVO" : "OFF"}
-                </span>
-              </div>
-            </div>
-          `;
-        });
-
-        html += "</div>";
-
-      });
-
-      lista.innerHTML = html;
-
-    }catch(err){
-
-      lista.innerHTML =
-        '<div class="empty-state"><p>Error de conexion</p></div>';
-
-    }
-  }
-
-  async function toggleDisponible(idProducto, disponible){
-
-    try{
-
-      const res = await fetch(SCRIPT_URL, {
-        method: "POST",
-        body: JSON.stringify({
-          action: "updateDisponible",
-          token: TOKEN,
-          id_producto: idProducto,
-          disponible: disponible
-        })
-      });
-
-      const data = await res.json();
-
-      if(data.ok){
-        toast(disponible ? "Producto activado" : "Producto desactivado");
       }else{
-        toast("Error al actualizar");
+        toast("Error al cancelar");
       }
 
     }catch(err){
       toast("Error de conexion");
     }
   }
-
-  // ── HELPERS ──
 
   function recargarTodo(){
     cargarPedidos();
-    cargarCatalogo();
     toast("Actualizado");
   }
 
@@ -1019,14 +776,12 @@
     setTimeout(() => el.classList.remove("show"), 2500);
   }
 
-  // Auto-refresh pedidos cada 60s
   setInterval(() => {
     if(TOKEN) cargarPedidos();
   }, 60000);
 
-  // Restaurar sesión si existe
   const savedToken =
-    sessionStorage.getItem("pande_token");
+    sessionStorage.getItem("pande_empleadas_token");
 
   if(savedToken){
     TOKEN = savedToken;
