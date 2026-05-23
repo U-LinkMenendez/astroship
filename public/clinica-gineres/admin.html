@@ -45,6 +45,7 @@
     .hdr-brand { font-size:0.9rem; font-weight:600; color:#fff; letter-spacing:-0.01em; }
     .hdr-brand span { color:var(--blue-lt); font-weight:400; margin-left:6px; font-size:0.75rem; }
     .hdr-top{ width:100%; display:flex; justify-content:space-between; align-items:center; gap:1rem; }
+    .hdr-actions{ display:flex; flex-direction:column; align-items:flex-end; gap:10px; margin-left:auto; }
     .hdr-bottom{ width:100%; display:flex; justify-content:space-between; align-items:center; gap:12px; }
     .logout-btn{ background:#DC2626 !important; color:#fff !important; border-color:#DC2626 !important; }
     .hdr-date{ display:none; font-family:'DM Sans',sans-serif; font-size:0.8rem; font-weight:700; color:#fff; }
@@ -277,6 +278,10 @@
 .hdr-logo{
   flex:1;
   min-width:0;
+}
+
+.hdr-actions{
+  flex-shrink:0;
 }
 
 .hdr-bottom{
@@ -667,22 +672,16 @@
       </div>
     </div>
 
-    <button class="setup-btn" onclick="openSetup()">
-      ⚙ URL
-    </button>
+    <div class="hdr-actions">
+      <div class="status-pill">
+        <div class="status-dot" id="statusDot"></div>
+        <span id="statusTxt">Conectado</span>
+      </div>
 
-  </div>
-
-  <div class="hdr-bottom">
-
-    <div class="status-pill">
-      <div class="status-dot" id="statusDot"></div>
-      <span id="statusTxt">Conectado</span>
+      <button class="setup-btn logout-btn" onclick="logoutAdmin()">
+        Salir
+      </button>
     </div>
-
-    <button class="setup-btn logout-btn" onclick="logoutAdmin()">
-      Salir
-    </button>
 
   </div>
 
@@ -877,6 +876,9 @@
    <script>
     const SCRIPT_KEY = 'cg_admin_script_url';
     const HARDCODED_URL = 'https://script.google.com/macros/s/AKfycbz-P7Q8ILxsA762djnSs4VELLC-ZHfffXn3dxb0jLKFNK6Vs-Ru9NE4HAL7aFbfj0QG/exec';
+     function getScriptUrl() {
+  return HARDCODED_URL;
+}
     const HOURS = ['04:00','05:00','06:00','07:00','08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00'];
     const QUIROFANOS = ['Quirofano 1','Quirofano 2','Quirofano 3'];
     const LMP_CYCLE = {
@@ -1457,7 +1459,7 @@ console.log('CLICK SLOT', {
   const qIdx = QUIROFANOS.indexOf(resSelection.quirofano);
   const acct = CAL_ACCOUNTS_ADM[qIdx];
 
-  const url = localStorage.getItem(SCRIPT_KEY) || HARDCODED_URL;
+  const url = getScriptUrl();
 
   try {
     const res = await fetch(url, {
@@ -1914,7 +1916,7 @@ function toggleBlockFullDay(checked) {
         _processing = true;
       const btn = document.getElementById('edDatosBtn');
       btn.disabled=true; btn.textContent='Guardando…';
-      const url = localStorage.getItem(SCRIPT_KEY)||HARDCODED_URL;
+      const url = getScriptUrl();
       try {
         const res = await fetch(url, { method:'POST', body: JSON.stringify({
           action:'actualizarDatos',
@@ -1944,7 +1946,7 @@ function toggleBlockFullDay(checked) {
       const [hh,mm] = hora.split(':').map(Number);
       const d = new Date(fecha+'T00:00:00');
       const startUTC = new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate(),hh+6,mm));
-      const url = localStorage.getItem(SCRIPT_KEY)||HARDCODED_URL;
+      const url = getScriptUrl();
       try {
         const res = await fetch(url, { method:'POST', body: JSON.stringify({
           action:'reagendarReserva',
@@ -1979,7 +1981,7 @@ btn.textContent = 'Cancelando…';
 if (noCancelBtn) {
   noCancelBtn.disabled = true;
 }
-      const url = localStorage.getItem(SCRIPT_KEY)||HARDCODED_URL;
+      const url = getScriptUrl();
       try {
         const res = await fetch(url, { method:'POST', body: JSON.stringify({
           action:'cancelarReserva',
@@ -2118,7 +2120,7 @@ function buildEditDurationOptions(selectedDuracion) {
     }
 
     async function loadData() {
-      const url = localStorage.getItem(SCRIPT_KEY) || HARDCODED_URL;
+      const url = getScriptUrl();
       showLoader(true);
       const today = todayStr();
       const end   = addDays(today, DAYS_TO_SHOW - 1);
@@ -2314,7 +2316,7 @@ function buildEditDurationOptions(selectedDuracion) {
     }
 
     async function cycleLimpieza(bookingId, nextState) {
-      const url = localStorage.getItem(SCRIPT_KEY) || HARDCODED_URL;
+      const url = getScriptUrl();
       const r = allReservas.find(x => x.bookingId === bookingId);
       if (r) r.limpieza = nextState;
       render();
