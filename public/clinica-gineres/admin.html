@@ -951,11 +951,16 @@ dayB.forEach(b => {
     String(b.quirofano || '').replace('Quirófano', 'Quirofano');
 
   occ[b.hora][qKey] = {
-    bloqueo: true,
-    motivo: b.motivo || 'Bloqueado',
-    isStart: true,
-    height: ROW_H_ADM - 6
-  };
+  bloqueo: true,
+  row: b.row,
+  quirofano: b.quirofano,
+  motivo: b.motivo || 'Bloqueado',
+  hora: b.hora,
+  horaInicio: b.horaInicio,
+  horaFin: b.horaFin,
+  isStart: true,
+  height: ROW_H_ADM - 6
+};
 });
       
       dayR.forEach(r => {
@@ -1054,8 +1059,11 @@ if (day === 0) {
           
           if (o && o.bloqueo && o.isStart) {
            cell = `
-            <div class="rslot-occ rs-blocked"
-             style="height:${o.height - 6}px;">
+            <div
+  class="rslot-occ rs-blocked"
+  style="height:${o.height - 6}px; cursor:pointer !important;"
+  onclick="openUnblockModal(${JSON.stringify(o).replace(/"/g,'&quot;')})"
+>
 
             <div class="rs-time">
               🚫 BLOQUEADO
@@ -1782,6 +1790,68 @@ function toggleBlockFullDay(checked) {
     });
 }
 
+     let _unblockData = null;
+
+function openUnblockModal(data) {
+  if (typeof data === 'string') {
+    data = JSON.parse(data.replace(/&quot;/g, '"'));
+  }
+
+  _unblockData = data;
+
+  const confirmar = confirm(
+    '¿Deseas desbloquear este horario?\n\n' +
+    'Quirófano: ' + (data.quirofano || '') + '\n' +
+    'Horario: ' + (data.horaInicio || data.hora || '') + ' - ' + (data.horaFin || '') + '\n' +
+    'Motivo original: ' + (data.motivo || 'Bloqueado')
+  );
+
+  if (!confirmar) return;
+
+  saveUnblock();
+}
+
+async function saveUnblock() {
+  if (!_unblockData || !_unblockData.row) {
+    alert('No se encontró el bloqueo a desbloquear');
+    return;
+  }
+
+  const motivo = prompt(
+    'Motivo del desbloqueo:',
+    'Desbloqueado desde panel admin'
+  );
+
+  if (motivo === null) return;
+
+  const url = getScriptUrl();
+
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      body: JSON.stringify({
+        action: 'desactivarBloqueo',
+        row: _unblockData.row,
+        usuario: 'admin',
+        motivo: motivo || 'Desbloqueado desde panel admin'
+      })
+    });
+
+    const json = await res.json();
+
+    if (!json.ok) {
+      throw new Error(json.error || 'No se pudo desbloquear');
+    }
+
+    _unblockData = null;
+    await loadData();
+
+    alert('Bloqueo desactivado correctamente');
+  } catch (err) {
+    alert('No se pudo desbloquear: ' + err.message);
+  }
+}
+     
      function closeBlockModal() {
 
   _processing = false;
