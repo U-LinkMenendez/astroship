@@ -72,8 +72,32 @@
 
     /* TOOLBAR */
     .toolbar { background:#fff; border-bottom:1px solid var(--g200); padding:0.65rem 1.5rem; display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap; }
-    .date-tabs { display:flex; gap:3px; flex:1; overflow-x:auto; padding-bottom:2px; }
-    .date-tabs::-webkit-scrollbar { height:0; }
+    .date-tabs {
+  display:flex;
+  gap:3px;
+  flex:1 1 auto;
+  min-width:0;
+  max-width:100%;
+  overflow-x:auto;
+  overflow-y:hidden;
+  padding-bottom:4px;
+  scroll-behavior:smooth;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:thin;
+}
+
+.date-tabs::-webkit-scrollbar {
+  height:6px;
+}
+
+.date-tabs::-webkit-scrollbar-thumb {
+  background:#CBD5E1;
+  border-radius:999px;
+}
+
+.date-tabs::-webkit-scrollbar-track {
+  background:transparent;
+}
     .date-tab { flex-shrink:0; padding:0.4rem 0.85rem; border-radius:6px; border:1px solid transparent; background:transparent; font-family:'DM Sans',sans-serif; font-size:0.78rem; font-weight:500; color:var(--g600); cursor:pointer; transition:all 0.15s; white-space:nowrap; }
     .date-tab:hover { background:var(--pale); color:var(--navy); }
     .date-tab.active { background:var(--navy); color:#fff; }
@@ -275,7 +299,10 @@
 
   .date-tabs{
     width:100%;
+    min-width:0;
+    max-width:100%;
     overflow-x:auto;
+    overflow-y:hidden;
     flex:none;
     padding-bottom:4px;
   }
@@ -2328,8 +2355,22 @@ function buildEditDurationOptions(selectedDuracion) {
   return txt + ' hora' + (n === 1 ? '' : 's');
 }
 
-    document.getElementById('modalOverlay').addEventListener('click', function(e) { if(e.target===this) closeSetup(); });
-    init();
+    document.getElementById('modalOverlay').addEventListener('click', function(e) {
+  if (e.target === this) closeSetup();
+});
+
+const dateTabsEl = document.getElementById('dateTabs');
+
+if (dateTabsEl) {
+  dateTabsEl.addEventListener('wheel', function(e) {
+    if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+      e.preventDefault();
+      this.scrollLeft += e.deltaY;
+    }
+  }, { passive:false });
+}
+
+init();
 
 <!-- PASSWORD / CONTRASEÑA CLÍNICA GINERÉS -->
 const ADMIN_USER = 'admin';
