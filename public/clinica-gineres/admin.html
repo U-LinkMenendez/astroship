@@ -834,6 +834,8 @@
       'Listo':'✅ Listo'
     };
 
+     const DAYS_TO_SHOW = 15;
+
     let currentDate = todayStr();
     let currentView = 'res';
     let allReservas = [];
@@ -2041,7 +2043,7 @@ function buildEditDurationOptions(selectedDuracion) {
       const container = document.getElementById('dateTabs');
       container.innerHTML = '';
       const today = new Date();
-      for (let i = 0; i < 8; i++) {
+      for (let i = 0; i < DAYS_TO_SHOW; i++) {
         const d = new Date(today);
         d.setDate(today.getDate() + i);
         const ds = formatDate(d);
@@ -2075,7 +2077,7 @@ function buildEditDurationOptions(selectedDuracion) {
       const url = localStorage.getItem(SCRIPT_KEY) || HARDCODED_URL;
       showLoader(true);
       const today = todayStr();
-      const end   = addDays(today, 7);
+      const end   = addDays(today, DAYS_TO_SHOW - 1);
       try {
         const res  = await fetch(`${url}?start=${today}&end=${end}`);
         const json = await res.json();
