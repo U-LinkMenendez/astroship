@@ -217,6 +217,29 @@
     .slot-selected .slot-time  { font-size:0.65rem; font-family:'DM Mono',monospace; color:#fff; font-weight:500; }
     .slot-selected .slot-label { font-size:0.7rem; color:rgba(255,255,255,0.8); }
 
+    /* Blocked */
+.slot-blocked {
+  background:#FEE2E2;
+  border-color:#FCA5A5;
+  border-left:3px solid #DC2626;
+  cursor:not-allowed;
+  height:100%;
+  min-height:32px;
+}
+
+.slot-blocked .slot-time {
+  font-size:0.62rem;
+  font-family:'DM Mono',monospace;
+  color:#B91C1C;
+  font-weight:700;
+}
+
+.slot-blocked .slot-label {
+  font-size:0.66rem;
+  color:#7F1D1D;
+  font-weight:600;
+}
+
     /* Occupied — first slot */
     .slot-occupied {
       background:var(--g100);
@@ -532,6 +555,7 @@ const ROW_H = 32;
 
 let currentDate = todayStr();
 let allReservas  = [];
+let allBloqueos  = [];
 let selection    = null;
 let urlLeadId    = '';
 let _occupiedMap = {};
@@ -591,7 +615,8 @@ async function loadData() {
     const res  = await fetch(`${APPS_SCRIPT_URL}?start=${today}&end=${end}`);
     const json = await res.json();
     allReservas = json.reservas || [];
-    renderGrid();
+allBloqueos = json.bloqueos || [];
+renderGrid();
   } catch(e) {
     document.getElementById('gridArea').innerHTML =
       `<div style="text-align:center;padding:3rem;color:var(--g400)">Error cargando agenda. <span style="cursor:pointer;color:var(--blue);text-decoration:underline" onclick="loadData()">Reintentar</span></div>`;
@@ -604,13 +629,27 @@ function renderGrid() {
   const dayR = allReservas.filter(r => r.fecha === currentDate);
 
   // Build occupied map: first slot only, with height based on duration
-  const occupied = {};
-  HOURS.forEach(h => { occupied[h] = {}; });
+const occupied = {};
+HOURS.forEach(h => { occupied[h] = {}; });
 
-  dayR.forEach(r => {
+const dayB = allBloqueos.filter(b => b.fecha === currentDate);
+
+dayB.forEach(b => {
+  const h = String(b.hora || '').substring(0, 5);
+  const qk = normalizeQuirofano(b.quirofano);
+
+  if (!occupied[h]) return;
+
+  occupied[h][qk] = {
+    bloqueo: true,
+    motivo: b.motivo || 'Bloqueado'
+  };
+});
+
+dayR.forEach(r => {
     const startH = (r.horaInicio || '00:00').substring(0,5);
     const dur    = Number(r.duracion) || 1;
-    const qk     = r.quirofano || 'Quirofano 1';
+    const qk     = normalizeQuirofano(r.quirofano || 'Quirofano 1');
     const startIdx = HOURS.indexOf(startH);
 
     if (startIdx === -1) return;
@@ -700,15 +739,23 @@ if (day === 0) {
 
       // ==========================================
 
-      if (occ && occ.isStart) {
+      if (occ && occ.bloqueo) {
 
-        slotHtml = `
-          <div class="slot slot-occupied" style="height:${occ.height}px;">
-            <div class="slot-time-occ">${occ.hora} · ${occ.duracion}h</div>
-            <div class="slot-proc">${escHtml(occ.proc)}</div>
-          </div>`;
+  slotHtml = `
+    <div class="slot slot-blocked">
+      <div class="slot-time">🚫 BLOQUEADO</div>
+      <div class="slot-label">${escHtml(occ.motivo || 'No disponible')}</div>
+    </div>`;
 
-      } else if (isPastSlot || isClosedSlot) {
+} else if (occ && occ.isStart) {
+
+  slotHtml = `
+    <div class="slot slot-occupied" style="height:${occ.height}px;">
+      <div class="slot-time-occ">${occ.hora} · ${occ.duracion}h</div>
+      <div class="slot-proc">${escHtml(occ.proc)}</div>
+    </div>`;
+
+} else if (isPastSlot || isClosedSlot) {
 
         slotHtml = `
           <div
@@ -1181,6 +1228,12 @@ function formatDateDisplay(ds) {
   
 function escHtml(s) {
   return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+  function normalizeQuirofano(q) {
+  return String(q || '')
+    .trim()
+    .replace(/Quirófano/g, 'Quirofano');
 }
 
   document
