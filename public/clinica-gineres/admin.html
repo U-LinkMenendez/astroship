@@ -727,7 +727,29 @@
 
   <label>Horas a bloquear</label>
 
-  <div id="blkHoras"
+<label
+  style="
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin:8px 0 10px;
+    font-size:0.85rem;
+    color:#475569;
+    text-transform:none;
+    letter-spacing:0;
+    cursor:pointer;
+  "
+>
+  <input
+    type="checkbox"
+    id="blkFullDay"
+    onchange="toggleBlockFullDay(this.checked)"
+    style="width:18px;height:18px;accent-color:#DC2626;"
+  >
+  Bloquear todo el día disponible
+</label>
+
+<div id="blkHoras"
     style="
       display:grid;
       grid-template-columns:repeat(4,1fr);
@@ -912,40 +934,27 @@
       const dayR = allReservas.filter(r => r.fecha === currentDate);
 
       // Build occupied map
-      const occ = {};
+const occ = {};
+RES_HOURS.forEach(h => { occ[h] = {}; });
 
-      allBloqueos.forEach(b => {
+const dayB = allBloqueos.filter(
+  b => b.fecha === currentDate
+);
 
-  if (b.fecha !== currentDate) return;
+dayB.forEach(b => {
+  if (!occ[b.hora]) return;
 
-  if (!occ[b.hora]) {
-    occ[b.hora] = {};
-  }
+  const qKey =
+    QUIROFANOS.find(q => q === b.quirofano) ||
+    String(b.quirofano || '').replace('Quirófano', 'Quirofano');
 
-  occ[b.hora][b.quirofano] = {
+  occ[b.hora][qKey] = {
     bloqueo: true,
     motivo: b.motivo || 'Bloqueado',
     isStart: true,
-    height: 80
+    height: ROW_H_ADM - 6
   };
-
 });
-      
-      RES_HOURS.forEach(h => { occ[h] = {}; });
-
-      const dayB = allBloqueos.filter(
-      b => b.fecha === currentDate
-    );
-      dayB.forEach(b => {
-      if (!occ[b.hora]) return;
-      occ[b.hora][ b.quirofano.replace( 'Quirofano', 'Quirófano' )
-       ] = {
-        bloqueo: true,
-        motivo: b.motivo,
-        isStart: true,
-        height: ROW_H_ADM - 6
-      };
-    });
       
       dayR.forEach(r => {
 
@@ -1666,14 +1675,22 @@ document.getElementById('ed-fecha').onchange = function() {
     function closeAdmEdit() { document.getElementById('admEditModal').classList.remove('open'); _editBooking=null; }
 
      function openBlockModal() {
-
   document.getElementById('blkFecha').value = currentDate;
   document.getElementById('blkMotivo').value = '';
+
+  const fullDay = document.getElementById('blkFullDay');
+  if (fullDay) fullDay.checked = false;
 
   renderBlockHours(currentDate);
 
   document.getElementById('blkFecha').onchange = function() {
     renderBlockHours(this.value);
+  };
+
+  document.getElementById('blkQx').onchange = function() {
+    renderBlockHours(
+      document.getElementById('blkFecha').value
+    );
   };
 
   document.getElementById('blockModal')
@@ -1682,7 +1699,12 @@ document.getElementById('ed-fecha').onchange = function() {
 
      function renderBlockHours(selectedDate) {
   const cont = document.getElementById('blkHoras');
+  const qx = document.getElementById('blkQx').value;
+
   cont.innerHTML = '';
+
+  const fullDay = document.getElementById('blkFullDay');
+  if (fullDay) fullDay.checked = false;
 
   const now = new Date();
   const today = todayStr();
@@ -1697,19 +1719,65 @@ document.getElementById('ed-fecha').onchange = function() {
       selectedDate === today &&
       hNum <= nowH;
 
+    const isUnavailable =
+      isBlockHourUnavailable(selectedDate, qx, h);
+
     if (isPastToday) return;
 
     cont.insertAdjacentHTML('beforeend', `
-      <label class="blk-hour-chip">
+      <label
+        class="blk-hour-chip"
+        style="${isUnavailable ? 'opacity:0.45;cursor:not-allowed;background:#F1F5F9;' : ''}"
+      >
         <input
           type="checkbox"
           value="${h}"
           class="blk-hour"
+          ${isUnavailable ? 'disabled' : ''}
         >
-        ${h}
+        ${h}${isUnavailable ? ' · ocupado' : ''}
       </label>
     `);
   });
+}
+
+function isBlockHourUnavailable(fecha, quirofano, hora) {
+  const hNum =
+    parseInt(hora.split(':')[0]) +
+    parseInt(hora.split(':')[1]) / 60;
+
+  const hasReserva = allReservas.some(r => {
+    if (r.fecha !== fecha) return false;
+    if ((r.quirofano || '') !== quirofano) return false;
+
+    const inicio = r.horaInicio || '00:00';
+
+    const start =
+      parseInt(inicio.split(':')[0]) +
+      parseInt(inicio.split(':')[1]) / 60;
+
+    const end = start + (Number(r.duracion) || 1);
+
+    return hNum >= start && hNum < end;
+  });
+
+  if (hasReserva) return true;
+
+  return allBloqueos.some(b => {
+    return (
+      b.fecha === fecha &&
+      b.quirofano === quirofano &&
+      b.hora === hora
+    );
+  });
+}
+
+function toggleBlockFullDay(checked) {
+  document
+    .querySelectorAll('.blk-hour:not(:disabled)')
+    .forEach(cb => {
+      cb.checked = checked;
+    });
 }
 
      function closeBlockModal() {
@@ -1730,7 +1798,6 @@ document.getElementById('ed-fecha').onchange = function() {
 }
      
      async function saveBlock() {
-
   if (_processing) return;
   _processing = true;
 
@@ -1760,7 +1827,7 @@ document.getElementById('ed-fecha').onchange = function() {
       .trim() || 'Bloqueo operativo';
 
   const horas = [
-    ...document.querySelectorAll('.blk-hour:checked')
+    ...document.querySelectorAll('.blk-hour:checked:not(:disabled)')
   ].map(x => x.value);
 
   const resetBlockButtons = () => {
@@ -1788,46 +1855,9 @@ document.getElementById('ed-fecha').onchange = function() {
 
   if (!horas.length) {
     resetBlockButtons();
-    alert('Selecciona al menos una hora');
+    alert('Selecciona al menos una hora disponible');
     return;
   }
-
-  const indices = horas
-    .map(h => RES_HOURS.indexOf(h))
-    .sort((a,b) => a - b);
-
-  if (indices.some(i => i === -1)) {
-    resetBlockButtons();
-    alert('Hay una hora inválida seleccionada');
-    return;
-  }
-
-  for (let i = 1; i < indices.length; i++) {
-    if (indices[i] !== indices[i - 1] + 1) {
-      resetBlockButtons();
-      alert('Selecciona horarios continuos. No dejes espacios entre horas.');
-      return;
-    }
-  }
-
-  const inicio = RES_HOURS[indices[0]];
-
-  const qIdx = QUIROFANOS.indexOf(qx);
-  const acct = CAL_ACCOUNTS_ADM[qIdx];
-
-  const hh = parseInt(inicio.split(':')[0]);
-  const mm = parseInt(inicio.split(':')[1]);
-
-  const d = new Date(fecha + 'T00:00:00');
-
-  const startUTC =
-    new Date(Date.UTC(
-      d.getFullYear(),
-      d.getMonth(),
-      d.getDate(),
-      hh + 6,
-      mm
-    ));
 
   try {
     const url =
@@ -1837,32 +1867,11 @@ document.getElementById('ed-fecha').onchange = function() {
     const res = await fetch(url, {
       method:'POST',
       body: JSON.stringify({
-        action:'crearReserva',
-        eventTypeId: acct.eventTypeId,
-        calKey: acct.key,
-        start: startUTC.toISOString(),
-        lengthInMinutes: horas.length * 30,
-        attendee:{
-          name:'🚫 BLOQUEADO',
-          email:'bloqueo@sistema.local',
-          timeZone:'America/Merida',
-          language:'es'
-        },
-        bookingFieldsResponses:{
-          name:'🚫 BLOQUEADO',
-          paciente:'NO DISPONIBLE',
-          procedimiento:motivo,
-          anestesiologo:'',
-          enfermeria:'',
-          location:{
-            value:'link',
-            optionValue:''
-          }
-        },
-        metadata:{
-          sistema:'true',
-          bloqueo:'true'
-        }
+        action: 'crearBloqueos',
+        fecha: fecha,
+        quirofano: qx,
+        motivo: motivo,
+        horas: horas
       })
     });
 
@@ -1881,7 +1890,7 @@ document.getElementById('ed-fecha').onchange = function() {
   catch(err) {
     resetBlockButtons();
     console.error(err);
-    alert('No se pudo crear el bloqueo');
+    alert('No se pudo crear el bloqueo: ' + err.message);
   }
 }
    
