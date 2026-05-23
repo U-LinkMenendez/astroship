@@ -103,7 +103,14 @@
     .date-tab.active { background:var(--navy); color:#fff; }
     .date-tab.today-tab { border-color:var(--blue); color:var(--blue); }
     .date-tab.today-tab.active { background:var(--blue); color:#fff; border-color:var(--blue); }
-    .view-toggle { display:flex; background:var(--g100); border-radius:7px; padding:2px; flex-shrink:0; }
+    .view-toggle {
+  display:flex;
+  background:var(--g100);
+  border-radius:7px;
+  padding:2px;
+  flex-shrink:0;
+  margin-left:auto;
+}
     .view-btn {
       padding:0.3rem 0.75rem;
       border-radius:5px;
@@ -317,6 +324,7 @@
   width:100%;
   display:flex;
   justify-content:flex-end;
+  align-self:flex-end;
   gap:8px;
   overflow-x:auto;
   padding:4px;
