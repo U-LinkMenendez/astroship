@@ -32,12 +32,12 @@ body {
 .logo {
   display: flex;
   align-items: center;
-  max-width: 160px;
-  overflow: hidden;
+  max-width: 230px;
+  overflow: visible;
 }
 
 .logo-img {
-  height: 52px;
+  height: 72px;
   width: auto;
   max-width: 100%;
   object-fit: contain;
@@ -75,6 +75,63 @@ h1 {
   margin-top: 10px;
   color: #7d6a61;
   font-size: 15px;
+}
+
+/* SUCURSAL */
+
+.store-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 30px;
+  background: #fff;
+  border-bottom: 1px solid rgba(0,0,0,.06);
+}
+
+.store-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #7d6a61;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+.store-name {
+  margin-top: 2px;
+  font-size: 18px;
+  font-weight: 800;
+  color: #5c3b2e;
+}
+
+.store-note {
+  margin-top: 3px;
+  font-size: 13px;
+  color: #7d6a61;
+}
+
+.store-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.store-actions select,
+#checkout-tienda {
+  min-width: 180px;
+  padding: 11px 12px;
+  border: 1px solid #e2d8cd;
+  border-radius: 12px;
+  background: #faf7f2;
+  color: #5c3b2e;
+  font-family: inherit;
+  font-weight: 700;
+}
+
+.store-location-btn {
+  padding: 11px 14px;
+  border-radius: 12px;
+  white-space: nowrap;
 }
 
 /* PRODUCTOS */
@@ -373,6 +430,24 @@ button:hover {
   min-height: 100px;
 }
 
+.checkout-help {
+  margin-top: -8px;
+  color: #7d6a61;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.delivery-warning {
+  margin-bottom: 12px;
+  padding: 12px 14px;
+  background: #fff8e1;
+  color: #6f4d00;
+  border-radius: 12px;
+  font-size: 13px;
+  line-height: 1.5;
+  font-weight: 600;
+}
+
 .confirm-btn {
   width: 100%;
   padding: 16px;
@@ -452,6 +527,30 @@ button:hover {
 @media (max-width: 768px) {
   .navbar {
     padding: 16px 20px;
+      .logo {
+    max-width: 190px;
+  }
+
+  .logo-img {
+    height: 62px;
+  }
+
+  .store-box {
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 14px 20px;
+  }
+
+  .store-actions {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .store-actions select,
+  .store-location-btn {
+    width: 100%;
+  }
   }
   .categoria-title {
     font-size: 28px;
