@@ -138,6 +138,7 @@
 
   let TOKEN = "";
   let SESION = null;
+  let INVENTARIO = [];
   
   const SIGUIENTE_ESTATUS = {
     "Nuevo": "Confirmado",
@@ -381,22 +382,47 @@
     lista.innerHTML = '<div class="loading">Cargando stock...</div>';
 
     try{
-      const res = await fetch(
+      const catalogoRes = await fetch(
         `${SCRIPT_URL}?action=getCatalogo&token=${TOKEN}`
       );
-      const data = await res.json();
 
-      if(!data.ok){
+      const inventarioRes = await fetch(
+        `${SCRIPT_URL}?action=getInventario&token=${TOKEN}`
+      );
+
+      const catalogoData = await catalogoRes.json();
+      const inventarioData = await inventarioRes.json();
+
+      if(!catalogoData.ok || !inventarioData.ok){
         lista.innerHTML =
           '<div class="empty-state"><p>Error cargando stock</p></div>';
         return;
       }
 
-      pintarCatalogo(data.productos || []);
+      INVENTARIO = inventarioData.inventario || [];
+
+      pintarCatalogo(catalogoData.productos || []);
+
     }catch(err){
       lista.innerHTML =
         '<div class="empty-state"><p>Error de conexion</p></div>';
     }
+  }
+
+    function productoDisponibleEnSesion(idProducto, disponibleGlobal){
+
+    if(!SESION || SESION.rol !== "tienda"){
+      return disponibleGlobal === true;
+    }
+
+    const item = INVENTARIO.find(inv =>
+      inv.id_tienda === SESION.id_tienda &&
+      inv.id_producto === idProducto
+    );
+
+    if(!item) return false;
+
+    return item.disponible === true;
   }
 
   function pintarCatalogo(productos){
@@ -423,7 +449,13 @@
       html += '<div class="catalogo-grid">';
 
       grupos[cat].forEach(p => {
+                const disponible =
+          productoDisponibleEnSesion(
+            p.id,
+            p.disponible
+          );
         html += `
+        
           <div class="producto-card">
             <div class="producto-info">
               <div class="producto-nombre">${p.nombre}</div>
@@ -436,12 +468,12 @@
               <label class="toggle">
                 <input
                   type="checkbox"
-                  ${p.disponible ? "checked" : ""}
+                  ${disponible ? "checked" : ""}
                   onchange="toggleDisponible('${p.id}', this.checked, this)"
                 />
                 <span class="toggle-slider"></span>
               </label>
-              <span class="toggle-label">${p.disponible ? "ACTIVO" : "OFF"}</span>
+              <span class="toggle-label">${disponible ? "ACTIVO" : "OFF"}</span>
             </div>
           </div>
         `;
@@ -475,7 +507,25 @@
       });
       const data = await res.json();
 
-      if(data.ok){
+           if(data.ok){
+
+        if(SESION && SESION.rol === "tienda"){
+          const item = INVENTARIO.find(inv =>
+            inv.id_tienda === SESION.id_tienda &&
+            inv.id_producto === idProducto
+          );
+
+          if(item){
+            item.disponible = disponible;
+          }else{
+            INVENTARIO.push({
+              id_tienda: SESION.id_tienda,
+              id_producto: idProducto,
+              disponible
+            });
+          }
+        }
+
         label.textContent = disponible ? "ACTIVO" : "OFF";
         toast(disponible ? "Producto activado" : "Producto desactivado");
       }else{
