@@ -137,7 +137,8 @@
     "https://script.google.com/macros/s/AKfycbwGxnv1CbQvLTF9fnQwa3kg6aICwHLWM4n05kGT6x5P7Osjt16-BIe2_AXZ0L-5MmR0/exec";
 
   let TOKEN = "";
-
+  let SESION = null;
+  
   const SIGUIENTE_ESTATUS = {
     "Nuevo": "Confirmado",
     "Confirmado": "Listo"
@@ -168,12 +169,20 @@
       );
       const data = await res.json();
 
-      if(data.ok){
+         if(data.ok){
+
+        SESION = data.sesion || null;
+
         sessionStorage.setItem("pande_empleadas_token", TOKEN);
+
         document.getElementById("login-screen").style.display = "none";
         document.getElementById("app").style.display = "block";
+
+        actualizarTituloAdmin();
+
         pintarPedidos(data.pedidos || []);
         cargarCatalogo();
+
       }else{
         mostrarError("Token incorrecto");
         TOKEN = "";
@@ -184,6 +193,19 @@
     }
   }
 
+  function actualizarTituloAdmin(){
+
+    const brand =
+      document.querySelector(".topbar-brand span");
+
+    if(!brand || !SESION) return;
+
+    brand.textContent =
+      SESION.rol === "master"
+        ? "Master"
+        : SESION.nombre_tienda;
+  }
+  
   function mostrarError(msg){
     const el = document.getElementById("login-error");
     el.textContent = msg;
@@ -441,9 +463,12 @@
     try{
       const res = await fetch(SCRIPT_URL, {
         method: "POST",
-        body: JSON.stringify({
+                body: JSON.stringify({
           action: "updateDisponible",
           token: TOKEN,
+          id_tienda: SESION && SESION.rol === "tienda"
+            ? SESION.id_tienda
+            : "",
           id_producto: idProducto,
           disponible: disponible
         })
