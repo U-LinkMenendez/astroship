@@ -3,6 +3,8 @@ const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwGxnv1CbQvLTF9fnQwa
 const FRONTEND_KEY = "PANDE_PUBLIC_2026";
 
 let productos = [];
+let tiendas = [];
+let tiendaSeleccionada = null;
 
 let carrito = [];
 // estructura: [{id, cantidad, producto:{...}}]
@@ -25,6 +27,24 @@ const checkoutModal =
 const closeCheckout =
   document.getElementById("close-checkout");
 
+const storeName =
+  document.getElementById("store-name");
+
+const storeNote =
+  document.getElementById("store-note");
+
+const storeSelect =
+  document.getElementById("store-select");
+
+const btnLocation =
+  document.getElementById("btn-location");
+
+const checkoutTienda =
+  document.getElementById("checkout-tienda");
+
+const checkoutTiendaHelp =
+  document.getElementById("checkout-tienda-help");
+
 cartBtn.addEventListener("click",()=>{
   cartDrawer.classList.add("open");
   overlay.classList.add("show");
@@ -42,15 +62,47 @@ overlay.addEventListener("click",()=>{
 
 async function cargarCatalogo(){
 
-  const cache =
-    localStorage.getItem("pande_catalogo_cache");
+  try{
 
-  if(cache){
-    try{
-      productos = JSON.parse(cache);
-      render();
-    }catch(_){}
+    const tiendasRes = await fetch(
+      `${SCRIPT_URL}?action=getTiendas&key=${FRONTEND_KEY}`
+    );
+
+    const tiendasData = await tiendasRes.json();
+
+    tiendas = tiendasData.tiendas || [];
+
+    pintarSelectTiendas();
+
+    const tiendaGuardada =
+      localStorage.getItem("pande_tienda");
+
+    if(tiendaGuardada){
+      seleccionarTienda(tiendaGuardada, false);
+      return;
+    }
+
+    if(tiendas.length){
+      tiendaSeleccionada =
+        tiendas.find(t => t.id_tienda === "LAVIN") ||
+        tiendas[0];
+
+      actualizarVistaTienda(
+        "Sucursal predeterminada. Puedes cambiarla."
+      );
+
+      await cargarCatalogoPorTienda(
+        tiendaSeleccionada.id_tienda
+      );
+    }
+
+    detectarTiendaCercana();
+
+  }catch(err){
+    console.error(err);
+    alert("Error cargando catálogo");
   }
+}
 
   try{
     const res = await fetch(
@@ -316,6 +368,25 @@ closeCheckout.addEventListener(
   cerrarCheckout
 );
 
+if(storeSelect){
+  storeSelect.addEventListener("change", e=>{
+    seleccionarTienda(e.target.value);
+  });
+}
+
+if(checkoutTienda){
+  checkoutTienda.addEventListener("change", e=>{
+    seleccionarTienda(e.target.value);
+  });
+}
+
+if(btnLocation){
+  btnLocation.addEventListener("click", ()=>{
+    localStorage.removeItem("pande_tienda");
+    detectarTiendaCercana();
+  });
+}
+
 async function enviarPedido(){
 
   const nombre =
@@ -477,12 +548,40 @@ window.addEventListener("scroll",()=>{
 // Mostrar/ocultar dirección según tipo de entrega
 document.getElementById("tipo-entrega")
   .addEventListener("change",(e)=>{
+
     const wrapper =
       document.getElementById("direccion-wrapper");
+
+    const tiendaWrapper =
+      document.getElementById("checkout-tienda-wrapper");
+
     if(e.target.value === "domicilio"){
+
       wrapper.classList.remove("hidden");
+
+      if(tiendaWrapper){
+        tiendaWrapper.classList.add("hidden");
+      }
+
+      seleccionarTienda("LAVIN");
+
+      if(checkoutTiendaHelp){
+        checkoutTiendaHelp.textContent =
+          "El servicio a domicilio solo está disponible desde García Lavín.";
+      }
+
     }else{
+
       wrapper.classList.add("hidden");
+
+      if(tiendaWrapper){
+        tiendaWrapper.classList.remove("hidden");
+      }
+
+      if(checkoutTiendaHelp){
+        checkoutTiendaHelp.textContent =
+          "Elige la sucursal donde recogerás tu pedido.";
+      }
     }
   });
 
@@ -500,6 +599,9 @@ function validarPedido(){
 
   const direccion =
     document.getElementById("cliente-direccion");
+
+    const ubicacion =
+    document.getElementById("cliente-ubicacion");
 
   const errorTel =
     document.getElementById("error-telefono");
@@ -544,6 +646,10 @@ function validarPedido(){
   const notas =
     document.getElementById("cliente-notas").value;
 
+    const tienda =
+    tiendaSeleccionada ||
+    tiendas.find(t => t.id_tienda === checkoutTienda.value);
+
   let total = 0;
   let itemsHtml = "";
 
@@ -576,10 +682,24 @@ function validarPedido(){
           ? "A domicilio"
           : "Recoger en tienda"}
       </div>
-      ${entrega === "domicilio"
+            <div>
+        <strong>Sucursal:</strong>
+        ${tienda ? tienda.nombre : "—"}
+      </div>
+           ${entrega === "domicilio"
         ? `<div>
             <strong>Dirección:</strong>
             ${direccion.value.trim()}
+           </div>
+           ${ubicacion.value.trim()
+             ? `<div>
+                  <strong>Ubicación:</strong>
+                  ${ubicacion.value.trim()}
+                </div>`
+             : ""}
+           <div>
+             <strong>Envío:</strong>
+             Servicio externo. Costo mínimo de $40, varía según la zona.
            </div>`
         : ""}
       <div>
@@ -624,6 +744,14 @@ function enviarPorWhatsapp(){
     document.getElementById("cliente-direccion")
       .value.trim();
 
+    const ubicacion =
+    document.getElementById("cliente-ubicacion")
+      .value.trim();
+
+  const tienda =
+    tiendaSeleccionada ||
+    tiendas.find(t => t.id_tienda === checkoutTienda.value);
+
   const pago =
     document.getElementById("metodo-pago").value;
 
@@ -639,9 +767,17 @@ function enviarPorWhatsapp(){
       ? "A domicilio"
       : "Recoger en tienda"
   }\n`;
+    mensaje += `Sucursal: ${
+    tienda ? tienda.nombre : "No seleccionada"
+  }\n`;
 
-  if(entrega === "domicilio"){
+    if(entrega === "domicilio"){
     mensaje += `Direccion: ${direccion}\n`;
+    if(ubicacion){
+      mensaje += `Ubicacion: ${ubicacion}\n`;
+    }
+    mensaje +=
+      `Envio: Servicio externo, costo minimo de $40. Varia segun la zona.\n`;
   }
 
   mensaje += `Pago: ${pago}\n`;
@@ -675,6 +811,9 @@ try{
         ? "Domicilio"
         : "Recoger",
       direccion_entrega: direccion,
+            id_tienda: tienda ? tienda.id_tienda : "",
+      nombre_tienda: tienda ? tienda.nombre : "",
+      ubicacion_url: ubicacion,
       metodo_pago: pago,
       notas: notas,
       subtotal: carrito.reduce(
@@ -719,6 +858,9 @@ function limpiarFormulario(){
   document.getElementById("cliente-direccion")
     .value = "";
 
+  document.getElementById("cliente-ubicacion")
+    .value = "";
+  
   document.getElementById("cliente-notas")
     .value = "";
 
@@ -752,3 +894,169 @@ function limpiarFormulario(){
 }
 
 cargarCatalogo();
+
+function pintarSelectTiendas(){
+
+  if(!storeSelect || !checkoutTienda) return;
+
+  storeSelect.innerHTML = "";
+  checkoutTienda.innerHTML = "";
+
+  tiendas.forEach(tienda=>{
+
+    const option = document.createElement("option");
+    option.value = tienda.id_tienda;
+    option.textContent = tienda.nombre;
+    storeSelect.appendChild(option);
+
+    const checkoutOption =
+      document.createElement("option");
+    checkoutOption.value = tienda.id_tienda;
+    checkoutOption.textContent = tienda.nombre;
+    checkoutTienda.appendChild(checkoutOption);
+
+  });
+}
+
+async function seleccionarTienda(idTienda, guardar = true){
+
+  const tienda =
+    tiendas.find(t => t.id_tienda === idTienda);
+
+  if(!tienda) return;
+
+  tiendaSeleccionada = tienda;
+
+  if(guardar){
+    localStorage.setItem(
+      "pande_tienda",
+      tienda.id_tienda
+    );
+  }
+
+  actualizarVistaTienda(
+    "Puedes cambiarla si prefieres otra sucursal."
+  );
+
+  await cargarCatalogoPorTienda(tienda.id_tienda);
+}
+
+function actualizarVistaTienda(nota){
+
+  if(!tiendaSeleccionada) return;
+
+  if(storeName){
+    storeName.textContent =
+      `Te sugerimos ${tiendaSeleccionada.nombre}`;
+  }
+
+  if(storeNote){
+    storeNote.textContent = nota;
+  }
+
+  if(storeSelect){
+    storeSelect.value =
+      tiendaSeleccionada.id_tienda;
+  }
+
+  if(checkoutTienda){
+    checkoutTienda.value =
+      tiendaSeleccionada.id_tienda;
+  }
+}
+
+async function cargarCatalogoPorTienda(idTienda){
+
+  const res = await fetch(
+    `${SCRIPT_URL}?action=getCatalogoPorTienda&key=${FRONTEND_KEY}&id_tienda=${idTienda}`
+  );
+
+  const data = await res.json();
+
+  productos = data.productos || [];
+
+  render();
+}
+
+function detectarTiendaCercana(){
+
+  if(!navigator.geolocation || !tiendas.length){
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+
+      const lat = pos.coords.latitude;
+      const lng = pos.coords.longitude;
+
+      let mejor = null;
+      let mejorDistancia = Infinity;
+
+      tiendas.forEach(tienda=>{
+
+        const distancia = calcularDistanciaKm(
+          lat,
+          lng,
+          Number(tienda.lat),
+          Number(tienda.lng)
+        );
+
+        if(distancia < mejorDistancia){
+          mejor = tienda;
+          mejorDistancia = distancia;
+        }
+      });
+
+      if(mejor){
+        tiendaSeleccionada = mejor;
+
+        localStorage.setItem(
+          "pande_tienda",
+          mejor.id_tienda
+        );
+
+        actualizarVistaTienda(
+          `Es la sucursal más cercana según tu ubicación.`
+        );
+
+        cargarCatalogoPorTienda(mejor.id_tienda);
+      }
+
+    },
+    () => {
+      if(storeNote){
+        storeNote.textContent =
+          "No pudimos detectar tu ubicación. Puedes elegir sucursal manualmente.";
+      }
+    },
+    {
+      enableHighAccuracy: false,
+      timeout: 6000,
+      maximumAge: 600000
+    }
+  );
+}
+
+function calcularDistanciaKm(lat1, lon1, lat2, lon2){
+
+  const R = 6371;
+  const dLat = gradosARadianes(lat2 - lat1);
+  const dLon = gradosARadianes(lon2 - lon1);
+
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(gradosARadianes(lat1)) *
+    Math.cos(gradosARadianes(lat2)) *
+    Math.sin(dLon / 2) *
+    Math.sin(dLon / 2);
+
+  const c =
+    2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+  return R * c;
+}
+
+function gradosARadianes(grados){
+  return grados * (Math.PI / 180);
+}
