@@ -31,6 +31,30 @@
   </nav>
   <div class="category-nav" id="category-nav">
 </div>
+<section class="store-box" id="store-box">
+    <div>
+      <div class="store-label">
+        Sucursal sugerida
+      </div>
+      <div class="store-name" id="store-name">
+        Detectando tienda cercana...
+      </div>
+      <div class="store-note" id="store-note">
+        Puedes cambiarla si prefieres recoger en otra sucursal.
+      </div>
+    </div>
+
+    <div class="store-actions">
+      <select id="store-select"></select>
+      <button
+        type="button"
+        id="btn-location"
+        class="store-location-btn"
+      >
+        Usar mi ubicación
+      </button>
+    </div>
+  </section>
   <div class="overlay" id="overlay"></div>
   <!-- CARRITO -->
   <div class="cart-drawer" id="cart-drawer">
@@ -96,11 +120,30 @@
     </option>
   </select>
 
+  <div id="checkout-tienda-wrapper">
+    <select id="checkout-tienda"></select>
+    <div class="checkout-help" id="checkout-tienda-help">
+      Elige la sucursal donde recogerás tu pedido.
+    </div>
+  </div>
+
   <div id="direccion-wrapper" class="hidden">
+    <div class="delivery-warning">
+      Servicio externo. Costo mínimo de $40, varía según la zona.
+      Disponible solo desde García Lavín y hasta las 8:00 pm.
+      No se realizan envíos de pasteles.
+    </div>
+
     <textarea
       id="cliente-direccion"
-      placeholder="Dirección completa de entrega"
+      placeholder="Dirección escrita completa"
     ></textarea>
+
+    <input
+      type="url"
+      id="cliente-ubicacion"
+      placeholder="Link de ubicación de Google Maps (opcional)"
+    >
   </div>
 
   <select id="metodo-pago">
