@@ -145,9 +145,8 @@ h1 {
 
 .categoria-section {
   margin-bottom: 10px;
-  scroll-margin-top: 140px;
+  scroll-margin-top: 175px;
 }
-
 .categoria-title {
   padding: 0 10px;
   margin-bottom: 24px;
@@ -431,7 +430,8 @@ button:hover {
 }
 
 .checkout-help {
-  margin-top: -8px;
+  margin-top: 6px;
+  margin-bottom: 10px;
   color: #7d6a61;
   font-size: 13px;
   line-height: 1.4;
@@ -460,7 +460,7 @@ button:hover {
 
 .category-nav {
   position: sticky;
-  top: 76px;
+  top: 109px;
   z-index: 900;
   display: flex;
   gap: 12px;
@@ -533,6 +533,14 @@ button:hover {
 
   .logo-img {
     height: 62px;
+  }
+
+      .category-nav {
+    top: 94px;
+  }
+
+  .categoria-section {
+    scroll-margin-top: 155px;
   }
 
   .store-box {
