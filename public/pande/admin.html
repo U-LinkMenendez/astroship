@@ -140,14 +140,16 @@
   let SESION = null;
   let INVENTARIO = [];
   
-  const SIGUIENTE_ESTATUS = {
+   const SIGUIENTE_ESTATUS = {
     "Nuevo": "Confirmado",
-    "Confirmado": "Listo"
+    "Confirmado": "Listo",
+    "Listo": "Entregado"
   };
 
   const LABEL_SIGUIENTE = {
     "Nuevo": "Confirmar pedido",
-    "Confirmado": "Marcar listo"
+    "Confirmado": "Marcar listo",
+    "Listo": "Marcar entregado"
   };
 
   document.getElementById("token-input")
