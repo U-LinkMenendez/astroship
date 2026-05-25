@@ -81,7 +81,7 @@ async function cargarCatalogo(){
       tiendaGuardada &&
       tiendas.some(t => t.id_tienda === tiendaGuardada)
     ){
-      await seleccionarTienda(tiendaGuardada, false);
+      seleccionarTienda(tiendaGuardada, false);
       return;
     }
 
