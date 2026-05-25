@@ -77,10 +77,15 @@ async function cargarCatalogo(){
     const tiendaGuardada =
       localStorage.getItem("pande_tienda");
 
-    if(tiendaGuardada){
-      seleccionarTienda(tiendaGuardada, false);
+    if(
+      tiendaGuardada &&
+      tiendas.some(t => t.id_tienda === tiendaGuardada)
+    ){
+      await seleccionarTienda(tiendaGuardada, false);
       return;
     }
+
+    localStorage.removeItem("pande_tienda");
 
     if(tiendas.length){
       tiendaSeleccionada =
