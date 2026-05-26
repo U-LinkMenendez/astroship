@@ -137,6 +137,7 @@
     </button>
     <button class="tab" onclick="cambiarTab('catalogo')" id="tab-catalogo">Catálogo</button>
     <button class="tab" onclick="cambiarTab('matriz')" id="tab-matriz">Matriz</button>
+    <button class="tab" onclick="cambiarTab('tiendas')" id="tab-tiendas">Tiendas</button>
     <button class="tab" onclick="cambiarTab('nuevo')" id="tab-nuevo">Nuevo producto</button>
   </div>
   <div class="content">
@@ -163,6 +164,66 @@
       </div>
       <div id="matriz-stock">
         <div class="loading">Cargando matriz...</div>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="panel-tiendas">
+      <div class="section-header">
+        <div class="section-title">Tiendas</div>
+      </div>
+
+      <div class="form-card">
+        <div class="form-grid">
+          <div class="field">
+            <label>ID tienda</label>
+            <input id="tienda-id" placeholder="NORTE" />
+          </div>
+
+          <div class="field">
+            <label>Nombre</label>
+            <input id="tienda-nombre" placeholder="Sucursal Norte" />
+          </div>
+
+          <div class="field full">
+            <label>Dirección</label>
+            <input id="tienda-direccion" placeholder="Dirección completa" />
+          </div>
+
+          <div class="field">
+            <label>Lat</label>
+            <input id="tienda-lat" type="number" step="0.000001" />
+          </div>
+
+          <div class="field">
+            <label>Lng</label>
+            <input id="tienda-lng" type="number" step="0.000001" />
+          </div>
+
+          <div class="field">
+            <label>WhatsApp</label>
+            <input id="tienda-whatsapp" placeholder="52999..." />
+          </div>
+
+          <label class="check-row">
+            <input id="tienda-activa" type="checkbox" checked />
+            Activa
+          </label>
+
+          <label class="check-row">
+            <input id="tienda-delivery" type="checkbox" />
+            Delivery OK
+          </label>
+
+          <div class="field full">
+            <button class="primary-btn" onclick="crearTienda()">
+              Crear tienda
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div id="tiendas-lista">
+        <div class="loading">Cargando tiendas...</div>
       </div>
     </div>
     
@@ -267,6 +328,58 @@
     document.getElementById(`panel-${tab}`).classList.add("active");
   }
 
+  function pintarTiendas(){
+
+    const cont =
+      document.getElementById("tiendas-lista");
+
+    if(!cont) return;
+
+    if(!TIENDAS.length){
+      cont.innerHTML =
+        '<div class="empty-state"><p>Sin tiendas</p></div>';
+      return;
+    }
+
+    let html = '<div class="catalogo-grid">';
+
+    TIENDAS.forEach(tienda => {
+      html += `
+        <div class="producto-card">
+          <div class="producto-top">
+            <div>
+              <div class="producto-nombre">
+                ${tienda.nombre}
+              </div>
+              <div class="producto-meta">
+                ${tienda.id_tienda} · ${tienda.whatsapp || "Sin WhatsApp"}
+              </div>
+              <div class="producto-meta">
+                ${tienda.direccion || "Sin dirección"}
+              </div>
+              <div class="producto-meta">
+                Delivery: ${tienda.delivery_ok ? "Sí" : "No"} ·
+                Activa: ${tienda.activa ? "Sí" : "No"}
+              </div>
+            </div>
+          </div>
+          <div class="producto-actions">
+            <button
+              class="small-btn edit-btn"
+              onclick="editarTienda('${tienda.id_tienda}')"
+            >
+              Editar
+            </button>
+          </div>
+        </div>
+      `;
+    });
+
+    html += '</div>';
+
+    cont.innerHTML = html;
+  }
+  
   async function cargarDatosMatriz(){
 
     try{
@@ -290,6 +403,7 @@
       TIENDAS = tiendasData.tiendas || [];
       INVENTARIO = inventarioData.inventario || [];
 
+      pintarTiendas();
       pintarMatriz();
 
     }catch(err){
@@ -406,6 +520,114 @@
 
       }else{
         toast("Error al actualizar matriz");
+      }
+
+    }catch(err){
+      toast("Error de conexion");
+    }
+  }
+
+  async function crearTienda(){
+
+    const payload = {
+      action: "crearTienda",
+      token: TOKEN,
+      id_tienda: document.getElementById("tienda-id").value
+        .trim()
+        .toUpperCase(),
+      nombre: document.getElementById("tienda-nombre").value.trim(),
+      direccion: document.getElementById("tienda-direccion").value.trim(),
+      lat: document.getElementById("tienda-lat").value,
+      lng: document.getElementById("tienda-lng").value,
+      whatsapp: document.getElementById("tienda-whatsapp").value.trim(),
+      activa: document.getElementById("tienda-activa").checked,
+      delivery_ok: document.getElementById("tienda-delivery").checked
+    };
+
+    if(!payload.id_tienda || !payload.nombre){
+      toast("Completa ID y nombre");
+      return;
+    }
+
+    try{
+      const res = await fetch(SCRIPT_URL, {
+        method: "POST",
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json();
+
+      if(data.ok){
+        toast("Tienda creada");
+        limpiarFormularioTienda();
+        await cargarDatosMatriz();
+      }else{
+        toast(data.error || "Error creando tienda");
+      }
+
+    }catch(err){
+      toast("Error de conexion");
+    }
+  }
+
+  function limpiarFormularioTienda(){
+    [
+      "tienda-id",
+      "tienda-nombre",
+      "tienda-direccion",
+      "tienda-lat",
+      "tienda-lng",
+      "tienda-whatsapp"
+    ].forEach(id => {
+      document.getElementById(id).value = "";
+    });
+
+    document.getElementById("tienda-activa").checked = true;
+    document.getElementById("tienda-delivery").checked = false;
+  }
+
+  async function editarTienda(idTienda){
+
+    const tienda =
+      TIENDAS.find(t => t.id_tienda === idTienda);
+
+    if(!tienda) return;
+
+    const nombre =
+      prompt("Nombre de la tienda:", tienda.nombre || "");
+
+    if(nombre === null) return;
+
+    const direccion =
+      prompt("Dirección:", tienda.direccion || "");
+
+    if(direccion === null) return;
+
+    const whatsapp =
+      prompt("WhatsApp:", tienda.whatsapp || "");
+
+    if(whatsapp === null) return;
+
+    try{
+      const res = await fetch(SCRIPT_URL, {
+        method: "POST",
+        body: JSON.stringify({
+          action: "updateTienda",
+          token: TOKEN,
+          id_tienda: idTienda,
+          nombre: nombre.trim(),
+          direccion: direccion.trim(),
+          whatsapp: whatsapp.trim()
+        })
+      });
+
+      const data = await res.json();
+
+      if(data.ok){
+        toast("Tienda actualizada");
+        cargarDatosMatriz();
+      }else{
+        toast(data.error || "Error actualizando tienda");
       }
 
     }catch(err){
