@@ -62,6 +62,8 @@
     .btn-accion { padding:8px 16px; border-radius:999px; font-size:13px; font-weight:600; cursor:pointer; border:none; font-family:inherit; }
     .btn-confirmado { background:#fff3e0; color:var(--naranja); }
     .btn-listo { background:#e8f5e9; color:var(--verde); }
+    .btn-entregado { background:#f5f5f5; color:var(--gris); }
+    .btn-pago { background:#e8f5e9; color:var(--verde); }
     .btn-cancelar { background:#fce4e8; color:var(--rojo); }
     .catalogo-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:14px; }
     .categoria-stock { font-family:'Playfair Display',serif; color:var(--cafe); margin:24px 0 12px; font-size:20px; }
@@ -297,9 +299,24 @@
           day:"numeric", month:"short", hour:"2-digit", minute:"2-digit"
         })
       : "";
-    const btnSiguiente = siguiente
-      ? `<button class="btn-accion btn-${siguiente.toLowerCase()}" onclick="avanzarEstatus('${p.id_pedido}','${siguiente}')">${labelSig}</button>`
-      : "";
+    const esMaster =
+      SESION && SESION.rol === "master";
+
+    const puedeEntregar =
+      !(
+        siguiente === "Entregado" &&
+        transferenciaPendiente
+      );
+
+    const btnSiguiente =
+      siguiente && puedeEntregar && !esMaster
+        ? `<button class="btn-accion btn-${siguiente.toLowerCase()}" onclick="avanzarEstatus('${p.id_pedido}','${siguiente}')">${labelSig}</button>`
+        : "";
+
+    const btnAprobarPago =
+      esMaster && transferenciaPendiente
+        ? `<button class="btn-accion btn-pago" onclick="aprobarPago('${p.id_pedido}')">Aprobar pago</button>`
+        : "";
     const avisoPago = transferenciaPendiente
       ? `<div class="pago-alerta">Transferencia pendiente de aprobación por Master. No entregar hasta que aparezca como pagado.</div>`
       : transferenciaPagada
@@ -323,12 +340,39 @@
         <div class="pedido-actions">
           <span class="estatus-badge badge-${estatus}">${estatus}</span>
           ${btnSiguiente}
+          ${btnAprobarPago}
           <button class="btn-accion btn-cancelar" onclick="cancelarPedido('${p.id_pedido}')">Cancelar</button>
         </div>
       </div>
     `;
   }
 
+  async function aprobarPago(idPedido){
+
+    try{
+      const res = await fetch(SCRIPT_URL, {
+        method: "POST",
+        body: JSON.stringify({
+          action: "aprobarPago",
+          token: TOKEN,
+          id_pedido: idPedido
+        })
+      });
+
+      const data = await res.json();
+
+      if(data.ok){
+        toast("Pago aprobado");
+        cargarPedidos();
+      }else{
+        toast("Error al aprobar pago");
+      }
+
+    }catch(err){
+      toast("Error de conexion");
+    }
+  }
+  
   async function avanzarEstatus(idPedido, nuevoEstatus){
     try{
       const res = await fetch(SCRIPT_URL, {
@@ -557,8 +601,8 @@
 
   setInterval(() => {
     if(TOKEN) cargarPedidos();
-  }, 60000);
-
+}, 30000);
+    
   const savedToken = sessionStorage.getItem("pande_empleadas_token");
 
   if(savedToken){
