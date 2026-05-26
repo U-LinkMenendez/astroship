@@ -552,7 +552,32 @@
     padding-top:0.75rem;
   }
 }
-    
+
+    .op-incidence {
+  margin-top:10px;
+  padding:10px;
+  border-radius:8px;
+  background:#FFF7ED;
+  color:#9A3412;
+  border:1px solid #FDBA74;
+  font-size:0.78rem;
+  font-weight:600;
+  line-height:1.4;
+}
+
+.adm-btn-audit {
+  background:#111827;
+  color:#fff;
+}
+
+.adm-btn-audit:hover {
+  background:#374151;
+}
+
+.rslot-occ.rs-incidence {
+  background:#FFF7ED !important;
+  border-left-color:#EA580C !important;
+}
   </style>
 </head>
 <body>
@@ -1578,6 +1603,31 @@ console.log('CLICK SLOT', {
   </div>
 
 `;
+
+      const auditBox = document.getElementById('admAuditBox');
+
+if (auditBox) {
+  const yaNoRealizada =
+    String(booking.estadoOperacion || '').trim() === 'Cirugia no realizada';
+
+  const esCancelada =
+    String(booking.estatus || '').trim() === 'Cancelado';
+
+  auditBox.style.display =
+    canAuditOperacion() && !yaNoRealizada && !esCancelada
+      ? 'block'
+      : 'none';
+}
+
+if (String(booking.estadoOperacion || '').trim() === 'Cirugia no realizada') {
+  document.getElementById('admEditSummary').innerHTML += `
+    <div class="op-incidence">
+      Cirugía no realizada.
+      ${booking.motivoIncidencia ? '<br>Motivo: ' + escHtml(booking.motivoIncidencia) : ''}
+      ${booking.incidenciaUsuario ? '<br>Firmó: ' + escHtml(booking.incidenciaUsuario) : ''}
+    </div>
+  `;
+}
       
       // Fill edit data tab
       document.getElementById('ed-paciente').value      = booking.paciente||'';
@@ -2459,46 +2509,112 @@ if (dateTabsEl) {
   }, { passive:false });
 }
 
+     async function submitIncidenciaOperacion() {
+  if (!_editBooking) return;
+
+  if (!canAuditOperacion()) {
+    alert('Solo Daniel puede registrar esta incidencia.');
+    return;
+  }
+
+  const motivo = prompt(
+    'Motivo de la cirugía no realizada:',
+    'Paciente no se presentó'
+  );
+
+  if (motivo === null) return;
+
+  const pin = prompt('Firma electrónica de Daniel:');
+  if (pin === null) return;
+
+  const user = getCurrentAdminUser();
+
+  const confirmar = confirm(
+    'Confirmar incidencia operativa\n\n' +
+    'Esta acción NO cancela en Cal.com, NO borra la reserva y NO modifica el horario.\n' +
+    'Solo marcará la cirugía como no realizada en Sheets.'
+  );
+
+  if (!confirmar) return;
+
+  try {
+    const res = await fetch(getScriptUrl(), {
+      method: 'POST',
+      body: JSON.stringify({
+        action: 'registrarIncidenciaOperacion',
+        bookingId: _editBooking.bookingId,
+        estadoOperacion: 'Cirugia no realizada',
+        motivo: motivo.trim(),
+        usuario: user.username,
+        pin: pin
+      })
+    });
+
+    const json = await res.json();
+
+    if (!json.ok) {
+      throw new Error(json.error || 'No se pudo registrar la incidencia');
+    }
+
+    closeAdmEdit();
+    await loadData();
+
+    alert('Incidencia registrada con firma de Daniel.');
+  } catch(err) {
+    alert('No se pudo registrar: ' + err.message);
+  }
+}
+     
 init();
 
 <!-- PASSWORD / CONTRASEÑA CLÍNICA GINERÉS -->
-const ADMIN_USER = 'admin';
-const ADMIN_PASS = 'Gineres2026';
+const ADMIN_USERS = {
+  recepcion: {
+    pass: 'Recepcion2026',
+    role: 'recepcion',
+    label: 'Recepción'
+  },
+  daniel: {
+    pass: 'Daniel2026',
+    role: 'auditoria',
+    label: 'Daniel'
+  }
+};
+
+function getCurrentAdminUser() {
+  try {
+    return JSON.parse(localStorage.getItem('cg_admin_user') || 'null');
+  } catch(e) {
+    return null;
+  }
+}
+
+function canAuditOperacion() {
+  const user = getCurrentAdminUser();
+  return user && user.role === 'auditoria';
+}
 
 function doLogin() {
+  const u = document.getElementById('lgUser').value.trim().toLowerCase();
+  const p = document.getElementById('lgPass').value.trim();
+  const found = ADMIN_USERS[u];
 
-  const u =
-    document
-      .getElementById('lgUser')
-      .value
-      .trim();
-
-  const p =
-    document
-      .getElementById('lgPass')
-      .value
-      .trim();
-
-  if (
-    u === ADMIN_USER &&
-    p === ADMIN_PASS
-  ) {
-
+  if (found && found.pass === p) {
+    localStorage.setItem('cg_admin_ok', '1');
     localStorage.setItem(
-      'cg_admin_ok',
-      '1'
+      'cg_admin_user',
+      JSON.stringify({
+        username: u,
+        role: found.role,
+        label: found.label
+      })
     );
 
-    document
-      .getElementById('loginScreen')
-      .style.display = 'none';
-
-  } else {
-
-    document
-      .getElementById('lgErr')
-      .style.display = 'block';
+    document.getElementById('loginScreen').style.display = 'none';
+    return;
   }
+
+  document.getElementById('lgErr').style.display = 'block';
 }
 
 (function(){
@@ -2518,10 +2634,8 @@ function doLogin() {
 })();
 
      function logoutAdmin() {
-      localStorage.removeItem(
-       'cg_admin_ok'
-     );
-
+  localStorage.removeItem('cg_admin_ok');
+  localStorage.removeItem('cg_admin_user');
   location.reload();
 }
      
@@ -2638,6 +2752,17 @@ function doLogin() {
     <h2 id="admEditTitle">Editar Reserva</h2>
     <div class="sub" id="admEditSub"></div>
     <div class="adm-summary" id="admEditSummary"></div>
+
+    <div id="admAuditBox" style="display:none;margin-bottom:1rem;">
+  <button
+    type="button"
+    class="adm-btn adm-btn-audit"
+    style="width:100%;"
+    onclick="submitIncidenciaOperacion()"
+  >
+    Registrar cirugía no realizada
+  </button>
+</div>
 
     <!-- Tab buttons -->
     <div style="display:flex;gap:4px;margin-bottom:1rem;">
