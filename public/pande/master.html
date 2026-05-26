@@ -89,6 +89,17 @@
     .check-row { display:flex; align-items:center; gap:8px; font-size:13px; color:var(--cafe-dark); }
     .empty-state, .loading { text-align:center; padding:60px 20px; color:var(--gris); }
     .toast { position:fixed; bottom:24px; right:24px; background:var(--cafe-dark); color:white; padding:14px 20px; border-radius:var(--radius); font-size:14px; font-weight:500; box-shadow:0 8px 24px rgba(0,0,0,.2); opacity:0; transform:translateY(10px); transition:.3s; z-index:9999; pointer-events:none; }
+
+        .matrix-wrap { background:var(--white); border-radius:var(--radius); box-shadow:var(--shadow); overflow:auto; }
+    .matrix-table { width:100%; border-collapse:collapse; min-width:720px; }
+    .matrix-table th, .matrix-table td { padding:12px 14px; border-bottom:1px solid var(--cream2); text-align:center; font-size:13px; }
+    .matrix-table th:first-child, .matrix-table td:first-child { text-align:left; position:sticky; left:0; background:var(--white); z-index:1; }
+    .stock-dot { width:22px; height:22px; border-radius:6px; border:none; cursor:pointer; display:inline-block; }
+    .stock-dot.on { background:var(--verde); }
+    .stock-dot.off { background:var(--rojo); }
+    .matrix-legend { display:flex; gap:14px; align-items:center; margin-bottom:14px; color:var(--gris); font-size:13px; }
+    .legend-item { display:flex; gap:6px; align-items:center; }
+    
     .toast.show { opacity:1; transform:translateY(0); }
     @media (max-width:700px) {
       .content { padding:16px; }
@@ -125,6 +136,7 @@
       Pedidos <span class="badge-count" id="badge-pedidos">0</span>
     </button>
     <button class="tab" onclick="cambiarTab('catalogo')" id="tab-catalogo">Catálogo</button>
+    <button class="tab" onclick="cambiarTab('matriz')" id="tab-matriz">Matriz</button>
     <button class="tab" onclick="cambiarTab('nuevo')" id="tab-nuevo">Nuevo producto</button>
   </div>
   <div class="content">
@@ -136,6 +148,24 @@
       <div class="section-header"><div class="section-title">Editar catálogo</div></div>
       <div id="catalogo-lista"><div class="loading">Cargando catálogo...</div></div>
     </div>
+
+    <div class="tab-panel" id="panel-matriz">
+      <div class="section-header">
+        <div class="section-title">Matriz de stock</div>
+      </div>
+      <div class="matrix-legend">
+        <div class="legend-item">
+          <span class="stock-dot on"></span> En stock
+        </div>
+        <div class="legend-item">
+          <span class="stock-dot off"></span> Agotado
+        </div>
+      </div>
+      <div id="matriz-stock">
+        <div class="loading">Cargando matriz...</div>
+      </div>
+    </div>
+    
     <div class="tab-panel" id="panel-nuevo">
       <div class="section-header"><div class="section-title">Nuevo producto</div></div>
       <div class="form-card">
@@ -172,6 +202,8 @@
 
   let TOKEN = "";
   let PRODUCTOS = [];
+  let TIENDAS = [];
+  let INVENTARIO = [];
 
   document.getElementById("token-input")
     .addEventListener("keydown", e => {
@@ -197,7 +229,9 @@
         sessionStorage.setItem("pande_master_token", TOKEN);
         document.getElementById("login-screen").style.display = "none";
         document.getElementById("app").style.display = "block";
-        pintarCatalogo(data.productos || []);
+        PRODUCTOS = data.productos || [];
+        pintarCatalogo(PRODUCTOS);
+        await cargarDatosMatriz();
         cargarPedidos();
       }else{
         mostrarError("Token Master incorrecto");
@@ -233,6 +267,152 @@
     document.getElementById(`panel-${tab}`).classList.add("active");
   }
 
+  async function cargarDatosMatriz(){
+
+    try{
+      const tiendasRes = await fetch(
+        `${SCRIPT_URL}?action=getTiendasAdmin&token=${TOKEN}`
+      );
+
+      const inventarioRes = await fetch(
+        `${SCRIPT_URL}?action=getInventario&token=${TOKEN}`
+      );
+
+      const tiendasData = await tiendasRes.json();
+      const inventarioData = await inventarioRes.json();
+
+      if(!tiendasData.ok || !inventarioData.ok){
+        document.getElementById("matriz-stock").innerHTML =
+          '<div class="empty-state"><p>Error cargando matriz</p></div>';
+        return;
+      }
+
+      TIENDAS = tiendasData.tiendas || [];
+      INVENTARIO = inventarioData.inventario || [];
+
+      pintarMatriz();
+
+    }catch(err){
+      document.getElementById("matriz-stock").innerHTML =
+        '<div class="empty-state"><p>Error de conexion</p></div>';
+    }
+  }
+
+  function disponibleEnMatriz(idTienda, idProducto){
+
+    const item = INVENTARIO.find(inv =>
+      inv.id_tienda === idTienda &&
+      inv.id_producto === idProducto
+    );
+
+    return item ? item.disponible === true : false;
+  }
+
+  function pintarMatriz(){
+
+    const cont =
+      document.getElementById("matriz-stock");
+
+    if(!PRODUCTOS.length || !TIENDAS.length){
+      cont.innerHTML =
+        '<div class="empty-state"><p>Sin datos para matriz</p></div>';
+      return;
+    }
+
+    let html = `
+      <div class="matrix-wrap">
+        <table class="matrix-table">
+          <thead>
+            <tr>
+              <th>Producto</th>
+              ${TIENDAS.map(t => `<th>${t.nombre}</th>`).join("")}
+            </tr>
+          </thead>
+          <tbody>
+    `;
+
+    PRODUCTOS.forEach(p => {
+      html += `
+        <tr>
+          <td>
+            <strong>${p.nombre}</strong><br>
+            <span class="producto-meta">${p.id} · ${p.categoria}</span>
+          </td>
+          ${TIENDAS.map(tienda => {
+            const disponible =
+              disponibleEnMatriz(
+                tienda.id_tienda,
+                p.id
+              );
+
+            return `
+              <td>
+                <button
+                  class="stock-dot ${disponible ? "on" : "off"}"
+                  title="${disponible ? "En stock" : "Agotado"}"
+                  onclick="toggleMatriz('${tienda.id_tienda}','${p.id}',${!disponible})"
+                ></button>
+              </td>
+            `;
+          }).join("")}
+        </tr>
+      `;
+    });
+
+    html += `
+          </tbody>
+        </table>
+      </div>
+    `;
+
+    cont.innerHTML = html;
+  }
+
+  async function toggleMatriz(idTienda, idProducto, disponible){
+
+    try{
+      const res = await fetch(SCRIPT_URL, {
+        method: "POST",
+        body: JSON.stringify({
+          action: "updateDisponible",
+          token: TOKEN,
+          id_tienda: idTienda,
+          id_producto: idProducto,
+          disponible
+        })
+      });
+
+      const data = await res.json();
+
+      if(data.ok){
+
+        const item = INVENTARIO.find(inv =>
+          inv.id_tienda === idTienda &&
+          inv.id_producto === idProducto
+        );
+
+        if(item){
+          item.disponible = disponible;
+        }else{
+          INVENTARIO.push({
+            id_tienda: idTienda,
+            id_producto: idProducto,
+            disponible
+          });
+        }
+
+        pintarMatriz();
+        toast(disponible ? "Producto disponible" : "Producto agotado");
+
+      }else{
+        toast("Error al actualizar matriz");
+      }
+
+    }catch(err){
+      toast("Error de conexion");
+    }
+  }
+  
   async function cargarPedidos(){
     const lista = document.getElementById("pedidos-lista");
     lista.innerHTML = '<div class="loading">Cargando pedidos...</div>';
@@ -566,6 +746,7 @@
   function recargarTodo(){
     cargarPedidos();
     cargarCatalogo();
+    cargarDatosMatriz();
     toast("Actualizado");
   }
 
