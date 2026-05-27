@@ -578,6 +578,185 @@
   background:#FFF7ED !important;
   border-left-color:#EA580C !important;
 }
+    
+    .role-help-btn {
+  position: fixed;
+  right: 14px;
+  bottom: 42px;
+  z-index: 9998;
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  border: 1px solid rgba(15, 23, 42, 0.14);
+  background: #0B1F3A;
+  color: #fff;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 20px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.22);
+}
+
+.role-help-btn:hover {
+  background: #152D52;
+}
+
+.role-help-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: rgba(15, 23, 42, 0.56);
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+}
+
+.role-help-modal.open {
+  display: flex;
+}
+
+.role-help-panel {
+  width: min(720px, 94vw);
+  max-height: 86vh;
+  overflow-y: auto;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.28);
+}
+
+.role-help-head {
+  background: #0B1F3A;
+  color: #fff;
+  padding: 18px 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.role-help-head h2 {
+  font-size: 1rem;
+  margin: 0;
+}
+
+.role-help-close {
+  border: 0;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.role-help-body {
+  padding: 18px 22px 22px;
+}
+
+.role-help-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.role-help-tab {
+  border: 1px solid #CBD5E1;
+  background: #F8FAFC;
+  color: #334155;
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.role-help-tab.active {
+  background: #2563EB;
+  color: #fff;
+  border-color: #2563EB;
+}
+
+.role-help-section {
+  display: none;
+}
+
+.role-help-section.active {
+  display: block;
+}
+
+.role-help-section h3 {
+  margin: 0 0 10px;
+  color: #0B1F3A;
+  font-size: 1rem;
+}
+
+.role-help-list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.role-help-list li {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 10px;
+  padding: 10px 12px;
+  color: #475569;
+  font-size: 0.86rem;
+  line-height: 1.45;
+}
+
+.role-help-list strong {
+  color: #0F172A;
+}
+
+.role-report-box {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 8px;
+  margin-top: 14px;
+  padding: 12px;
+  border: 1px solid #BFDBFE;
+  background: #EFF6FF;
+  border-radius: 10px;
+}
+
+.role-report-box input,
+.role-report-box button {
+  border: 1px solid #CBD5E1;
+  border-radius: 8px;
+  padding: 9px 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.84rem;
+}
+
+.role-report-box button {
+  background: #0B1F3A;
+  color: #fff;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+@media (max-width: 640px) {
+  .role-help-btn {
+    right: 10px;
+    bottom: 34px;
+    width: 38px;
+    height: 38px;
+    font-size: 18px;
+  }
+
+  .role-report-box {
+    grid-template-columns: 1fr;
+  }
+}
+    
   </style>
 </head>
 <body>
@@ -2679,6 +2858,71 @@ function fillDoctorFromEmailSuggestion() {
     doctorInput.value = found.name;
   }
 }
+
+     function openRoleHelp() {
+  const modal = document.getElementById('roleHelpModal');
+  if (!modal) return;
+
+  setDefaultReportDates();
+  modal.classList.add('open');
+}
+
+function closeRoleHelp() {
+  const modal = document.getElementById('roleHelpModal');
+  if (!modal) return;
+  modal.classList.remove('open');
+}
+
+function showRoleHelp(role) {
+  document.querySelectorAll('[data-role-help-tab]').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.roleHelpTab === role);
+  });
+
+  document.querySelectorAll('[data-role-help-section]').forEach(section => {
+    section.classList.toggle('active', section.dataset.roleHelpSection === role);
+  });
+}
+
+function setDefaultReportDates() {
+  const start = document.getElementById('roleReportStart');
+  const end = document.getElementById('roleReportEnd');
+  if (!start || !end) return;
+  if (start.value && end.value) return;
+
+  const now = new Date();
+  const first = new Date(now.getFullYear(), now.getMonth(), 1);
+  const last = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+  start.value = formatDate(first);
+  end.value = formatDate(last);
+}
+
+function openLuisReport() {
+  const start = document.getElementById('roleReportStart').value;
+  const end = document.getElementById('roleReportEnd').value;
+
+  if (!start || !end) {
+    alert('Selecciona fecha inicio y fecha fin.');
+    return;
+  }
+
+  const url =
+    getScriptUrl() +
+    '?view=reporte-luis&start=' +
+    encodeURIComponent(start) +
+    '&end=' +
+    encodeURIComponent(end) +
+    '&t=' +
+    Date.now();
+
+  window.open(url, '_blank');
+}
+
+document.addEventListener('keydown', event => {
+  if (event.key === 'Escape') {
+    closeRoleHelp();
+  }
+});
      
 init();
 
@@ -2960,6 +3204,67 @@ function doLogin() {
 </div>
 
 <a
+  <button
+  type="button"
+  class="role-help-btn"
+  title="Guía rápida"
+  onclick="openRoleHelp()"
+>
+  ?
+</button>
+
+<div class="role-help-modal" id="roleHelpModal">
+  <div class="role-help-panel">
+    <div class="role-help-head">
+      <h2>Guía rápida Clínica Ginerés</h2>
+      <button type="button" class="role-help-close" onclick="closeRoleHelp()">×</button>
+    </div>
+
+    <div class="role-help-body">
+      <div class="role-help-tabs">
+        <button type="button" class="role-help-tab active" data-role-help-tab="recepcion" onclick="showRoleHelp('recepcion')">Recepción</button>
+        <button type="button" class="role-help-tab" data-role-help-tab="daniel" onclick="showRoleHelp('daniel')">Daniel</button>
+        <button type="button" class="role-help-tab" data-role-help-tab="luis" onclick="showRoleHelp('luis')">Luis</button>
+      </div>
+
+      <section class="role-help-section active" data-role-help-section="recepcion">
+        <h3>Recepción</h3>
+        <ul class="role-help-list">
+          <li><strong>Crear reserva:</strong> selecciona quirófano y horario disponible, captura doctor, correo, paciente, cirugía y servicios adicionales.</li>
+          <li><strong>Sugerencias:</strong> al escribir doctor, correo o anestesiólogo puedes elegir datos ya usados. Si no aparece, escribe libremente.</li>
+          <li><strong>Reagendar o cancelar:</strong> usa las opciones del modal de reserva. Esas acciones sí interactúan con Cal.com.</li>
+          <li><strong>No realizada:</strong> esta marca solo la registra Daniel. Recepción no debe usarla ni modificar columnas de auditoría en Sheets.</li>
+        </ul>
+      </section>
+
+      <section class="role-help-section" data-role-help-section="daniel">
+        <h3>Daniel</h3>
+        <ul class="role-help-list">
+          <li><strong>Auditoría operativa:</strong> abre la reserva y usa "Registrar cirugía no realizada" únicamente cuando el paciente no se presentó o la cirugía no ocurrió.</li>
+          <li><strong>Firma electrónica:</strong> confirma con tu PIN. La acción queda registrada con usuario, motivo y fecha.</li>
+          <li><strong>Alcance:</strong> esta marca no cancela en Cal.com, no borra la reserva y no cambia el horario. Solo escribe columnas AL:AO.</li>
+          <li><strong>Errores:</strong> si marcaste una reserva incorrecta, avisa antes de modificar manualmente el Sheet.</li>
+        </ul>
+      </section>
+
+      <section class="role-help-section" data-role-help-section="luis">
+        <h3>Luis</h3>
+        <ul class="role-help-list">
+          <li><strong>Reporte:</strong> selecciona el periodo y abre el reporte operativo para revisar cirugías, incidencias, anestesiólogos y servicios adicionales.</li>
+          <li><strong>PDF:</strong> dentro del reporte usa "Imprimir / Guardar PDF". Recomendado: orientación horizontal, tamaño carta y fondos gráficos activados.</li>
+          <li><strong>Incidencias:</strong> las cirugías marcadas como no realizadas se muestran separadas y no suman como cirugías normales.</li>
+        </ul>
+
+        <div class="role-report-box">
+          <input type="date" id="roleReportStart" aria-label="Fecha inicio">
+          <input type="date" id="roleReportEnd" aria-label="Fecha fin">
+          <button type="button" onclick="openLuisReport()">Abrir reporte</button>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+  
   class="ulink-powered"
   href="https://wa.me/529996690192?text=Hola%2C%20estoy%20viendo%20el%20proyecto%20de%20la%20Cl%C3%ADnica%20Giner%C3%A9s.%20%C2%BFPodr%C3%ADamos%20implementar%20algo%20as%C3%AD%20para%20mi%3F"
   target="_blank"
