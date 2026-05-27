@@ -523,11 +523,37 @@ function actualizarCarrito(){
 
 }
 
+function carritoTienePedidoEspecial(){
+
+  return carrito.some(item =>
+    item.producto.pedido_especial === true ||
+    item.producto.categoria === "PedEsp"
+  );
+}
+
 function abrirCheckout(){
   if(carrito.length === 0){
     alert("Tu carrito está vacío");
     return;
   }
+
+  const aviso =
+    document.getElementById("pedido-especial-aviso");
+
+  const tipoFecha =
+    document.getElementById("tipo-fecha");
+
+  const fechaWrapper =
+    document.getElementById("fecha-wrapper");
+
+  if(carritoTienePedidoEspecial()){
+    aviso.classList.remove("hidden");
+    tipoFecha.value = "programado";
+    fechaWrapper.classList.remove("hidden");
+  }else{
+    aviso.classList.add("hidden");
+  }
+
   checkoutModal.classList.add("show");
 }
 
@@ -638,6 +664,19 @@ window.addEventListener("scroll",()=>{
 
 });
 
+document.getElementById("tipo-fecha")
+  .addEventListener("change",(e)=>{
+
+    const wrapper =
+      document.getElementById("fecha-wrapper");
+
+    if(e.target.value === "programado"){
+      wrapper.classList.remove("hidden");
+    }else{
+      wrapper.classList.add("hidden");
+    }
+  });
+
 document.getElementById("tipo-entrega")
   .addEventListener("change",(e)=>{
 
@@ -688,6 +727,24 @@ function validarPedido(){
   const entrega =
     document.getElementById("tipo-entrega").value;
 
+    const tipoFecha =
+    document.getElementById("tipo-fecha").value;
+
+  const fechaEntrega =
+    document.getElementById("fecha-entrega");
+
+  const horaEntrega =
+    document.getElementById("hora-entrega");
+  
+  const tipoFecha =
+    document.getElementById("tipo-fecha").value;
+
+  const fechaEntrega =
+    document.getElementById("fecha-entrega");
+
+  const horaEntrega =
+    document.getElementById("hora-entrega");
+
   const direccion =
     document.getElementById("cliente-direccion");
 
@@ -724,6 +781,38 @@ function validarPedido(){
     valido = false;
   }
 
+  if(tipoFecha === "programado"){
+
+    if(!fechaEntrega.value){
+      fechaEntrega.classList.add("error");
+      valido = false;
+    }
+
+    if(!horaEntrega.value){
+      horaEntrega.classList.add("error");
+      valido = false;
+    }
+  }
+
+  if(carritoTienePedidoEspecial()){
+
+    if(!fechaEntrega.value){
+      fechaEntrega.classList.add("error");
+      valido = false;
+    }else{
+      const fecha = new Date(`${fechaEntrega.value}T00:00:00`);
+      const minima = new Date();
+      minima.setHours(0,0,0,0);
+      minima.setDate(minima.getDate() + 3);
+
+      if(fecha < minima){
+        alert("Los pedidos personalizados requieren mínimo 3 días de anticipación.");
+        fechaEntrega.classList.add("error");
+        valido = false;
+      }
+    }
+  }
+  
   if(!valido) return;
 
   const pago =
@@ -772,6 +861,24 @@ function validarPedido(){
         <strong>Sucursal:</strong>
         ${tienda ? tienda.nombre : "—"}
       </div>
+
+      ${tipoFecha === "programado" || carritoTienePedidoEspecial()
+        ? `<div>
+            <strong>Fecha:</strong>
+            ${fechaEntrega.value || "—"}
+           </div>
+           <div>
+            <strong>Hora:</strong>
+            ${horaEntrega.value || "—"}
+           </div>`
+        : ""}
+      ${carritoTienePedidoEspecial()
+        ? `<div>
+            <strong>Anticipo requerido:</strong>
+            $${total * 0.5}
+           </div>`
+        : ""}
+      
       ${entrega === "domicilio"
         ? `<div>
             <strong>Dirección:</strong>
@@ -825,6 +932,18 @@ function enviarPorWhatsapp(){
   const entrega =
     document.getElementById("tipo-entrega").value;
 
+    const tipoFecha =
+    document.getElementById("tipo-fecha").value;
+
+  const fechaEntrega =
+    document.getElementById("fecha-entrega").value;
+
+  const horaEntrega =
+    document.getElementById("hora-entrega").value;
+
+  const esEspecial =
+    carritoTienePedidoEspecial();
+
   const direccion =
     document.getElementById("cliente-direccion")
       .value.trim();
@@ -855,6 +974,15 @@ function enviarPorWhatsapp(){
   mensaje += `Sucursal: ${
     tienda ? tienda.nombre : "No seleccionada"
   }\n`;
+
+    if(tipoFecha === "programado" || esEspecial){
+    mensaje += `Fecha: ${fechaEntrega || "Por confirmar"}\n`;
+    mensaje += `Hora: ${horaEntrega || "Por confirmar"}\n`;
+  }
+
+  if(esEspecial){
+    mensaje += `Anticipo requerido: 50%\n`;
+  }
 
   if(entrega === "domicilio"){
     mensaje += `Direccion: ${direccion}\n`;
@@ -898,6 +1026,10 @@ function enviarPorWhatsapp(){
         id_tienda: tienda ? tienda.id_tienda : "",
         nombre_tienda: tienda ? tienda.nombre : "",
         ubicacion_url: ubicacion,
+        fecha_entrega: fechaEntrega,
+        hora_entrega: horaEntrega,
+        es_personalizado: esEspecial,
+        anticipo_pagado: 0,
         metodo_pago: pago,
         notas: notas,
         subtotal: carrito.reduce(
@@ -948,6 +1080,21 @@ function limpiarFormulario(){
 
   document.getElementById("cliente-ubicacion")
     .value = "";
+
+    document.getElementById("tipo-fecha")
+    .value = "hoy";
+
+  document.getElementById("fecha-entrega")
+    .value = "";
+
+  document.getElementById("hora-entrega")
+    .value = "";
+
+  document.getElementById("fecha-wrapper")
+    .classList.add("hidden");
+
+  document.getElementById("pedido-especial-aviso")
+    .classList.add("hidden");
 
   document.getElementById("cliente-notas")
     .value = "";
