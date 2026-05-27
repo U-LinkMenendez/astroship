@@ -898,6 +898,10 @@
     <div id="contentArea"></div>
   </div>
 
+  <datalist id="doctorSuggestions"></datalist>
+  <datalist id="emailSuggestions"></datalist>
+  <datalist id="anestSuggestions"></datalist>
+  
    <script>
     const SCRIPT_KEY = 'cg_admin_script_url';
     const HARDCODED_URL = 'https://script.google.com/macros/s/AKfycbx_s05ra4jwQcvk4bxUCA5RXjSGETxYaf3gtO3d90GWxcDzaw26qQSPVNh6B5286Rtm/exec';
@@ -926,6 +930,11 @@
     let allBloqueos = [];
     let lastUpdate = null;
     let _processing = false;
+    let captureSuggestions = {
+    doctores: [],
+    anestesiologos: [],
+    emails: []
+  };
 
     // ── RESERVATION TAB CONSTANTS ───────────────────────
     const CAL_ACCOUNTS_ADM = [
@@ -2187,18 +2196,20 @@ function buildEditDurationOptions(selectedDuracion) {
     }
 
     function init() {
-      buildDateTabs();
-      updateHdrDate();
-      updateStatusDot(true);
-      loadData();  // Auto refresh silencioso
-      setInterval(() => {
-        if (_processing) return;
-        const modalOpen =
-          document.querySelector('.adm-modal-overlay.open');
-        if (modalOpen) return;
-        loadData();
-      }, 60000);
-    }
+  buildDateTabs();
+  updateHdrDate();
+  updateStatusDot(true);
+  loadData();  // Auto refresh silencioso
+  loadCaptureSuggestions();
+
+  setInterval(() => {
+    if (_processing) return;
+    const modalOpen =
+      document.querySelector('.adm-modal-overlay.open');
+    if (modalOpen) return;
+    loadData();
+  }, 60000);
+}
 
     function updateHdrDate() {
       const d = new Date();
@@ -2564,6 +2575,110 @@ if (dateTabsEl) {
     alert('No se pudo registrar: ' + err.message);
   }
 }
+
+     async function loadCaptureSuggestions() {
+  try {
+    const res = await fetch(getScriptUrl(), {
+      method: 'POST',
+      body: JSON.stringify({
+        action: 'getSugerenciasCaptura',
+        days: 180,
+        limit: 120
+      })
+    });
+
+    const json = await res.json();
+    if (!json.ok) return;
+
+    captureSuggestions = {
+      doctores: json.doctores || [],
+      anestesiologos: json.anestesiologos || [],
+      emails: json.emails || []
+    };
+
+    renderCaptureSuggestionLists();
+    bindCaptureSuggestionEvents();
+  } catch(e) {
+    console.warn('No se pudieron cargar sugerencias:', e);
+  }
+}
+
+function renderCaptureSuggestionLists() {
+  const doctorList = document.getElementById('doctorSuggestions');
+  const emailList = document.getElementById('emailSuggestions');
+  const anestList = document.getElementById('anestSuggestions');
+
+  if (doctorList) {
+    doctorList.innerHTML = captureSuggestions.doctores
+      .map(d => `<option value="${escHtml(d.name || '')}" label="${escHtml((d.email || '') + (d.count ? ' · ' + d.count + ' reservas' : ''))}"></option>`)
+      .join('');
+  }
+
+  if (emailList) {
+    emailList.innerHTML = captureSuggestions.emails
+      .map(e => `<option value="${escHtml(e.email || '')}" label="${escHtml(e.name || '')}"></option>`)
+      .join('');
+  }
+
+  if (anestList) {
+    anestList.innerHTML = captureSuggestions.anestesiologos
+      .map(a => `<option value="${escHtml(a.name || '')}" label="${escHtml(a.count ? a.count + ' cirugías' : '')}"></option>`)
+      .join('');
+  }
+}
+
+function bindCaptureSuggestionEvents() {
+  const doctorInput = document.getElementById('an-nombre');
+  const emailInput = document.getElementById('an-email');
+
+  if (doctorInput && !doctorInput.dataset.suggestionBound) {
+    doctorInput.dataset.suggestionBound = '1';
+    doctorInput.addEventListener('change', fillEmailFromDoctorSuggestion);
+    doctorInput.addEventListener('blur', fillEmailFromDoctorSuggestion);
+  }
+
+  if (emailInput && !emailInput.dataset.suggestionBound) {
+    emailInput.dataset.suggestionBound = '1';
+    emailInput.addEventListener('change', fillDoctorFromEmailSuggestion);
+    emailInput.addEventListener('blur', fillDoctorFromEmailSuggestion);
+  }
+}
+
+function fillEmailFromDoctorSuggestion() {
+  const doctorInput = document.getElementById('an-nombre');
+  const emailInput = document.getElementById('an-email');
+
+  if (!doctorInput || !emailInput) return;
+  if (emailInput.value.trim()) return;
+
+  const doctorName = doctorInput.value.trim().toLowerCase();
+
+  const found = captureSuggestions.doctores.find(d =>
+    String(d.name || '').trim().toLowerCase() === doctorName
+  );
+
+  if (found && found.email) {
+    emailInput.value = found.email;
+  }
+}
+
+function fillDoctorFromEmailSuggestion() {
+  const doctorInput = document.getElementById('an-nombre');
+  const emailInput = document.getElementById('an-email');
+
+  if (!doctorInput || !emailInput) return;
+  if (doctorInput.value.trim()) return;
+
+  const email = emailInput.value.trim().toLowerCase();
+
+  const found = captureSuggestions.emails.find(e =>
+    String(e.email || '').trim().toLowerCase() === email
+  );
+
+  if (found && found.name) {
+    doctorInput.value = found.name;
+  }
+}
      
 init();
 
@@ -2652,12 +2767,12 @@ function doLogin() {
       <div class="adm-form-grid">
         <div class="adm-field">
           <label>Nombre del Doctor *</label>
-          <input type="text" id="an-nombre" placeholder="Dr. Nombre Apellido"/>
+          <input type="text" id="an-nombre" list="doctorSuggestions" autocomplete="off" placeholder="Dr. Nombre Apellido"/>
         </div>
 
         <div class="adm-field">
           <label>Correo electrónico *</label>
-          <input type="email" id="an-email" placeholder="doctor@correo.com"/>
+          <input type="email" id="an-email" list="emailSuggestions" autocomplete="off" placeholder="doctor@correo.com"/>
         </div>
       </div>
 
@@ -2676,7 +2791,7 @@ function doLogin() {
       <div class="adm-form-grid">
         <div class="adm-field">
           <label>Anestesiólogo</label>
-          <input type="text" id="an-anestesiologo" placeholder="Nombre"/>
+          <input type="text" id="an-anestesiologo" list="anestSuggestions" autocomplete="off" placeholder="Nombre"/>
         </div>
 
         <div class="adm-field" style="display:none">
@@ -2786,7 +2901,7 @@ function doLogin() {
 
     <div class="adm-field">
       <label>Anestesiólogo</label>
-      <input type="text" id="ed-anestesiologo"/>
+      <input type="text" id="ed-anestesiologo" list="anestSuggestions" autocomplete="off"/>
     </div>
 
     <div class="adm-field" style="display:none">
