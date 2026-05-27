@@ -147,6 +147,7 @@ h1 {
   margin-bottom: 10px;
   scroll-margin-top: 175px;
 }
+
 .categoria-title {
   padding: 0 10px;
   margin-bottom: 24px;
@@ -424,6 +425,8 @@ button:hover {
   font-family: inherit;
   color: #2b2b2b;
   background-color: #fff;
+  appearance: auto;
+  -webkit-appearance: auto;
 }
 
 .checkout-content textarea {
@@ -528,8 +531,10 @@ button:hover {
 
 @media (max-width: 768px) {
   .navbar {
-    padding: 16px 20px;
-      .logo {
+    padding: 14px 20px;
+  }
+
+  .logo {
     max-width: 190px;
   }
 
@@ -537,58 +542,74 @@ button:hover {
     height: 62px;
   }
 
-     .category-nav {
-  top: 110px;
-}
+  .cart-btn {
+    padding: 10px 18px;
+  }
+
+  .category-nav {
+    top: 90px;
+    padding: 12px 20px;
+  }
 
   .categoria-section {
-    scroll-margin-top: 155px;
+    scroll-margin-top: 145px;
   }
 
-.store-box {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 12px;
-  padding: 14px 20px;
-  margin-top: 0;
-}
-
-.store-name {
-  font-size: 20px;
-  line-height: 1.15;
-}
-
-.store-note {
-  font-size: 13px;
-  line-height: 1.35;
-}
-
-.store-actions {
-  width: 100%;
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 10px;
-}
-
-.store-actions select,
-.store-location-btn {
-  width: 100%;
-  min-width: 0;
-}
+  .store-box {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding: 14px 20px;
+    margin-top: 0;
   }
+
+  .store-name {
+    font-size: 20px;
+    line-height: 1.15;
+  }
+
+  .store-note {
+    font-size: 13px;
+    line-height: 1.35;
+  }
+
+  .store-actions {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .store-actions select,
+  .store-location-btn {
+    width: 100%;
+    min-width: 0;
+  }
+
   .categoria-title {
     font-size: 28px;
   }
+
   #productos {
     padding: 20px;
   }
+
   .categoria-grid {
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   }
 
+  .checkout-modal {
+    align-items: flex-start;
+    padding: 18px;
+    overflow-y: auto;
+  }
+
   .checkout-content {
-    width: calc(100vw - 32px);
+    width: 100%;
+    max-width: none;
+    max-height: none;
     padding: 28px 20px;
+    border-radius: 22px;
   }
 
   .checkout-content input,
@@ -596,8 +617,9 @@ button:hover {
   .checkout-content select {
     font-size: 16px;
     min-height: 50px;
+    color: #2b2b2b;
+    background-color: #fff;
   }
-  
 }
 
 /* CANTIDAD EN CARRITO */
