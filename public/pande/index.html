@@ -156,13 +156,23 @@
   </select>
 
   <div id="fecha-wrapper" class="hidden">
-    <input
-      type="date"
-      id="fecha-entrega"
-      inputmode="none"
-      onkeydown="return false"
-      onpaste="return false"
+    <div
+      class="date-field"
+      id="fecha-field"
+      onclick="abrirCalendarioFecha()"
     >
+      <span id="fecha-placeholder">
+        Selecciona la fecha
+      </span>
+      <input
+        type="date"
+        id="fecha-entrega"
+        inputmode="none"
+        onkeydown="return false"
+        onpaste="return false"
+        onchange="actualizarTextoFecha()"
+      >
+    </div>
 
     <select id="hora-entrega">
       <option value="">Selecciona horario</option>
