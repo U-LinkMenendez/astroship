@@ -146,6 +146,31 @@
     >
   </div>
 
+  <select id="tipo-fecha">
+    <option value="hoy">
+      Lo antes posible
+    </option>
+    <option value="programado">
+      Programar fecha
+    </option>
+  </select>
+
+  <div id="fecha-wrapper" class="hidden">
+    <input
+      type="date"
+      id="fecha-entrega"
+    >
+
+    <input
+      type="time"
+      id="hora-entrega"
+    >
+
+    <div class="checkout-help" id="fecha-help">
+      Los pedidos personalizados requieren mínimo 3 días de anticipación.
+    </div>
+  </div>
+      
   <select id="metodo-pago">
     <option value="Efectivo">Efectivo</option>
     <option value="Transferencia">Transferencia</option>
@@ -156,6 +181,11 @@
     id="cliente-notas"
     placeholder="Notas adicionales (opcional)"
   ></textarea>
+
+        <div id="pedido-especial-aviso" class="delivery-warning hidden">
+    Este pedido incluye productos personalizados o especiales.
+    Requiere mínimo 3 días de anticipación y 50% de anticipo.
+  </div>
 
   <!-- RESUMEN DE CONFIRMACIÓN -->
   <div id="resumen-pedido" class="hidden">
