@@ -135,6 +135,7 @@
     <button class="tab active" onclick="cambiarTab('pedidos')" id="tab-pedidos">
       Pedidos <span class="badge-count" id="badge-pedidos">0</span>
     </button>
+    <button class="tab" onclick="cambiarTab('historial')" id="tab-historial">Historial</button>
     <button class="tab" onclick="cambiarTab('catalogo')" id="tab-catalogo">Catálogo</button>
     <button class="tab" onclick="cambiarTab('matriz')" id="tab-matriz">Matriz</button>
     <button class="tab" onclick="cambiarTab('tiendas')" id="tab-tiendas">Tiendas</button>
@@ -145,6 +146,14 @@
       <div class="section-header"><div class="section-title">Pedidos activos</div></div>
       <div id="pedidos-lista"><div class="loading">Cargando pedidos...</div></div>
     </div>
+    <div class="tab-panel" id="panel-historial">
+  <div class="section-header">
+    <div class="section-title">Historial últimos 7 días</div>
+  </div>
+  <div id="historial-lista">
+    <div class="loading">Cargando historial...</div>
+  </div>
+</div>
     <div class="tab-panel" id="panel-catalogo">
       <div class="section-header"><div class="section-title">Editar catálogo</div></div>
       <div id="catalogo-lista"><div class="loading">Cargando catálogo...</div></div>
@@ -293,7 +302,8 @@
         PRODUCTOS = data.productos || [];
         pintarCatalogo(PRODUCTOS);
         await cargarDatosMatriz();
-        cargarPedidos();
+cargarPedidos();
+cargarHistorial();
       }else{
         mostrarError("Token Master incorrecto");
         TOKEN = "";
@@ -634,6 +644,59 @@
       toast("Error de conexion");
     }
   }
+
+  async function cargarHistorial(){
+
+    const lista =
+      document.getElementById("historial-lista");
+
+    if(!lista) return;
+
+    lista.innerHTML =
+      '<div class="loading">Cargando historial...</div>';
+
+    try{
+      const res = await fetch(
+        `${SCRIPT_URL}?action=getHistorial7Dias&token=${TOKEN}`
+      );
+
+      const data = await res.json();
+
+      if(!data.ok){
+        lista.innerHTML =
+          '<div class="empty-state"><p>Error cargando historial</p></div>';
+        return;
+      }
+
+      pintarHistorial(data.pedidos || []);
+
+    }catch(err){
+      lista.innerHTML =
+        '<div class="empty-state"><p>Error de conexion</p></div>';
+    }
+  }
+
+  function pintarHistorial(pedidos){
+
+    const lista =
+      document.getElementById("historial-lista");
+
+    if(pedidos.length === 0){
+      lista.innerHTML =
+        '<div class="empty-state"><p>Sin pedidos recientes</p></div>';
+      return;
+    }
+
+    let html = '<div class="pedidos-grid">';
+
+    pedidos.forEach(p => {
+      html += renderPedido(p);
+    });
+
+    html += '</div>';
+
+    lista.innerHTML = html;
+  }
   
   async function cargarPedidos(){
     const lista = document.getElementById("pedidos-lista");
@@ -966,11 +1029,12 @@
   }
 
   function recargarTodo(){
-    cargarPedidos();
-    cargarCatalogo();
-    cargarDatosMatriz();
-    toast("Actualizado");
-  }
+  cargarPedidos();
+  cargarHistorial();
+  cargarCatalogo();
+  cargarDatosMatriz();
+  toast("Actualizado");
+}
 
   function toast(msg){
     const el = document.getElementById("toast");
