@@ -736,15 +736,6 @@ function validarPedido(){
   const horaEntrega =
     document.getElementById("hora-entrega");
   
-  const tipoFecha =
-    document.getElementById("tipo-fecha").value;
-
-  const fechaEntrega =
-    document.getElementById("fecha-entrega");
-
-  const horaEntrega =
-    document.getElementById("hora-entrega");
-
   const direccion =
     document.getElementById("cliente-direccion");
 
