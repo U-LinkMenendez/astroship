@@ -64,6 +64,16 @@ async function cargarCatalogo(){
 
   try{
 
+    const tiendaCache =
+      localStorage.getItem("pande_tiendas_cache");
+
+    if(tiendaCache){
+      try{
+        tiendas = JSON.parse(tiendaCache);
+        pintarSelectTiendas();
+      }catch(_){}
+    }
+    
     const tiendasRes = await fetch(
       `${SCRIPT_URL}?action=getTiendas&key=${FRONTEND_KEY}`
     );
@@ -71,6 +81,11 @@ async function cargarCatalogo(){
     const tiendasData = await tiendasRes.json();
 
     tiendas = tiendasData.tiendas || [];
+
+        localStorage.setItem(
+      "pande_tiendas_cache",
+      JSON.stringify(tiendas)
+    );
 
     pintarSelectTiendas();
 
@@ -181,6 +196,19 @@ function actualizarVistaTienda(nota){
 
 async function cargarCatalogoPorTienda(idTienda){
 
+  const cacheKey =
+    `pande_catalogo_${idTienda}`;
+
+  const cache =
+    localStorage.getItem(cacheKey);
+
+  if(cache){
+    try{
+      productos = JSON.parse(cache);
+      render();
+    }catch(_){}
+  }
+
   const res = await fetch(
     `${SCRIPT_URL}?action=getCatalogoPorTienda&key=${FRONTEND_KEY}&id_tienda=${idTienda}`
   );
@@ -188,6 +216,11 @@ async function cargarCatalogoPorTienda(idTienda){
   const data = await res.json();
 
   productos = data.productos || [];
+
+  localStorage.setItem(
+    cacheKey,
+    JSON.stringify(productos)
+  );
 
   render();
 }
