@@ -159,12 +159,14 @@
     <input
       type="date"
       id="fecha-entrega"
+      inputmode="none"
+      onkeydown="return false"
+      onpaste="return false"
     >
 
-    <input
-      type="time"
-      id="hora-entrega"
-    >
+    <select id="hora-entrega">
+      <option value="">Selecciona horario</option>
+    </select>
 
     <div class="checkout-help" id="fecha-help">
       Los pedidos personalizados requieren mínimo 3 días de anticipación.
