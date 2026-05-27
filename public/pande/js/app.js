@@ -1078,6 +1078,8 @@ function limpiarFormulario(){
   document.getElementById("fecha-entrega")
     .value = "";
 
+  actualizarTextoFecha();
+  
   document.getElementById("hora-entrega")
     .value = "";
 
@@ -1120,6 +1122,49 @@ function limpiarFormulario(){
   document.getElementById("error-telefono")
     .classList.remove("visible");
 
+}
+
+function abrirCalendarioFecha(){
+
+  const input =
+    document.getElementById("fecha-entrega");
+
+  if(!input) return;
+
+  if(typeof input.showPicker === "function"){
+    input.showPicker();
+  }else{
+    input.focus();
+    input.click();
+  }
+}
+
+function actualizarTextoFecha(){
+
+  const input =
+    document.getElementById("fecha-entrega");
+
+  const placeholder =
+    document.getElementById("fecha-placeholder");
+
+  const field =
+    document.getElementById("fecha-field");
+
+  if(!input || !placeholder || !field) return;
+
+  if(!input.value){
+    placeholder.textContent = "Selecciona la fecha";
+    field.classList.remove("has-value");
+    return;
+  }
+
+  const [year, month, day] =
+    input.value.split("-");
+
+  placeholder.textContent =
+    `${day}/${month}/${year}`;
+
+  field.classList.add("has-value");
 }
 
 function cargarOpcionesHorario(){
