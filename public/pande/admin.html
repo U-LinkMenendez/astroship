@@ -121,6 +121,7 @@
       Pedidos activos <span class="badge-count" id="badge-pedidos">0</span>
     </button>
     <button class="tab" onclick="cambiarTab('stock')" id="tab-stock">Stock</button>
+        <button class="tab" onclick="cambiarTab('historial')" id="tab-historial">Historial</button>
   </div>
   <div class="content">
     <div class="tab-panel active" id="panel-pedidos">
@@ -130,6 +131,14 @@
     <div class="tab-panel" id="panel-stock">
       <div class="section-header"><div class="section-title">Disponibilidad</div></div>
       <div id="catalogo-lista"><div class="loading">Cargando stock...</div></div>
+    </div>
+        <div class="tab-panel" id="panel-historial">
+      <div class="section-header">
+        <div class="section-title">Historial últimos 7 días</div>
+      </div>
+      <div id="historial-lista">
+        <div class="loading">Cargando historial...</div>
+      </div>
     </div>
   </div>
 </div>
@@ -187,7 +196,8 @@
 
         pintarPedidos(data.pedidos || []);
         cargarCatalogo();
-
+        cargarHistorial();
+           
       }else{
         mostrarError("Token incorrecto");
         TOKEN = "";
@@ -259,6 +269,59 @@
     lista.appendChild(div);
   }
 
+  async function cargarHistorial(){
+
+    const lista =
+      document.getElementById("historial-lista");
+
+    if(!lista) return;
+
+    lista.innerHTML =
+      '<div class="loading">Cargando historial...</div>';
+
+    try{
+      const res = await fetch(
+        `${SCRIPT_URL}?action=getHistorial7Dias&token=${TOKEN}`
+      );
+
+      const data = await res.json();
+
+      if(!data.ok){
+        lista.innerHTML =
+          '<div class="empty-state"><p>Error cargando historial</p></div>';
+        return;
+      }
+
+      pintarHistorial(data.pedidos || []);
+
+    }catch(err){
+      lista.innerHTML =
+        '<div class="empty-state"><p>Error de conexion</p></div>';
+    }
+  }
+
+  function pintarHistorial(pedidos){
+
+    const lista =
+      document.getElementById("historial-lista");
+
+    if(pedidos.length === 0){
+      lista.innerHTML =
+        '<div class="empty-state"><p>Sin pedidos recientes</p></div>';
+      return;
+    }
+
+    const div = document.createElement("div");
+    div.className = "pedidos-grid";
+
+    pedidos.forEach(p => {
+      div.innerHTML += renderPedido(p);
+    });
+
+    lista.innerHTML = "";
+    lista.appendChild(div);
+  }
+  
   async function cargarPedidos(){
     const lista = document.getElementById("pedidos-lista");
     lista.innerHTML = '<div class="loading">Cargando pedidos...</div>';
@@ -589,6 +652,7 @@
   function recargarTodo(){
     cargarPedidos();
     cargarCatalogo();
+    cargarHistorial();
     toast("Actualizado");
   }
 
