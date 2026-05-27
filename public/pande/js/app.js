@@ -1122,4 +1122,47 @@ function limpiarFormulario(){
 
 }
 
+function cargarOpcionesHorario(){
+
+  const select =
+    document.getElementById("hora-entrega");
+
+  if(!select) return;
+
+  select.innerHTML =
+    '<option value="">Selecciona horario</option>';
+
+  const inicio = 8 * 60;
+  const fin = 20 * 60 + 30;
+
+  for(let minutos = inicio; minutos <= fin; minutos += 30){
+
+    const hora24 =
+      Math.floor(minutos / 60);
+
+    const minuto =
+      minutos % 60;
+
+    const value =
+      `${String(hora24).padStart(2, "0")}:${String(minuto).padStart(2, "0")}`;
+
+    const hora12 =
+      hora24 > 12 ? hora24 - 12 : hora24;
+
+    const periodo =
+      hora24 >= 12 ? "pm" : "am";
+
+    const texto =
+      `${hora12}:${String(minuto).padStart(2, "0")} ${periodo}`;
+
+    select.innerHTML += `
+      <option value="${value}">
+        ${texto}
+      </option>
+    `;
+  }
+}
+
+cargarOpcionesHorario();
+
 cargarCatalogo();
