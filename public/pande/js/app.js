@@ -884,8 +884,13 @@ function enviarPorWhatsapp(){
     });
   }catch(_){}
 
+  const whatsappDestino =
+    tienda && tienda.whatsapp
+      ? String(tienda.whatsapp).replace(/\D/g, "")
+      : "529992175116";
+
   window.open(
-    `https://wa.me/529992175116?text=${encodeURIComponent(mensaje)}`,
+    `https://wa.me/${whatsappDestino}?text=${encodeURIComponent(mensaje)}`,
     "_blank"
   );
 
