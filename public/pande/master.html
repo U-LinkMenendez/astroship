@@ -111,6 +111,91 @@
       .form-grid { grid-template-columns:1fr; }
       .catalogo-grid { grid-template-columns:1fr; }
     }
+
+@media (max-width: 700px) {
+  .topbar {
+    padding: 10px 14px;
+    gap: 10px;
+  }
+
+  .topbar-brand {
+    font-size: 20px;
+    min-width: 0;
+  }
+
+  .topbar-brand span {
+    display: none;
+  }
+
+  .topbar-right {
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .refresh-btn {
+    padding: 7px 10px;
+    font-size: 12px;
+  }
+
+  .logout-btn {
+    font-size: 12px;
+  }
+
+  .tabs {
+    position: sticky;
+    top: 56px;
+    z-index: 90;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding: 0 12px;
+  }
+
+  .tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tab {
+    padding: 12px 14px;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+
+  .content {
+    padding: 14px;
+  }
+
+  .section-title {
+    font-size: 24px;
+  }
+
+  .matrix-wrap {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .matrix-table {
+    min-width: 620px;
+  }
+
+  .matrix-table th,
+  .matrix-table td {
+    padding: 10px 8px;
+    font-size: 12px;
+  }
+
+  .matrix-table th:first-child,
+  .matrix-table td:first-child {
+    min-width: 190px;
+    max-width: 190px;
+  }
+
+  .stock-dot {
+    width: 26px;
+    height: 26px;
+  }
+}
+    
   </style>
 </head>
 <body>
