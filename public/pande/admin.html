@@ -96,6 +96,64 @@
       .refresh-btn { padding:6px 10px; font-size:12px; }
       .logout-btn { font-size:12px; }
     }
+
+@media (max-width: 700px) {
+  .topbar {
+    padding: 10px 14px;
+    gap: 10px;
+  }
+
+  .topbar-brand {
+    font-size: 20px;
+    min-width: 0;
+  }
+
+  .topbar-brand span {
+    display: none;
+  }
+
+  .topbar-right {
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .refresh-btn {
+    padding: 7px 10px;
+    font-size: 12px;
+  }
+
+  .logout-btn {
+    font-size: 12px;
+  }
+
+  .tabs {
+    position: sticky;
+    top: 56px;
+    z-index: 90;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding: 0 12px;
+  }
+
+  .tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tab {
+    padding: 12px 14px;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+
+  .content {
+    padding: 14px;
+  }
+
+  .section-title {
+    font-size: 24px;
+  }
+}
+    
   </style>
 </head>
 <body>
