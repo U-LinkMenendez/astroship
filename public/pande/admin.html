@@ -240,58 +240,94 @@ body {
   }
 }
 
-/* AJUSTE FINAL MOVIL: evita wiggle horizontal */
+/* AJUSTE FINAL MOVIL: barras fijas sin wiggle */
 html,
 body {
   width: 100%;
   max-width: 100%;
   overflow-x: hidden;
-  position: relative;
-}
-
-#app {
-  width: 100%;
-  max-width: 100%;
-  overflow-x: hidden;
-}
-
-.topbar,
-.tabs,
-.content {
-  max-width: 100%;
 }
 
 @media (max-width: 700px) {
+  #app {
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden;
+    padding-top: 112px;
+  }
+
   .topbar {
+    position: fixed;
+    top: 0;
     left: 0;
     right: 0;
-    width: 100%;
-    max-width: 100%;
+    z-index: 300;
+    width: 100vw;
+    height: 60px;
+    padding: 10px 14px;
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
+    gap: 8px;
   }
 
   .topbar-brand {
     min-width: 0;
+    font-size: 20px;
+    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+
+  .topbar-brand span {
+    display: none;
   }
 
   .topbar-right {
     min-width: 0;
     flex-shrink: 0;
+    gap: 8px;
+  }
+
+  .refresh-btn {
+    padding: 7px 10px;
+    font-size: 12px;
+  }
+
+  .logout-btn {
+    font-size: 12px;
+    white-space: nowrap;
   }
 
   .tabs {
+    position: fixed;
+    top: 60px;
     left: 0;
     right: 0;
-    width: 100%;
-    max-width: 100%;
+    z-index: 290;
+    width: 100vw;
+    height: 52px;
+    padding: 0 12px;
+    overflow-x: auto;
+    background: var(--white);
+    scrollbar-width: none;
+  }
+
+  .tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tab {
+    padding: 12px 14px;
+    font-size: 13px;
+    white-space: nowrap;
+    flex-shrink: 0;
   }
 
   .content {
     width: 100%;
     max-width: 100%;
+    overflow-x: hidden;
+    padding: 14px;
   }
 }
     
