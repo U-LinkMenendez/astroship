@@ -248,10 +248,6 @@ body {
   overflow-x: clip;
 }
 
-* {
-  max-width: 100%;
-}
-
 @media (max-width: 700px) {
   body {
     overflow-x: clip;
@@ -299,11 +295,11 @@ body {
 
   .refresh-btn {
     padding: 7px 10px;
-    font-size: 12px;
+    font-size: 16px;
   }
 
   .logout-btn {
-    font-size: 12px;
+    font-size: 16px;
     white-space: nowrap;
   }
 
@@ -329,7 +325,7 @@ body {
   .tab {
     flex: 0 0 auto;
     padding: 12px 14px;
-    font-size: 13px;
+    font-size: 16px;
     white-space: nowrap;
   }
 
@@ -376,6 +372,13 @@ body {
   .matrix-table td:first-child {
     position: static;
     max-width: none;
+  }
+
+  input,
+  select,
+  textarea,
+  button {
+    font-size: 16px;
   }
 }
     
