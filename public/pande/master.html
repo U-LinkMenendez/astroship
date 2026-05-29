@@ -302,6 +302,61 @@ body {
     background: var(--white);
   }
 }
+
+/* AJUSTE FINAL MOVIL: evita wiggle horizontal */
+html,
+body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  position: relative;
+}
+
+#app {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.topbar,
+.tabs,
+.content {
+  max-width: 100%;
+}
+
+@media (max-width: 700px) {
+  .topbar {
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-width: 100%;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .topbar-brand {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .topbar-right {
+    min-width: 0;
+    flex-shrink: 0;
+  }
+
+  .tabs {
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .content {
+    width: 100%;
+    max-width: 100%;
+  }
+}
     
   </style>
 </head>
@@ -491,6 +546,7 @@ body {
         sessionStorage.setItem("pande_master_token", TOKEN);
         document.getElementById("login-screen").style.display = "none";
         document.getElementById("app").style.display = "block";
+        window.scrollTo(0, 0);
         PRODUCTOS = data.productos || [];
         pintarCatalogo(PRODUCTOS);
         await cargarDatosMatriz();
