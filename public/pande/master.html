@@ -303,9 +303,20 @@ body {
   }
 }
 
-/* AJUSTE FINAL MOVIL: barras fijas sin wiggle */
+/* AJUSTE FINAL MOVIL: bloquear desplazamiento horizontal */
 html,
 body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  overscroll-behavior-x: none;
+}
+
+body {
+  position: relative;
+}
+
+#app {
   width: 100%;
   max-width: 100%;
   overflow-x: hidden;
@@ -313,9 +324,6 @@ body {
 
 @media (max-width: 700px) {
   #app {
-    width: 100%;
-    max-width: 100vw;
-    overflow-x: hidden;
     padding-top: 112px;
   }
 
@@ -323,14 +331,16 @@ body {
     position: fixed;
     top: 0;
     left: 0;
-    right: 0;
+    right: auto;
     z-index: 300;
-    width: 100vw;
+    width: 100%;
+    max-width: 100%;
     height: 60px;
     padding: 10px 14px;
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
     gap: 8px;
+    overflow: hidden;
   }
 
   .topbar-brand {
@@ -365,12 +375,14 @@ body {
     position: fixed;
     top: 60px;
     left: 0;
-    right: 0;
+    right: auto;
     z-index: 290;
-    width: 100vw;
+    width: 100%;
+    max-width: 100%;
     height: 52px;
     padding: 0 12px;
     overflow-x: auto;
+    overflow-y: hidden;
     background: var(--white);
     scrollbar-width: none;
   }
@@ -1331,6 +1343,21 @@ cargarHistorial();
     if(TOKEN) cargarPedidos();
   }, 60000);
 
+function bloquearScrollHorizontal(){
+  document.documentElement.scrollLeft = 0;
+  document.body.scrollLeft = 0;
+}
+
+window.addEventListener("scroll", bloquearScrollHorizontal, {
+  passive: true
+});
+
+window.addEventListener("resize", bloquearScrollHorizontal);
+
+document.addEventListener("touchmove", bloquearScrollHorizontal, {
+  passive: true
+});
+  
   const savedToken = sessionStorage.getItem("pande_master_token");
   if(savedToken){
     TOKEN = savedToken;
