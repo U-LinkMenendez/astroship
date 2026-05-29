@@ -1678,7 +1678,7 @@ console.log('CLICK SLOT', {
   try {
     const res = await fetch(url, {
       method:'POST',
-      body: JSON.stringify({
+      body: JSON.stringify(addSession({
         action:'crearReserva',
         eventTypeId: acct.eventTypeId,
         calKey: acct.key,
@@ -1701,10 +1701,12 @@ console.log('CLICK SLOT', {
           location:{value:'link',optionValue:''}
         },
         metadata:{}
-      })
+      }))
     });
 
     const json = await res.json();
+    
+    if (handleSessionError(json)) return;
 
     if (json.ok) {
       document.getElementById('admNewForm').style.display = 'none';
@@ -2060,15 +2062,17 @@ async function saveUnblock() {
   try {
     const res = await fetch(url, {
       method: 'POST',
-      body: JSON.stringify({
+      body: JSON.stringify(addSession({
         action: 'desactivarBloqueo',
         row: _unblockData.row,
         usuario: 'admin',
         motivo: motivo || 'Desbloqueado desde panel admin'
-      })
+      }))
     });
 
     const json = await res.json();
+    
+    if (handleSessionError(json)) return;
 
     if (!json.ok) {
       throw new Error(json.error || 'No se pudo desbloquear');
@@ -2169,16 +2173,18 @@ async function saveUnblock() {
 
     const res = await fetch(url, {
       method:'POST',
-      body: JSON.stringify({
+      body: JSON.stringify(addSession({
         action: 'crearBloqueos',
         fecha: fecha,
         quirofano: qx,
         motivo: motivo,
         horas: horas
-      })
+      }))
     });
 
     const json = await res.json();
+    
+    if (handleSessionError(json)) return;
 
     if (!json.ok) {
       throw new Error(json.error || 'Error creando bloqueo');
@@ -2219,7 +2225,7 @@ async function saveUnblock() {
       btn.disabled=true; btn.textContent='Guardando…';
       const url = getScriptUrl();
       try {
-        const res = await fetch(url, { method:'POST', body: JSON.stringify({
+        const res = await fetch(url, { method:'POST', body: JSON.stringify(addSession({
           action:'actualizarDatos',
           bookingId: _editBooking.bookingId,
           paciente:      document.getElementById('ed-paciente').value.trim(),
@@ -2228,10 +2234,20 @@ async function saveUnblock() {
           enfermeria:    document.getElementById('ed-enfermeria').value.trim(),
           doctorEmail:   _editBooking.email||'',
           doctorNombre:  _editBooking.doctor||'',
-        })});
+        }))});
         const json = await res.json();
-        if (json.ok) { _processing = false; closeAdmEdit(); await loadData(); alert('Datos actualizados correctamente.'); }
-        else alert('Error: '+(json.error||''));
+        
+        if (handleSessionError(json)) return;
+        
+        if (json.ok) {
+  _processing = false;
+  closeAdmEdit();
+  await loadData();
+  alert('Datos actualizados correctamente.');
+} else {
+  _processing = false;
+  alert('Error: ' + (json.error || ''));
+}
       } catch(e) {_processing = false; alert('Error de conexión'); }
       btn.disabled=false; btn.textContent='Guardar Cambios';
     }
@@ -2249,7 +2265,7 @@ async function saveUnblock() {
       const startUTC = new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate(),hh+6,mm));
       const url = getScriptUrl();
       try {
-        const res = await fetch(url, { method:'POST', body: JSON.stringify({
+        const res = await fetch(url, { method:'POST', body: JSON.stringify(addSession({
           action:'reagendarReserva',
           bookingId:      _editBooking.bookingId,
           quirofano:      _editBooking.quirofano,
@@ -2261,10 +2277,20 @@ async function saveUnblock() {
           procedimiento:  _editBooking.procedimiento||'',
           fechaAnterior:  _editBooking.fecha,
           horaAnterior:   _editBooking.horaInicio,
-        })});
+        }))});
         const json = await res.json();
-        if (json.ok) { _processing = false; closeAdmEdit(); await loadData(); alert('Reserva reagendada correctamente.'); }
-        else alert('Error: '+(json.error||''));
+        
+        if (handleSessionError(json)) return;
+        
+        if (json.ok) {
+  _processing = false;
+  closeAdmEdit();
+  await loadData();
+  alert('Reserva reagendada correctamente.');
+} else {
+  _processing = false;
+  alert('Error: ' + (json.error || ''));
+}
       } catch(e) {_processing = false; alert('Error de conexión'); }
       _processing = false;
       btn.disabled=false; btn.textContent='Reagendar';
@@ -2284,7 +2310,7 @@ if (noCancelBtn) {
 }
       const url = getScriptUrl();
       try {
-        const res = await fetch(url, { method:'POST', body: JSON.stringify({
+        const res = await fetch(url, { method:'POST', body: JSON.stringify(addSession({
           action:'cancelarReserva',
           bookingId:    _editBooking.bookingId,
           quirofano:    _editBooking.quirofano,
@@ -2294,10 +2320,20 @@ if (noCancelBtn) {
           procedimiento:_editBooking.procedimiento||'',
           fecha:        _editBooking.fecha,
           horaInicio:   _editBooking.horaInicio,
-        })});
+        }))});
         const json = await res.json();
-        if (json.ok) { _processing = false; closeAdmEdit(); await loadData(); alert('Reserva cancelada correctamente.'); }
-        else alert('Error: '+(json.error||''));
+        
+        if (handleSessionError(json)) return;
+        
+        if (json.ok) {
+  _processing = false;
+  closeAdmEdit();
+  await loadData();
+  alert('Reserva cancelada correctamente.');
+} else {
+  _processing = false;
+  alert('Error: ' + (json.error || ''));
+}
       } catch(e) {_processing = false; alert('Error de conexión'); }
       _processing = false;
       btn.disabled = false;
@@ -2371,14 +2407,23 @@ function buildEditDurationOptions(selectedDuracion) {
   buildDateTabs();
   updateHdrDate();
   updateStatusDot(true);
-  loadData();  // Auto refresh silencioso
-  loadCaptureSuggestions();
+
+  if (getSessionToken()) {
+    loadData();
+    loadCaptureSuggestions();
+  } else {
+    showLoader(false);
+  }
 
   setInterval(() => {
     if (_processing) return;
+    if (!getSessionToken()) return;
+
     const modalOpen =
       document.querySelector('.adm-modal-overlay.open');
+
     if (modalOpen) return;
+
     loadData();
   }, 60000);
 }
@@ -2428,8 +2473,14 @@ function buildEditDurationOptions(selectedDuracion) {
       const today = todayStr();
       const end   = addDays(today, DAYS_TO_SHOW - 1);
       try {
-        const res  = await fetch(`${url}?start=${today}&end=${end}`);
+        const query = buildSessionQuery({
+  start: today,
+  end: end
+});
+
+const res = await fetch(`${url}?${query}`);
         const json = await res.json();
+        if (handleSessionError(json)) return;
         if (json.error) throw new Error(json.error);
         
         allReservas = json.reservas || [];
@@ -2619,14 +2670,34 @@ function buildEditDurationOptions(selectedDuracion) {
     }
 
     async function cycleLimpieza(bookingId, nextState) {
-      const url = getScriptUrl();
-      const r = allReservas.find(x => x.bookingId === bookingId);
-      if (r) r.limpieza = nextState;
-      render();
-      try {
-        await fetch(url, { method:'POST', body:JSON.stringify({ action:'updateLimpieza', bookingId, estado:nextState }) });
-      } catch(e) { console.warn('Error limpieza:', e); }
+  const url = getScriptUrl();
+  const r = allReservas.find(x => x.bookingId === bookingId);
+
+  if (r) r.limpieza = nextState;
+
+  render();
+
+  try {
+    const res = await fetch(url, {
+      method:'POST',
+      body: JSON.stringify(addSession({
+        action:'updateLimpieza',
+        bookingId,
+        estado:nextState
+      }))
+    });
+
+    const json = await res.json();
+
+    if (handleSessionError(json)) return;
+
+    if (!json.ok && json.error) {
+      throw new Error(json.error);
     }
+  } catch(e) {
+    console.warn('Error limpieza:', e);
+  }
+}
 
     function openSetup() {
       document.getElementById('scriptUrlInput').value = localStorage.getItem(SCRIPT_KEY) || '';
@@ -2723,17 +2794,19 @@ if (dateTabsEl) {
   try {
     const res = await fetch(getScriptUrl(), {
       method: 'POST',
-      body: JSON.stringify({
+      body: JSON.stringify(addSession({
         action: 'registrarIncidenciaOperacion',
         bookingId: _editBooking.bookingId,
         estadoOperacion: 'Cirugia no realizada',
         motivo: motivo.trim(),
         usuario: user.username,
         pin: pin
-      })
+      }))
     });
 
     const json = await res.json();
+
+    if (handleSessionError(json)) return;
 
     if (!json.ok) {
       throw new Error(json.error || 'No se pudo registrar la incidencia');
@@ -2752,14 +2825,17 @@ if (dateTabsEl) {
   try {
     const res = await fetch(getScriptUrl(), {
       method: 'POST',
-      body: JSON.stringify({
+      body: JSON.stringify(addSession({
         action: 'getSugerenciasCaptura',
         days: 180,
         limit: 120
-      })
+      }))
     });
 
     const json = await res.json();
+    
+    if (handleSessionError(json)) return;
+    
     if (!json.ok) return;
 
     captureSuggestions = {
@@ -2901,13 +2977,15 @@ function openLuisReport() {
   }
 
   const url =
-    getScriptUrl() +
-    '?view=reporte-luis&start=' +
-    encodeURIComponent(start) +
-    '&end=' +
-    encodeURIComponent(end) +
-    '&t=' +
-    Date.now();
+  getScriptUrl() +
+  '?view=reporte-luis&start=' +
+  encodeURIComponent(start) +
+  '&end=' +
+  encodeURIComponent(end) +
+  '&sessionToken=' +
+  encodeURIComponent(getSessionToken()) +
+  '&t=' +
+  Date.now();
 
   window.open(url, '_blank');
 }
@@ -2917,24 +2995,45 @@ document.addEventListener('keydown', event => {
     closeRoleHelp();
   }
 });
-     
-init();
 
-<!-- PASSWORD / CONTRASEÑA CLÍNICA GINERÉS -->
-const ADMIN_USERS = {
-  recepcion: {
-    pass: 'Recepcion2026',
-    role: 'recepcion',
-    label: 'Recepción'
-  },
-  daniel: {
-    pass: 'Daniel2026',
-    role: 'auditoria',
-    label: 'Daniel'
+     function getSessionToken() {
+  return localStorage.getItem('cg_admin_session') || '';
+}
+
+function addSession(payload) {
+  return {
+    ...payload,
+    sessionToken: getSessionToken()
+  };
+}
+
+function buildSessionQuery(params) {
+  const qs = new URLSearchParams(params || {});
+  const token = getSessionToken();
+  if (token) qs.set('sessionToken', token);
+  return qs.toString();
+}
+
+function handleSessionError(json) {
+  const msg = String((json && json.error) || '');
+
+  if (
+    msg.includes('Sesion expirada') ||
+    msg.includes('sesion') ||
+    msg.includes('permisos')
+  ) {
+    localStorage.removeItem('cg_admin_ok');
+    localStorage.removeItem('cg_admin_user');
+    localStorage.removeItem('cg_admin_session');
+    alert(msg || 'Sesion expirada. Vuelve a iniciar sesion.');
+    location.reload();
+    return true;
   }
-};
 
-function getCurrentAdminUser() {
+  return false;
+}
+
+     function getCurrentAdminUser() {
   try {
     return JSON.parse(localStorage.getItem('cg_admin_user') || 'null');
   } catch(e) {
@@ -2947,50 +3046,83 @@ function canAuditOperacion() {
   return user && user.role === 'auditoria';
 }
 
-function doLogin() {
+async function doLogin() {
   const u = document.getElementById('lgUser').value.trim().toLowerCase();
   const p = document.getElementById('lgPass').value.trim();
-  const found = ADMIN_USERS[u];
+  const err = document.getElementById('lgErr');
 
-  if (found && found.pass === p) {
-    localStorage.setItem('cg_admin_ok', '1');
-    localStorage.setItem(
-      'cg_admin_user',
-      JSON.stringify({
-        username: u,
-        role: found.role,
-        label: found.label
-      })
-    );
-
-    document.getElementById('loginScreen').style.display = 'none';
-    return;
+  if (err) {
+    err.style.display = 'none';
+    err.textContent = 'Usuario o contraseña incorrectos';
   }
 
-  document.getElementById('lgErr').style.display = 'block';
+  try {
+    const res = await fetch(getScriptUrl(), {
+      method: 'POST',
+      body: JSON.stringify({
+        action: 'loginAdmin',
+        username: u,
+        password: p
+      })
+    });
+
+    const json = await res.json();
+
+    if (!json.ok) {
+  throw new Error(json.error || 'Usuario o contraseña incorrectos');
+}
+
+if (!json.sessionToken) {
+  throw new Error('No se recibió sesión del servidor');
+}
+
+    localStorage.setItem('cg_admin_ok', '1');
+    localStorage.setItem('cg_admin_session', json.sessionToken || '');
+    localStorage.setItem('cg_admin_user', JSON.stringify(json.user || null));
+
+    document.getElementById('loginScreen').style.display = 'none';
+
+    await loadData();
+    loadCaptureSuggestions();
+  } catch(e) {
+    if (err) {
+      err.textContent = e.message || 'Usuario o contraseña incorrectos';
+      err.style.display = 'block';
+    }
+  }
 }
 
 (function(){
+  const ok = localStorage.getItem('cg_admin_ok');
+  const token = localStorage.getItem('cg_admin_session');
 
-  const ok =
-    localStorage.getItem(
-      'cg_admin_ok'
-    );
-
-  if (ok === '1') {
-
-    document
-      .getElementById('loginScreen')
-      .style.display = 'none';
+  if (ok === '1' && token) {
+    document.getElementById('loginScreen').style.display = 'none';
+  } else {
+    localStorage.removeItem('cg_admin_ok');
+    localStorage.removeItem('cg_admin_user');
+    localStorage.removeItem('cg_admin_session');
   }
-
 })();
 
-     function logoutAdmin() {
+async function logoutAdmin() {
+  try {
+    await fetch(getScriptUrl(), {
+      method: 'POST',
+      body: JSON.stringify({
+        action: 'logoutAdmin',
+        sessionToken: getSessionToken()
+      })
+    });
+  } catch(e) {}
+
   localStorage.removeItem('cg_admin_ok');
   localStorage.removeItem('cg_admin_user');
+  localStorage.removeItem('cg_admin_session');
   location.reload();
 }
+     
+init();
      
   </script>
 
