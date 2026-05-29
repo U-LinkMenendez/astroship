@@ -195,6 +195,113 @@
     height: 26px;
   }
 }
+
+html,
+body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+#app {
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+@media (max-width: 700px) {
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 120;
+    width: 100%;
+    max-width: 100vw;
+    min-height: 60px;
+    padding: 10px 14px;
+    gap: 8px;
+    overflow: hidden;
+  }
+
+  .topbar-brand {
+    flex: 1;
+    min-width: 0;
+    font-size: 20px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .topbar-brand span {
+    display: none;
+  }
+
+  .topbar-right {
+    flex-shrink: 0;
+    gap: 8px;
+  }
+
+  .refresh-btn {
+    padding: 7px 10px;
+    font-size: 12px;
+  }
+
+  .logout-btn {
+    font-size: 12px;
+    white-space: nowrap;
+  }
+
+  .tabs {
+    position: sticky;
+    top: 60px;
+    z-index: 110;
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding: 0 12px;
+    background: var(--white);
+    border-top: none;
+  }
+
+  .tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tab {
+    padding: 12px 14px;
+    font-size: 13px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .content {
+    padding: 14px;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  .matrix-wrap {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .matrix-table {
+    min-width: 760px;
+  }
+
+  .matrix-table th:first-child,
+  .matrix-table td:first-child {
+    position: static;
+    left: auto;
+    z-index: auto;
+    min-width: 220px;
+    max-width: none;
+    background: var(--white);
+  }
+}
     
   </style>
 </head>
