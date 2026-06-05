@@ -3077,13 +3077,21 @@ if (!json.sessionToken) {
 }
 
     localStorage.setItem('cg_admin_ok', '1');
-    localStorage.setItem('cg_admin_session', json.sessionToken || '');
-    localStorage.setItem('cg_admin_user', JSON.stringify(json.user || null));
+localStorage.setItem('cg_admin_session', json.sessionToken || '');
+localStorage.setItem('cg_admin_user', JSON.stringify(json.user || null));
 
-    document.getElementById('loginScreen').style.display = 'none';
+if (json.user && json.user.role === 'enfermeria') {
+  window.location.href =
+    getScriptUrl() +
+    '?view=visor-enfermeria-app&sessionToken=' +
+    encodeURIComponent(json.sessionToken || '');
+  return;
+}
 
-    await loadData();
-    loadCaptureSuggestions();
+document.getElementById('loginScreen').style.display = 'none';
+
+await loadData();
+loadCaptureSuggestions();
   } catch(e) {
     if (err) {
       err.textContent = e.message || 'Usuario o contraseña incorrectos';
@@ -3095,6 +3103,15 @@ if (!json.sessionToken) {
 (function(){
   const ok = localStorage.getItem('cg_admin_ok');
   const token = localStorage.getItem('cg_admin_session');
+  const user = getCurrentAdminUser();
+
+  if (ok === '1' && token && user && user.role === 'enfermeria') {
+    window.location.href =
+      getScriptUrl() +
+      '?view=visor-enfermeria-app&sessionToken=' +
+      encodeURIComponent(token);
+    return;
+  }
 
   if (ok === '1' && token) {
     document.getElementById('loginScreen').style.display = 'none';
