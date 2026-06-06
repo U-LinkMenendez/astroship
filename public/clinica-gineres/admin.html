@@ -1362,6 +1362,28 @@ if (day === 0) {
   <div class="rs-proc">
     ${escHtml(o.proc)}
   </div>
+  
+  ${esHistSlot ? `
+  <button
+    type="button"
+    onclick="openHistEditButton(event, '${escHtml(o.booking.bookingId)}')"
+    style="
+      margin-top:6px;
+      width:max-content;
+      max-width:100%;
+      border:1px solid #2563EB;
+      background:#EFF6FF;
+      color:#1D4ED8;
+      border-radius:999px;
+      padding:4px 9px;
+      font-size:0.62rem;
+      font-weight:800;
+      cursor:pointer;
+    "
+  >
+    Editar captura
+  </button>
+` : ''}
 
   ${isBlocked ? `
 
@@ -2158,6 +2180,15 @@ if (tabCancel) tabCancel.style.display = esHistorica ? 'none' : '';
   }
 
   openAdmEdit(booking);
+}
+     
+     function openHistEditButton(event, bookingId) {
+  if (event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
+  openAdmEditById(bookingId);
 }
      
      function bindReservationCardClicks() {
