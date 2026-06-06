@@ -1057,6 +1057,15 @@
       🚫 Bloquear
 
     </button>
+    
+    <button
+  class="view-btn"
+  id="btnHist"
+  style="display:none"
+  onclick="openHistModal()"
+>
+  Captura histórica
+</button>
 
   </div>
 
@@ -1102,6 +1111,7 @@
     let allBloqueos = [];
     let lastUpdate = null;
     let _processing = false;
+    let _histProcessing = false;
     let captureSuggestions = {
     doctores: [],
     anestesiologos: [],
@@ -1608,6 +1618,197 @@ console.log('CLICK SLOT', {
   document.getElementById('admNewModal').classList.add('open');
 }
 
+     function openHistModal() {
+  if (!canCreateHistorica()) {
+    alert('No tienes permisos para capturar cirugías históricas.');
+    return;
+  }
+
+  resetHistModal();
+  buildHistHourOptions();
+  buildHistDurationOptions();
+
+  const today = todayStr();
+  const firstDay = today.substring(0, 8) + '01';
+
+  const fecha = document.getElementById('hist-fecha');
+  if (fecha) {
+    fecha.min = firstDay;
+    fecha.max = today;
+    fecha.value = today;
+  }
+
+  document.getElementById('histModal').classList.add('open');
+}
+
+function closeHistModal() {
+  if (_histProcessing) return;
+
+  const modal = document.getElementById('histModal');
+  if (modal) modal.classList.remove('open');
+
+  resetHistModal();
+}
+
+function resetHistModal() {
+  document.querySelectorAll('#histModal input').forEach(input => {
+    if (input.type === 'checkbox') {
+      input.checked = false;
+    } else {
+      input.value = '';
+    }
+  });
+
+  document.querySelectorAll('#histModal .adm-svc-item').forEach(label => {
+    label.classList.remove('checked');
+  });
+
+  const msg = document.getElementById('histMsg');
+  if (msg) msg.style.display = 'none';
+
+  const saveBtn = document.getElementById('histSaveBtn');
+  if (saveBtn) {
+    saveBtn.disabled = false;
+    saveBtn.textContent = 'Guardar captura';
+  }
+
+  const cancelBtn = document.getElementById('histCancelBtn');
+  if (cancelBtn) cancelBtn.disabled = false;
+}
+
+function buildHistHourOptions() {
+  const select = document.getElementById('hist-hora');
+  if (!select) return;
+
+  select.innerHTML = '';
+
+  RES_HOURS.forEach(hora => {
+    const opt = document.createElement('option');
+    opt.value = hora;
+    opt.textContent = hora;
+    select.appendChild(opt);
+  });
+}
+
+function buildHistDurationOptions() {
+  const select = document.getElementById('hist-duracion');
+  if (!select) return;
+
+  const values = [
+    0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4,
+    4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8
+  ];
+
+  select.innerHTML = '';
+
+  values.forEach(value => {
+    const opt = document.createElement('option');
+    opt.value = String(value);
+    opt.textContent = formatHorasTxt(value);
+    select.appendChild(opt);
+  });
+
+  select.value = '1';
+}
+
+function histToggleSvc(label) {
+  const cb = label.querySelector('input');
+  setTimeout(() => {
+    label.classList.toggle('checked', cb.checked);
+  }, 0);
+}
+
+async function submitHistNew() {
+  if (_histProcessing) return;
+
+  const fecha = document.getElementById('hist-fecha').value;
+  const quirofano = document.getElementById('hist-quirofano').value;
+  const horaInicio = document.getElementById('hist-hora').value;
+  const duracion = Number(document.getElementById('hist-duracion').value);
+  const doctor = document.getElementById('hist-doctor').value.trim();
+  const paciente = document.getElementById('hist-paciente').value.trim();
+  const procedimiento = document.getElementById('hist-procedimiento').value.trim();
+  const anestesiologo = document.getElementById('hist-anestesiologo').value.trim();
+
+  if (!fecha || !quirofano || !horaInicio || !duracion || !doctor || !paciente || !procedimiento) {
+    alert('Completa los campos requeridos: fecha, quirófano, hora, duración, doctor, paciente y cirugía.');
+    return;
+  }
+
+  const confirmar = confirm(
+    'Confirmar captura histórica\n\n' +
+    'Esta cirugía se guardará solo en Sheets.\n' +
+    'No se creará en Cal.com.\n' +
+    'No se enviará correo al doctor.\n' +
+    'No se modificará Kommo.'
+  );
+
+  if (!confirmar) return;
+
+  _histProcessing = true;
+
+  const saveBtn = document.getElementById('histSaveBtn');
+  const cancelBtn = document.getElementById('histCancelBtn');
+  const msg = document.getElementById('histMsg');
+
+  if (saveBtn) {
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'Guardando...';
+  }
+
+  if (cancelBtn) cancelBtn.disabled = true;
+  if (msg) msg.style.display = 'block';
+
+  const svcs = {};
+  document.querySelectorAll('#histModal .adm-svc-item input').forEach(cb => {
+    svcs[cb.name.replace('hist-', '')] = cb.checked;
+  });
+
+  try {
+    const res = await fetch(getScriptUrl(), {
+      method: 'POST',
+      body: JSON.stringify(addSession({
+        action: 'crearReservaHistorica',
+        fecha: fecha,
+        quirofano: quirofano,
+        horaInicio: horaInicio,
+        duracion: duracion,
+        doctor: doctor,
+        paciente: paciente,
+        procedimiento: procedimiento,
+        anestesiologo: anestesiologo,
+        ...svcs
+      }))
+    });
+
+    const json = await res.json();
+
+    if (handleSessionError(json)) return;
+
+    if (!json.ok) {
+      throw new Error(json.error || 'No se pudo guardar la captura histórica');
+    }
+
+    _histProcessing = false;
+    closeHistModal();
+    await loadData();
+
+    alert('Captura histórica guardada correctamente.');
+  } catch(err) {
+    alert('No se pudo guardar: ' + err.message);
+  }
+
+  _histProcessing = false;
+
+  if (saveBtn) {
+    saveBtn.disabled = false;
+    saveBtn.textContent = 'Guardar captura';
+  }
+
+  if (cancelBtn) cancelBtn.disabled = false;
+  if (msg) msg.style.display = 'none';
+}
+     
     function closeAdmNew() {
   if (_processing) return;
 
@@ -2407,6 +2608,7 @@ function buildEditDurationOptions(selectedDuracion) {
   buildDateTabs();
   updateHdrDate();
   updateStatusDot(true);
+  applyRoleUi();
 
   if (getSessionToken()) {
     loadData();
@@ -3045,6 +3247,25 @@ function canAuditOperacion() {
   const user = getCurrentAdminUser();
   return user && user.role === 'auditoria';
 }
+     
+     function canCreateHistorica() {
+  const user = getCurrentAdminUser();
+
+  return user && [
+    'recepcion',
+    'auditoria',
+    'reporte',
+    'direccion'
+  ].includes(user.role);
+}
+
+function applyRoleUi() {
+  const histBtn = document.getElementById('btnHist');
+
+  if (histBtn) {
+    histBtn.style.display = canCreateHistorica() ? '' : 'none';
+  }
+}
 
 async function doLogin() {
   const u = document.getElementById('lgUser').value.trim().toLowerCase();
@@ -3089,6 +3310,7 @@ if (json.user && json.user.role === 'enfermeria') {
 }
 
 document.getElementById('loginScreen').style.display = 'none';
+    applyRoleUi();
 
 await loadData();
 loadCaptureSuggestions();
@@ -3143,6 +3365,132 @@ init();
      
   </script>
 
+  <!-- MODAL: CAPTURA HISTÓRICA -->
+<div class="adm-modal-overlay" id="histModal">
+  <div class="adm-modal">
+    <h2>Captura histórica</h2>
+    <div class="sub">
+      Solo para cirugías realizadas dentro del mes actual. No crea reserva en Cal.com y no envía correo.
+    </div>
+
+    <div class="adm-summary">
+      <div class="adm-sum-row">
+        <span class="adm-sum-lbl">Alcance</span>
+        <span class="adm-sum-val">Del día 1 del mes actual hasta hoy</span>
+      </div>
+      <div class="adm-sum-row">
+        <span class="adm-sum-lbl">Fuente</span>
+        <span class="adm-sum-val">Captura histórica administrativa</span>
+      </div>
+    </div>
+
+    <div id="histForm">
+      <div class="adm-form-grid">
+        <div class="adm-field">
+          <label>Fecha *</label>
+          <input type="date" id="hist-fecha">
+        </div>
+
+        <div class="adm-field">
+          <label>Quirófano *</label>
+          <select id="hist-quirofano">
+            <option value="Quirofano 1">Quirofano 1</option>
+            <option value="Quirofano 2">Quirofano 2</option>
+            <option value="Quirofano 3">Quirofano 3</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="adm-form-grid">
+        <div class="adm-field">
+          <label>Hora inicio *</label>
+          <select id="hist-hora"></select>
+        </div>
+
+        <div class="adm-field">
+          <label>Duración *</label>
+          <select id="hist-duracion"></select>
+        </div>
+      </div>
+
+      <div class="adm-form-grid">
+        <div class="adm-field">
+          <label>Doctor *</label>
+          <input type="text" id="hist-doctor" list="doctorSuggestions" autocomplete="off" placeholder="Dr. Nombre Apellido">
+        </div>
+
+        <div class="adm-field">
+          <label>Paciente *</label>
+          <input type="text" id="hist-paciente" placeholder="Nombre del paciente">
+        </div>
+      </div>
+
+      <div class="adm-form-grid">
+        <div class="adm-field">
+          <label>Cirugía / procedimiento *</label>
+          <input type="text" id="hist-procedimiento" placeholder="Ej: Artroscopía">
+        </div>
+
+        <div class="adm-field">
+          <label>Anestesiólogo</label>
+          <input type="text" id="hist-anestesiologo" list="anestSuggestions" autocomplete="off" placeholder="Nombre">
+        </div>
+      </div>
+
+      <div style="font-size:0.72rem;font-weight:600;color:var(--g600);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:0.5rem;">
+        Servicios adicionales
+      </div>
+
+      <div class="adm-svc-grid">
+        <label class="adm-svc-item" onclick="histToggleSvc(this)"><input type="checkbox" name="hist-rayosx"> Rayos X</label>
+        <label class="adm-svc-item" onclick="histToggleSvc(this)"><input type="checkbox" name="hist-usg"> USG</label>
+        <label class="adm-svc-item" onclick="histToggleSvc(this)"><input type="checkbox" name="hist-microscopio"> Microscopio</label>
+        <label class="adm-svc-item" onclick="histToggleSvc(this)"><input type="checkbox" name="hist-laparoscopia"> Laparoscopia</label>
+        <label class="adm-svc-item" onclick="histToggleSvc(this)"><input type="checkbox" name="hist-solirrigacion"> Sol. Irrigación</label>
+        <label class="adm-svc-item" onclick="histToggleSvc(this)"><input type="checkbox" name="hist-instrumentista"> Instrumentista</label>
+        <label class="adm-svc-item" onclick="histToggleSvc(this)"><input type="checkbox" name="hist-anestesiologoext"> Anestesiólogo Ext.</label>
+      </div>
+
+      <div
+        id="histMsg"
+        style="
+          display:none;
+          margin-top:12px;
+          padding:10px;
+          border-radius:8px;
+          background:#FEF3C7;
+          color:#92400E;
+          font-size:0.82rem;
+          font-weight:600;
+          text-align:center;
+        "
+      >
+        Guardando captura histórica...
+      </div>
+
+      <div class="adm-actions">
+        <button
+          type="button"
+          class="adm-btn adm-btn-ghost"
+          id="histCancelBtn"
+          onclick="closeHistModal()"
+        >
+          Cancelar
+        </button>
+
+        <button
+          type="button"
+          class="adm-btn adm-btn-primary"
+          id="histSaveBtn"
+          onclick="submitHistNew()"
+        >
+          Guardar captura
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+  
 <!-- MODAL: NUEVA RESERVA (admin) -->
 <div class="adm-modal-overlay" id="admNewModal">
   <div class="adm-modal">
