@@ -1066,6 +1066,15 @@
 >
   Captura histórica
 </button>
+    
+    <button
+  class="view-btn"
+  id="btnEditHist"
+  style="display:none"
+  onclick="openHistoricaDelDia()"
+>
+  Editar histórica
+</button>
 
   </div>
 
@@ -2192,6 +2201,48 @@ if (tabCancel) tabCancel.style.display = esHistorica ? 'none' : '';
   }
 
   openAdmEditById(bookingId);
+}
+     
+     function openHistoricaDelDia() {
+  const historicas = allReservas.filter(r =>
+    r.fecha === currentDate && isHistoricaReserva(r)
+  );
+
+  if (!historicas.length) {
+    alert('No hay capturas históricas en esta fecha.');
+    return;
+  }
+
+  if (historicas.length === 1) {
+    openAdmEdit(historicas[0]);
+    return;
+  }
+
+  const lista = historicas.map((r, i) => {
+    return (
+      (i + 1) + '. ' +
+      (r.horaInicio || '--:--') + ' · ' +
+      (r.quirofano || '') + ' · ' +
+      (r.procedimiento || 'Sin procedimiento')
+    );
+  }).join('\n');
+
+  const seleccionado = prompt(
+    'Hay varias capturas históricas en esta fecha.\n\n' +
+    'Escribe el número que quieres editar:\n\n' +
+    lista
+  );
+
+  if (seleccionado === null) return;
+
+  const index = Number(seleccionado) - 1;
+
+  if (isNaN(index) || !historicas[index]) {
+    alert('Selección inválida.');
+    return;
+  }
+
+  openAdmEdit(historicas[index]);
 }
      
      function bindReservationCardClicks() {
@@ -3423,9 +3474,16 @@ function canAuditOperacion() {
 
 function applyRoleUi() {
   const histBtn = document.getElementById('btnHist');
+  const editHistBtn = document.getElementById('btnEditHist');
+
+  const canHist = canCreateHistorica();
 
   if (histBtn) {
-    histBtn.style.display = canCreateHistorica() ? '' : 'none';
+    histBtn.style.display = canHist ? '' : 'none';
+  }
+
+  if (editHistBtn) {
+    editHistBtn.style.display = canHist ? '' : 'none';
   }
 }
      
