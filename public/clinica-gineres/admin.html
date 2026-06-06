@@ -1366,7 +1366,7 @@ if (day === 0) {
   ${esHistSlot ? `
   <button
     type="button"
-    onclick="openHistEditButton(event, '${escHtml(o.booking.bookingId)}')"
+    data-hist-edit-id="${escHtml(o.booking.bookingId)}"
     style="
       margin-top:6px;
       width:max-content;
@@ -1379,6 +1379,8 @@ if (day === 0) {
       font-size:0.62rem;
       font-weight:800;
       cursor:pointer;
+      position:relative;
+      z-index:20;
     "
   >
     Editar captura
@@ -2169,6 +2171,7 @@ if (tabCancel) tabCancel.style.display = esHistorica ? 'none' : '';
 
      function openAdmEditById(bookingId) {
   const id = String(bookingId || '').trim();
+       console.log('Intentando abrir bookingId:', id);
 
   const booking = allReservas.find(r =>
     String(r.bookingId || '').trim() === id
@@ -3091,6 +3094,24 @@ if (dateTabsEl) {
     }
   }, { passive:false });
 }
+
+     document.addEventListener('click', function(event) {
+  const btn = event.target.closest('[data-hist-edit-id]');
+
+  if (!btn) return;
+
+  event.preventDefault();
+  event.stopPropagation();
+
+  const id = btn.dataset.histEditId;
+
+  if (!id) {
+    alert('Esta captura no tiene bookingId para editar.');
+    return;
+  }
+
+  openAdmEditById(id);
+}, true);
      
      document.addEventListener('click', function(event) {
   const el = event.target.closest('[data-open-booking-id]');
