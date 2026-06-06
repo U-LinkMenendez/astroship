@@ -1066,15 +1066,6 @@
 >
   Captura histórica
 </button>
-    
-    <button
-  class="view-btn"
-  id="btnEditHist"
-  style="display:none"
-  onclick="openHistoricaDelDia()"
->
-  Editar histórica
-</button>
 
   </div>
 
@@ -1316,9 +1307,10 @@ if (day === 0) {
             else if (isFinished) { statusClass = 'rs-finished'; }
             
             cell = `<div class="rslot-occ ${statusClass}" 
-              style="height:${o.height}px; box-sizing:border-box; overflow:hidden;${inProgress?'cursor:not-allowed;opacity:0.7':''}"
-               data-open-booking-id="${escHtml(o.booking.bookingId)}"
-                ${inProgress ? 'title="Cirugía en curso"' : ''}>
+             style="height:${o.height}px; box-sizing:border-box; overflow:hidden;${inProgress || esHistSlot ? 'cursor:not-allowed;opacity:0.7' : ''}"
+              ${inProgress ? 'title="Cirugía en curso"' : ''}
+               ${esHistSlot ? 'title="Captura histórica sin edición"' : ''}
+                ${(!inProgress && !esHistSlot) ? `onclick="openAdmEdit(${JSON.stringify(o.booking).replace(/"/g,'&quot;')})"` : ''}>
 
   <div class="rs-time">
 
@@ -1371,30 +1363,6 @@ if (day === 0) {
   <div class="rs-proc">
     ${escHtml(o.proc)}
   </div>
-  
-  ${esHistSlot ? `
-  <button
-    type="button"
-    data-hist-edit-id="${escHtml(o.booking.bookingId)}"
-    style="
-      margin-top:6px;
-      width:max-content;
-      max-width:100%;
-      border:1px solid #2563EB;
-      background:#EFF6FF;
-      color:#1D4ED8;
-      border-radius:999px;
-      padding:4px 9px;
-      font-size:0.62rem;
-      font-weight:800;
-      cursor:pointer;
-      position:relative;
-      z-index:20;
-    "
-  >
-    Editar captura
-  </button>
-` : ''}
 
   ${isBlocked ? `
 
@@ -1505,7 +1473,9 @@ ${[
   </div>`;
             
           } else if (o && o.isCont) {
-            cell = `<div class="rslot-cont" data-open-booking-id="${escHtml(o.booking.bookingId)}"></div>`;
+            cell = isHistoricaReserva(o.booking)
+             ? `<div class="rslot-cont"></div>`
+              : `<div class="rslot-cont" onclick="openAdmEdit(${JSON.stringify(o.booking).replace(/"/g,'&quot;')})"></div>`;
           } else if (isPast || isClosedSlot) {
             cell = `<div class="rslot-past"></div>`;
           } else {
@@ -1527,7 +1497,6 @@ ${[
       html += `</div></div>`;
       area.innerHTML = html;
       updateResSelBar();
-      bindReservationCardClicks();
     }
 
     let _resToday = false, _resNowH = 0;
@@ -1965,8 +1934,6 @@ async function submitHistNew() {
       if (typeof booking === 'string') booking = JSON.parse(booking.replace(/&quot;/g,'"'));
 _editBooking = booking;
 
-const esHistorica = isHistoricaReserva(booking);
-
 const q = (booking.quirofano||'').replace('Quirofano','Quirófano');
       document.getElementById('admEditSub').textContent = q+' · '+booking.fecha+' · '+booking.horaInicio;
 
@@ -2037,18 +2004,9 @@ if (auditBox) {
     String(booking.estatus || '').trim() === 'Cancelado';
 
   auditBox.style.display =
-  canAuditOperacion() && !yaNoRealizada && !esCancelada && !esHistorica
+  canAuditOperacion() && !yaNoRealizada && !esCancelada
     ? 'block'
     : 'none';
-}
-
-      if (esHistorica) {
-  document.getElementById('admEditSummary').innerHTML += `
-    <div class="op-incidence" style="background:#EFF6FF;color:#1E3A8A;border-color:#BFDBFE;">
-      Captura histórica administrativa.<br>
-      Solo permite editar textos. No se puede cancelar, reagendar ni marcar como no realizada.
-    </div>
-  `;
 }
       
 if (String(booking.estadoOperacion || '').trim() === 'Cirugia no realizada') {
@@ -2086,12 +2044,6 @@ document.getElementById('ed-fecha').onchange = function() {
   );
 };
       showEditTab('datos');
-      
-      const tabHora = document.getElementById('etabHora');
-const tabCancel = document.getElementById('etabCancel');
-
-if (tabHora) tabHora.style.display = esHistorica ? 'none' : '';
-if (tabCancel) tabCancel.style.display = esHistorica ? 'none' : '';
 
       const isCancelled = (booking.estatus || '').trim() === 'Cancelado';
 
@@ -2116,35 +2068,29 @@ if (tabCancel) tabCancel.style.display = esHistorica ? 'none' : '';
 
       const isEnded = now > endDate;
 
-      document.getElementById('edDatosBtn').disabled  = isHistorica ? false : (isCancelled || isEnded);
-      document.getElementById('edHoraBtn').disabled   = isHistorica ? true : (isCancelled || isEnded);
-      document.getElementById('edCancelBtn').disabled = isHistorica ? true : (isCancelled || isEnded);
+      document.getElementById('edDatosBtn').disabled  = isCancelled || isEnded;
+      document.getElementById('edHoraBtn').disabled   = isCancelled || isEnded;
+      document.getElementById('edCancelBtn').disabled = isCancelled || isEnded;
 
       [
-  'ed-paciente',
-  'ed-procedimiento',
-  'ed-anestesiologo',
-  'ed-enfermeria'
-].forEach(id => {
-  const el = document.getElementById(id);
-  if (el) el.disabled = isHistorica ? false : (isCancelled || isEnded);
-});
-
-[
-  'ed-fecha',
-  'ed-hora',
-  'ed-duracion',
-  'ed-motivo'
-].forEach(id => {
-  const el = document.getElementById(id);
-  if (el) el.disabled = isHistorica ? true : (isCancelled || isEnded);
-});
+        'ed-paciente',
+        'ed-procedimiento',
+        'ed-anestesiologo',
+        'ed-enfermeria',
+        'ed-fecha',
+        'ed-hora',
+        'ed-duracion',
+        'ed-motivo'
+      ].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.disabled = isCancelled || isEnded;
+      });
 
       const saveBtn = document.getElementById('edSaveBtn');
 
       if (saveBtn) {
-  saveBtn.disabled = isHistorica ? false : (isCancelled || isEnded);
-}
+        saveBtn.disabled = isCancelled || isEnded;
+      }
 
       if (isCancelled) {
 
@@ -2177,88 +2123,6 @@ if (tabCancel) tabCancel.style.display = esHistorica ? 'none' : '';
     }
 
     function closeAdmEdit() { document.getElementById('admEditModal').classList.remove('open'); _editBooking=null; }
-
-     function openAdmEditById(bookingId) {
-  const id = String(bookingId || '').trim();
-       console.log('Intentando abrir bookingId:', id);
-
-  const booking = allReservas.find(r =>
-    String(r.bookingId || '').trim() === id
-  );
-
-  if (!booking) {
-    alert('No encontré esta reserva en la información cargada. Presiona Actualizar e intenta nuevamente.');
-    return;
-  }
-
-  openAdmEdit(booking);
-}
-     
-     function openHistEditButton(event, bookingId) {
-  if (event) {
-    event.preventDefault();
-    event.stopPropagation();
-  }
-
-  openAdmEditById(bookingId);
-}
-     
-     function openHistoricaDelDia() {
-  const historicas = allReservas.filter(r =>
-    r.fecha === currentDate && isHistoricaReserva(r)
-  );
-
-  if (!historicas.length) {
-    alert('No hay capturas históricas en esta fecha.');
-    return;
-  }
-
-  if (historicas.length === 1) {
-    openAdmEdit(historicas[0]);
-    return;
-  }
-
-  const lista = historicas.map((r, i) => {
-    return (
-      (i + 1) + '. ' +
-      (r.horaInicio || '--:--') + ' · ' +
-      (r.quirofano || '') + ' · ' +
-      (r.procedimiento || 'Sin procedimiento')
-    );
-  }).join('\n');
-
-  const seleccionado = prompt(
-    'Hay varias capturas históricas en esta fecha.\n\n' +
-    'Escribe el número que quieres editar:\n\n' +
-    lista
-  );
-
-  if (seleccionado === null) return;
-
-  const index = Number(seleccionado) - 1;
-
-  if (isNaN(index) || !historicas[index]) {
-    alert('Selección inválida.');
-    return;
-  }
-
-  openAdmEdit(historicas[index]);
-}
-     
-     function bindReservationCardClicks() {
-  document.querySelectorAll('[data-open-booking-id]').forEach(el => {
-    if (el.dataset.boundBookingClick === '1') return;
-
-    el.dataset.boundBookingClick = '1';
-
-    el.addEventListener('click', function(event) {
-      event.preventDefault();
-      event.stopPropagation();
-
-      openAdmEditById(this.dataset.openBookingId);
-    });
-  });
-}
      
      function openBlockModal() {
   document.getElementById('blkFecha').value = currentDate;
@@ -3145,35 +3009,8 @@ if (dateTabsEl) {
     }
   }, { passive:false });
 }
-
-     document.addEventListener('click', function(event) {
-  const btn = event.target.closest('[data-hist-edit-id]');
-
-  if (!btn) return;
-
-  event.preventDefault();
-  event.stopPropagation();
-
-  const id = btn.dataset.histEditId;
-
-  if (!id) {
-    alert('Esta captura no tiene bookingId para editar.');
-    return;
-  }
-
-  openAdmEditById(id);
-}, true);
-     
-     document.addEventListener('click', function(event) {
-  const el = event.target.closest('[data-open-booking-id]');
-
-  if (!el) return;
-
-  event.preventDefault();
-  event.stopPropagation();
-
-  openAdmEditById(el.dataset.openBookingId);
-}, true);
+, true);
+, true);
 
      async function submitIncidenciaOperacion() {
   if (!_editBooking) return;
@@ -3474,16 +3311,9 @@ function canAuditOperacion() {
 
 function applyRoleUi() {
   const histBtn = document.getElementById('btnHist');
-  const editHistBtn = document.getElementById('btnEditHist');
-
-  const canHist = canCreateHistorica();
 
   if (histBtn) {
-    histBtn.style.display = canHist ? '' : 'none';
-  }
-
-  if (editHistBtn) {
-    editHistBtn.style.display = canHist ? '' : 'none';
+    histBtn.style.display = canCreateHistorica() ? '' : 'none';
   }
 }
      
