@@ -1308,7 +1308,7 @@ if (day === 0) {
             
             cell = `<div class="rslot-occ ${statusClass}" 
               style="height:${o.height}px; box-sizing:border-box; overflow:hidden;${inProgress?'cursor:not-allowed;opacity:0.7':''}" 
-                ${inProgress ? 'title="Cirugía en curso"' : `onclick="openAdmEdit(${JSON.stringify(o.booking).replace(/"/g,'&quot;')})"`}>
+                ${inProgress ? 'title="Cirugía en curso"' : `onclick="openAdmEditById('${escHtml(o.booking.bookingId)}')"`}>
 
   <div class="rs-time">
 
@@ -1471,7 +1471,7 @@ ${[
   </div>`;
             
           } else if (o && o.isCont) {
-            cell = `<div class="rslot-cont" onclick="openAdmEdit(${JSON.stringify(o.booking).replace(/"/g,'&quot;')})"></div>`;
+            cell = `<div class="rslot-cont" onclick="openAdmEditById('${escHtml(o.booking.bookingId)}')"></div>`;
           } else if (isPast || isClosedSlot) {
             cell = `<div class="rslot-past"></div>`;
           } else {
@@ -2143,6 +2143,21 @@ if (tabCancel) tabCancel.style.display = esHistorica ? 'none' : '';
 
     function closeAdmEdit() { document.getElementById('admEditModal').classList.remove('open'); _editBooking=null; }
 
+     function openAdmEditById(bookingId) {
+  const id = String(bookingId || '').trim();
+
+  const booking = allReservas.find(r =>
+    String(r.bookingId || '').trim() === id
+  );
+
+  if (!booking) {
+    alert('No encontré esta reserva en la información cargada. Presiona Actualizar e intenta nuevamente.');
+    return;
+  }
+
+  openAdmEdit(booking);
+}
+     
      function openBlockModal() {
   document.getElementById('blkFecha').value = currentDate;
   document.getElementById('blkMotivo').value = '';
@@ -3335,7 +3350,13 @@ function applyRoleUi() {
 }
      
      function isHistoricaReserva(r) {
-  return String(r && r.fuente || '').trim() === 'Captura historica';
+  const fuente = String(r && r.fuente || '').trim();
+  const bookingId = String(r && r.bookingId || '').trim();
+
+  return (
+    fuente === 'Captura historica' ||
+    bookingId.indexOf('HIST-') === 0
+  );
 }
 
 async function doLogin() {
