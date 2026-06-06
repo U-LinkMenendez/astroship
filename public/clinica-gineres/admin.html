@@ -1927,8 +1927,11 @@ async function submitHistNew() {
     // ── EDITAR RESERVA MODAL ─────────────────────────────
     function openAdmEdit(booking) {
       if (typeof booking === 'string') booking = JSON.parse(booking.replace(/&quot;/g,'"'));
-      _editBooking = booking;
-      const q = (booking.quirofano||'').replace('Quirofano','Quirófano');
+_editBooking = booking;
+
+const esHistorica = isHistoricaReserva(booking);
+
+const q = (booking.quirofano||'').replace('Quirofano','Quirófano');
       document.getElementById('admEditSub').textContent = q+' · '+booking.fecha+' · '+booking.horaInicio;
 
       document.getElementById('admEditSummary').innerHTML = `
@@ -1998,11 +2001,20 @@ if (auditBox) {
     String(booking.estatus || '').trim() === 'Cancelado';
 
   auditBox.style.display =
-    canAuditOperacion() && !yaNoRealizada && !esCancelada
-      ? 'block'
-      : 'none';
+  canAuditOperacion() && !yaNoRealizada && !esCancelada && !esHistorica
+    ? 'block'
+    : 'none';
 }
 
+      if (esHistorica) {
+  document.getElementById('admEditSummary').innerHTML += `
+    <div class="op-incidence" style="background:#EFF6FF;color:#1E3A8A;border-color:#BFDBFE;">
+      Captura histórica administrativa.<br>
+      Solo permite editar textos. No se puede cancelar, reagendar ni marcar como no realizada.
+    </div>
+  `;
+}
+      
 if (String(booking.estadoOperacion || '').trim() === 'Cirugia no realizada') {
   document.getElementById('admEditSummary').innerHTML += `
     <div class="op-incidence">
@@ -2038,6 +2050,12 @@ document.getElementById('ed-fecha').onchange = function() {
   );
 };
       showEditTab('datos');
+      
+      const tabHora = document.getElementById('etabHora');
+const tabCancel = document.getElementById('etabCancel');
+
+if (tabHora) tabHora.style.display = esHistorica ? 'none' : '';
+if (tabCancel) tabCancel.style.display = esHistorica ? 'none' : '';
 
       const isCancelled = (booking.estatus || '').trim() === 'Cancelado';
 
@@ -2062,29 +2080,35 @@ document.getElementById('ed-fecha').onchange = function() {
 
       const isEnded = now > endDate;
 
-      document.getElementById('edDatosBtn').disabled  = isCancelled || isEnded;
-      document.getElementById('edHoraBtn').disabled   = isCancelled || isEnded;
-      document.getElementById('edCancelBtn').disabled = isCancelled || isEnded;
+      document.getElementById('edDatosBtn').disabled  = isHistorica ? false : (isCancelled || isEnded);
+      document.getElementById('edHoraBtn').disabled   = isHistorica ? true : (isCancelled || isEnded);
+      document.getElementById('edCancelBtn').disabled = isHistorica ? true : (isCancelled || isEnded);
 
       [
-        'ed-paciente',
-        'ed-procedimiento',
-        'ed-anestesiologo',
-        'ed-enfermeria',
-        'ed-fecha',
-        'ed-hora',
-        'ed-duracion',
-        'ed-motivo'
-      ].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.disabled = isCancelled || isEnded;
-      });
+  'ed-paciente',
+  'ed-procedimiento',
+  'ed-anestesiologo',
+  'ed-enfermeria'
+].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.disabled = isHistorica ? false : (isCancelled || isEnded);
+});
+
+[
+  'ed-fecha',
+  'ed-hora',
+  'ed-duracion',
+  'ed-motivo'
+].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.disabled = isHistorica ? true : (isCancelled || isEnded);
+});
 
       const saveBtn = document.getElementById('edSaveBtn');
 
       if (saveBtn) {
-        saveBtn.disabled = isCancelled || isEnded;
-      }
+  saveBtn.disabled = isHistorica ? false : (isCancelled || isEnded);
+}
 
       if (isCancelled) {
 
@@ -2455,6 +2479,10 @@ async function saveUnblock() {
 
     async function submitEditHora() {
       if (_processing) return;
+        if (isHistoricaReserva(_editBooking)) {
+    alert('Esta captura histórica no se puede reagendar. Solo permite edición de textos.');
+    return;
+  }
         _processing = true;
       const btn = document.getElementById('edHoraBtn');
       btn.disabled=true; btn.textContent='Reagendando…';
@@ -2499,6 +2527,10 @@ async function saveUnblock() {
 
     async function submitCancelReserva() {
       if (_processing) return;
+        if (isHistoricaReserva(_editBooking)) {
+    alert('Esta captura histórica no se puede cancelar. Solo permite edición de textos.');
+    return;
+  }
         _processing = true;
       const btn = document.getElementById('edCancelBtn');
 const noCancelBtn = document.getElementById('edNoCancelBtn');
@@ -2967,7 +2999,10 @@ if (dateTabsEl) {
 
      async function submitIncidenciaOperacion() {
   if (!_editBooking) return;
-
+    if (isHistoricaReserva(_editBooking)) {
+    alert('Esta captura histórica no se puede marcar como no realizada. Solo permite edición de textos.');
+    return;
+  }
   if (!canAuditOperacion()) {
     alert('Solo Daniel puede registrar esta incidencia.');
     return;
@@ -3265,6 +3300,10 @@ function applyRoleUi() {
   if (histBtn) {
     histBtn.style.display = canCreateHistorica() ? '' : 'none';
   }
+}
+     
+     function isHistoricaReserva(r) {
+  return String(r && r.fuente || '').trim() === 'Captura historica';
 }
 
 async function doLogin() {
