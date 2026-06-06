@@ -1296,9 +1296,10 @@ if (day === 0) {
             const startH2 = parseInt(o.hora.split(':')[0]) + parseInt(o.hora.split(':')[1])/60;
              const endH2   = startH2 + o.duracion;
               const isBlocked = (o.booking.doctor || '') .includes('🚫 BLOQUEADO');
-               const inProgress = !isBlocked && isToday && startH2 <= nowH && nowH < endH2;
+              const esHistSlot = isHistoricaReserva(o.booking);
+              const inProgress = !isBlocked && !esHistSlot && isToday && startH2 <= nowH && nowH < endH2;
               const isCancelled = (o.booking.estatus || '') .toLowerCase() .includes('cancel');
-            const isFinished = isToday && nowH >= endH2;
+              const isFinished = isToday && nowH >= endH2;
 
             let statusClass = 'rs-upcoming';
             if (isCancelled) { statusClass = 'rs-cancelled'; }
@@ -2668,30 +2669,60 @@ function buildEditDurationOptions(selectedDuracion) {
     }
 
     function buildDateTabs() {
-      const container = document.getElementById('dateTabs');
-      container.innerHTML = '';
-      const today = new Date();
-      for (let i = 0; i < DAYS_TO_SHOW; i++) {
-        const d = new Date(today);
-        d.setDate(today.getDate() + i);
-        const ds = formatDate(d);
-        const label = i === 0 ? 'Hoy' : formatShortDate(d);
-        const btn = document.createElement('button');
-        btn.className = 'date-tab' + (i === 0 ? ' today-tab' : '') + (ds === currentDate ? ' active' : '');
-        btn.textContent = label;
-        btn.onclick = () => selectDate(ds);
-        container.appendChild(btn);
-      }
-    }
+  const container = document.getElementById('dateTabs');
+  container.innerHTML = '';
+
+  const today = new Date();
+  const todayValue = todayStr();
+
+  const firstDay = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    1
+  );
+
+  const lastDay = new Date(today);
+  lastDay.setDate(today.getDate() + DAYS_TO_SHOW - 1);
+
+  const d = new Date(firstDay);
+
+  while (d <= lastDay) {
+    const ds = formatDate(d);
+
+    const isToday = ds === todayValue;
+    const isPast = ds < todayValue;
+
+    const label = isToday
+      ? 'Hoy'
+      : formatShortDate(d);
+
+    const btn = document.createElement('button');
+
+    btn.className =
+      'date-tab' +
+      (isToday ? ' today-tab' : '') +
+      (isPast ? ' hist-tab' : '') +
+      (ds === currentDate ? ' active' : '');
+
+    btn.textContent = label;
+    btn.dataset.date = ds;
+    btn.onclick = () => selectDate(ds);
+
+    container.appendChild(btn);
+
+    d.setDate(d.getDate() + 1);
+  }
+}
 
     function selectDate(ds) {
-      currentDate = ds;
-      document.querySelectorAll('.date-tab').forEach((b, i) => {
-        const d = new Date(); d.setDate(d.getDate() + i);
-        b.classList.toggle('active', formatDate(d) === ds);
-      });
-      render();
-    }
+  currentDate = ds;
+
+  document.querySelectorAll('.date-tab').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.date === ds);
+  });
+
+  render();
+}
 
     function setView(v) {
       currentView = v;
@@ -2705,10 +2736,11 @@ function buildEditDurationOptions(selectedDuracion) {
       const url = getScriptUrl();
       showLoader(true);
       const today = todayStr();
+      const start = today.substring(0, 8) + '01';
       const end   = addDays(today, DAYS_TO_SHOW - 1);
       try {
         const query = buildSessionQuery({
-  start: today,
+  start: start,
   end: end
 });
 
