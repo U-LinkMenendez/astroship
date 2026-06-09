@@ -1297,14 +1297,18 @@ if (day === 0) {
              const endH2   = startH2 + o.duracion;
               const isBlocked = (o.booking.doctor || '') .includes('🚫 BLOQUEADO');
               const esHistSlot = isHistoricaReserva(o.booking);
-              const inProgress = !isBlocked && !esHistSlot && isToday && startH2 <= nowH && nowH < endH2;
-              const isCancelled = (o.booking.estatus || '') .toLowerCase() .includes('cancel');
+              const isNoRealizada =
+                 String(o.booking.estadoOperacion || '').trim() === 'Cirugia no realizada';
+
+              const inProgress = !isBlocked && !esHistSlot && !isNoRealizada && isToday && startH2 <= nowH && nowH < endH2;
+              const isCancelled = (o.booking.estatus || '').toLowerCase().includes('cancel');
               const isFinished = isToday && nowH >= endH2;
 
-            let statusClass = 'rs-upcoming';
-            if (isCancelled) { statusClass = 'rs-cancelled'; }
-            else if (inProgress) { statusClass = 'rs-live'; }
-            else if (isFinished) { statusClass = 'rs-finished'; }
+              let statusClass = 'rs-upcoming';
+              if (isNoRealizada) { statusClass = 'rs-incidence'; }
+              else if (isCancelled) { statusClass = 'rs-cancelled'; }
+              else if (inProgress) { statusClass = 'rs-live'; }
+              else if (isFinished) { statusClass = 'rs-finished'; }
             
             cell = `<div class="rslot-occ ${statusClass}" 
              style="height:${o.height}px; box-sizing:border-box; overflow:hidden;${inProgress || esHistSlot ? 'cursor:not-allowed;opacity:0.7' : ''}"
@@ -1328,7 +1332,21 @@ if (day === 0) {
     </span>
   ` : ''}
 
-  ${isFinished && !isCancelled ? `
+${isNoRealizada ? `
+  <span style="
+    background:#EA580C;
+    color:#fff;
+    font-size:0.52rem;
+    padding:2px 6px;
+    border-radius:999px;
+    margin-right:6px;
+    font-weight:700;
+  ">
+    NO REALIZADA
+  </span>
+` : ''}
+
+  ${isFinished && !isCancelled && !isNoRealizada ? `
     <span style="
       background:#64748B;
       color:#fff;
