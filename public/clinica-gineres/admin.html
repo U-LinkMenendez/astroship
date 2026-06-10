@@ -1089,7 +1089,7 @@
      function getScriptUrl() {
   return HARDCODED_URL;
 }
-    const HOURS = ['04:00','05:00','06:00','07:00','08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00'];
+    const HOURS = ['04:00','05:00','06:00','07:00','08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00'];
     const QUIROFANOS = ['Quirofano 1','Quirofano 2','Quirofano 3'];
     const LMP_CYCLE = {
       'Pendiente':'EnProceso',
@@ -1126,20 +1126,20 @@
     ];
     const RES_HOURS = [];
 
-    for (let h = 4; h <= 20; h++) {
+    for (let h = 4; h <= 21; h++) {
 
-      RES_HOURS.push(
-        `${String(h).padStart(2,'0')}:00`
-      );
+  RES_HOURS.push(
+    `${String(h).padStart(2,'0')}:00`
+  );
 
-      if (h < 20) {
+  if (h < 21) {
 
-        RES_HOURS.push(
-          `${String(h).padStart(2,'0')}:30`
-        );
+    RES_HOURS.push(
+      `${String(h).padStart(2,'0')}:30`
+    );
 
-      }
-    }
+  }
+}
     const ROW_H_ADM = 55;
 
     let resSelection = null;   // { quirofano, slots[] }
@@ -1582,6 +1582,22 @@ console.log('CLICK SLOT', {
 
     function clearResSelection() { resSelection=null; updateResSelBar(); renderRes(); }
 
+     function addMinutesToTime(time, minutes) {
+  const parts = String(time || '00:00').split(':').map(Number);
+  const total = (parts[0] * 60) + (parts[1] || 0) + minutes;
+
+  return `${String(Math.floor(total / 60)).padStart(2,'0')}:${String(total % 60).padStart(2,'0')}`;
+}
+
+function getSelectionEndTime(slots) {
+  const last = slots[slots.length - 1];
+  const nextIdx = RES_HOURS.indexOf(last) + 1;
+
+  return nextIdx < RES_HOURS.length
+    ? RES_HOURS[nextIdx]
+    : addMinutesToTime(last, 30);
+}
+     
     function updateResSelBar() {
   const bar = document.getElementById('resSelBar');
   if (!bar) return;
@@ -1596,10 +1612,7 @@ console.log('CLICK SLOT', {
   const hrs = resSelection.slots.length * 0.5;
   const q = resSelection.quirofano.replace('Quirofano','Quirófano');
   const s = resSelection.slots[0];
-  const ei = RES_HOURS.indexOf(resSelection.slots[resSelection.slots.length - 1]) + 1;
-  const e = ei < RES_HOURS.length
-    ? RES_HOURS[ei]
-    : (parseInt(resSelection.slots[resSelection.slots.length - 1].split(':')[0]) + 1) + ':00';
+  const e = getSelectionEndTime(resSelection.slots);
 
   document.getElementById('resSelInfo').textContent =
     `${q} · ${s}–${e} · ${formatHorasTxt(hrs)}`;
@@ -1611,10 +1624,7 @@ console.log('CLICK SLOT', {
 
   const q = resSelection.quirofano.replace('Quirofano','Quirófano');
   const s = resSelection.slots[0];
-  const ei = RES_HOURS.indexOf(resSelection.slots[resSelection.slots.length - 1]) + 1;
-  const e = ei < RES_HOURS.length
-    ? RES_HOURS[ei]
-    : (parseInt(resSelection.slots[resSelection.slots.length - 1].split(':')[0]) + 1) + ':00';
+  const e = getSelectionEndTime(resSelection.slots);
 
   const hrs = resSelection.slots.length * 0.5;
 
