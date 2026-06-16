@@ -6,9 +6,9 @@
     name="viewport"
     content="width=device-width, initial-scale=1.0"
   />
-  <title>Pandé Repostería</title>
+  <title>Pand&eacute; Reposter&iacute;a</title>
   <link
-    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@300;400;500;600&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@300;400;500;600;700;800&display=swap"
     rel="stylesheet"
   />
   <link
@@ -17,21 +17,103 @@
   />
 </head>
 <body>
-  <nav class="navbar">
-  <div class="logo">
-  <img
-    src="./img/logo-pande.png"
-    alt="Pandé Repostería"
-    class="logo-img"
-  >
-</div>
-    <div class="cart-btn" id="cart-btn">
-      🛒 <span id="cart-count">0</span>
-    </div>
+  <nav class="navbar" id="top">
+    <a class="logo" href="#top" aria-label="Pand&eacute; Reposter&iacute;a">
+      <img
+        src="./img/logo-pande.png"
+        alt="Pand&eacute; Reposter&iacute;a"
+        class="logo-img"
+      >
+    </a>
+
+    <button class="cart-btn" id="cart-btn" type="button">
+      <span class="cart-icon" aria-hidden="true">Carrito</span>
+      <span id="cart-count">0</span>
+    </button>
   </nav>
-  <div class="category-nav" id="category-nav">
-</div>
-<section class="store-box" id="store-box">
+
+  <header class="app-hero">
+    <div class="hero-copy">
+      <p class="hero-eyebrow">Reposter&iacute;a artesanal en M&eacute;rida</p>
+      <h1>&iquest;Qu&eacute; se te antoja hoy?</h1>
+      <p class="sub">
+        Keto, vegano y sin az&uacute;car, hecho con ingredientes cuidados.
+      </p>
+    </div>
+
+    <div class="search-wrap">
+      <input
+        id="product-search"
+        type="search"
+        placeholder="Buscar productos..."
+        autocomplete="off"
+      >
+    </div>
+  </header>
+
+  <section class="quick-categories" aria-label="Categor&iacute;as">
+    <button
+      class="quick-category"
+      type="button"
+      data-quick-target="cat-Muffin"
+    >
+      <span aria-hidden="true">
+        <svg viewBox="0 0 48 48">
+          <path d="M14 22c0-6 4-11 10-11s10 5 10 11" />
+          <path d="M12 22h24l-3 17H15l-3-17Z" />
+          <path d="M17 18c2 1 4 1 6-1 2 2 5 2 8 0" />
+        </svg>
+      </span>
+      Muffins
+    </button>
+    <button
+      class="quick-category"
+      type="button"
+      data-quick-target="cat-Pan"
+    >
+      <span aria-hidden="true">
+        <svg viewBox="0 0 48 48">
+          <path d="M9 28c3-9 10-15 20-15 6 0 10 4 10 10 0 8-7 13-18 13H11c-2 0-3-3-2-8Z" />
+          <path d="M19 17c-1 5-1 10 1 15" />
+          <path d="M28 15c-1 6-1 11 2 16" />
+        </svg>
+      </span>
+      Panes
+    </button>
+    <button
+      class="quick-category"
+      type="button"
+      data-quick-target="cat-Rebanada"
+    >
+      <span aria-hidden="true">
+        <svg viewBox="0 0 48 48">
+          <path d="M12 34h24" />
+          <path d="M15 34 24 13l9 21H15Z" />
+          <path d="M20 25h9" />
+          <path d="M22 20h4" />
+        </svg>
+      </span>
+      Rebanadas
+    </button>
+    <button
+      class="quick-category"
+      type="button"
+      data-quick-target="cat-PedEsp"
+    >
+      <span aria-hidden="true">
+        <svg viewBox="0 0 48 48">
+          <path d="M13 35h22" />
+          <path d="M15 35V21h18v14" />
+          <path d="M18 21c0-4 3-7 6-7s6 3 6 7" />
+          <path d="M24 9v5" />
+          <path d="M19 27h10" />
+        </svg>
+      </span>
+      Especiales
+    </button>
+  </section>
+
+  <section class="store-box" id="store-box">
     <div>
       <div class="store-label">
         Sucursal sugerida
@@ -45,26 +127,38 @@
     </div>
 
     <div class="store-actions">
-      <select id="store-select"></select>
+      <select id="store-select" aria-label="Elegir sucursal"></select>
       <button
         type="button"
         id="btn-location"
         class="store-location-btn"
       >
-        Usar mi ubicación
+        Usar mi ubicaci&oacute;n
       </button>
     </div>
   </section>
+
+  <div class="category-nav" id="category-nav"></div>
+
+  <main class="catalog-shell" id="catalogo">
+    <div class="section-intro">
+      <p>Cat&aacute;logo</p>
+      <h2>Productos disponibles</h2>
+    </div>
+    <div id="productos"></div>
+  </main>
+
   <div class="overlay" id="overlay"></div>
-  <!-- CARRITO -->
+
   <div class="cart-drawer" id="cart-drawer">
     <div class="cart-header">
       <h2>Carrito</h2>
       <button
         id="close-cart"
         class="close-cart"
+        type="button"
       >
-        ✕
+        &times;
       </button>
     </div>
     <div id="cart-items"></div>
@@ -75,166 +169,166 @@
       </div>
       <button
         class="checkout-btn"
+        type="button"
         onclick="abrirCheckout()"
       >
         Finalizar pedido
       </button>
     </div>
   </div>
-  <!-- CHECKOUT -->
+
   <div
     class="checkout-modal"
     id="checkout-modal"
   >
     <div class="checkout-content">
-  <button
-    id="close-checkout"
-    class="close-checkout"
-  >
-    ✕
-  </button>
-  <h2>Finalizar pedido</h2>
-
-  <input
-    type="text"
-    id="cliente-nombre"
-    placeholder="Nombre completo"
-  >
-
-  <input
-    type="tel"
-    id="cliente-telefono"
-    placeholder="WhatsApp (10 dígitos)"
-    maxlength="10"
-  >
-  <span class="field-error" id="error-telefono">
-    Ingresa 10 dígitos sin espacios ni guiones
-  </span>
-
-  <select id="tipo-entrega">
-    <option value="pickup">
-      Recoger en tienda
-    </option>
-    <option value="domicilio">
-      Envío a domicilio
-    </option>
-  </select>
-
-  <div id="checkout-tienda-wrapper">
-    <select id="checkout-tienda"></select>
-    <div class="checkout-help" id="checkout-tienda-help">
-      Elige la sucursal donde recogerás tu pedido.
-    </div>
-  </div>
-
-  <div id="direccion-wrapper" class="hidden">
-    <div class="delivery-warning">
-      Servicio externo. Costo mínimo de $40, varía según la zona.
-      Disponible solo desde García Lavín y hasta las 8:00 pm.
-      No se realizan envíos de pasteles.
-    </div>
-
-    <textarea
-      id="cliente-direccion"
-      placeholder="Dirección escrita completa"
-    ></textarea>
-
-    <input
-      type="url"
-      id="cliente-ubicacion"
-      placeholder="Link de ubicación de Google Maps (opcional)"
-    >
-  </div>
-
-  <select id="tipo-fecha">
-    <option value="hoy">
-      Lo antes posible
-    </option>
-    <option value="programado">
-      Programar fecha
-    </option>
-  </select>
-
-  <div id="fecha-wrapper" class="hidden">
-    <div
-      class="date-field"
-      id="fecha-field"
-      onclick="abrirCalendarioFecha()"
-    >
-      <span id="fecha-placeholder">
-        Selecciona la fecha
-      </span>
-      <input
-        type="date"
-        id="fecha-entrega"
-        inputmode="none"
-        onkeydown="return false"
-        onpaste="return false"
-        onchange="actualizarTextoFecha()"
+      <button
+        id="close-checkout"
+        class="close-checkout"
+        type="button"
       >
-    </div>
+        &times;
+      </button>
+      <h2>Finalizar pedido</h2>
 
-    <select id="hora-entrega">
-      <option value="">Selecciona horario</option>
-    </select>
+      <input
+        type="text"
+        id="cliente-nombre"
+        placeholder="Nombre completo"
+      >
 
-    <div class="checkout-help" id="fecha-help">
-      Los pedidos personalizados requieren mínimo 3 días de anticipación.
+      <input
+        type="tel"
+        id="cliente-telefono"
+        placeholder="WhatsApp (10 d&iacute;gitos)"
+        maxlength="10"
+      >
+      <span class="field-error" id="error-telefono">
+        Ingresa 10 d&iacute;gitos sin espacios ni guiones
+      </span>
+
+      <select id="tipo-entrega">
+        <option value="pickup">
+          Recoger en tienda
+        </option>
+        <option value="domicilio">
+          Env&iacute;o a domicilio
+        </option>
+      </select>
+
+      <div id="checkout-tienda-wrapper">
+        <select id="checkout-tienda"></select>
+        <div class="checkout-help" id="checkout-tienda-help">
+          Elige la sucursal donde recoger&aacute;s tu pedido.
+        </div>
+      </div>
+
+      <div id="direccion-wrapper" class="hidden">
+        <div class="delivery-warning">
+          Servicio externo. Costo m&iacute;nimo de $40, var&iacute;a seg&uacute;n la zona.
+          Disponible solo desde Garc&iacute;a Lav&iacute;n y hasta las 8:00 pm.
+          No se realizan env&iacute;os de pasteles.
+        </div>
+
+        <textarea
+          id="cliente-direccion"
+          placeholder="Direcci&oacute;n escrita completa"
+        ></textarea>
+
+        <input
+          type="url"
+          id="cliente-ubicacion"
+          placeholder="Link de ubicaci&oacute;n de Google Maps (opcional)"
+        >
+      </div>
+
+      <select id="tipo-fecha">
+        <option value="hoy">
+          Lo antes posible
+        </option>
+        <option value="programado">
+          Programar fecha
+        </option>
+      </select>
+
+      <div id="fecha-wrapper" class="hidden">
+        <div
+          class="date-field"
+          id="fecha-field"
+          onclick="abrirCalendarioFecha()"
+        >
+          <span id="fecha-placeholder">
+            Selecciona la fecha
+          </span>
+          <input
+            type="date"
+            id="fecha-entrega"
+            inputmode="none"
+            onkeydown="return false"
+            onpaste="return false"
+            onchange="actualizarTextoFecha()"
+          >
+        </div>
+
+        <select id="hora-entrega">
+          <option value="">Selecciona horario</option>
+        </select>
+
+        <div class="checkout-help" id="fecha-help">
+          Los pedidos personalizados requieren m&iacute;nimo 3 d&iacute;as de anticipaci&oacute;n.
+        </div>
+      </div>
+
+      <select id="metodo-pago">
+        <option value="Efectivo">Efectivo</option>
+        <option value="Transferencia">Transferencia</option>
+        <option value="Tarjeta">Tarjeta</option>
+      </select>
+
+      <textarea
+        id="cliente-notas"
+        placeholder="Notas adicionales (opcional)"
+      ></textarea>
+
+      <div id="pedido-especial-aviso" class="delivery-warning hidden">
+        Este pedido incluye productos personalizados o especiales.
+        Requiere m&iacute;nimo 3 d&iacute;as de anticipaci&oacute;n y 50% de anticipo.
+      </div>
+
+      <div id="resumen-pedido" class="hidden">
+        <div class="resumen-titulo">
+          Confirma tu pedido
+        </div>
+        <div id="resumen-contenido"></div>
+      </div>
+
+      <button
+        class="confirm-btn"
+        id="btn-confirmar"
+        type="button"
+        onclick="validarPedido()"
+      >
+        Revisar pedido
+      </button>
+
+      <button
+        class="confirm-btn whatsapp-btn hidden"
+        id="btn-whatsapp"
+        type="button"
+        onclick="enviarPorWhatsapp()"
+      >
+        Enviar por WhatsApp
+      </button>
     </div>
   </div>
-      
-  <select id="metodo-pago">
-    <option value="Efectivo">Efectivo</option>
-    <option value="Transferencia">Transferencia</option>
-    <option value="Tarjeta">Tarjeta</option>
-  </select>
 
-  <textarea
-    id="cliente-notas"
-    placeholder="Notas adicionales (opcional)"
-  ></textarea>
+  <nav class="bottom-nav" aria-label="Navegaci&oacute;n r&aacute;pida">
+    <a href="#top">Inicio</a>
+    <a href="#catalogo">Productos</a>
+    <a href="#store-box">Tiendas</a>
+    <button type="button" id="bottom-cart-btn">Carrito</button>
+  </nav>
 
-        <div id="pedido-especial-aviso" class="delivery-warning hidden">
-    Este pedido incluye productos personalizados o especiales.
-    Requiere mínimo 3 días de anticipación y 50% de anticipo.
-  </div>
-
-  <!-- RESUMEN DE CONFIRMACIÓN -->
-  <div id="resumen-pedido" class="hidden">
-    <div class="resumen-titulo">
-      Confirma tu pedido
-    </div>
-    <div id="resumen-contenido"></div>
-  </div>
-
-  <button
-    class="confirm-btn"
-    id="btn-confirmar"
-    onclick="validarPedido()"
-  >
-    Revisar pedido
-  </button>
-
-  <button
-    class="confirm-btn whatsapp-btn hidden"
-    id="btn-whatsapp"
-    onclick="enviarPorWhatsapp()"
-  >
-    📲 Enviar por WhatsApp
-  </button>
-</div>
-  </div>
-  <!-- HEADER -->
-  <header>
-    <h1>Pandé</h1>
-    <div class="sub">
-      Repostería artesanal en Mérida
-    </div>
-  </header>
-  <!-- PRODUCTOS -->
-  <main>
-    <div id="productos"></div>
-  </main>
   <script src="./js/app.js"></script>
 </body>
 </html>

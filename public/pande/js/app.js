@@ -45,10 +45,25 @@ const checkoutTienda =
 const checkoutTiendaHelp =
   document.getElementById("checkout-tienda-help");
 
+const productSearch =
+  document.getElementById("product-search");
+
+const bottomCartBtn =
+  document.getElementById("bottom-cart-btn");
+
+let busquedaProducto = "";
+
 cartBtn.addEventListener("click",()=>{
   cartDrawer.classList.add("open");
   overlay.classList.add("show");
 });
+
+if(bottomCartBtn){
+  bottomCartBtn.addEventListener("click",()=>{
+    cartDrawer.classList.add("open");
+    overlay.classList.add("show");
+  });
+}
 
 closeCart.addEventListener("click",()=>{
   cartDrawer.classList.remove("open");
@@ -322,7 +337,32 @@ function render(){
 
   const categorias = {};
 
-  productos.forEach(p=>{
+  const productosVisibles =
+    productos.filter(p=>{
+      if(!busquedaProducto) return true;
+
+      return [
+        p.nombre,
+        p.descripcion,
+        p.categoria,
+        p.linea
+      ].some(valor =>
+        String(valor || "")
+          .toLowerCase()
+          .includes(busquedaProducto)
+      );
+    });
+
+  if(productosVisibles.length === 0){
+    cont.innerHTML = `
+      <div class="empty-products">
+        No encontramos productos con esa busqueda.
+      </div>
+    `;
+    return;
+  }
+
+  productosVisibles.forEach(p=>{
     if(!categorias[p.categoria]){
       categorias[p.categoria] = [];
     }
@@ -387,7 +427,10 @@ function render(){
             <div class="nombre">${p.nombre}</div>
             <div class="desc">${p.descripcion || ''}</div>
             <div class="precio">$${p.precio}</div>
-            <button onclick="agregarCarrito('${p.id}')">
+            <button
+              type="button"
+              onclick="agregarCarrito('${p.id}')"
+            >
               Agregar
             </button>
           </div>
@@ -589,7 +632,41 @@ if(btnLocation){
   });
 }
 
+if(productSearch){
+  productSearch.addEventListener("input", e=>{
+    busquedaProducto =
+      e.target.value.trim().toLowerCase();
+    render();
+  });
+}
+
 document.addEventListener("click",(e)=>{
+
+  const quickBtn =
+    e.target.closest(".quick-category");
+
+  if(quickBtn){
+    if(productSearch){
+      productSearch.value = "";
+    }
+
+    busquedaProducto = "";
+    render();
+
+    requestAnimationFrame(()=>{
+      const quickSection =
+        document.getElementById(quickBtn.dataset.quickTarget);
+
+      if(quickSection){
+        quickSection.scrollIntoView({
+          behavior: "auto",
+          block: "start"
+        });
+      }
+    });
+
+    return;
+  }
 
   const btn =
     e.target.closest(".category-link");
