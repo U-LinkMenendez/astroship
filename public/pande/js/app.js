@@ -370,6 +370,11 @@ function render(){
   });
 
   const nombresCategorias = {
+    Individual: "Individual",
+    "Para compartir": "Para compartir",
+    Fríos: "Fríos",
+    Frios: "Fríos",
+    "De temporada": "De temporada",
     PedEsp: "Pedidos Especiales",
     Temporada: "Temporada",
     Muffin: "Muffins",
@@ -377,7 +382,31 @@ function render(){
     Pan: "Panes"
   };
 
-  Object.keys(categorias).forEach(cat=>{
+  const ordenCategorias = [
+    "Individual",
+    "Para compartir",
+    "Fríos",
+    "Frios",
+    "De temporada",
+    "Muffin",
+    "Pan",
+    "Rebanada",
+    "PedEsp",
+    "Temporada"
+  ];
+
+  const categoriasOrdenadas =
+    Object.keys(categorias).sort((a,b)=>{
+      const indexA = ordenCategorias.indexOf(a);
+      const indexB = ordenCategorias.indexOf(b);
+
+      return (
+        (indexA === -1 ? 999 : indexA) -
+        (indexB === -1 ? 999 : indexB)
+      );
+    });
+
+  categoriasOrdenadas.forEach(cat=>{
 
     const nombreVisual =
       nombresCategorias[cat] || cat;
