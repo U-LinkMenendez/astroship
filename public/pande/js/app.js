@@ -323,6 +323,81 @@ function gradosARadianes(grados){
   return grados * (Math.PI / 180);
 }
 
+function normalizarTexto(valor){
+  return String(valor || "")
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
+function normalizarCategoria(categoria){
+
+  const original =
+    String(categoria || "").trim();
+
+  const limpia =
+    normalizarTexto(original);
+
+  if(!limpia) return "Individual";
+
+  if(
+    limpia === "individual" ||
+    limpia === "muffin" ||
+    limpia === "pan"
+  ){
+    return "Individual";
+  }
+
+  if(
+    limpia === "para compartir" ||
+    limpia === "paracompartir" ||
+    limpia === "pedesp"
+  ){
+    return "Para compartir";
+  }
+
+  if(
+    limpia === "frios" ||
+    limpia === "fr?os" ||
+    (
+      limpia.startsWith("fr") &&
+      limpia.endsWith("os") &&
+      limpia.length <= 7
+    ) ||
+    limpia === "rebanada"
+  ){
+    return "Frios";
+  }
+
+  if(
+    limpia === "de temporada" ||
+    limpia === "temporada"
+  ){
+    return "De temporada";
+  }
+
+  return original;
+}
+
+function crearCategoriaId(categoria){
+
+  const idsCategorias = {
+    Individual: "Individual",
+    "Para compartir": "Para-compartir",
+    Frios: "Frios",
+    "De temporada": "De-temporada"
+  };
+
+  if(idsCategorias[categoria]){
+    return idsCategorias[categoria];
+  }
+
+  return normalizarTexto(categoria)
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
 function render(){
 
   const cont =
@@ -363,36 +438,41 @@ function render(){
   }
 
   productosVisibles.forEach(p=>{
-    if(!categorias[p.categoria]){
-      categorias[p.categoria] = [];
+
+    const categoria =
+      normalizarCategoria(p.categoria);
+
+    if(!categorias[categoria]){
+      categorias[categoria] = [];
     }
-    categorias[p.categoria].push(p);
+
+    categorias[categoria].push(p);
   });
 
   const nombresCategorias = {
     Individual: "Individual",
     "Para compartir": "Para compartir",
-    Fríos: "Fríos",
     Frios: "Fríos",
     "De temporada": "De temporada",
-    PedEsp: "Pedidos Especiales",
-    Temporada: "Temporada",
-    Muffin: "Muffins",
-    Rebanada: "Rebanadas",
-    Pan: "Panes"
+    PedEsp: "Para compartir",
+    Temporada: "De temporada",
+    Muffin: "Individual",
+    Rebanada: "Fríos",
+    Pan: "Individual"
+  };
+
+  const titulosCategorias = {
+    Individual: "Panadería y repostería individual",
+    "Para compartir": "Panadería y repostería para compartir",
+    Frios: "Fríos",
+    "De temporada": "De temporada"
   };
 
   const ordenCategorias = [
     "Individual",
     "Para compartir",
-    "Fríos",
     "Frios",
-    "De temporada",
-    "Muffin",
-    "Pan",
-    "Rebanada",
-    "PedEsp",
-    "Temporada"
+    "De temporada"
   ];
 
   const categoriasOrdenadas =
@@ -411,8 +491,11 @@ function render(){
     const nombreVisual =
       nombresCategorias[cat] || cat;
 
+    const tituloVisual =
+      titulosCategorias[cat] || nombreVisual;
+
     const catId =
-      cat.replace(/\s+/g,'-');
+      crearCategoriaId(cat);
 
     categoryNav.innerHTML += `
       <button
@@ -429,7 +512,7 @@ function render(){
         id="cat-${catId}"
       >
         <h2 class="categoria-title">
-          ${nombreVisual}
+          ${tituloVisual}
         </h2>
         <div class="categoria-grid"></div>
       </section>
