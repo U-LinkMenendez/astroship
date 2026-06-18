@@ -828,6 +828,16 @@ h1 {
   color: #6f4d00;
 }
 
+.delivery-location-btn {
+  width: 100%;
+  padding: 13px 14px;
+  border-radius: 14px;
+  background: #008996;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 900;
+}
+
 .transfer-info {
   display: grid;
   gap: 5px;

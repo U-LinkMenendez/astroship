@@ -72,6 +72,9 @@ const clienteUbicacion =
 const deliveryQuote =
   document.getElementById("delivery-quote");
 
+const btnDeliveryLocation =
+  document.getElementById("btn-delivery-location");
+
 let busquedaProducto = "";
 
 const CARRITO_STORAGE_KEY = "pande_carrito";
@@ -114,6 +117,12 @@ if(clienteUbicacion){
 if(clienteDireccion){
   clienteDireccion.addEventListener("input",()=>{
     actualizarCotizacionEnvio();
+  });
+}
+
+if(btnDeliveryLocation){
+  btnDeliveryLocation.addEventListener("click",()=>{
+    usarUbicacionParaEnvio();
   });
 }
 
@@ -230,8 +239,14 @@ function obtenerCoordenadasTiendaDelivery(){
 
 function extraerCoordenadasUbicacion(valor){
 
-  const texto =
-    decodeURIComponent(String(valor || "").trim());
+  const crudo =
+    String(valor || "").trim();
+
+  let texto = crudo;
+
+  try{
+    texto = decodeURIComponent(crudo);
+  }catch(_){}
 
   if(!texto) return null;
 
@@ -260,6 +275,53 @@ function extraerCoordenadasUbicacion(valor){
   }
 
   return null;
+}
+
+function usarUbicacionParaEnvio(){
+
+  if(!navigator.geolocation){
+    alert("Tu navegador no permite compartir ubicacion.");
+    return;
+  }
+
+  if(btnDeliveryLocation){
+    btnDeliveryLocation.disabled = true;
+    btnDeliveryLocation.textContent = "Detectando ubicacion...";
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      const lat = pos.coords.latitude.toFixed(6);
+      const lng = pos.coords.longitude.toFixed(6);
+
+      if(clienteUbicacion){
+        clienteUbicacion.value =
+          `https://maps.google.com/?q=${lat},${lng}`;
+      }
+
+      actualizarCotizacionEnvio();
+
+      if(btnDeliveryLocation){
+        btnDeliveryLocation.disabled = false;
+        btnDeliveryLocation.textContent =
+          "Actualizar ubicacion para cotizar envio";
+      }
+    },
+    () => {
+      if(btnDeliveryLocation){
+        btnDeliveryLocation.disabled = false;
+        btnDeliveryLocation.textContent =
+          "Usar mi ubicacion para cotizar envio";
+      }
+
+      alert("No pudimos tomar tu ubicacion. Revisa permisos del navegador o pega un link con coordenadas.");
+    },
+    {
+      enableHighAccuracy: true,
+      timeout: 10000,
+      maximumAge: 300000
+    }
+  );
 }
 
 function calcularCostoEnvioPorKm(distanciaKm){
@@ -359,7 +421,8 @@ function actualizarCotizacionEnvio(){
   if(cotizacion.faltaUbicacion){
     deliveryQuote.innerHTML = `
       <strong>Envio por cotizar</strong>
-      <span>Agrega un link de ubicacion de Google Maps para calcular el envio automaticamente.</span>
+      <span>Usa el boton de ubicacion para calcular el envio automaticamente.</span>
+      <span>Los links cortos de Google Maps pueden quedar sujetos a confirmacion.</span>
       <span>Productos: $${subtotal}</span>
     `;
     return;
@@ -469,7 +532,7 @@ async function cargarCatalogo(){
 
   }catch(err){
     console.error(err);
-    alert("Error cargando catÃ¡logo");
+    alert("Error cargando catalogo");
   }
 }
 
@@ -613,7 +676,7 @@ function detectarTiendaCercana(){
         );
 
         actualizarVistaTienda(
-          "Es la sucursal mÃ¡s cercana segÃºn tu ubicaciÃ³n."
+          "Es la sucursal mas cercana segun tu ubicacion."
         );
 
         cargarCatalogoPorTienda(mejor.id_tienda);
@@ -623,7 +686,7 @@ function detectarTiendaCercana(){
     () => {
       if(storeNote){
         storeNote.textContent =
-          "No pudimos detectar tu ubicaciÃ³n. Puedes elegir sucursal manualmente.";
+          "No pudimos detectar tu ubicacion. Puedes elegir sucursal manualmente.";
       }
     },
     {
@@ -786,19 +849,19 @@ function render(){
   const nombresCategorias = {
     Individual: "Individual",
     "Para compartir": "Para compartir",
-    Frios: "FrÃ­os",
+    Frios: "Fr&iacute;os",
     "De temporada": "De temporada",
     PedEsp: "Para compartir",
     Temporada: "De temporada",
     Muffin: "Individual",
-    Rebanada: "FrÃ­os",
+    Rebanada: "Fr&iacute;os",
     Pan: "Individual"
   };
 
   const titulosCategorias = {
-    Individual: "PanaderÃ­a y reposterÃ­a individual",
-    "Para compartir": "PanaderÃ­a y reposterÃ­a para compartir",
-    Frios: "FrÃ­os",
+    Individual: "Panader&iacute;a y reposter&iacute;a individual",
+    "Para compartir": "Panader&iacute;a y reposter&iacute;a para compartir",
+    Frios: "Fr&iacute;os",
     "De temporada": "De temporada"
   };
 
@@ -916,7 +979,7 @@ function agregarCarrito(id){
   );
 
   botones.forEach(btn => {
-    btn.textContent = "âœ“ Agregado";
+    btn.textContent = "Agregado";
     btn.classList.add("agregado");
     setTimeout(()=>{
       btn.textContent = "Agregar";
@@ -986,7 +1049,7 @@ function actualizarCarrito(){
             <button
               class="qty-btn"
               onclick="cambiarCantidad(${index},-1)"
-            >âˆ’</button>
+            >-</button>
             <span>${item.cantidad}</span>
             <button
               class="qty-btn"
@@ -1025,7 +1088,7 @@ function carritoTienePedidoEspecial(){
 
 function abrirCheckout(){
   if(carrito.length === 0){
-    alert("Tu carrito estÃ¡ vacÃ­o");
+    alert("Tu carrito esta vacio");
     return;
   }
 
@@ -1225,7 +1288,7 @@ document.getElementById("tipo-entrega")
 
       if(checkoutTiendaHelp){
         checkoutTiendaHelp.textContent =
-          "El servicio a domicilio solo estÃ¡ disponible desde GarcÃ­a LavÃ­n.";
+          "El servicio a domicilio solo esta disponible desde Garcia Lavin.";
       }
 
     }else{
@@ -1238,7 +1301,7 @@ document.getElementById("tipo-entrega")
 
       if(checkoutTiendaHelp){
         checkoutTiendaHelp.textContent =
-          "Elige la sucursal donde recogerÃ¡s tu pedido.";
+          "Elige la sucursal donde recogeras tu pedido.";
       }
     }
 
@@ -1536,7 +1599,7 @@ function enviarPorWhatsapp(){
     entrega === "domicilio" &&
     cotizacionEnvio.sujetoConfirmacion;
 
-  let mensaje = `*Nuevo pedido PandÃ©*\n\n`;
+  let mensaje = `*Nuevo pedido Pande*\n\n`;
   mensaje += `Cliente: ${nombre}\n`;
   mensaje += `WhatsApp: ${telefono}\n`;
   mensaje += `Entrega: ${
