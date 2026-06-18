@@ -60,9 +60,26 @@ const metodoPagoSelect =
 const transferenciaInfo =
   document.getElementById("transferencia-info");
 
+const receptorNombre =
+  document.getElementById("receptor-nombre");
+
+const clienteDireccion =
+  document.getElementById("cliente-direccion");
+
+const clienteUbicacion =
+  document.getElementById("cliente-ubicacion");
+
+const deliveryQuote =
+  document.getElementById("delivery-quote");
+
 let busquedaProducto = "";
 
 const CARRITO_STORAGE_KEY = "pande_carrito";
+
+const LAVIN_COORDS = {
+  lat: 21.0257978,
+  lng: -89.6052832
+};
 
 cartBtn.addEventListener("click",()=>{
   cartDrawer.classList.add("open");
@@ -85,6 +102,18 @@ if(specialOrderBtn){
 if(metodoPagoSelect){
   metodoPagoSelect.addEventListener("change",()=>{
     actualizarDatosTransferencia();
+  });
+}
+
+if(clienteUbicacion){
+  clienteUbicacion.addEventListener("input",()=>{
+    actualizarCotizacionEnvio();
+  });
+}
+
+if(clienteDireccion){
+  clienteDireccion.addEventListener("input",()=>{
+    actualizarCotizacionEnvio();
   });
 }
 
@@ -179,6 +208,180 @@ function actualizarDatosTransferencia(){
   }
 }
 
+function obtenerSubtotalCarrito(){
+
+  return carrito.reduce(
+    (acc, item) =>
+      acc + Number(item.producto.precio) * item.cantidad,
+    0
+  );
+}
+
+function obtenerCoordenadasTiendaDelivery(){
+
+  const lavin =
+    tiendas.find(t => t.id_tienda === "LAVIN");
+
+  return {
+    lat: Number(lavin && lavin.lat) || LAVIN_COORDS.lat,
+    lng: Number(lavin && lavin.lng) || LAVIN_COORDS.lng
+  };
+}
+
+function extraerCoordenadasUbicacion(valor){
+
+  const texto =
+    decodeURIComponent(String(valor || "").trim());
+
+  if(!texto) return null;
+
+  const patrones = [
+    /!3d(-?\d+(?:\.\d+)?)!4d(-?\d+(?:\.\d+)?)/,
+    /@(-?\d+(?:\.\d+)?),\s*(-?\d+(?:\.\d+)?)/,
+    /[?&]q=(-?\d+(?:\.\d+)?),\s*(-?\d+(?:\.\d+)?)/,
+    /(-?\d{1,3}\.\d+),\s*(-?\d{1,3}\.\d+)/
+  ];
+
+  for(const patron of patrones){
+    const match = texto.match(patron);
+    if(!match) continue;
+
+    const lat = Number(match[1]);
+    const lng = Number(match[2]);
+
+    if(
+      Number.isFinite(lat) &&
+      Number.isFinite(lng) &&
+      Math.abs(lat) <= 90 &&
+      Math.abs(lng) <= 180
+    ){
+      return { lat, lng };
+    }
+  }
+
+  return null;
+}
+
+function calcularCostoEnvioPorKm(distanciaKm){
+
+  if(!Number.isFinite(distanciaKm)){
+    return {
+      costo: 0,
+      distanciaKm: null,
+      sujetoConfirmacion: true,
+      faltaUbicacion: true
+    };
+  }
+
+  if(distanciaKm > 20){
+    return {
+      costo: 0,
+      distanciaKm,
+      sujetoConfirmacion: true,
+      faltaUbicacion: false
+    };
+  }
+
+  const costo =
+    distanciaKm <= 5.5
+      ? 40
+      : 40 + Math.ceil((distanciaKm - 5.5) / 0.5) * 5;
+
+  return {
+    costo,
+    distanciaKm,
+    sujetoConfirmacion: false,
+    faltaUbicacion: false
+  };
+}
+
+function obtenerCotizacionEnvio(){
+
+  const entrega =
+    document.getElementById("tipo-entrega").value;
+
+  if(entrega !== "domicilio"){
+    return {
+      costo: 0,
+      distanciaKm: null,
+      sujetoConfirmacion: false,
+      faltaUbicacion: false
+    };
+  }
+
+  const coordsCliente =
+    extraerCoordenadasUbicacion(
+      clienteUbicacion ? clienteUbicacion.value : ""
+    );
+
+  if(!coordsCliente){
+    return calcularCostoEnvioPorKm(NaN);
+  }
+
+  const coordsTienda =
+    obtenerCoordenadasTiendaDelivery();
+
+  const distanciaKm =
+    calcularDistanciaKm(
+      coordsTienda.lat,
+      coordsTienda.lng,
+      coordsCliente.lat,
+      coordsCliente.lng
+    );
+
+  return calcularCostoEnvioPorKm(distanciaKm);
+}
+
+function actualizarCotizacionEnvio(){
+
+  if(!deliveryQuote) return;
+
+  const entrega =
+    document.getElementById("tipo-entrega").value;
+
+  if(entrega !== "domicilio"){
+    deliveryQuote.classList.add("hidden");
+    return;
+  }
+
+  const subtotal =
+    obtenerSubtotalCarrito();
+
+  const cotizacion =
+    obtenerCotizacionEnvio();
+
+  deliveryQuote.classList.remove("hidden");
+  deliveryQuote.classList.toggle(
+    "warning",
+    cotizacion.sujetoConfirmacion
+  );
+
+  if(cotizacion.faltaUbicacion){
+    deliveryQuote.innerHTML = `
+      <strong>Envio por cotizar</strong>
+      <span>Agrega un link de ubicacion de Google Maps para calcular el envio automaticamente.</span>
+      <span>Productos: $${subtotal}</span>
+    `;
+    return;
+  }
+
+  if(cotizacion.sujetoConfirmacion){
+    deliveryQuote.innerHTML = `
+      <strong>Envio sujeto a confirmacion</strong>
+      <span>Distancia aproximada: ${cotizacion.distanciaKm.toFixed(1)} km</span>
+      <span>Productos: $${subtotal}</span>
+    `;
+    return;
+  }
+
+  deliveryQuote.innerHTML = `
+    <strong>Cotizacion de envio</strong>
+    <span>Productos: $${subtotal}</span>
+    <span>Envio: $${cotizacion.costo}</span>
+    <span>Total estimado: $${subtotal + cotizacion.costo}</span>
+  `;
+}
+
 function precargarClienteDesdeUrl(){
 
   const params =
@@ -266,7 +469,7 @@ async function cargarCatalogo(){
 
   }catch(err){
     console.error(err);
-    alert("Error cargando catálogo");
+    alert("Error cargando catÃ¡logo");
   }
 }
 
@@ -410,7 +613,7 @@ function detectarTiendaCercana(){
         );
 
         actualizarVistaTienda(
-          "Es la sucursal más cercana según tu ubicación."
+          "Es la sucursal mÃ¡s cercana segÃºn tu ubicaciÃ³n."
         );
 
         cargarCatalogoPorTienda(mejor.id_tienda);
@@ -420,7 +623,7 @@ function detectarTiendaCercana(){
     () => {
       if(storeNote){
         storeNote.textContent =
-          "No pudimos detectar tu ubicación. Puedes elegir sucursal manualmente.";
+          "No pudimos detectar tu ubicaciÃ³n. Puedes elegir sucursal manualmente.";
       }
     },
     {
@@ -583,19 +786,19 @@ function render(){
   const nombresCategorias = {
     Individual: "Individual",
     "Para compartir": "Para compartir",
-    Frios: "Fríos",
+    Frios: "FrÃ­os",
     "De temporada": "De temporada",
     PedEsp: "Para compartir",
     Temporada: "De temporada",
     Muffin: "Individual",
-    Rebanada: "Fríos",
+    Rebanada: "FrÃ­os",
     Pan: "Individual"
   };
 
   const titulosCategorias = {
-    Individual: "Panadería y repostería individual",
-    "Para compartir": "Panadería y repostería para compartir",
-    Frios: "Fríos",
+    Individual: "PanaderÃ­a y reposterÃ­a individual",
+    "Para compartir": "PanaderÃ­a y reposterÃ­a para compartir",
+    Frios: "FrÃ­os",
     "De temporada": "De temporada"
   };
 
@@ -713,7 +916,7 @@ function agregarCarrito(id){
   );
 
   botones.forEach(btn => {
-    btn.textContent = "✓ Agregado";
+    btn.textContent = "âœ“ Agregado";
     btn.classList.add("agregado");
     setTimeout(()=>{
       btn.textContent = "Agregar";
@@ -783,7 +986,7 @@ function actualizarCarrito(){
             <button
               class="qty-btn"
               onclick="cambiarCantidad(${index},-1)"
-            >−</button>
+            >âˆ’</button>
             <span>${item.cantidad}</span>
             <button
               class="qty-btn"
@@ -808,6 +1011,7 @@ function actualizarCarrito(){
   cartTotal.innerText = `$${total}`;
 
   guardarCarrito();
+  actualizarCotizacionEnvio();
 
 }
 
@@ -821,7 +1025,7 @@ function carritoTienePedidoEspecial(){
 
 function abrirCheckout(){
   if(carrito.length === 0){
-    alert("Tu carrito está vacío");
+    alert("Tu carrito estÃ¡ vacÃ­o");
     return;
   }
 
@@ -842,6 +1046,7 @@ function abrirCheckout(){
     aviso.classList.add("hidden");
   }
 
+  actualizarCotizacionEnvio();
   checkoutModal.classList.add("show");
 }
 
@@ -1020,7 +1225,7 @@ document.getElementById("tipo-entrega")
 
       if(checkoutTiendaHelp){
         checkoutTiendaHelp.textContent =
-          "El servicio a domicilio solo está disponible desde García Lavín.";
+          "El servicio a domicilio solo estÃ¡ disponible desde GarcÃ­a LavÃ­n.";
       }
 
     }else{
@@ -1033,9 +1238,11 @@ document.getElementById("tipo-entrega")
 
       if(checkoutTiendaHelp){
         checkoutTiendaHelp.textContent =
-          "Elige la sucursal donde recogerás tu pedido.";
+          "Elige la sucursal donde recogerÃ¡s tu pedido.";
       }
     }
+
+    actualizarCotizacionEnvio();
   });
 
 function validarPedido(){
@@ -1049,7 +1256,7 @@ function validarPedido(){
   const entrega =
     document.getElementById("tipo-entrega").value;
 
-    const tipoFecha =
+  const tipoFecha =
     document.getElementById("tipo-fecha").value;
 
   const fechaEntrega =
@@ -1057,7 +1264,10 @@ function validarPedido(){
 
   const horaEntrega =
     document.getElementById("hora-entrega");
-  
+
+  const receptor =
+    document.getElementById("receptor-nombre");
+
   const direccion =
     document.getElementById("cliente-direccion");
 
@@ -1069,10 +1279,12 @@ function validarPedido(){
 
   let valido = true;
 
-  [nombre, telefono, direccion].forEach(el=>{
-    el.classList.remove("error");
+  [nombre, telefono, receptor, direccion].forEach(el=>{
+    if(el) el.classList.remove("error");
   });
 
+  fechaEntrega.classList.remove("error");
+  horaEntrega.classList.remove("error");
   errorTel.classList.remove("visible");
 
   if(!nombre.value.trim()){
@@ -1086,16 +1298,19 @@ function validarPedido(){
     valido = false;
   }
 
-  if(
-    entrega === "domicilio" &&
-    !direccion.value.trim()
-  ){
-    direccion.classList.add("error");
-    valido = false;
+  if(entrega === "domicilio"){
+    if(receptor && !receptor.value.trim()){
+      receptor.classList.add("error");
+      valido = false;
+    }
+
+    if(!direccion.value.trim()){
+      direccion.classList.add("error");
+      valido = false;
+    }
   }
 
   if(tipoFecha === "programado"){
-
     if(!fechaEntrega.value){
       fechaEntrega.classList.add("error");
       valido = false;
@@ -1108,7 +1323,6 @@ function validarPedido(){
   }
 
   if(carritoTienePedidoEspecial()){
-
     if(!fechaEntrega.value){
       fechaEntrega.classList.add("error");
       valido = false;
@@ -1119,13 +1333,13 @@ function validarPedido(){
       minima.setDate(minima.getDate() + 3);
 
       if(fecha < minima){
-        alert("Los pedidos personalizados requieren mínimo 3 días de anticipación.");
+        alert("Los pedidos personalizados requieren minimo 3 dias de anticipacion.");
         fechaEntrega.classList.add("error");
         valido = false;
       }
     }
   }
-  
+
   if(!valido) return;
 
   const pago =
@@ -1138,21 +1352,65 @@ function validarPedido(){
     tiendaSeleccionada ||
     tiendas.find(t => t.id_tienda === checkoutTienda.value);
 
-  let total = 0;
+  const total =
+    obtenerSubtotalCarrito();
+
+  const cotizacionEnvio =
+    obtenerCotizacionEnvio();
+
+  const costoEnvio =
+    entrega === "domicilio" &&
+    !cotizacionEnvio.sujetoConfirmacion
+      ? cotizacionEnvio.costo
+      : 0;
+
+  const totalFinal =
+    total + costoEnvio;
+
   let itemsHtml = "";
 
   carrito.forEach(item=>{
     const subtotal =
       Number(item.producto.precio) * item.cantidad;
-    total += subtotal;
     itemsHtml += `
       <div>
         ${item.producto.nombre}
-        x${item.cantidad} —
+        x${item.cantidad} -
         <strong>$${subtotal}</strong>
       </div>
     `;
   });
+
+  const envioHtml =
+    entrega === "domicilio"
+      ? `<div>
+          <strong>Recibe:</strong>
+          ${receptor ? receptor.value.trim() : ""}
+         </div>
+         <div>
+          <strong>Direccion:</strong>
+          ${direccion.value.trim()}
+         </div>
+         ${ubicacion.value.trim()
+           ? `<div>
+                <strong>Ubicacion:</strong>
+                ${ubicacion.value.trim()}
+              </div>`
+           : ""}
+         ${cotizacionEnvio.sujetoConfirmacion
+           ? `<div>
+                <strong>Envio:</strong>
+                Sujeto a confirmacion por Pande
+              </div>`
+           : `<div>
+                <strong>Distancia aprox.:</strong>
+                ${cotizacionEnvio.distanciaKm.toFixed(1)} km
+              </div>
+              <div>
+                <strong>Envio:</strong>
+                $${costoEnvio}
+              </div>`}`
+      : "";
 
   document.getElementById("resumen-contenido")
     .innerHTML = `
@@ -1172,17 +1430,16 @@ function validarPedido(){
       </div>
       <div>
         <strong>Sucursal:</strong>
-        ${tienda ? tienda.nombre : "—"}
+        ${tienda ? tienda.nombre : "-"}
       </div>
-
       ${tipoFecha === "programado" || carritoTienePedidoEspecial()
         ? `<div>
             <strong>Fecha:</strong>
-            ${fechaEntrega.value || "—"}
+            ${fechaEntrega.value || "-"}
            </div>
            <div>
             <strong>Hora:</strong>
-            ${horaEntrega.value || "—"}
+            ${horaEntrega.value || "-"}
            </div>`
         : ""}
       ${carritoTienePedidoEspecial()
@@ -1191,31 +1448,18 @@ function validarPedido(){
             $${total * 0.5}
            </div>`
         : ""}
-      
-      ${entrega === "domicilio"
-        ? `<div>
-            <strong>Dirección:</strong>
-            ${direccion.value.trim()}
-           </div>
-           ${ubicacion.value.trim()
-             ? `<div>
-                  <strong>Ubicación:</strong>
-                  ${ubicacion.value.trim()}
-                </div>`
-             : ""}
-           <div>
-             <strong>Envío:</strong>
-             Servicio externo. Costo mínimo de $40, varía según la zona.
-           </div>`
-        : ""}
+      ${envioHtml}
       <div>
         <strong>Pago:</strong> ${pago}
       </div>
       <hr style="margin:8px 0;border:none;border-top:1px solid #ddd">
       ${itemsHtml}
       <div style="margin-top:6px">
-        <strong>Total: $${total}</strong>
+        <strong>Productos: $${total}</strong>
       </div>
+      ${entrega === "domicilio" && !cotizacionEnvio.sujetoConfirmacion
+        ? `<div><strong>Total estimado: $${totalFinal}</strong></div>`
+        : `<div><strong>Total: $${total}</strong></div>`}
       ${notas
         ? `<div><strong>Notas:</strong> ${notas}</div>`
         : ""}
@@ -1229,7 +1473,6 @@ function validarPedido(){
 
   document.getElementById("btn-confirmar")
     .classList.add("hidden");
-
 }
 
 function enviarPorWhatsapp(){
@@ -1265,6 +1508,10 @@ function enviarPorWhatsapp(){
     document.getElementById("cliente-ubicacion")
       .value.trim();
 
+  const receptor =
+    document.getElementById("receptor-nombre")
+      .value.trim();
+
   const tienda =
     tiendaSeleccionada ||
     tiendas.find(t => t.id_tienda === checkoutTienda.value);
@@ -1276,7 +1523,20 @@ function enviarPorWhatsapp(){
     document.getElementById("cliente-notas")
       .value.trim();
 
-  let mensaje = `*Nuevo pedido Pandé*\n\n`;
+  const cotizacionEnvio =
+    obtenerCotizacionEnvio();
+
+  const costoEnvio =
+    entrega === "domicilio" &&
+    !cotizacionEnvio.sujetoConfirmacion
+      ? cotizacionEnvio.costo
+      : 0;
+
+  const envioPorConfirmar =
+    entrega === "domicilio" &&
+    cotizacionEnvio.sujetoConfirmacion;
+
+  let mensaje = `*Nuevo pedido PandÃ©*\n\n`;
   mensaje += `Cliente: ${nombre}\n`;
   mensaje += `WhatsApp: ${telefono}\n`;
   mensaje += `Entrega: ${
@@ -1298,12 +1558,17 @@ function enviarPorWhatsapp(){
   }
 
   if(entrega === "domicilio"){
+    mensaje += `Recibe: ${receptor}\n`;
     mensaje += `Direccion: ${direccion}\n`;
     if(ubicacion){
       mensaje += `Ubicacion: ${ubicacion}\n`;
     }
-    mensaje +=
-      `Envio: Servicio externo, costo minimo de $40. Varia segun la zona.\n`;
+    if(envioPorConfirmar){
+      mensaje += `Envio: sujeto a confirmacion por Pande.\n`;
+    }else{
+      mensaje += `Envio: $${costoEnvio}\n`;
+      mensaje += `Distancia aprox.: ${cotizacionEnvio.distanciaKm.toFixed(1)} km\n`;
+    }
   }
 
   mensaje += `Pago: ${pago}\n`;
@@ -1319,11 +1584,30 @@ function enviarPorWhatsapp(){
     total += subtotal;
   });
 
-  mensaje += `\n*Total: $${total}*`;
+  if(entrega === "domicilio" && !envioPorConfirmar){
+    mensaje += `\nProductos: $${total}`;
+    mensaje += `\nEnvio: $${costoEnvio}`;
+    mensaje += `\n*Total estimado: $${total + costoEnvio}*`;
+  }else if(envioPorConfirmar){
+    mensaje += `\n*Productos: $${total}*`;
+    mensaje += `\nEnvio sujeto a confirmacion.`;
+  }else{
+    mensaje += `\n*Total: $${total}*`;
+  }
 
   if(notas){
     mensaje += `\n\nNotas: ${notas}`;
   }
+
+  const notasPedido = [
+    notas,
+    entrega === "domicilio" && receptor
+      ? `Recibe: ${receptor}`
+      : "",
+    envioPorConfirmar
+      ? "Envio sujeto a confirmacion"
+      : ""
+  ].filter(Boolean).join(" | ");
 
   try{
     fetch(SCRIPT_URL, {
@@ -1336,21 +1620,20 @@ function enviarPorWhatsapp(){
           ? "Domicilio"
           : "Recoger",
         direccion_entrega: direccion,
+        nombre_receptor: receptor,
         id_tienda: tienda ? tienda.id_tienda : "",
         nombre_tienda: tienda ? tienda.nombre : "",
         ubicacion_url: ubicacion,
+        distancia_envio_km: cotizacionEnvio.distanciaKm,
+        envio_sujeto_confirmacion: envioPorConfirmar,
         fecha_entrega: fechaEntrega,
         hora_entrega: horaEntrega,
         es_personalizado: esEspecial,
         anticipo_pagado: 0,
         metodo_pago: pago,
-        notas: notas,
-        subtotal: carrito.reduce(
-          (acc, item) =>
-            acc + Number(item.producto.precio) * item.cantidad,
-          0
-        ),
-        costo_envio: entrega === "domicilio" ? 40 : 0,
+        notas: notasPedido,
+        subtotal: total,
+        costo_envio: costoEnvio,
         productos: carrito.map(item => ({
           id: item.id,
           nombre: item.producto.nombre,
@@ -1381,6 +1664,9 @@ function limpiarFormulario(){
     .value = "";
 
   document.getElementById("cliente-telefono")
+    .value = "";
+
+  document.getElementById("receptor-nombre")
     .value = "";
 
   document.getElementById("cliente-direccion")
@@ -1420,6 +1706,8 @@ function limpiarFormulario(){
   document.getElementById("direccion-wrapper")
     .classList.add("hidden");
 
+  actualizarCotizacionEnvio();
+
   document.getElementById("checkout-tienda-wrapper")
     .classList.remove("hidden");
 
@@ -1432,7 +1720,7 @@ function limpiarFormulario(){
   document.getElementById("btn-confirmar")
     .classList.remove("hidden");
 
-  ["cliente-nombre","cliente-telefono","cliente-direccion"]
+  ["cliente-nombre","cliente-telefono","receptor-nombre","cliente-direccion"]
     .forEach(id=>{
       document.getElementById(id)
         .classList.remove("error");
