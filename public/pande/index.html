@@ -27,7 +27,8 @@
     </a>
 
     <button class="cart-btn" id="cart-btn" type="button">
-      <span class="cart-icon" aria-hidden="true">Carrito</span>
+      <span class="cart-icon" aria-hidden="true">🛒</span>
+      <span class="cart-text">Carrito</span>
       <span id="cart-count">0</span>
     </button>
   </nav>
@@ -149,6 +150,13 @@
           Agenda con 3 d&iacute;as de anticipaci&oacute;n. Se solicita 50% de anticipo
           y datos del responsable, contacto, hora y sucursal de entrega.
         </p>
+        <button
+          class="special-order-btn"
+          id="btn-special-order"
+          type="button"
+        >
+          Pedidos especiales
+        </button>
       </article>
       <article>
         <h3>Servicio a domicilio</h3>
@@ -185,6 +193,13 @@
         onclick="abrirCheckout()"
       >
         Finalizar pedido
+      </button>
+      <button
+        class="clear-cart-btn"
+        type="button"
+        onclick="vaciarCarrito()"
+      >
+        Vaciar carrito
       </button>
     </div>
   </div>
@@ -297,6 +312,13 @@
         <option value="Tarjeta">Tarjeta</option>
       </select>
 
+      <div id="transferencia-info" class="transfer-info hidden">
+        <strong>Datos para transferencia</strong>
+        <span>Banco: Santander</span>
+        <span>CLABE: 5579070088042059</span>
+        <span>Env&iacute;a tu comprobante por WhatsApp con tu nombre.</span>
+      </div>
+
       <textarea
         id="cliente-notas"
         placeholder="Notas adicionales (opcional)"
@@ -336,7 +358,7 @@
 
   <nav class="bottom-nav" aria-label="Navegaci&oacute;n r&aacute;pida">
     <a href="#top">Inicio</a>
-    <a href="#catalogo">Productos</a>
+    <a href="#catalogo">Men&uacute;</a>
     <a href="#store-box">Tiendas</a>
     <button type="button" id="bottom-cart-btn">Carrito</button>
   </nav>

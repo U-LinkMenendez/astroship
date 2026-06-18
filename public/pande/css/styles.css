@@ -105,6 +105,11 @@ button {
 }
 
 .cart-icon {
+  font-size: 20px;
+  letter-spacing: .01em;
+}
+
+.cart-text {
   font-size: 13px;
   letter-spacing: .01em;
 }
@@ -416,6 +421,17 @@ h1 {
   line-height: 1.6;
 }
 
+.special-order-btn {
+  margin-top: 16px;
+  min-height: 44px;
+  padding: 0 18px;
+  border-radius: 999px;
+  background: var(--cafe);
+  color: white;
+  font-size: 14px;
+  font-weight: 900;
+}
+
 .categoria-section {
   scroll-margin-top: 192px;
 }
@@ -654,6 +670,17 @@ h1 {
   font-weight: 900;
 }
 
+.clear-cart-btn {
+  width: 100%;
+  min-height: 44px;
+  margin-top: 10px;
+  border-radius: 15px;
+  background: #f4f0eb;
+  color: #9a1f2c;
+  font-size: 14px;
+  font-weight: 900;
+}
+
 /* OVERLAY */
 
 .overlay {
@@ -777,6 +804,21 @@ h1 {
   font-weight: 800;
 }
 
+.transfer-info {
+  display: grid;
+  gap: 5px;
+  padding: 13px 14px;
+  border-radius: 14px;
+  background: #f7efe6;
+  color: var(--cafe);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.transfer-info strong {
+  font-size: 14px;
+}
+
 .whatsapp-btn {
   background: #25d366 !important;
 }
@@ -884,7 +926,7 @@ select.error,
     padding: 8px 14px;
   }
 
-  .cart-icon {
+  .cart-text {
     display: none;
   }
 

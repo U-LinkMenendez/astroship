@@ -51,7 +51,18 @@ const productSearch =
 const bottomCartBtn =
   document.getElementById("bottom-cart-btn");
 
+const specialOrderBtn =
+  document.getElementById("btn-special-order");
+
+const metodoPagoSelect =
+  document.getElementById("metodo-pago");
+
+const transferenciaInfo =
+  document.getElementById("transferencia-info");
+
 let busquedaProducto = "";
+
+const CARRITO_STORAGE_KEY = "pande_carrito";
 
 cartBtn.addEventListener("click",()=>{
   cartDrawer.classList.add("open");
@@ -65,6 +76,18 @@ if(bottomCartBtn){
   });
 }
 
+if(specialOrderBtn){
+  specialOrderBtn.addEventListener("click",()=>{
+    abrirWhatsAppPedidoEspecial();
+  });
+}
+
+if(metodoPagoSelect){
+  metodoPagoSelect.addEventListener("change",()=>{
+    actualizarDatosTransferencia();
+  });
+}
+
 closeCart.addEventListener("click",()=>{
   cartDrawer.classList.remove("open");
   overlay.classList.remove("show");
@@ -74,6 +97,114 @@ overlay.addEventListener("click",()=>{
   cartDrawer.classList.remove("open");
   overlay.classList.remove("show");
 });
+
+function guardarCarrito(){
+  localStorage.setItem(
+    CARRITO_STORAGE_KEY,
+    JSON.stringify(carrito)
+  );
+}
+
+function cargarCarritoGuardado(){
+
+  const guardado =
+    localStorage.getItem(CARRITO_STORAGE_KEY);
+
+  if(!guardado) return;
+
+  try{
+    const parsed = JSON.parse(guardado);
+
+    if(Array.isArray(parsed)){
+      carrito = parsed.filter(item =>
+        item &&
+        item.id &&
+        Number(item.cantidad) > 0 &&
+        item.producto
+      );
+    }
+  }catch(_){
+    carrito = [];
+  }
+
+  actualizarCarrito();
+}
+
+function vaciarCarrito(){
+
+  if(carrito.length === 0) return;
+
+  if(!confirm("Vaciar todo el carrito?")) return;
+
+  carrito = [];
+  actualizarCarrito();
+}
+
+function obtenerWhatsappDestino(){
+
+  const tienda =
+    tiendaSeleccionada || tiendas[0];
+
+  if(tienda && tienda.whatsapp){
+    return String(tienda.whatsapp).replace(/\D/g, "");
+  }
+
+  return "529992175116";
+}
+
+function abrirWhatsAppPedidoEspecial(){
+
+  const tienda =
+    tiendaSeleccionada || tiendas[0];
+
+  const mensaje =
+    `Hola Pande, quiero hacer un pedido especial.${
+      tienda ? `\nSucursal sugerida: ${tienda.nombre}` : ""
+    }`;
+
+  window.open(
+    `https://wa.me/${obtenerWhatsappDestino()}?text=${encodeURIComponent(mensaje)}`,
+    "_blank"
+  );
+}
+
+function actualizarDatosTransferencia(){
+
+  if(!metodoPagoSelect || !transferenciaInfo) return;
+
+  if(metodoPagoSelect.value === "Transferencia"){
+    transferenciaInfo.classList.remove("hidden");
+  }else{
+    transferenciaInfo.classList.add("hidden");
+  }
+}
+
+function precargarClienteDesdeUrl(){
+
+  const params =
+    new URLSearchParams(window.location.search);
+
+  const nombre =
+    params.get("nombre") ||
+    params.get("name") ||
+    params.get("cliente");
+
+  const telefono =
+    params.get("telefono") ||
+    params.get("phone") ||
+    params.get("whatsapp") ||
+    params.get("tel");
+
+  if(nombre){
+    document.getElementById("cliente-nombre").value =
+      nombre.trim();
+  }
+
+  if(telefono){
+    document.getElementById("cliente-telefono").value =
+      telefono.replace(/\D/g, "").slice(-10);
+  }
+}
 
 async function cargarCatalogo(){
 
@@ -676,6 +807,8 @@ function actualizarCarrito(){
 
   cartTotal.innerText = `$${total}`;
 
+  guardarCarrito();
+
 }
 
 function carritoTienePedidoEspecial(){
@@ -1229,13 +1362,8 @@ function enviarPorWhatsapp(){
     });
   }catch(_){}
 
-  const whatsappDestino =
-    tienda && tienda.whatsapp
-      ? String(tienda.whatsapp).replace(/\D/g, "")
-      : "529992175116";
-
   window.open(
-    `https://wa.me/${whatsappDestino}?text=${encodeURIComponent(mensaje)}`,
+    `https://wa.me/${obtenerWhatsappDestino()}?text=${encodeURIComponent(mensaje)}`,
     "_blank"
   );
 
@@ -1286,6 +1414,8 @@ function limpiarFormulario(){
 
   document.getElementById("metodo-pago")
     .value = "Efectivo";
+
+  actualizarDatosTransferencia();
 
   document.getElementById("direccion-wrapper")
     .classList.add("hidden");
@@ -1398,5 +1528,11 @@ function cargarOpcionesHorario(){
 }
 
 cargarOpcionesHorario();
+
+precargarClienteDesdeUrl();
+
+cargarCarritoGuardado();
+
+actualizarDatosTransferencia();
 
 cargarCatalogo();
