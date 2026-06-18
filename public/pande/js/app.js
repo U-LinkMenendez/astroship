@@ -48,9 +48,6 @@ const checkoutTiendaHelp =
 const productSearch =
   document.getElementById("product-search");
 
-const bottomCartBtn =
-  document.getElementById("bottom-cart-btn");
-
 const specialOrderBtn =
   document.getElementById("btn-special-order");
 
@@ -88,13 +85,6 @@ cartBtn.addEventListener("click",()=>{
   cartDrawer.classList.add("open");
   overlay.classList.add("show");
 });
-
-if(bottomCartBtn){
-  bottomCartBtn.addEventListener("click",()=>{
-    cartDrawer.classList.add("open");
-    overlay.classList.add("show");
-  });
-}
 
 if(specialOrderBtn){
   specialOrderBtn.addEventListener("click",()=>{
@@ -949,6 +939,15 @@ function render(){
     });
 
   });
+
+  categoryNav.innerHTML += `
+    <button
+      class="category-link"
+      data-target="cat-pedidos-personalizados"
+    >
+      Pedidos personalizados
+    </button>
+  `;
 
 }
 

@@ -927,19 +927,9 @@ select.error,
   line-height: 1.8;
 }
 
-/* BOTTOM NAV */
-
-.bottom-nav {
-  display: none;
-}
-
 /* RESPONSIVE */
 
 @media (max-width: 768px) {
-  body {
-    padding-bottom: 72px;
-  }
-
   .navbar {
     min-height: 112px;
     padding: 12px 20px;
@@ -1019,7 +1009,7 @@ select.error,
   }
 
   .catalog-shell {
-    padding: 24px 20px 74px;
+    padding: 24px 20px 32px;
   }
 
   .catalog-info {
@@ -1080,34 +1070,6 @@ select.error,
     border-radius: 24px;
   }
 
-  .bottom-nav {
-    position: fixed;
-    left: 14px;
-    right: 14px;
-    bottom: 12px;
-    z-index: 1200;
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    min-height: 56px;
-    padding: 6px;
-    border: 1px solid var(--line);
-    border-radius: 22px;
-    background: rgba(255,255,255,.94);
-    box-shadow: 0 14px 40px rgba(35,24,18,.18);
-    backdrop-filter: blur(16px);
-  }
-
-  .bottom-nav a,
-  .bottom-nav button {
-    display: grid;
-    place-items: center;
-    border-radius: 16px;
-    background: transparent;
-    color: var(--muted);
-    text-decoration: none;
-    font-size: 12px;
-    font-weight: 900;
-  }
 }
 
 @media (max-width: 420px) {
