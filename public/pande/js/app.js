@@ -675,21 +675,210 @@ function actualizarCotizacionEnvio(){
   `;
 }
 
-function precargarClienteDesdeUrl(){
-
+function getUrlParam(name){
   const params =
     new URLSearchParams(window.location.search);
 
+  return params.get(name) || "";
+}
+
+function escapeHtml(value){
+  return String(value || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function insertarTarjetaCliente(){
+  let card =
+    document.getElementById("pande-cliente-card");
+
+  if(card) return card;
+
+  card = document.createElement("div");
+  card.id = "pande-cliente-card";
+  card.className = "cliente-card";
+
+  const hero =
+    document.querySelector(".app-hero");
+
+  const main =
+    document.querySelector("main");
+
+  if(hero && hero.parentNode){
+    hero.insertAdjacentElement("afterend", card);
+  }else if(main){
+    main.insertAdjacentElement("afterbegin", card);
+  }else{
+    document.body.insertAdjacentElement("afterbegin", card);
+  }
+
+  return card;
+}
+
+function mostrarSaludoCliente(cliente){
+  if(!cliente || !cliente.nombre) return;
+
+  const card =
+    insertarTarjetaCliente();
+
+  card.innerHTML = `
+    <strong>Hola, ${escapeHtml(cliente.nombre)}.</strong>
+    Tu cat&aacute;logo personalizado est&aacute; listo para que elijas tus productos.
+  `;
+}
+
+function mostrarAvisoAccesoCliente(){
+  const card =
+    insertarTarjetaCliente();
+
+  card.innerHTML = `
+    <strong>Tu enlace no est&aacute; activo.</strong>
+    Escr&iacute;benos por WhatsApp para recibir un nuevo enlace de cat&aacute;logo.
+  `;
+}
+
+function guardarClientePersonalizado(data){
+  const cliente = {
+    sid: data.sid || "",
+    nombre: data.nombre || "",
+    nombre_completo: data.nombre_completo || "",
+    telefono: data.telefono || data.celular || data.whatsapp || "",
+    estatus: data.estatus || "",
+    fecha_vencimiento: data.fecha_vencimiento || ""
+  };
+
+  sessionStorage.setItem(
+    "pande_cliente",
+    JSON.stringify(cliente)
+  );
+
+  sessionStorage.setItem("pande_sid", cliente.sid);
+  sessionStorage.setItem("pande_cliente_nombre", cliente.nombre);
+  sessionStorage.setItem(
+    "pande_cliente_nombre_completo",
+    cliente.nombre_completo
+  );
+
+  if(cliente.telefono){
+    sessionStorage.setItem(
+      "pande_cliente_telefono",
+      cliente.telefono
+    );
+  }
+
+  return cliente;
+}
+
+function aplicarClienteEnCheckout(cliente){
+  if(!cliente) return;
+
+  const nombreInput =
+    document.getElementById("cliente-nombre");
+
+  const telefonoInput =
+    document.getElementById("cliente-telefono");
+
+  if(nombreInput && (cliente.nombre_completo || cliente.nombre)){
+    nombreInput.value =
+      cliente.nombre_completo || cliente.nombre;
+  }
+
+  if(telefonoInput && cliente.telefono){
+    telefonoInput.value =
+      String(cliente.telefono)
+        .replace(/\D/g, "")
+        .slice(-10);
+  }
+}
+
+function manejarRespuestaClienteSid(data){
+  if(!data || !data.ok){
+    console.warn("Pande: acceso no valido o vencido.", data);
+    mostrarAvisoAccesoCliente();
+    return;
+  }
+
+  const cliente =
+    guardarClientePersonalizado(data);
+
+  mostrarSaludoCliente(cliente);
+  aplicarClienteEnCheckout(cliente);
+}
+
+function leerRespuestaClienteSid(texto, callbackName){
+  const limpio =
+    String(texto || "").trim();
+
+  if(!limpio || limpio.startsWith("<")){
+    throw new Error("Respuesta de sid no valida");
+  }
+
+  if(limpio.startsWith(`${callbackName}(`)){
+    const inicio =
+      limpio.indexOf("(") + 1;
+
+    const fin =
+      limpio.lastIndexOf(")");
+
+    return JSON.parse(limpio.slice(inicio, fin));
+  }
+
+  return JSON.parse(limpio);
+}
+
+async function cargarClientePorSid(sid){
+  if(!sid){
+    console.warn("Pande: no se recibio sid en la URL.");
+    return;
+  }
+
+  const callbackName =
+    `pandeClienteCallback_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
+
+  try{
+    const res =
+      await fetch(
+        `${SCRIPT_URL}?sid=${encodeURIComponent(sid)}&callback=${encodeURIComponent(callbackName)}`
+      );
+
+    const texto =
+      await res.text();
+
+    const data =
+      leerRespuestaClienteSid(texto, callbackName);
+
+    manejarRespuestaClienteSid(data);
+  }catch(error){
+    console.error("Pande: no se pudo consultar el cliente.");
+    console.error(error);
+    mostrarAvisoAccesoCliente();
+  }
+}
+
+function inicializarAccesoPersonalizado(){
+  const sid =
+    getUrlParam("sid");
+
+  if(sid){
+    cargarClientePorSid(sid);
+  }
+}
+
+function precargarClienteDesdeUrl(){
+
   const nombre =
-    params.get("nombre") ||
-    params.get("name") ||
-    params.get("cliente");
+    getUrlParam("nombre") ||
+    getUrlParam("name") ||
+    getUrlParam("cliente");
 
   const telefono =
-    params.get("telefono") ||
-    params.get("phone") ||
-    params.get("whatsapp") ||
-    params.get("tel");
+    getUrlParam("telefono") ||
+    getUrlParam("phone") ||
+    getUrlParam("whatsapp") ||
+    getUrlParam("tel");
 
   if(nombre){
     document.getElementById("cliente-nombre").value =
@@ -2144,6 +2333,8 @@ function cargarOpcionesHorario(){
 }
 
 cargarOpcionesHorario();
+
+inicializarAccesoPersonalizado();
 
 precargarClienteDesdeUrl();
 
