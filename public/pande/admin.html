@@ -631,12 +631,54 @@ body {
     }
   }
 
+  function esPedidoDomicilio(p){
+    return (
+      Number(p.costo_envio_estimado || 0) > 0 ||
+      Boolean(p.ubicacion_url)
+    );
+  }
+
+  function etiquetaEntregaPedido(p){
+    return esPedidoDomicilio(p)
+      ? "A domicilio"
+      : "Recoger en tienda";
+  }
+
+  function etiquetaPagoPedido(p){
+    const metodo = p.metodo_pago || "";
+    const estatus = p.estatus_pago || "Pendiente";
+    const metodoLower = metodo.toLowerCase();
+    const domicilio = esPedidoDomicilio(p);
+
+    if(metodoLower.includes("transfer")){
+      return `Transferencia - ${estatus}`;
+    }
+
+    if(metodoLower.includes("linea")){
+      return `Tarjeta en linea - ${estatus}`;
+    }
+
+    if(metodoLower.includes("tarjeta")){
+      return domicilio
+        ? "Tarjeta al recibir (terminal)"
+        : "Tarjeta en tienda (terminal)";
+    }
+
+    if(metodoLower.includes("efectivo")){
+      return domicilio
+        ? "Efectivo al recibir"
+        : "Efectivo en tienda";
+    }
+
+    return `${metodo || "-"} - ${estatus}`;
+  }
+
   function renderPedido(p){
     const estatus = p.estatus_pedido || "Nuevo";
     const siguiente = SIGUIENTE_ESTATUS[estatus];
     const labelSig = LABEL_SIGUIENTE[estatus];
-    const metodoPago = p.metodo_pago || "";
-    const estatusPago = p.estatus_pago || "Pendiente";
+    let metodoPago = p.metodo_pago || "";
+    let estatusPago = p.estatus_pago || "Pendiente";
     const transferenciaPendiente =
       metodoPago.toLowerCase().includes("transfer") &&
       estatusPago !== "Pagado";
@@ -671,6 +713,11 @@ body {
       : transferenciaPagada
         ? `<div class="pago-ok">Transferencia aprobada por Master.</div>`
         : "";
+
+    metodoPago =
+      `${etiquetaEntregaPedido(p)} - ${etiquetaPagoPedido(p)}`;
+
+    estatusPago = "";
 
     return `
       <div class="pedido-card estatus-${estatus}" id="card-${p.id_pedido}">

@@ -57,6 +57,9 @@ const metodoPagoSelect =
 const transferenciaInfo =
   document.getElementById("transferencia-info");
 
+const pagoOnlineInfo =
+  document.getElementById("pago-online-info");
+
 const receptorNombre =
   document.getElementById("receptor-nombre");
 
@@ -99,7 +102,7 @@ if(specialOrderBtn){
 
 if(metodoPagoSelect){
   metodoPagoSelect.addEventListener("change",()=>{
-    actualizarDatosTransferencia();
+    actualizarDatosPago();
   });
 }
 
@@ -202,7 +205,60 @@ function abrirWhatsAppPedidoEspecial(){
   );
 }
 
-function actualizarDatosTransferencia(){
+function esPagoTarjetaEnLinea(valor){
+  return String(valor || "")
+    .toLowerCase()
+    .includes("en linea");
+}
+
+function obtenerOpcionesPago(){
+
+  const entrega =
+    document.getElementById("tipo-entrega").value;
+
+  if(entrega === "domicilio"){
+    return [
+      "Efectivo al recibir",
+      "Tarjeta al recibir (terminal)",
+      "Transferencia",
+      "Tarjeta en linea (BBVA)"
+    ];
+  }
+
+  return [
+    "Efectivo en tienda",
+    "Tarjeta en tienda (terminal)",
+    "Transferencia",
+    "Tarjeta en linea (BBVA)"
+  ];
+}
+
+function actualizarOpcionesPago(){
+
+  if(!metodoPagoSelect) return;
+
+  const valorActual =
+    metodoPagoSelect.value;
+
+  const opciones =
+    obtenerOpcionesPago();
+
+  metodoPagoSelect.innerHTML =
+    opciones.map(opcion => `
+      <option value="${opcion}">
+        ${opcion}
+      </option>
+    `).join("");
+
+  metodoPagoSelect.value =
+    opciones.includes(valorActual)
+      ? valorActual
+      : opciones[0];
+
+  actualizarDatosPago();
+}
+
+function actualizarDatosPago(){
 
   if(!metodoPagoSelect || !transferenciaInfo) return;
 
@@ -210,6 +266,14 @@ function actualizarDatosTransferencia(){
     transferenciaInfo.classList.remove("hidden");
   }else{
     transferenciaInfo.classList.add("hidden");
+  }
+
+  if(!pagoOnlineInfo) return;
+
+  if(esPagoTarjetaEnLinea(metodoPagoSelect.value)){
+    pagoOnlineInfo.classList.remove("hidden");
+  }else{
+    pagoOnlineInfo.classList.add("hidden");
   }
 }
 
@@ -1490,6 +1554,7 @@ document.getElementById("tipo-entrega")
       }
     }
 
+    actualizarOpcionesPago();
     actualizarCotizacionEnvio();
   });
 
@@ -1592,6 +1657,13 @@ async function validarPedido(){
 
   const pago =
     document.getElementById("metodo-pago").value;
+
+  if(esPagoTarjetaEnLinea(pago)){
+    alert(
+      "El pago con tarjeta en linea por BBVA todavia esta en configuracion. Por ahora elige efectivo, terminal o transferencia."
+    );
+    return;
+  }
 
   const notas =
     document.getElementById("cliente-notas").value;
@@ -1948,10 +2020,7 @@ function limpiarFormulario(){
   document.getElementById("tipo-entrega")
     .value = "pickup";
 
-  document.getElementById("metodo-pago")
-    .value = "Efectivo";
-
-  actualizarDatosTransferencia();
+  actualizarOpcionesPago();
 
   if(direccionTimer){
     clearTimeout(direccionTimer);
@@ -2080,6 +2149,6 @@ precargarClienteDesdeUrl();
 
 cargarCarritoGuardado();
 
-actualizarDatosTransferencia();
+actualizarOpcionesPago();
 
 cargarCatalogo();
