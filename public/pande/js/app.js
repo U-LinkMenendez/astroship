@@ -1225,6 +1225,14 @@ window.addEventListener("scroll",()=>{
       }
     });
 
+    const cercaDelFinal =
+      window.innerHeight + window.scrollY >=
+      document.documentElement.scrollHeight - 8;
+
+    if(cercaDelFinal && sections.length){
+      current = sections[sections.length - 1].id;
+    }
+
     if(current && current !== categoriaActiva){
 
       categoriaActiva = current;
