@@ -81,6 +81,11 @@ const LAVIN_COORDS = {
   lng: -89.6052832
 };
 
+let ubicacionGeneradaPorDireccion = false;
+let direccionTimer = null;
+let cotizacionDireccionEnProceso = false;
+let ultimaDireccionSinResultado = "";
+
 cartBtn.addEventListener("click",()=>{
   cartDrawer.classList.add("open");
   overlay.classList.add("show");
@@ -100,13 +105,14 @@ if(metodoPagoSelect){
 
 if(clienteUbicacion){
   clienteUbicacion.addEventListener("input",()=>{
+    ubicacionGeneradaPorDireccion = false;
     actualizarCotizacionEnvio();
   });
 }
 
 if(clienteDireccion){
   clienteDireccion.addEventListener("input",()=>{
-    actualizarCotizacionEnvio();
+    programarCotizacionPorDireccion();
   });
 }
 
@@ -267,6 +273,165 @@ function extraerCoordenadasUbicacion(valor){
   return null;
 }
 
+function obtenerDireccionParaGeocodificar(){
+
+  if(!clienteDireccion) return "";
+
+  const direccion =
+    clienteDireccion.value.trim();
+
+  if(!direccion) return "";
+
+  const tieneContextoLocal =
+    /merida|m[eé]rida|yucatan|yucat[aá]n|mexico|m[eé]xico/i
+      .test(direccion);
+
+  return tieneContextoLocal
+    ? direccion
+    : `${direccion}, Merida, Yucatan, Mexico`;
+}
+
+function programarCotizacionPorDireccion(){
+
+  if(direccionTimer){
+    clearTimeout(direccionTimer);
+  }
+
+  if(
+    clienteUbicacion &&
+    ubicacionGeneradaPorDireccion
+  ){
+    clienteUbicacion.value = "";
+    ubicacionGeneradaPorDireccion = false;
+  }
+
+  ultimaDireccionSinResultado = "";
+  actualizarCotizacionEnvio();
+
+  const direccion =
+    obtenerDireccionParaGeocodificar();
+
+  const entrega =
+    document.getElementById("tipo-entrega").value;
+
+  if(
+    entrega !== "domicilio" ||
+    direccion.length < 8
+  ){
+    return;
+  }
+
+  direccionTimer = setTimeout(()=>{
+    cotizarEnvioPorDireccion();
+  }, 700);
+}
+
+async function geocodificarDireccion(direccion){
+
+  const url =
+    "https://nominatim.openstreetmap.org/search?" +
+    new URLSearchParams({
+      format: "jsonv2",
+      limit: "1",
+      countrycodes: "mx",
+      q: direccion
+    }).toString();
+
+  const res = await fetch(url, {
+    headers: {
+      "Accept": "application/json"
+    }
+  });
+
+  if(!res.ok) return null;
+
+  const data = await res.json();
+  const lugar = Array.isArray(data) ? data[0] : null;
+
+  if(!lugar) return null;
+
+  const lat = Number(lugar.lat);
+  const lng = Number(lugar.lon);
+
+  if(
+    !Number.isFinite(lat) ||
+    !Number.isFinite(lng)
+  ){
+    return null;
+  }
+
+  return { lat, lng };
+}
+
+async function cotizarEnvioPorDireccion(){
+
+  const direccion =
+    obtenerDireccionParaGeocodificar();
+
+  if(!direccion || direccion.length < 8) return;
+
+  if(
+    clienteUbicacion &&
+    clienteUbicacion.value.trim() &&
+    !ubicacionGeneradaPorDireccion
+  ){
+    actualizarCotizacionEnvio();
+    return;
+  }
+
+  cotizacionDireccionEnProceso = true;
+  actualizarCotizacionEnvio();
+
+  try{
+
+    const coords =
+      await geocodificarDireccion(direccion);
+
+    if(direccion !== obtenerDireccionParaGeocodificar()){
+      return;
+    }
+
+    if(coords && clienteUbicacion){
+      clienteUbicacion.value =
+        `https://maps.google.com/?q=${coords.lat.toFixed(6)},${coords.lng.toFixed(6)}`;
+      ubicacionGeneradaPorDireccion = true;
+      ultimaDireccionSinResultado = "";
+    }else{
+      ultimaDireccionSinResultado = direccion;
+    }
+
+  }catch(_){
+    ultimaDireccionSinResultado = direccion;
+  }finally{
+    cotizacionDireccionEnProceso = false;
+    actualizarCotizacionEnvio();
+  }
+}
+
+async function asegurarCotizacionPorDireccion(){
+
+  const entrega =
+    document.getElementById("tipo-entrega").value;
+
+  if(entrega !== "domicilio") return;
+
+  const direccion =
+    obtenerDireccionParaGeocodificar();
+
+  if(!direccion || direccion.length < 8) return;
+
+  const tieneCoords =
+    extraerCoordenadasUbicacion(
+      clienteUbicacion ? clienteUbicacion.value : ""
+    );
+
+  if(tieneCoords) return;
+
+  if(ultimaDireccionSinResultado === direccion) return;
+
+  await cotizarEnvioPorDireccion();
+}
+
 function usarUbicacionParaEnvio(){
 
   if(!navigator.geolocation){
@@ -287,6 +452,7 @@ function usarUbicacionParaEnvio(){
       if(clienteUbicacion){
         clienteUbicacion.value =
           `https://maps.google.com/?q=${lat},${lng}`;
+        ubicacionGeneradaPorDireccion = false;
       }
 
       actualizarCotizacionEnvio();
@@ -408,11 +574,21 @@ function actualizarCotizacionEnvio(){
     cotizacion.sujetoConfirmacion
   );
 
+  if(cotizacionDireccionEnProceso){
+    deliveryQuote.classList.remove("warning");
+    deliveryQuote.innerHTML = `
+      <strong>Cotizando envio...</strong>
+      <span>Estamos ubicando la direccion escrita para calcular el envio.</span>
+      <span>Productos: $${subtotal}</span>
+    `;
+    return;
+  }
+
   if(cotizacion.faltaUbicacion){
     deliveryQuote.innerHTML = `
       <strong>Envio por cotizar</strong>
-      <span>Usa el boton de ubicacion para calcular el envio automaticamente.</span>
-      <span>Los links cortos de Google Maps pueden quedar sujetos a confirmacion.</span>
+      <span>Escribe la direccion completa o usa el boton de ubicacion para calcular el envio.</span>
+      <span>Si no podemos ubicarla automaticamente, quedara sujeto a confirmacion.</span>
       <span>Productos: $${subtotal}</span>
     `;
     return;
@@ -1298,6 +1474,8 @@ document.getElementById("tipo-entrega")
           "El servicio a domicilio solo esta disponible desde Garcia Lavin.";
       }
 
+      programarCotizacionPorDireccion();
+
     }else{
 
       wrapper.classList.add("hidden");
@@ -1315,7 +1493,7 @@ document.getElementById("tipo-entrega")
     actualizarCotizacionEnvio();
   });
 
-function validarPedido(){
+async function validarPedido(){
 
   const nombre =
     document.getElementById("cliente-nombre");
@@ -1424,6 +1602,8 @@ function validarPedido(){
 
   const total =
     obtenerSubtotalCarrito();
+
+  await asegurarCotizacionPorDireccion();
 
   const cotizacionEnvio =
     obtenerCotizacionEnvio();
@@ -1772,6 +1952,15 @@ function limpiarFormulario(){
     .value = "Efectivo";
 
   actualizarDatosTransferencia();
+
+  if(direccionTimer){
+    clearTimeout(direccionTimer);
+    direccionTimer = null;
+  }
+
+  ubicacionGeneradaPorDireccion = false;
+  cotizacionDireccionEnProceso = false;
+  ultimaDireccionSinResultado = "";
 
   document.getElementById("direccion-wrapper")
     .classList.add("hidden");
