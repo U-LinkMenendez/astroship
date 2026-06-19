@@ -841,7 +841,7 @@ async function cargarClientePorSid(sid){
   try{
     const res =
       await fetch(
-        `${SCRIPT_URL}?sid=${encodeURIComponent(sid)}&callback=${encodeURIComponent(callbackName)}`
+        `${SCRIPT_URL}?pande_sid=${encodeURIComponent(sid)}&callback=${encodeURIComponent(callbackName)}`
       );
 
     const texto =
