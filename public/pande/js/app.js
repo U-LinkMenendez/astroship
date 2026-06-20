@@ -743,6 +743,8 @@ function mostrarAvisoAccesoCliente(){
 function guardarClientePersonalizado(data){
   const cliente = {
     sid: data.sid || "",
+    lead_id: data.lead_id || data.id_kommo || "",
+    contact_id: data.contact_id || "",
     nombre: data.nombre || "",
     nombre_completo: data.nombre_completo || "",
     telefono: data.telefono || data.celular || data.whatsapp || "",
@@ -756,6 +758,8 @@ function guardarClientePersonalizado(data){
   );
 
   sessionStorage.setItem("pande_sid", cliente.sid);
+  sessionStorage.setItem("pande_lead_id", cliente.lead_id);
+  sessionStorage.setItem("pande_contact_id", cliente.contact_id);
   sessionStorage.setItem("pande_cliente_nombre", cliente.nombre);
   sessionStorage.setItem(
     "pande_cliente_nombre_completo",
@@ -770,6 +774,16 @@ function guardarClientePersonalizado(data){
   }
 
   return cliente;
+}
+
+function obtenerClientePersonalizado(){
+  try{
+    return JSON.parse(
+      sessionStorage.getItem("pande_cliente") || "{}"
+    );
+  }catch(_){
+    return {};
+  }
 }
 
 function aplicarClienteEnCheckout(cliente){
@@ -2037,6 +2051,24 @@ function enviarPorWhatsapp(){
   const cotizacionEnvio =
     obtenerCotizacionEnvio();
 
+  const clientePersonalizado =
+    obtenerClientePersonalizado();
+
+  const sidAcceso =
+    clientePersonalizado.sid ||
+    sessionStorage.getItem("pande_sid") ||
+    "";
+
+  const leadId =
+    clientePersonalizado.lead_id ||
+    sessionStorage.getItem("pande_lead_id") ||
+    "";
+
+  const contactId =
+    clientePersonalizado.contact_id ||
+    sessionStorage.getItem("pande_contact_id") ||
+    "";
+
   const costoEnvio =
     entrega === "domicilio" &&
     !cotizacionEnvio.sujetoConfirmacion
@@ -2127,6 +2159,10 @@ function enviarPorWhatsapp(){
         action: "registrarPedido",
         nombre: nombre,
         telefono: telefono,
+        sid_acceso: sidAcceso,
+        id_kommo: leadId,
+        lead_id: leadId,
+        contact_id: contactId,
         tipo_entrega: entrega === "domicilio"
           ? "Domicilio"
           : "Recoger",
