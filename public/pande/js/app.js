@@ -1,7 +1,7 @@
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwGxnv1CbQvLTF9fnQwa3kg6aICwHLWM4n05kGT6x5P7Osjt16-BIe2_AXZ0L-5MmR0/exec";
 
 const FRONTEND_KEY = "PANDE_PUBLIC_2026";
-const IMAGE_VERSION = "20260624c";
+const IMAGE_VERSION = "20260624d";
 
 const PRODUCT_IMAGE_OVERRIDES = {
   T09: "./img/panque-de-naranja-cero-azucar.jpg"
