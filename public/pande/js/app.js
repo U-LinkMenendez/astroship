@@ -1,6 +1,11 @@
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwGxnv1CbQvLTF9fnQwa3kg6aICwHLWM4n05kGT6x5P7Osjt16-BIe2_AXZ0L-5MmR0/exec";
 
 const FRONTEND_KEY = "PANDE_PUBLIC_2026";
+const IMAGE_VERSION = "20260624a";
+
+const PRODUCT_IMAGE_OVERRIDES = {
+  T09: "./img/panque-de-naranja-cero-azucar.jpg"
+};
 
 let productos = [];
 let tiendas = [];
@@ -1042,7 +1047,7 @@ function actualizarVistaTienda(nota){
 async function cargarCatalogoPorTienda(idTienda){
 
   const cacheKey =
-    `pande_catalogo_${idTienda}`;
+    `pande_catalogo_${idTienda}_${IMAGE_VERSION}`;
 
   const cache =
     localStorage.getItem(cacheKey);
@@ -1228,6 +1233,33 @@ function crearCategoriaId(categoria){
     .replace(/^-+|-+$/g, "");
 }
 
+function versionarImagenLocal(url){
+
+  if(!url) return url;
+
+  const esImagenLocal =
+    url.includes("/pande/img/") ||
+    url.startsWith("./img/") ||
+    url.startsWith("img/");
+
+  if(!esImagenLocal) return url;
+
+  const separador =
+    url.includes("?") ? "&" : "?";
+
+  return `${url}${separador}v=${IMAGE_VERSION}`;
+}
+
+function obtenerImagenProducto(producto){
+
+  const url =
+    PRODUCT_IMAGE_OVERRIDES[producto.id] ||
+    producto.img_url ||
+    "https://images.unsplash.com/photo-1551024601-bec78aea704b?q=80&w=800&auto=format&fit=crop";
+
+  return versionarImagenLocal(url);
+}
+
 function render(){
 
   const cont =
@@ -1358,10 +1390,7 @@ function render(){
       grid.innerHTML += `
         <div class="card">
           <img
-            src="${
-              p.img_url ||
-              'https://images.unsplash.com/photo-1551024601-bec78aea704b?q=80&w=800&auto=format&fit=crop'
-            }"
+            src="${obtenerImagenProducto(p)}"
             loading="lazy"
             decoding="async"
           >
@@ -1479,10 +1508,7 @@ function actualizarCarrito(){
 
     cartItems.innerHTML += `
       <div class="cart-item">
-        <img src="${
-          p.img_url ||
-          'https://images.unsplash.com/photo-1551024601-bec78aea704b?q=80&w=800&auto=format&fit=crop'
-        }">
+        <img src="${obtenerImagenProducto(p)}">
         <div class="cart-item-info">
           <div class="cart-item-name">
             ${p.nombre}
