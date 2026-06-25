@@ -1,901 +1,2092 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="robots" content="noindex, nofollow">
-
-<title>Opciones disponibles</title>
-
-<!-- Google Analytics 4 -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-085Q40C8KY"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){ dataLayer.push(arguments); }
-  gtag('js', new Date());
-  gtag('config', 'G-085Q40C8KY');
-</script>
-
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
-
-<style>
-body {
-  font-family: 'Inter', sans-serif;
-  background: #fafafa;
-  margin: 0;
-  padding: 20px;
-  padding-top: 64px;
-  padding-bottom: 90px;
-  color: #222;
-}
-
-/* BANNER FIJO */
-.banner-activos {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 44px;
-  background: #111;
-  z-index: 50;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 16px;
-  box-sizing: border-box;
-  cursor: pointer;
-  user-select: none;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.banner-activos:active { background: #1a1a1a; }
-
-.banner-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #4ade80;
-  flex-shrink: 0;
-  animation: pulse-dot 2s infinite;
-}
-
-@keyframes pulse-dot {
-  0%   { box-shadow: 0 0 0 0 rgba(74,222,128,0.6); }
-  70%  { box-shadow: 0 0 0 6px rgba(74,222,128,0); }
-  100% { box-shadow: 0 0 0 0 rgba(74,222,128,0); }
-}
-
-.banner-texto {
-  flex: 1;
-  margin-left: 10px;
-  font-size: 12px;
-  color: #ccc;
-  font-weight: 400;
-}
-
-.banner-texto strong {
-  color: white;
-  font-weight: 600;
-}
-
-.banner-cta {
-  font-size: 11px;
-  color: #c8a96a;
-  font-weight: 600;
-  letter-spacing: 0.4px;
-  white-space: nowrap;
-  margin-left: 10px;
-}
-
-h1 {
-  font-family: 'Playfair Display', serif;
-  text-align: center;
-  font-size: 22px;
-  margin-bottom: 25px;
-}
-
-/* CARDS */
-.card {
-  background: white;
-  border-radius: 14px;
-  padding: 12px;
-  margin-bottom: 12px;
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  box-shadow: 0 4px 14px rgba(0,0,0,0.05);
-  transition: all 0.2s ease;
-}
-
-.card.added {
-  transform: scale(0.97);
-  background: #f5efe3;
-}
-
-.card:hover {
-  transform: translateY(-2px);
-}
-
-.card.selected {
-  border: 2px solid #c8a96a;
-  background: #fffdf8;
-}
-
-.card img {
-  width: 70px;
-  height: 70px;
-  border-radius: 10px;
-  object-fit: cover;
-}
-
-.info {
-  flex: 1;
-}
-
-.nombre {
-  font-weight: 500;
-  font-size: 14px;
-}
-
-.precio {
-  font-size: 13px;
-  color: #888;
-  margin-top: 3px;
-}
-
-/* BOTÓN */
-button {
-  background: #111;
-  color: white;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 12px;
-  cursor: pointer;
-  transition: transform 0.1s ease;
-}
-
-button:active {
-  transform: scale(0.95);
-}
-
-button.alt {
-  background: #c8a96a;
-  color: black;
-}
-
-/* CARRITO */
-.carrito {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  background: white;
-  border-top: 1px solid #eee;
-  padding: 12px 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  box-sizing: border-box;
-}
-
-.total {
-  font-size: 14px;
-}
-
-.lista {
-  font-size: 11px;
-  color: #777;
-}
-
-/* MODAL */
-.modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.4);
-  display: none;
-  justify-content: center;
-  align-items: center;
-}
-
-.modal-content {
-  background: white;
-  padding: 20px;
-  border-radius: 14px;
-  width: 90%;
-  max-width: 380px;
-}
-
-.modal h3 {
-  margin-top: 0;
-}
-
-.header {
-  position: relative;
-  margin-bottom: 15px;
-}
-
-.cover {
-  width: 100vw;
-  height: 22vw;
-  object-fit: cover;
-  margin-left: -20px;
-  border-radius: 0;
-}
-
-.overlay {
-  position: absolute;
-  bottom: 10px;
-  left: 15px;
-  color: white;
-}
-
-.logo {
-  width: 40px;
-  border-radius: 50%;
-}
-
-.titulo {
-  font-size: 14px;
-  font-weight: 500;
-}
-
-/* BARRA CATEGORÍAS */
-.categorias-bar {
-  display: flex;
-  overflow-x: auto;
-  gap: 10px;
-  padding: 10px 0;
-  position: sticky;
-  top: 44px; /* altura del banner */
-  background: #fafafa;
-  z-index: 10;
-  margin-top: 10px;
-}
-
-.categoria-btn {
-  padding: 6px 12px;
-  background: #eee;
-  border-radius: 20px;
-  font-size: 12px;
-  white-space: nowrap;
-  cursor: pointer;
-}
-
-.categoria-btn.active {
-  background: #c8a96a;
-  color: black;
-}
-
-#clearBtn:hover {
-  color: #000;
-}
-</style>
-</head>
-
-<body>
-
-<!-- PANTALLA PROMOS -->
-<div id="pantallaPromos" style="
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: #fafafa;
-  z-index: 999;
-  overflow-y: auto;
-  padding: 24px 20px 30px;
-  box-sizing: border-box;
-">
-
-  <!-- Encabezado con botón de cierre comercial -->
-  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-    <div>
-      <div style="font-size:11px; text-transform:uppercase; letter-spacing:1.5px; color:#999; margin-bottom:3px;">U Link</div>
-      <h2 style="margin:0; font-size:18px; font-weight:600;">Casos reales</h2>
-    </div>
-
-    <!-- X comercial: círculo con SVG -->
-    <button onclick="cerrarPromos()" style="
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      background: #f0f0f0;
-      border: none;
-      padding: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      flex-shrink: 0;
-    ">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <line x1="1" y1="1" x2="13" y2="13" stroke="#333" stroke-width="2" stroke-linecap="round"/>
-        <line x1="13" y1="1" x2="1" y2="13" stroke="#333" stroke-width="2" stroke-linecap="round"/>
-      </svg>
-    </button>
-  </div>
-
-  <!-- Slider: wrapper externo hace el clip, el inner se transforma -->
-  <div style="overflow: hidden; width: 100%; border-radius: 14px;">
-    <div id="promoSlider" style="
-      display: flex;
-      transition: transform 0.4s ease;
-      will-change: transform;
-    "></div>
-  </div>
-
-  <!-- Controles de navegación -->
-  <div style="display:flex; justify-content:center; gap:12px; margin-top:8px;">
-    <button onclick="moverPromo(-1)" style="
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: #111;
-      color: white;
-      border: none;
-      font-size: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0;
-      cursor: pointer;
-    ">←</button>
-
-    <button onclick="moverPromo(1)" style="
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: #111;
-      color: white;
-      border: none;
-      font-size: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0;
-      cursor: pointer;
-    ">→</button>
-  </div>
-
-  <div id="dots" style="
-    display: flex;
-    justify-content: center;
-    gap: 6px;
-    margin-top: 6px;
-  "></div>
-
-</div>
-
-<!-- BANNER FIJO SUPERIOR -->
-<div class="banner-activos" onclick="abrirPromos()">
-  <div class="banner-dot"></div>
-  <div class="banner-texto">
-    <strong>3 negocios</strong> con chatbot activo ahora mismo
-  </div>
-  <div class="banner-cta">Ver casos →</div>
-</div>
-
-<div class="header">
-  <img src="/ulink/img/portada.jpg" class="cover">
-  <div class="overlay">
-    <img src="/ulink/img/logo.png" class="logo">
-    <div class="titulo">U Link Demo</div>
-  </div>
-</div>
-
-<div style="margin-bottom:10px; position:relative;">
-  <input 
-    type="text" 
-    id="buscador" 
-    placeholder="🔍 Buscar tratamiento..."
-    style="
-      width: 100%;
-      padding: 10px 35px 10px 14px;
-      border-radius: 25px;
-      border: 1px solid #ddd;
-      font-size: 13px;
-      outline: none;
-      box-sizing: border-box;
-    "
-    oninput="filtrarServicios()"
-  >
-
-  <span 
-    id="clearBtn"
-    onclick="limpiarBusqueda()"
-    style="
-      position: absolute;
-      right: 12px;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 14px;
-      color: #999;
-      cursor: pointer;
-      display: none;
-    "
-  >✕</span>
-</div>
-
-<div class="categorias-bar" id="categoriasBar"></div>
-
-<div id="menu"></div>
-
-<div class="carrito">
-  <div>
-    <div id="total" class="total">Total: $0</div>
-    <div id="lista" class="lista"></div>
-  </div>
-  <button class="alt" onclick="abrirAgenda()" id="btnAgendar">Agendar</button>
-</div>
-
-<div class="modal" id="modal">
-  <div class="modal-content">
-    <h3>¿Deseas agendar estos servicios?</h3>
-    <p id="resumen"></p>
-
-    <div style="display:flex; gap:10px; margin-top:15px;">
-      <button onclick="cerrarModal()" style="flex:1; background:#eee; color:#333;">
-        Regresar
-      </button>
-      <button class="alt" onclick="irAgenda()" style="flex:1;">
-        Continuar
-      </button>
-    </div>
-  </div>
-</div>
-
-<script>
-
-const servicios = [
-
-  // FACIAL AVANZADO
-  { nombre:"Tratamiento facial premium",    precio:3200, categoria:"rejuvenecimiento", img:"/ulink/img/facial1.webp",         desc:"Mejora la apariencia general de la piel y suaviza líneas de expresión." },
-  { nombre:"Aplicación localizada facial",  precio:2100, categoria:"rejuvenecimiento", img:"/ulink/img/facial2.webp",         desc:"Tratamiento dirigido a zonas específicas del rostro." },
-  { nombre:"Rejuvenecimiento intensivo",    precio:4600, categoria:"rejuvenecimiento", img:"/ulink/img/facial3.webp",         desc:"Mejora textura, luminosidad y firmeza de la piel." },
-  { nombre:"Estimulación de colágeno",      precio:7400, categoria:"rejuvenecimiento", img:"/ulink/img/facial4.webp",         desc:"Activa procesos naturales para rejuvenecimiento progresivo." },
-
-  // ARMONIZACIÓN
-  { nombre:"Perfilado estético facial",     precio:3800, categoria:"armonizacion",     img:"/ulink/img/armonizacion1.webp",   desc:"Mejora proporciones y equilibrio facial." },
-  { nombre:"Definición de contorno",        precio:4200, categoria:"armonizacion",     img:"/ulink/img/armonizacion2.webp",   desc:"Resalta rasgos y estructura del rostro." },
-  { nombre:"Hidratación profunda",          precio:2900, categoria:"armonizacion",     img:"/ulink/img/armonizacion3.webp",   desc:"Aporta volumen y mejora calidad de la piel." },
-
-  // PIEL
-  { nombre:"Revitalización cutánea",        precio:2600, categoria:"piel",             img:"/ulink/img/piel1.webp",           desc:"Nutre la piel con activos especializados." },
-  { nombre:"Mejora de textura facial",      precio:3100, categoria:"piel",             img:"/ulink/img/piel2.webp",           desc:"Incrementa firmeza y uniformidad." },
-  { nombre:"Reducción localizada",          precio:2300, categoria:"piel",             img:"/ulink/img/piel3.webp",           desc:"Apoya en la disminución de acumulaciones específicas." },
-
-  // LÁSER
-  { nombre:"Tratamiento láser zona pequeña",precio:3400, categoria:"laser",            img:"/ulink/img/laser1.webp",          desc:"Mejora textura y apariencia en áreas localizadas." },
-  { nombre:"Tratamiento láser zona media",  precio:5100, categoria:"laser",            img:"/ulink/img/laser2.webp",          desc:"Renovación de piel en zonas específicas." },
-  { nombre:"Tratamiento láser completo",    precio:9800, categoria:"laser",            img:"/ulink/img/laser3.webp",          desc:"Rejuvenecimiento integral del rostro." },
-
-  // HILOS / FIRMEZA
-  { nombre:"Tensado facial",                precio:8700, categoria:"hilos",            img:"/ulink/img/firmeza1.webp",        desc:"Mejora firmeza y soporte de la piel." },
-  { nombre:"Reafirmación de cuello",        precio:9200, categoria:"hilos",            img:"/ulink/img/firmeza2.webp",        desc:"Reduce flacidez en zona cervical." },
-  { nombre:"Elevación de contorno",         precio:5600, categoria:"hilos",            img:"/ulink/img/firmeza3.webp",        desc:"Mejora definición y posición de áreas faciales." },
-
-  // OTROS
-  { nombre:"Valoración personalizada",      precio:1200, categoria:"otros",            img:"/ulink/img/valoracion.webp",      desc:"Evaluación inicial para recomendar el mejor tratamiento." }
-
-];
-
-const promociones = [
-  {
-    nombre: "Nutrióloga Iratxe M.",
-    icono: "🥗",
-    imagen: "/ulink/img/caso-nutriologa.webp",
-    bullets: [
-      "Explica la metodología y agenda citas en automático",
-      "Permite reagendar y comparte ubicación por Google Maps",
-      "Notifica a la nutrióloga al instante ante cada reserva o consulta nueva"
-    ]
-  },
-  {
-    nombre: "Taller Artístico Blanco Terés",
-    icono: "🎨",
-    imagen: "/ulink/img/caso-taller.webp",
-    bullets: [
-      "Responde dudas a cualquier hora, incluso fines de semana",
-      "Guía al prospecto hasta presentar costos; si el precio es un freno, ofrece una clase muestra sin costo",
-      "Conecta Facebook, Instagram y WhatsApp en una sola bandeja"
-    ]
-  },
-  {
-    nombre: "Clínica Estética",
-    icono: "✨",
-    imagen: "/ulink/img/caso-chatbot.webp",
-    bullets: [
-      "Atención automatizada desde la primera consulta hasta agendar cita",
-      "Flujo optimizado para una experiencia directa, clara y eficiente",
-      "Diseñado a medida según los lineamientos del cliente"
-    ]
-  }
-];
-
-const nombresCategorias = [
-  "💉 Rejuvenecimiento",
-  "💋 Armonización",
-  "💆‍♀️ Piel",
-  "🔥 Láser",
-  "🧵 Hilos",
-  "✨ Otros"
-];
-
-let carrito = [];
-let filtro = "";
-let promoIndex = 0;
-let startX = 0;
-let endX = 0;
-let swipeActivo = false;
-
-// ─── RENDER PRINCIPAL ────────────────────────────────────────────────────────
-
-function render() {
-  const categorias = {
-    "💉 Rejuvenecimiento": servicios.filter(s => s.categoria === "rejuvenecimiento"),
-    "💋 Armonización":     servicios.filter(s => s.categoria === "armonizacion"),
-    "💆‍♀️ Piel":             servicios.filter(s => s.categoria === "piel"),
-    "🔥 Láser":            servicios.filter(s => s.categoria === "laser"),
-    "🧵 Hilos":            servicios.filter(s => s.categoria === "hilos"),
-    "✨ Otros":            servicios.filter(s => s.categoria === "otros")
-  };
-
-  let html = "";
-
-  Object.keys(categorias).forEach((cat, index) => {
-    let serviciosFiltrados = categorias[cat].filter(s =>
-      !filtro ||
-      s.nombre.toLowerCase().includes(filtro) ||
-      s.desc.toLowerCase().includes(filtro)
-    );
-
-    if (serviciosFiltrados.length === 0) return;
-
-    html += `<h2 id="cat${index}" style="margin-top:25px;">${cat}</h2>`;
-
-    serviciosFiltrados.forEach(s => {
-      let i = servicios.findIndex(x => x.nombre === s.nombre);
-      let seleccionado = carrito.find(x => x.nombre === s.nombre);
-
-      html += `
-        <div class="card ${seleccionado ? 'selected added' : ''}">
-          <img src="${s.img}">
-          <div class="info">
-            <div class="nombre">${s.nombre}</div>
-            <div class="precio">$${s.precio}</div>
-            <div style="font-size:11px;color:#777;margin-top:4px;">${s.desc}</div>
-          </div>
-          <button onclick="agregar(${i})">
-            ${seleccionado ? 'Quitar' : 'Agregar'}
-          </button>
-        </div>
-      `;
-    });
-  });
-
-  document.getElementById("menu").innerHTML = html;
-}
-
-function renderCategorias() {
-  let html = "";
-
-  nombresCategorias.forEach((c, i) => {
-    html += `<div class="categoria-btn" id="btn${i}" onclick="scrollToCat(${i})">${c}</div>`;
-  });
-
-  document.getElementById("categoriasBar").innerHTML = html;
-}
-
-// ─── CARRITO ─────────────────────────────────────────────────────────────────
-
-function agregar(i) {
-  let servicio = servicios[i];
-  let index = carrito.findIndex(s => s.nombre === servicio.nombre);
-
-  if (index > -1) {
-    carrito.splice(index, 1);
-    gtag('event', 'servicio_quitado', {
-      servicio_nombre: servicio.nombre,
-      servicio_precio: servicio.precio,
-      servicio_categoria: servicio.categoria
-    });
-  } else {
-    carrito.push(servicio);
-    gtag('event', 'servicio_agregado', {
-      servicio_nombre: servicio.nombre,
-      servicio_precio: servicio.precio,
-      servicio_categoria: servicio.categoria
-    });
-  }
-
-  actualizarTotal();
-  render();
-  renderCategorias();
-
-  setTimeout(() => {
-    document.querySelectorAll(".card").forEach(c => c.classList.remove("added"));
-  }, 150);
-}
-
-function actualizarTotal() {
-  let total = carrito.reduce((acc, s) => acc + s.precio, 0);
-  document.getElementById("total").innerText = "Total: $" + total;
-  document.getElementById("lista").innerText = carrito.map(s => s.nombre).join(", ");
-
-  let btn = document.getElementById("btnAgendar");
-  if (btn) {
-    btn.innerText = carrito.length > 0 ? "Agendar (" + carrito.length + ")" : "Agendar";
-  }
-
-  let data = JSON.parse(localStorage.getItem("carritoData")) || {};
-  data.timestamp = Date.now();
-  data.items = carrito;
-  data.enviado = false;
-  localStorage.setItem("carritoData", JSON.stringify(data));
-}
-
-// ─── MODAL AGENDA ─────────────────────────────────────────────────────────────
-
-function abrirAgenda() {
-  if (carrito.length === 0) {
-    alert("Selecciona al menos un servicio");
-    return;
-  }
-  gtag('event', 'agendar_iniciado', {
-    total: carrito.reduce((a, s) => a + s.precio, 0),
-    servicios_count: carrito.length,
-    servicios: carrito.map(s => s.nombre).join(", ")
-  });
-  document.getElementById("resumen").innerText = carrito.map(s => s.nombre).join(", ");
-  document.getElementById("modal").style.display = "flex";
-}
-
-function cerrarModal() {
-  document.getElementById("modal").style.display = "none";
-}
-
-function irAgenda() {
-  let serviciosTxt = carrito.map(s => s.nombre).join(", ");
-  let numero = "5219996187124";
-  let mensaje = "Hola, me interesan estos servicios: " + serviciosTxt + ". ¿Me puedes dar más información?";
-
-  gtag('event', 'conversion_whatsapp', {
-    total: carrito.reduce((a, s) => a + s.precio, 0),
-    servicios_count: carrito.length,
-    servicios: serviciosTxt
-  });
-
-  let data = JSON.parse(localStorage.getItem("carritoData")) || {};
-  data.enviado = true;
-  localStorage.setItem("carritoData", JSON.stringify(data));
-
-  carrito = [];
-  actualizarTotal();
-  render();
-
-  window.location.href = "https://wa.me/" + numero + "?text=" + encodeURIComponent(mensaje);
-}
-
-// ─── BÚSQUEDA ─────────────────────────────────────────────────────────────────
-
-function filtrarServicios() {
-  filtro = document.getElementById("buscador").value.toLowerCase();
-  document.getElementById("clearBtn").style.display = filtro.length > 0 ? "block" : "none";
-  if (filtro.length >= 3) {
-    gtag('event', 'busqueda', { termino: filtro });
-  }
-  render();
-}
-
-function limpiarBusqueda() {
-  document.getElementById("buscador").value = "";
-  filtro = "";
-  document.getElementById("clearBtn").style.display = "none";
-  render();
-}
-
-// ─── CATEGORÍAS / SCROLL ──────────────────────────────────────────────────────
-
-function scrollToCat(i) {
-  let elemento = document.getElementById("cat" + i);
-  if (!elemento) return;
-  let y = elemento.getBoundingClientRect().top + window.pageYOffset - 120;
-  window.scrollTo({ top: y, behavior: "smooth" });
-}
-
-function activarCategoria(i) {
-  document.querySelectorAll(".categoria-btn").forEach(btn => btn.classList.remove("active"));
-  let btn = document.getElementById("btn" + i);
-  if (btn) {
-    btn.classList.add("active");
-    btn.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
-  }
-}
-
-window.addEventListener("scroll", () => {
-  let categorias = document.querySelectorAll("#menu h2");
-  let scrollTop = window.scrollY;
-  let windowHeight = window.innerHeight;
-  let fullHeight = document.body.scrollHeight;
-
-  if (scrollTop + windowHeight >= fullHeight - 5) {
-    activarCategoria(categorias.length - 1);
-    return;
-  }
-
-  let scrollPos = scrollTop + 150;
-
-  categorias.forEach((cat, i) => {
-    let offsetTop = cat.offsetTop;
-    let nextOffset = categorias[i + 1]?.offsetTop;
-
-    if (nextOffset) {
-      if (scrollPos >= offsetTop && scrollPos < nextOffset) {
-        activarCategoria(i);
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>U Link Systems | Automatización comercial conectada a WhatsApp</title>
+  <meta name="description" content="U Link Systems conecta WhatsApp, CRM, agendas, catálogos y automatización comercial para ayudarte a captar, atender y dar seguimiento a tus prospectos." />
+  <meta name="theme-color" content="#08111f" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <style>
+    :root{
+      --bg: #07101d;
+      --bg-2: #0a1628;
+      --surface: rgba(255,255,255,.06);
+      --surface-2: rgba(255,255,255,.08);
+      --stroke: rgba(255,255,255,.12);
+      --text: #edf4ff;
+      --muted: #a8bad6;
+      --muted-2: #7f95b8;
+      --blue: #2878ff;
+      --cyan: #28c8ff;
+      --green: #38e39b;
+      --lime: #83f0c2;
+      --gold: #d8b673;
+      --dark-card: #0d1b30;
+      --shadow: 0 20px 70px rgba(0,0,0,.35);
+      --radius-xl: 28px;
+      --radius-lg: 22px;
+      --radius-md: 18px;
+      --radius-sm: 14px;
+      --container: 1180px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body{
+      margin:0;
+      font-family:'Inter',system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      background:
+        radial-gradient(circle at 10% 10%, rgba(40,120,255,.18), transparent 28%),
+        radial-gradient(circle at 90% 20%, rgba(56,227,155,.14), transparent 28%),
+        radial-gradient(circle at 50% 100%, rgba(40,200,255,.12), transparent 32%),
+        linear-gradient(180deg, #08111f 0%, #091325 32%, #07101d 100%);
+      color: var(--text);
+      overflow-x:hidden;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    img { max-width:100%; display:block; }
+
+    .bg-grid{
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: .18;
+      background-image:
+        linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px);
+      background-size: 36px 36px;
+      mask-image: linear-gradient(to bottom, rgba(0,0,0,.65), transparent 85%);
+      z-index: 0;
+    }
+
+    .glow{
+      position:absolute;
+      filter: blur(70px);
+      opacity:.45;
+      pointer-events:none;
+      z-index:0;
+    }
+    .glow.g1{
+      width:340px;height:340px;border-radius:50%;
+      background: rgba(40,120,255,.35);
+      top:-80px; left:-100px;
+    }
+    .glow.g2{
+      width:360px;height:360px;border-radius:50%;
+      background: rgba(56,227,155,.22);
+      top:180px; right:-120px;
+    }
+
+    .container{
+      width:min(calc(100% - 40px), var(--container));
+      margin:0 auto;
+      position:relative;
+      z-index:1;
+    }
+
+    .section{
+      padding: 96px 0;
+      position: relative;
+    }
+
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      padding:10px 14px;
+      border-radius:999px;
+      background: rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.1);
+      color:#dbe9ff;
+      font-size:13px;
+      font-weight:600;
+      letter-spacing:.2px;
+      backdrop-filter: blur(16px);
+    }
+    .pill .dot{
+      width:8px;height:8px;border-radius:50%;
+      background: linear-gradient(135deg, var(--green), var(--cyan));
+      box-shadow: 0 0 0 6px rgba(56,227,155,.12);
+    }
+
+    .eyebrow{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      color:#d7e5fb;
+      font-size:13px;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:1.2px;
+      margin-bottom:18px;
+    }
+    .eyebrow span{
+      width:28px;
+      height:1px;
+      background: linear-gradient(90deg, var(--green), transparent);
+    }
+
+    .section-head{
+      max-width:780px;
+      margin-bottom:44px;
+    }
+    .section-head h2{
+      margin:0 0 14px;
+      font-size: clamp(30px, 5vw, 48px);
+      line-height:1.05;
+      letter-spacing:-1.4px;
+    }
+    .section-head p{
+      margin:0;
+      color: var(--muted);
+      font-size:18px;
+      line-height:1.7;
+    }
+
+    /* HEADER */
+    .site-header{
+      position:sticky;
+      top:0;
+      z-index:30;
+      backdrop-filter: blur(18px);
+      background: rgba(6, 13, 24, .72);
+      border-bottom:1px solid rgba(255,255,255,.08);
+    }
+    .site-header .wrap{
+      width:min(calc(100% - 40px), var(--container));
+      margin:0 auto;
+      min-height:82px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:18px;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:14px;
+      min-width:0;
+    }
+    .brand-mark{
+      width:48px;
+      height:48px;
+      flex:0 0 48px;
+      filter: drop-shadow(0 10px 20px rgba(40,120,255,.2));
+    }
+    .brand-text{
+      min-width:0;
+    }
+    .brand-text strong{
+      display:block;
+      font-size:18px;
+      font-weight:800;
+      letter-spacing:-.4px;
+      white-space:nowrap;
+    }
+    .brand-text small{
+      display:block;
+      margin-top:2px;
+      color: var(--muted);
+      font-size:12px;
+      font-weight:600;
+    }
+
+    .nav{
+      display:flex;
+      align-items:center;
+      gap:24px;
+    }
+    .nav-links{
+      display:flex;
+      align-items:center;
+      gap:22px;
+    }
+    .nav-links a{
+      color:#d8e6fb;
+      font-size:14px;
+      font-weight:600;
+      opacity:.9;
+      transition:.2s ease;
+    }
+    .nav-links a:hover{ color:#fff; opacity:1; }
+
+    .header-actions{
+      display:flex;
+      align-items:center;
+      gap:12px;
+    }
+
+    .menu-toggle{
+      display:none;
+      width:48px;height:48px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.05);
+      color:#fff;
+      font-size:22px;
+      cursor:pointer;
+    }
+
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      border:none;
+      cursor:pointer;
+      padding:14px 18px;
+      border-radius:16px;
+      font-size:15px;
+      font-weight:700;
+      line-height:1;
+      transition: .22s ease;
+      white-space:nowrap;
+    }
+    .btn:hover{ transform:translateY(-1px); }
+    .btn:active{ transform:translateY(0); }
+
+    .btn-primary{
+      color:#08111f;
+      background: linear-gradient(135deg, #ffffff 0%, #dcf5ff 42%, #9df0d2 100%);
+      box-shadow: 0 14px 30px rgba(56,227,155,.18);
+    }
+    .btn-secondary{
+      color:#eaf3ff;
+      background: rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.1);
+    }
+    .btn-outline{
+      color:#d9e8ff;
+      background: transparent;
+      border:1px solid rgba(255,255,255,.12);
+    }
+
+    /* HERO */
+    .hero{
+      padding: 70px 0 40px;
+      position: relative;
+    }
+    .hero-grid{
+      display:grid;
+      grid-template-columns: 1.06fr .94fr;
+      gap:42px;
+      align-items:center;
+    }
+    .hero-copy h1{
+      margin:18px 0 18px;
+      font-size: clamp(42px, 7vw, 72px);
+      line-height:.96;
+      letter-spacing:-2.6px;
+      max-width: 12ch;
+    }
+    .hero-copy .lead{
+      max-width: 62ch;
+      color: var(--muted);
+      font-size: 18px;
+      line-height: 1.8;
+      margin:0 0 28px;
+    }
+    .hero-cta{
+      display:flex;
+      flex-wrap:wrap;
+      gap:14px;
+      margin-bottom:28px;
+    }
+
+    .hero-meta{
+      display:grid;
+      grid-template-columns: repeat(3, minmax(0,1fr));
+      gap:14px;
+      margin-top:18px;
+    }
+    .meta-card{
+      padding:18px;
+      border-radius:18px;
+      background: rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.1);
+      backdrop-filter: blur(14px);
+    }
+    .meta-card strong{
+      display:block;
+      font-size:19px;
+      margin-bottom:6px;
+      letter-spacing:-.4px;
+    }
+    .meta-card span{
+      color: var(--muted);
+      font-size:13px;
+      line-height:1.5;
+    }
+
+    /* VISUAL */
+    .hero-visual{
+      position:relative;
+      min-height: 650px;
+    }
+
+    .visual-shell{
+      position:absolute;
+      inset:0;
+      border-radius: 34px;
+      padding:24px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03)),
+        rgba(255,255,255,.03);
+      border:1px solid rgba(255,255,255,.12);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      backdrop-filter: blur(14px);
+    }
+
+    .visual-shell::before{
+      content:"";
+      position:absolute;
+      inset:-40% auto auto -10%;
+      width:260px;
+      height:260px;
+      border-radius:50%;
+      background: radial-gradient(circle, rgba(40,120,255,.35), transparent 70%);
+      pointer-events:none;
+    }
+
+    .mini-topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:18px;
+    }
+    .mini-topbar .labels{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 12px;
+      border-radius:999px;
+      background: rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.08);
+      color:#dce9fb;
+      font-size:12px;
+      font-weight:700;
+    }
+    .chip .mini{
+      width:7px;height:7px;border-radius:50%;
+      background: var(--green);
+    }
+
+    .visual-grid{
+      display:grid;
+      grid-template-columns: 280px 1fr;
+      gap:18px;
+      height: calc(100% - 54px);
+      align-items:start;
+    }
+
+    .phone{
+      background:#0f1e33;
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:30px;
+      padding:14px;
+      width:100%;
+      box-shadow: 0 24px 40px rgba(0,0,0,.3);
+      position:relative;
+      overflow:hidden;
+    }
+    .phone::before{
+      content:"";
+      width:120px;height:22px;
+      background:#08111f;
+      border-radius:999px;
+      position:absolute;
+      top:8px; left:50%;
+      transform:translateX(-50%);
+      z-index:3;
+    }
+    .phone-screen{
+      border-radius:22px;
+      overflow:hidden;
+      background:#d6e3d7;
+      min-height:530px;
+      position:relative;
+    }
+
+    .wa-head{
+      background:#0d5c52;
+      color:#fff;
+      padding:18px 16px 14px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+    .wa-avatar{
+      width:38px;height:38px;border-radius:50%;
+      background: linear-gradient(135deg, var(--blue), var(--green));
+      display:grid; place-items:center;
+      font-weight:800;
+    }
+    .wa-title strong{
+      display:block;
+      font-size:14px;
+      margin-bottom:2px;
+    }
+    .wa-title span{
+      font-size:11px;
+      opacity:.8;
+    }
+    .wa-body{
+      padding:14px 12px 10px;
+      background:
+        linear-gradient(rgba(255,255,255,.05), rgba(255,255,255,.05)),
+        #e4ddd6;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      min-height:430px;
+    }
+    .bubble{
+      max-width:85%;
+      padding:10px 12px;
+      border-radius:14px;
+      font-size:12px;
+      line-height:1.45;
+      box-shadow: 0 2px 10px rgba(0,0,0,.08);
+    }
+    .bubble.bot{
+      background:#fff;
+      color:#17263f;
+      border-top-left-radius:4px;
+      align-self:flex-start;
+    }
+    .bubble.user{
+      background:#d6f8c8;
+      color:#17263f;
+      border-top-right-radius:4px;
+      align-self:flex-end;
+    }
+    .quick-replies{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:4px;
+    }
+    .q{
+      padding:8px 10px;
+      border-radius:999px;
+      background:#fff;
+      border:1px solid rgba(9,95,84,.18);
+      color:#0d5c52;
+      font-size:11px;
+      font-weight:700;
+    }
+    .wa-input{
+      background:#f0f2f4;
+      padding:10px 12px;
+      border-top:1px solid rgba(0,0,0,.06);
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:8px;
+    }
+    .wa-field{
+      flex:1;
+      padding:11px 13px;
+      border-radius:999px;
+      background:#fff;
+      color:#7d8ba0;
+      font-size:12px;
+    }
+    .wa-send{
+      width:40px;height:40px;border-radius:50%;
+      background:#0d5c52;
+      display:grid;place-items:center;
+      color:#fff;font-weight:800;
+    }
+
+    .right-stack{
+      display:grid;
+      grid-template-columns: repeat(12,1fr);
+      gap:16px;
+      min-height:530px;
+    }
+
+    .panel{
+      background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.04));
+      border:1px solid rgba(255,255,255,.1);
+      border-radius:24px;
+      padding:18px;
+      box-shadow: 0 16px 36px rgba(0,0,0,.25);
+      backdrop-filter: blur(10px);
+    }
+    .panel h3, .panel h4{
+      margin:0;
+      letter-spacing:-.5px;
+    }
+    .panel .muted{
+      color: var(--muted);
+      font-size:13px;
+      line-height:1.6;
+    }
+
+    .panel.metrics{ grid-column: span 12; }
+    .panel.pipeline{ grid-column: span 7; }
+    .panel.calendar{ grid-column: span 5; }
+    .panel.flow{ grid-column: span 12; }
+
+    .panel-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:16px;
+    }
+
+    .metric-row{
+      display:grid;
+      grid-template-columns: repeat(3,1fr);
+      gap:12px;
+    }
+    .metric{
+      padding:16px;
+      border-radius:18px;
+      background: rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.08);
+    }
+    .metric .num{
+      display:block;
+      font-size:28px;
+      font-weight:800;
+      letter-spacing:-1px;
+      margin-bottom:6px;
+    }
+    .metric .lbl{
+      color: var(--muted);
+      font-size:13px;
+    }
+
+    .pipeline-grid{
+      display:grid;
+      grid-template-columns: repeat(3,1fr);
+      gap:12px;
+    }
+    .kanban{
+      background: rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:18px;
+      padding:12px;
+      min-height:220px;
+    }
+    .kanban h4{
+      font-size:13px;
+      margin-bottom:10px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      color:#eaf3ff;
+    }
+    .count{
+      display:inline-grid;place-items:center;
+      min-width:24px;height:24px;
+      border-radius:999px;
+      background: rgba(255,255,255,.08);
+      font-size:11px;
+      color:#dce8fb;
+    }
+    .deal{
+      padding:11px 12px;
+      border-radius:14px;
+      background: rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.08);
+      margin-bottom:10px;
+    }
+    .deal strong{
+      display:block;
+      font-size:12px;
+      margin-bottom:4px;
+    }
+    .deal span{
+      color: var(--muted);
+      font-size:11px;
+    }
+
+    .calendar-box{
+      padding:14px;
+      border-radius:18px;
+      background: rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.08);
+    }
+    .days{
+      display:grid;
+      grid-template-columns: repeat(7,1fr);
+      gap:8px;
+      margin-top:12px;
+    }
+    .day{
+      aspect-ratio:1/1;
+      border-radius:14px;
+      background: rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.07);
+      display:grid;
+      place-items:center;
+      color:#d8e6fb;
+      font-size:12px;
+      font-weight:700;
+    }
+    .day.active{
+      background: linear-gradient(135deg, rgba(40,120,255,.26), rgba(56,227,155,.26));
+      border-color: rgba(56,227,155,.36);
+      color:#fff;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.08);
+    }
+
+    .flowline{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      align-items:center;
+      margin-top:6px;
+    }
+    .node{
+      padding:11px 14px;
+      border-radius:16px;
+      background: rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.08);
+      color:#eaf3ff;
+      font-size:13px;
+      font-weight:700;
+    }
+    .arrow{
+      color: #79dcb6;
+      font-size:18px;
+      font-weight:800;
+    }
+
+    /* LOGOS STRIP */
+    .trust-strip{
+      padding-top: 24px;
+      padding-bottom: 24px;
+    }
+    .trust-card{
+      display:flex;
+      flex-wrap:wrap;
+      gap:14px;
+      align-items:center;
+      justify-content:space-between;
+      padding:18px 20px;
+      border-radius:24px;
+      background: rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.08);
+    }
+    .trust-card p{
+      margin:0;
+      color: var(--muted);
+      font-size:15px;
+    }
+    .brand-chips{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+    }
+
+    /* CARDS */
+    .grid-3{
+      display:grid;
+      grid-template-columns: repeat(3, minmax(0,1fr));
+      gap:18px;
+    }
+    .grid-4{
+      display:grid;
+      grid-template-columns: repeat(4, minmax(0,1fr));
+      gap:18px;
+    }
+
+    .card{
+      padding:24px;
+      border-radius:24px;
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.04));
+      border:1px solid rgba(255,255,255,.1);
+      box-shadow: 0 18px 40px rgba(0,0,0,.22);
+    }
+    .card .icon{
+      width:54px;
+      height:54px;
+      border-radius:18px;
+      margin-bottom:18px;
+      display:grid;
+      place-items:center;
+      color:#fff;
+      font-size:22px;
+      font-weight:800;
+      background: linear-gradient(135deg, rgba(40,120,255,.88), rgba(56,227,155,.82));
+      box-shadow: 0 12px 26px rgba(40,120,255,.22);
+    }
+    .card h3{
+      margin:0 0 10px;
+      font-size:22px;
+      letter-spacing:-.5px;
+    }
+    .card p{
+      margin:0;
+      color: var(--muted);
+      font-size:15px;
+      line-height:1.75;
+    }
+
+    .bullet-list{
+      list-style:none;
+      padding:0;
+      margin:18px 0 0;
+      display:grid;
+      gap:12px;
+    }
+    .bullet-list li{
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      color:#dce8fb;
+      font-size:14px;
+      line-height:1.65;
+    }
+    .bullet-list li::before{
+      content:"";
+      width:10px;height:10px;border-radius:50%;
+      background: linear-gradient(135deg, var(--green), var(--cyan));
+      margin-top:7px;
+      flex:0 0 10px;
+      box-shadow: 0 0 0 5px rgba(56,227,155,.08);
+    }
+
+    /* SOLUTIONS */
+    .solutions{
+      display:grid;
+      grid-template-columns: repeat(2,minmax(0,1fr));
+      gap:18px;
+    }
+    .solution{
+      padding:24px;
+      border-radius:24px;
+      background: rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.1);
+      display:flex;
+      gap:18px;
+    }
+    .solution-icon{
+      width:58px;height:58px;
+      border-radius:18px;
+      background: linear-gradient(135deg, rgba(40,120,255,.9), rgba(56,227,155,.86));
+      display:grid;place-items:center;
+      font-size:22px;
+      flex:0 0 58px;
+    }
+    .solution h3{
+      margin:0 0 8px;
+      font-size:22px;
+      letter-spacing:-.5px;
+    }
+    .solution p{
+      margin:0;
+      color: var(--muted);
+      line-height:1.7;
+      font-size:15px;
+    }
+
+    /* PROCESS */
+    .step{
+      position:relative;
+      padding:26px 24px 24px;
+      border-radius:24px;
+      background: rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.1);
+    }
+    .step-num{
+      width:40px;height:40px;border-radius:12px;
+      background: linear-gradient(135deg, rgba(40,120,255,.95), rgba(56,227,155,.85));
+      color:#07101d;
+      display:grid;place-items:center;
+      font-weight:900;
+      margin-bottom:16px;
+    }
+    .step h3{
+      margin:0 0 10px;
+      font-size:22px;
+    }
+    .step p{
+      margin:0;
+      color: var(--muted);
+      line-height:1.7;
+      font-size:15px;
+    }
+
+    /* SECTORS */
+    .sector-card{
+      padding:24px;
+      border-radius:24px;
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.04));
+      border:1px solid rgba(255,255,255,.1);
+      min-height: 100%;
+    }
+    .sector-top{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:12px;
+      margin-bottom:18px;
+    }
+    .sector-badge{
+      display:inline-flex;
+      padding:8px 12px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:800;
+      background: rgba(255,255,255,.07);
+      border:1px solid rgba(255,255,255,.08);
+      color:#dce8fb;
+    }
+    .sector-kpi{
+      text-align:right;
+      font-size:13px;
+      color:#8fe8bc;
+      font-weight:700;
+    }
+    .sector-card h3{
+      margin:0 0 10px;
+      font-size:22px;
+      letter-spacing:-.4px;
+    }
+    .sector-card p{
+      margin:0;
+      color:var(--muted);
+      line-height:1.72;
+      font-size:15px;
+    }
+
+    /* ARCHITECTURE */
+    .architecture{
+      padding:30px;
+      border-radius:28px;
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.04));
+      border:1px solid rgba(255,255,255,.1);
+      overflow:hidden;
+      position:relative;
+    }
+    .arch-grid{
+      display:grid;
+      grid-template-columns: repeat(5, minmax(0,1fr));
+      gap:16px;
+      margin-top:18px;
+      align-items:stretch;
+    }
+    .arch-col{
+      padding:20px;
+      border-radius:20px;
+      background: rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.08);
+      min-height: 100%;
+    }
+    .arch-col h3{
+      margin:0 0 14px;
+      font-size:17px;
+      letter-spacing:-.2px;
+    }
+    .arch-tags{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+    }
+    .tag{
+      padding:9px 11px;
+      border-radius:14px;
+      font-size:12px;
+      font-weight:700;
+      color:#dce7fb;
+      background: rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.08);
+    }
+
+    /* PRICING */
+    .pricing-wrap{
+      display:grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap:20px;
+      align-items:stretch;
+    }
+    .pricing-main{
+      padding:34px;
+      border-radius:30px;
+      background:
+        radial-gradient(circle at top right, rgba(56,227,155,.16), transparent 35%),
+        radial-gradient(circle at bottom left, rgba(40,120,255,.16), transparent 35%),
+        linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.04));
+      border:1px solid rgba(255,255,255,.12);
+      box-shadow: var(--shadow);
+    }
+    .pricing-main h3{
+      margin:0 0 8px;
+      font-size:34px;
+      letter-spacing:-1px;
+    }
+    .pricing-main p{
+      margin:0 0 20px;
+      color:var(--muted);
+      font-size:16px;
+      line-height:1.8;
+    }
+    .prices{
+      display:grid;
+      grid-template-columns: repeat(2,1fr);
+      gap:16px;
+      margin-top:18px;
+    }
+    .price-box{
+      padding:22px;
+      border-radius:22px;
+      background: rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.1);
+    }
+    .price-box small{
+      display:block;
+      margin-bottom:8px;
+      color: #bfd0e9;
+      font-size:13px;
+      font-weight:700;
+    }
+    .price-box strong{
+      display:block;
+      font-size:36px;
+      line-height:1;
+      letter-spacing:-1.5px;
+      margin-bottom:10px;
+    }
+    .price-box span{
+      color: var(--muted);
+      font-size:14px;
+      line-height:1.7;
+    }
+
+    .pricing-side{
+      display:grid;
+      gap:18px;
+    }
+
+    /* FAQ */
+    .faq{
+      display:grid;
+      gap:14px;
+    }
+    details{
+      border:1px solid rgba(255,255,255,.1);
+      border-radius:20px;
+      background: rgba(255,255,255,.05);
+      overflow:hidden;
+    }
+    summary{
+      list-style:none;
+      cursor:pointer;
+      padding:18px 22px;
+      font-size:16px;
+      font-weight:700;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:18px;
+    }
+    summary::-webkit-details-marker{ display:none; }
+    details p{
+      margin:0;
+      padding:0 22px 20px;
+      color: var(--muted);
+      line-height:1.8;
+      font-size:15px;
+    }
+    .plus{
+      width:28px;height:28px;border-radius:10px;
+      display:grid;place-items:center;
+      background: rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.08);
+      color:#dbe8fb;
+      font-weight:800;
+      flex:0 0 28px;
+    }
+
+    /* CTA BANNER */
+    .cta-banner{
+      position:relative;
+      overflow:hidden;
+      padding:34px;
+      border-radius:32px;
+      background:
+        radial-gradient(circle at 10% 0%, rgba(40,120,255,.24), transparent 34%),
+        radial-gradient(circle at 90% 100%, rgba(56,227,155,.18), transparent 36%),
+        linear-gradient(135deg, rgba(255,255,255,.08), rgba(255,255,255,.05));
+      border:1px solid rgba(255,255,255,.12);
+      box-shadow: var(--shadow);
+    }
+    .cta-banner h2{
+      margin:0 0 14px;
+      font-size: clamp(30px, 5vw, 48px);
+      line-height:1.02;
+      letter-spacing:-1.3px;
+      max-width: 14ch;
+    }
+    .cta-banner p{
+      margin:0 0 22px;
+      color: var(--muted);
+      font-size:18px;
+      line-height:1.75;
+      max-width: 62ch;
+    }
+
+    /* FOOTER */
+    footer{
+      padding: 34px 0 48px;
+      color: var(--muted);
+    }
+    .footer-box{
+      display:flex;
+      flex-wrap:wrap;
+      justify-content:space-between;
+      gap:18px;
+      padding:22px 24px;
+      border-radius:24px;
+      background: rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.08);
+    }
+    .footer-brand{
+      display:flex;
+      gap:14px;
+      align-items:flex-start;
+    }
+    .footer-brand svg{
+      width:42px;height:42px;flex:0 0 42px;
+    }
+    .footer-brand strong{
+      display:block;
+      color:#eef4ff;
+      margin-bottom:4px;
+      font-size:16px;
+    }
+    .footer-links{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px 16px;
+      align-items:center;
+    }
+    .footer-links a{
+      color: var(--muted);
+      font-weight:600;
+      font-size:14px;
+    }
+
+    /* FLOATING WHATSAPP */
+    .wa-float{
+      position:fixed;
+      right:18px;
+      bottom:18px;
+      width:62px;
+      height:62px;
+      border-radius:50%;
+      display:grid;
+      place-items:center;
+      color:#07101d;
+      background: linear-gradient(135deg, #59f3ac, #b7ffd9);
+      box-shadow: 0 14px 30px rgba(56,227,155,.28);
+      z-index:60;
+      font-size:28px;
+      font-weight:900;
+      border:1px solid rgba(255,255,255,.45);
+    }
+
+    /* REVEAL */
+    [data-reveal]{
+      opacity:0;
+      transform: translateY(18px);
+      transition: .7s ease;
+    }
+    [data-reveal].visible{
+      opacity:1;
+      transform: translateY(0);
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 1100px){
+      .hero-grid,
+      .pricing-wrap,
+      .visual-grid,
+      .grid-4{
+        grid-template-columns: 1fr;
+      }
+      .solutions,
+      .grid-3{
+        grid-template-columns: repeat(2, minmax(0,1fr));
+      }
+      .arch-grid{
+        grid-template-columns: repeat(2, minmax(0,1fr));
+      }
+      .hero-visual{
+        min-height: auto;
+      }
+      .visual-shell{
+        position:relative;
+        min-height: auto;
+      }
+      .right-stack{
+        min-height:auto;
+      }
+      .phone-screen{
+        min-height:520px;
       }
     }
-  });
-});
 
-// ─── PROMOS ───────────────────────────────────────────────────────────────────
+    @media (max-width: 920px){
+      .nav-links{
+        display:none;
+      }
+      .menu-toggle{
+        display:grid;
+        place-items:center;
+      }
+      .header-actions .btn-outline{
+        display:none;
+      }
 
-function abrirPromos() {
-  promoIndex = 0;
-  document.getElementById("pantallaPromos").style.display = "block";
-  document.getElementById("promoSlider").style.transform = "translateX(0%)";
-  renderPromos();
-  renderDots();
-  activarSwipe();
-  gtag('event', 'casos_reales_abiertos');
-}
+      .mobile-panel{
+        position: absolute;
+        left: 20px;
+        right: 20px;
+        top: calc(100% + 10px);
+        padding:16px;
+        border-radius:22px;
+        background: rgba(9, 18, 33, .96);
+        border:1px solid rgba(255,255,255,.1);
+        box-shadow: var(--shadow);
+        display:none;
+      }
+      .mobile-panel.open{ display:block; }
+      .mobile-links{
+        display:grid;
+        gap:10px;
+        margin-bottom:12px;
+      }
+      .mobile-links a{
+        padding:12px 14px;
+        border-radius:14px;
+        background: rgba(255,255,255,.05);
+        border:1px solid rgba(255,255,255,.08);
+        font-weight:700;
+        color:#eaf2ff;
+      }
+      .mobile-actions{
+        display:grid;
+        gap:10px;
+      }
+    }
 
-function cerrarPromos() {
-  document.getElementById("pantallaPromos").style.display = "none";
-}
+    @media (max-width: 760px){
+      .section{ padding: 74px 0; }
+      .hero{ padding: 38px 0 16px; }
 
-function renderPromos() {
-  let html = "";
+      .hero-meta,
+      .metric-row,
+      .pipeline-grid,
+      .prices,
+      .solutions,
+      .grid-3,
+      .grid-4,
+      .arch-grid{
+        grid-template-columns: 1fr;
+      }
 
-  promociones.forEach(p => {
-    let bulletsHtml = p.bullets.map(b => `
-      <div style="
-        display: flex;
-        align-items: flex-start;
-        gap: 8px;
-        margin-bottom: 8px;
-        text-align: left;
-      ">
-        <span style="color:#4ade80; font-size:13px; flex-shrink:0; margin-top:1px;">✔</span>
-        <span style="font-size:13px; color:#444; line-height:1.5;">${b}</span>
-      </div>
-    `).join("");
+      .site-header .wrap{
+        min-height:76px;
+      }
+      .brand-text strong{
+        font-size:17px;
+      }
+      .hero-copy h1{
+        max-width: 100%;
+      }
+      .hero-copy .lead,
+      .section-head p,
+      .cta-banner p{
+        font-size:16px;
+      }
+      .hero-cta{
+        flex-direction:column;
+      }
+      .hero-cta .btn{
+        width:100%;
+      }
+      .solution{
+        flex-direction:column;
+      }
+      .cta-banner{
+        padding:26px;
+      }
+      .footer-box{
+        padding:20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-grid"></div>
+  <div class="glow g1"></div>
+  <div class="glow g2"></div>
 
-    html += `
-      <div style="
-        min-width: 100%;
-        width: 100%;
-        flex-shrink: 0;
-        box-sizing: border-box;
-        padding: 4px 2px;
-      ">
-        <img src="${p.imagen}" style="
-          width: 100%;
-          display: block;
-          border-radius: 12px;
-          object-fit: cover;
-          aspect-ratio: 4 / 5;
-        ">
+  <header class="site-header">
+    <div class="wrap">
+      <a href="#inicio" class="brand" aria-label="U Link Systems">
+        <svg class="brand-mark" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <defs>
+            <linearGradient id="g1" x1="18" y1="78" x2="77" y2="18" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#2878FF"/>
+              <stop offset="1" stop-color="#28C8FF"/>
+            </linearGradient>
+            <linearGradient id="g2" x1="37" y1="80" x2="90" y2="28" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#28C8FF"/>
+              <stop offset="1" stop-color="#38E39B"/>
+            </linearGradient>
+          </defs>
+          <path d="M38 18C23.1 18 11 30.1 11 45c0 10.4 5.9 19.4 14.5 23.9L22 83l13.7-5.1c.8.1 1.5.1 2.3.1 14.9 0 27-12.1 27-27S52.9 18 38 18Z" stroke="url(#g1)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M59.5 20C44.9 20 33 31.9 33 46.5S44.9 73 59.5 73c1.2 0 2.3-.1 3.4-.2L78 78l-4.7-13.9C80 59.4 86 50.6 86 40.5 86 25.9 74.1 14 59.5 14Z" stroke="url(#g2)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
 
-        <div style="
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          margin-top: 16px;
-          margin-bottom: 10px;
-        ">
-          <span style="font-size:20px;">${p.icono}</span>
-          <div style="font-weight:700; font-size:15px; color:#111;">${p.nombre}</div>
+        <div class="brand-text">
+          <strong>U Link Systems</strong>
+          <small>Automatización comercial conectada a WhatsApp</small>
+        </div>
+      </a>
+
+      <nav class="nav" aria-label="Principal">
+        <div class="nav-links">
+          <a href="#soluciones">Soluciones</a>
+          <a href="#sectores">Sectores</a>
+          <a href="#proceso">Proceso</a>
+          <a href="#precios">Precios</a>
+          <a href="#faq">FAQ</a>
         </div>
 
-        <div style="margin-bottom:16px;">${bulletsHtml}</div>
+        <div class="header-actions">
+          <a class="btn btn-outline" href="https://wa.me/529996690192?text=Quiero%20ver%20mi%20negocio%20automatizado" target="_blank" rel="noopener noreferrer">
+            Contacto directo
+          </a>
+          <a class="btn btn-primary" href="https://wa.me/529996187124?text=Quiero%20ver%20mi%20negocio%20automatizado" target="_blank" rel="noopener noreferrer">
+            Ver mi negocio automatizado
+          </a>
+          <button class="menu-toggle" id="menuToggle" aria-label="Abrir menú">☰</button>
+        </div>
+      </nav>
 
-        <button class="alt" onclick="interesCaso('${p.nombre}')" style="
-          width: 100%;
-          padding: 12px;
-          font-size: 13px;
-          font-weight: 600;
-          border-radius: 25px;
-        ">
-          Quiero implementar esto en mi negocio
-        </button>
+      <div class="mobile-panel" id="mobilePanel">
+        <div class="mobile-links">
+          <a href="#soluciones">Soluciones</a>
+          <a href="#sectores">Sectores</a>
+          <a href="#proceso">Proceso</a>
+          <a href="#precios">Precios</a>
+          <a href="#faq">FAQ</a>
+        </div>
+        <div class="mobile-actions">
+          <a class="btn btn-primary" href="https://wa.me/529996187124?text=Quiero%20ver%20mi%20negocio%20automatizado" target="_blank" rel="noopener noreferrer">Ver mi negocio automatizado</a>
+          <a class="btn btn-secondary" href="https://wa.me/529996690192?text=Quiero%20ver%20mi%20negocio%20automatizado" target="_blank" rel="noopener noreferrer">Contacto directo con Ulises</a>
+        </div>
       </div>
-    `;
-  });
+    </div>
+  </header>
 
-  document.getElementById("promoSlider").innerHTML = html;
-}
+  <main id="inicio">
+    <section class="hero">
+      <div class="container hero-grid">
+        <div class="hero-copy" data-reveal>
+          <div class="pill">
+            <span class="dot"></span>
+            Chatbots · CRM · Agendas · Catálogos · Sistemas a medida
+          </div>
 
-function moverPromo(dir) {
-  promoIndex += dir;
-  if (promoIndex < 0) promoIndex = promociones.length - 1;
-  if (promoIndex >= promociones.length) promoIndex = 0;
+          <h1>Conecta WhatsApp con un sistema que sí vende.</h1>
 
-  document.getElementById("promoSlider").style.transform =
-    "translateX(-" + (promoIndex * 100) + "%)";
+          <p class="lead">
+            En U Link Systems diseñamos soluciones que responden prospectos, capturan datos, califican oportunidades,
+            agendan citas, organizan seguimiento y ayudan a tu negocio a atender mejor sin depender de que alguien
+            esté pegado al celular todo el día.
+          </p>
 
-  renderDots();
-}
+          <div class="hero-cta">
+            <a class="btn btn-primary" href="https://wa.me/529996187124?text=Quiero%20ver%20mi%20negocio%20automatizado" target="_blank" rel="noopener noreferrer">
+              Quiero ver mi negocio automatizado
+            </a>
+            <a class="btn btn-secondary" href="https://wa.me/529996690192?text=Quiero%20ver%20mi%20negocio%20automatizado" target="_blank" rel="noopener noreferrer">
+              Contacto directo con Ulises
+            </a>
+          </div>
 
-function renderDots() {
-  document.getElementById("dots").innerHTML = promociones.map((_, i) => `
-    <div style="
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: ${i === promoIndex ? '#000' : '#ccc'};
-    "></div>
-  `).join("");
-}
+          <div class="hero-meta">
+            <div class="meta-card">
+              <strong>24/7</strong>
+              <span>Atención automatizada en WhatsApp, Facebook e Instagram.</span>
+            </div>
+            <div class="meta-card">
+              <strong>Más control</strong>
+              <span>CRM, seguimiento, agenda, reportes y procesos conectados.</span>
+            </div>
+            <div class="meta-card">
+              <strong>Desde $999</strong>
+              <span>Implementación inicial y planes desde $799 MXN mensuales.</span>
+            </div>
+          </div>
+        </div>
 
-function activarSwipe() {
-  if (swipeActivo) return;
+        <div class="hero-visual" data-reveal>
+          <div class="visual-shell">
+            <div class="mini-topbar">
+              <div class="labels">
+                <span class="chip"><span class="mini"></span> Operación activa</span>
+                <span class="chip">WhatsApp conectado</span>
+                <span class="chip">Seguimiento en CRM</span>
+              </div>
+            </div>
 
-  const slider = document.getElementById("promoSlider");
-  if (!slider) return;
+            <div class="visual-grid">
+              <div class="phone">
+                <div class="phone-screen">
+                  <div class="wa-head">
+                    <div class="wa-avatar">U</div>
+                    <div class="wa-title">
+                      <strong>U Link Assistant</strong>
+                      <span>en línea</span>
+                    </div>
+                  </div>
 
-  slider.addEventListener("touchstart", (e) => { startX = e.touches[0].clientX; });
-  slider.addEventListener("touchend",   (e) => {
-    endX = e.changedTouches[0].clientX;
-    if (startX - endX > 50) moverPromo(1);
-    if (endX - startX > 50) moverPromo(-1);
-  });
+                  <div class="wa-body">
+                    <div class="bubble bot">¡Hola! Soy el asistente de atención. ¿Cómo te puedo ayudar hoy?</div>
+                    <div class="quick-replies">
+                      <div class="q">Quiero información</div>
+                      <div class="q">Agendar cita</div>
+                      <div class="q">Ver catálogo</div>
+                    </div>
+                    <div class="bubble user">Quiero información sobre sus servicios.</div>
+                    <div class="bubble bot">Perfecto. ¿Buscas atención, ventas, agenda o seguimiento comercial?</div>
+                    <div class="bubble user">Me interesa automatizar mi negocio.</div>
+                    <div class="bubble bot">Excelente. Puedo ayudarte a captar prospectos, responder dudas y llevarlos a una agenda o CRM.</div>
+                    <div class="bubble bot">Mientras tanto, ya registré tu solicitud y preparé el seguimiento para que no se pierda tu oportunidad.</div>
+                  </div>
 
-  swipeActivo = true;
-}
+                  <div class="wa-input">
+                    <div class="wa-field">Escribe un mensaje...</div>
+                    <div class="wa-send">➤</div>
+                  </div>
+                </div>
+              </div>
 
-function interesCaso(nombre) {
-  gtag('event', 'caso_real_interes', { caso_nombre: nombre });
-  let mensaje = "Hola, vi el caso de " + nombre + " y quiero implementar algo así en mi negocio.";
-  window.location.href = "https://wa.me/5219996187124?text=" + encodeURIComponent(mensaje);
-}
+              <div class="right-stack">
+                <div class="panel metrics">
+                  <div class="panel-head">
+                    <div>
+                      <h3>Resumen operativo</h3>
+                      <div class="muted">Así se ve un sistema comercial bien conectado.</div>
+                    </div>
+                    <span class="chip">Tiempo real</span>
+                  </div>
 
-// ─── CLICK FUERA DE MODAL ─────────────────────────────────────────────────────
+                  <div class="metric-row">
+                    <div class="metric">
+                      <span class="num">38</span>
+                      <span class="lbl">leads captados esta semana</span>
+                    </div>
+                    <div class="metric">
+                      <span class="num">14</span>
+                      <span class="lbl">citas / reservas generadas</span>
+                    </div>
+                    <div class="metric">
+                      <span class="num">92%</span>
+                      <span class="lbl">mensajes atendidos en tiempo</span>
+                    </div>
+                  </div>
+                </div>
 
-window.addEventListener("click", function(e) {
-  if (e.target === document.getElementById("modal")) cerrarModal();
-});
+                <div class="panel pipeline">
+                  <div class="panel-head">
+                    <div>
+                      <h3>Pipeline CRM</h3>
+                      <div class="muted">Los prospectos no se pierden; avanzan.</div>
+                    </div>
+                  </div>
 
-// ─── INIT ─────────────────────────────────────────────────────────────────────
+                  <div class="pipeline-grid">
+                    <div class="kanban">
+                      <h4>Nuevos <span class="count">12</span></h4>
+                      <div class="deal">
+                        <strong>Clínica / WhatsApp</strong>
+                        <span>Solicitó información</span>
+                      </div>
+                      <div class="deal">
+                        <strong>Taller / Instagram</strong>
+                        <span>Pidió costos</span>
+                      </div>
+                    </div>
 
-(function initCarrito() {
-  let data = JSON.parse(localStorage.getItem("carritoData"));
-  if (!data) return;
+                    <div class="kanban">
+                      <h4>Calificados <span class="count">9</span></h4>
+                      <div class="deal">
+                        <strong>Repostería / Web</strong>
+                        <span>Interés alto</span>
+                      </div>
+                      <div class="deal">
+                        <strong>Escuela / Facebook</strong>
+                        <span>Quiere automatización</span>
+                      </div>
+                    </div>
 
-  let minutos = (Date.now() - data.timestamp) / 60000;
+                    <div class="kanban">
+                      <h4>Agendados <span class="count">5</span></h4>
+                      <div class="deal">
+                        <strong>Agenda demo</strong>
+                        <span>Confirmada</span>
+                      </div>
+                      <div class="deal">
+                        <strong>Llamada comercial</strong>
+                        <span>Mañana 11:00</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
-  if (data.enviado || minutos >= 30) {
-    localStorage.removeItem("carritoData");
-  } else {
-    carrito = data.items || [];
-  }
-})();
+                <div class="panel calendar">
+                  <div class="panel-head">
+                    <div>
+                      <h3>Agenda conectada</h3>
+                      <div class="muted">Disponibilidad, citas y control.</div>
+                    </div>
+                  </div>
 
-render();
-renderCategorias();
-actualizarTotal();
+                  <div class="calendar-box">
+                    <div class="chip">Reservas activas</div>
+                    <div class="days">
+                      <div class="day">L</div>
+                      <div class="day">M</div>
+                      <div class="day">M</div>
+                      <div class="day active">J</div>
+                      <div class="day">V</div>
+                      <div class="day active">S</div>
+                      <div class="day">D</div>
 
-// GA4: menú abierto
-gtag('event', 'menu_abierto', {
-  referrer: document.referrer || 'directo'
-});
+                      <div class="day">08</div>
+                      <div class="day active">09</div>
+                      <div class="day">10</div>
+                      <div class="day">11</div>
+                      <div class="day active">12</div>
+                      <div class="day">13</div>
+                      <div class="day">14</div>
+                    </div>
+                  </div>
+                </div>
 
-</script>
+                <div class="panel flow">
+                  <div class="panel-head">
+                    <div>
+                      <h3>Arquitectura del flujo</h3>
+                      <div class="muted">Todo conectado para vender mejor.</div>
+                    </div>
+                  </div>
+                  <div class="flowline">
+                    <span class="node">WhatsApp</span>
+                    <span class="arrow">→</span>
+                    <span class="node">Bot / Menú</span>
+                    <span class="arrow">→</span>
+                    <span class="node">Calificación</span>
+                    <span class="arrow">→</span>
+                    <span class="node">CRM</span>
+                    <span class="arrow">→</span>
+                    <span class="node">Agenda</span>
+                    <span class="arrow">→</span>
+                    <span class="node">Reporte</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
+    <section class="trust-strip">
+      <div class="container" data-reveal>
+        <div class="trust-card">
+          <p>Conectamos procesos comerciales y operativos con herramientas reales.</p>
+          <div class="brand-chips">
+            <span class="chip">WhatsApp</span>
+            <span class="chip">Kommo CRM</span>
+            <span class="chip">Cal.com</span>
+            <span class="chip">Google Sheets</span>
+            <span class="chip">Make</span>
+            <span class="chip">n8n</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="section-head" data-reveal>
+          <div class="eyebrow"><span></span>Por qué U Link Systems</div>
+          <h2>Tu negocio no necesita solo un bot. Necesita un sistema comercial conectado.</h2>
+          <p>
+            Muchas empresas responden tarde, pierden seguimiento, no registran adecuadamente a sus prospectos
+            o dependen por completo de atención manual. U Link Systems organiza esa operación para que el proceso
+            se vea más profesional, más tecnológico y mucho más vendible.
+          </p>
+        </div>
+
+        <div class="grid-3">
+          <article class="card" data-reveal>
+            <div class="icon">01</div>
+            <h3>Captación</h3>
+            <p>
+              Recibe prospectos desde WhatsApp, Facebook, Instagram o una landing enfocada en conversión,
+              sin dejar mensajes sin respuesta.
+            </p>
+          </article>
+
+          <article class="card" data-reveal>
+            <div class="icon">02</div>
+            <h3>Automatización</h3>
+            <p>
+              Filtra necesidades, comparte información clave, presenta opciones, sugiere acciones y lleva
+              al usuario al siguiente paso correcto.
+            </p>
+          </article>
+
+          <article class="card" data-reveal>
+            <div class="icon">03</div>
+            <h3>Seguimiento</h3>
+            <p>
+              Registra datos, conecta CRM, agenda, reportes y control de procesos para que vender no dependa
+              solo de memoria o improvisación.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="soluciones" class="section">
+      <div class="container">
+        <div class="section-head" data-reveal>
+          <div class="eyebrow"><span></span>Soluciones</div>
+          <h2>Desarrollos modulares para atención, ventas y operación.</h2>
+          <p>
+            Diseñamos herramientas que se adaptan a tu negocio y se integran entre sí. Puedes iniciar con un chatbot
+            y crecer a un sistema mucho más completo.
+          </p>
+        </div>
+
+        <div class="solutions">
+          <article class="solution" data-reveal>
+            <div class="solution-icon">💬</div>
+            <div>
+              <h3>Chatbots comerciales</h3>
+              <p>
+                Flujos para WhatsApp, Facebook e Instagram que responden, orientan, filtran, captan datos
+                y llevan al prospecto a la acción correcta.
+              </p>
+            </div>
+          </article>
+
+          <article class="solution" data-reveal>
+            <div class="solution-icon">📅</div>
+            <div>
+              <h3>Agendas y reservas</h3>
+              <p>
+                Sistemas para citas, sesiones, quirófanos, clases, valoraciones o apartados con control
+                de disponibilidad y confirmación.
+              </p>
+            </div>
+          </article>
+
+          <article class="solution" data-reveal>
+            <div class="solution-icon">🛒</div>
+            <div>
+              <h3>Catálogos y pedidos</h3>
+              <p>
+                Experiencias visuales para mostrar productos o servicios y regresar al cliente a WhatsApp
+                con intención de compra clara.
+              </p>
+            </div>
+          </article>
+
+          <article class="solution" data-reveal>
+            <div class="solution-icon">📊</div>
+            <div>
+              <h3>CRM y seguimiento</h3>
+              <p>
+                Captura de leads, clasificación, pipeline, trazabilidad y reportes básicos para que tu
+                operación comercial sea más ordenada.
+              </p>
+            </div>
+          </article>
+
+          <article class="solution" data-reveal>
+            <div class="solution-icon">⚙️</div>
+            <div>
+              <h3>Automatización conectada</h3>
+              <p>
+                Integramos formularios, hojas de cálculo, alertas, lógica de negocio, recordatorios,
+                reportes y tareas operativas.
+              </p>
+            </div>
+          </article>
+
+          <article class="solution" data-reveal>
+            <div class="solution-icon">🧩</div>
+            <div>
+              <h3>Sistemas a medida</h3>
+              <p>
+                Si tu negocio requiere algo más específico, construimos módulos personalizados que encajen
+                con tu proceso actual y lo mejoren.
+              </p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="sectores" class="section">
+      <div class="container">
+        <div class="section-head" data-reveal>
+          <div class="eyebrow"><span></span>Sectores</div>
+          <h2>Aplicaciones reales para negocios que atienden, venden y agendan.</h2>
+          <p>
+            Elegimos una estructura por sectores para que el visitante entienda rápidamente que U Link Systems
+            puede adaptarse a distintos modelos de negocio.
+          </p>
+        </div>
+
+        <div class="grid-4">
+          <article class="sector-card" data-reveal>
+            <div class="sector-top">
+              <span class="sector-badge">Salud y bienestar</span>
+              <div class="sector-kpi">Agenda + seguimiento</div>
+            </div>
+            <h3>Clínicas, consultorios y atención especializada</h3>
+            <p>
+              Ideal para solicitudes de información, valoración previa, reservas, recordatorios, ubicación,
+              seguimiento comercial y administración de prospectos.
+            </p>
+            <ul class="bullet-list">
+              <li>Automatización de primeros contactos</li>
+              <li>Agenda conectada y confirmaciones</li>
+              <li>Canal ordenado para dudas y seguimiento</li>
+            </ul>
+          </article>
+
+          <article class="sector-card" data-reveal>
+            <div class="sector-top">
+              <span class="sector-badge">Educación y formación</span>
+              <div class="sector-kpi">Información + inscripción</div>
+            </div>
+            <h3>Escuelas, talleres, academias y cursos</h3>
+            <p>
+              Útil para resolver dudas frecuentes, compartir horarios, costos, cupos, procesos de inscripción
+              y atención automatizada fuera de horario.
+            </p>
+            <ul class="bullet-list">
+              <li>Respuestas claras para prospectos nuevos</li>
+              <li>Interés detectado y canalizado</li>
+              <li>Más orden en atención y administración</li>
+            </ul>
+          </article>
+
+          <article class="sector-card" data-reveal>
+            <div class="sector-top">
+              <span class="sector-badge">Retail y alimentos</span>
+              <div class="sector-kpi">Catálogo + pedido</div>
+            </div>
+            <h3>Tiendas, repostería y negocios con catálogo</h3>
+            <p>
+              Presenta productos de forma visual, guía al cliente, recibe pedidos o solicitudes y devuelve
+              la conversación a WhatsApp con datos ya preparados.
+            </p>
+            <ul class="bullet-list">
+              <li>Catálogos dinámicos con retorno a WhatsApp</li>
+              <li>Pedidos más organizados</li>
+              <li>Experiencia más moderna y profesional</li>
+            </ul>
+          </article>
+
+          <article class="sector-card" data-reveal>
+            <div class="sector-top">
+              <span class="sector-badge">Servicios profesionales</span>
+              <div class="sector-kpi">Lead + diagnóstico</div>
+            </div>
+            <h3>Despachos, consultores y negocios de servicio</h3>
+            <p>
+              Si tu proceso depende de explicar, calificar, cotizar o agendar, una automatización bien diseñada
+              mejora percepción, tiempo de respuesta y control.
+            </p>
+            <ul class="bullet-list">
+              <li>Recepción de leads más ordenada</li>
+              <li>Filtros para prospectos mejor calificados</li>
+              <li>Seguimiento más constante</li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="proceso" class="section">
+      <div class="container">
+        <div class="section-head" data-reveal>
+          <div class="eyebrow"><span></span>Proceso</div>
+          <h2>Implementación clara, práctica y enfocada en resultados.</h2>
+          <p>
+            No se trata de instalar algo bonito y ya. Se trata de entender tu negocio, diseñar el flujo correcto,
+            ponerlo en operación y dejar una base funcional para vender mejor.
+          </p>
+        </div>
+
+        <div class="grid-4">
+          <article class="step" data-reveal>
+            <div class="step-num">1</div>
+            <h3>Diagnóstico</h3>
+            <p>
+              Revisamos cómo llegan hoy tus prospectos, cómo atiendes y dónde estás perdiendo tiempo, oportunidades o control.
+            </p>
+          </article>
+
+          <article class="step" data-reveal>
+            <div class="step-num">2</div>
+            <h3>Diseño del flujo</h3>
+            <p>
+              Estructuramos mensajes, decisiones, automatizaciones, formularios, agenda, CRM y rutas de seguimiento.
+            </p>
+          </article>
+
+          <article class="step" data-reveal>
+            <div class="step-num">3</div>
+            <h3>Conexión y pruebas</h3>
+            <p>
+              Configuramos herramientas, probamos escenarios y ajustamos detalles para asegurar una experiencia clara y estable.
+            </p>
+          </article>
+
+          <article class="step" data-reveal>
+            <div class="step-num">4</div>
+            <h3>Salida a producción</h3>
+            <p>
+              Tu sistema entra en operación con una base lista para atención, control y mejora continua.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container" data-reveal>
+        <div class="section-head">
+          <div class="eyebrow"><span></span>Arquitectura</div>
+          <h2>Una base tecnológica simple de entender, potente al operar.</h2>
+          <p>
+            U Link Systems puede conectar varios componentes según el nivel de complejidad que requiera tu proyecto.
+          </p>
+        </div>
+
+        <div class="architecture">
+          <div class="arch-grid">
+            <div class="arch-col">
+              <h3>Canales</h3>
+              <div class="arch-tags">
+                <span class="tag">WhatsApp</span>
+                <span class="tag">Instagram</span>
+                <span class="tag">Facebook</span>
+                <span class="tag">Landing page</span>
+              </div>
+            </div>
+
+            <div class="arch-col">
+              <h3>Interacción</h3>
+              <div class="arch-tags">
+                <span class="tag">Bot</span>
+                <span class="tag">Menús</span>
+                <span class="tag">Formularios</span>
+                <span class="tag">Catálogo</span>
+              </div>
+            </div>
+
+            <div class="arch-col">
+              <h3>Operación</h3>
+              <div class="arch-tags">
+                <span class="tag">Kommo CRM</span>
+                <span class="tag">Agenda</span>
+                <span class="tag">Seguimiento</span>
+                <span class="tag">Alertas</span>
+              </div>
+            </div>
+
+            <div class="arch-col">
+              <h3>Automatización</h3>
+              <div class="arch-tags">
+                <span class="tag">Make</span>
+                <span class="tag">n8n</span>
+                <span class="tag">Lógica</span>
+                <span class="tag">Recordatorios</span>
+              </div>
+            </div>
+
+            <div class="arch-col">
+              <h3>Control</h3>
+              <div class="arch-tags">
+                <span class="tag">Google Sheets</span>
+                <span class="tag">Reportes</span>
+                <span class="tag">Métricas</span>
+                <span class="tag">Dashboards</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="precios" class="section">
+      <div class="container">
+        <div class="pricing-wrap">
+          <div class="pricing-main" data-reveal>
+            <div class="eyebrow"><span></span>Inversión base</div>
+            <h3>Empieza con una implementación clara y escalable.</h3>
+            <p>
+              Cada negocio tiene un flujo distinto, pero puedes iniciar con una base comercial sólida
+              y luego crecer hacia más módulos, automatización o conectores según tus necesidades.
+            </p>
+
+            <div class="prices">
+              <div class="price-box">
+                <small>Implementación inicial</small>
+                <strong>$999</strong>
+                <span>
+                  Base para comenzar el proyecto, definir el flujo y preparar la primera solución.
+                </span>
+              </div>
+
+              <div class="price-box">
+                <small>Planes mensuales</small>
+                <strong>$799</strong>
+                <span>
+                  Desde este monto mensual, según canales, complejidad y mantenimiento operativo.
+                </span>
+              </div>
+            </div>
+
+            <ul class="bullet-list">
+              <li>Posibilidad de crecer por módulos y funcionalidades</li>
+              <li>Se puede iniciar con algo puntual y escalar después</li>
+              <li>Ideal para negocios que quieren verse más profesionales y vender mejor</li>
+            </ul>
+
+            <div style="display:flex; flex-wrap:wrap; gap:12px; margin-top:26px;">
+              <a class="btn btn-primary" href="https://wa.me/529996187124?text=Quiero%20ver%20mi%20negocio%20automatizado" target="_blank" rel="noopener noreferrer">
+                Solicitar diagnóstico
+              </a>
+              <a class="btn btn-secondary" href="https://wa.me/529996690192?text=Quiero%20ver%20mi%20negocio%20automatizado" target="_blank" rel="noopener noreferrer">
+                Hablar contigo directamente
+              </a>
+            </div>
+          </div>
+
+          <div class="pricing-side">
+            <div class="card" data-reveal>
+              <div class="icon">✓</div>
+              <h3>Qué estás comprando</h3>
+              <p>
+                No es solo diseño o solo programación. Estás comprando una estructura comercial más ordenada,
+                más rápida y más útil para tu proceso de atención.
+              </p>
+            </div>
+
+            <div class="card" data-reveal>
+              <div class="icon">↗</div>
+              <h3>Qué puedes esperar</h3>
+              <p>
+                Mejor percepción visual, respuestas más consistentes, menos fricción para el usuario
+                y una base más profesional para vender, agendar o dar seguimiento.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="faq" class="section">
+      <div class="container">
+        <div class="section-head" data-reveal>
+          <div class="eyebrow"><span></span>FAQ</div>
+          <h2>Preguntas frecuentes</h2>
+          <p>
+            Estas respuestas ayudan a reducir fricción para un prospecto que está evaluando si necesita
+            automatización comercial o un sistema conectado.
+          </p>
+        </div>
+
+        <div class="faq">
+          <details data-reveal>
+            <summary>¿Esto es solo para empresas grandes? <span class="plus">+</span></summary>
+            <p>
+              No. Está pensado precisamente para negocios que necesitan verse y operar de forma más profesional
+              sin tener que desarrollar un sistema enorme desde el día uno. Puedes comenzar con una base simple
+              y crecer después.
+            </p>
+          </details>
+
+          <details data-reveal>
+            <summary>¿Solo trabajan chatbots? <span class="plus">+</span></summary>
+            <p>
+              No. Los chatbots son solo una parte. U Link Systems puede integrar CRM, agendas, catálogos,
+              automatizaciones, reportes y módulos específicos según el caso.
+            </p>
+          </details>
+
+          <details data-reveal>
+            <summary>¿Puedo empezar con algo pequeño? <span class="plus">+</span></summary>
+            <p>
+              Sí. De hecho es una buena estrategia. Se puede iniciar con una solución puntual y luego ir
+              incorporando más piezas conforme el negocio lo necesite.
+            </p>
+          </details>
+
+          <details data-reveal>
+            <summary>¿Esto me sirve si ya atiendo por WhatsApp? <span class="plus">+</span></summary>
+            <p>
+              Sí. Justamente ahí suele estar la oportunidad: ordenar mejor la atención, responder con más rapidez,
+              registrar información útil y evitar pérdida de seguimiento.
+            </p>
+          </details>
+
+          <details data-reveal>
+            <summary>¿Cómo iniciamos? <span class="plus">+</span></summary>
+            <p>
+              Lo mejor es escribir por WhatsApp y solicitar un diagnóstico inicial. A partir de ahí se revisa
+              tu caso, se define el flujo ideal y se propone la implementación más adecuada.
+            </p>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container" data-reveal>
+        <div class="cta-banner">
+          <div class="eyebrow"><span></span>Listo para iniciar</div>
+          <h2>Convierte tu atención en un sistema que se vea profesional y sí genere resultados.</h2>
+          <p>
+            Si quieres que tu negocio proyecte más tecnología, atienda mejor y tenga una base más ordenada para vender,
+            empecemos por revisar tu caso.
+          </p>
+
+          <div style="display:flex; flex-wrap:wrap; gap:12px;">
+            <a class="btn btn-primary" href="https://wa.me/529996187124?text=Quiero%20ver%20mi%20negocio%20automatizado" target="_blank" rel="noopener noreferrer">
+              Quiero ver mi negocio automatizado
+            </a>
+            <a class="btn btn-secondary" href="https://wa.me/529996690192?text=Quiero%20ver%20mi%20negocio%20automatizado" target="_blank" rel="noopener noreferrer">
+              Contacto directo con Ulises
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="footer-box">
+        <div class="footer-brand">
+          <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <defs>
+              <linearGradient id="fg1" x1="18" y1="78" x2="77" y2="18" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#2878FF"/>
+                <stop offset="1" stop-color="#28C8FF"/>
+              </linearGradient>
+              <linearGradient id="fg2" x1="37" y1="80" x2="90" y2="28" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#28C8FF"/>
+                <stop offset="1" stop-color="#38E39B"/>
+              </linearGradient>
+            </defs>
+            <path d="M38 18C23.1 18 11 30.1 11 45c0 10.4 5.9 19.4 14.5 23.9L22 83l13.7-5.1c.8.1 1.5.1 2.3.1 14.9 0 27-12.1 27-27S52.9 18 38 18Z" stroke="url(#fg1)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M59.5 20C44.9 20 33 31.9 33 46.5S44.9 73 59.5 73c1.2 0 2.3-.1 3.4-.2L78 78l-4.7-13.9C80 59.4 86 50.6 86 40.5 86 25.9 74.1 14 59.5 14Z" stroke="url(#fg2)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+
+          <div>
+            <strong>U Link Systems</strong>
+            <div>Automatización comercial conectada a WhatsApp</div>
+            <div style="margin-top:8px;">Línea comercial: <a href="https://wa.me/529996187124?text=Quiero%20ver%20mi%20negocio%20automatizado" target="_blank" rel="noopener noreferrer" style="color:#eef4ff;font-weight:700;">999 618 7124</a></div>
+            <div>Contacto directo: <a href="https://wa.me/529996690192?text=Quiero%20ver%20mi%20negocio%20automatizado" target="_blank" rel="noopener noreferrer" style="color:#eef4ff;font-weight:700;">999 669 0192</a></div>
+          </div>
+        </div>
+
+        <div class="footer-links">
+          <a href="#soluciones">Soluciones</a>
+          <a href="#sectores">Sectores</a>
+          <a href="#proceso">Proceso</a>
+          <a href="#precios">Precios</a>
+          <a href="#faq">FAQ</a>
+          <span>© <span id="year"></span> U Link Systems</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <a class="wa-float" href="https://wa.me/529996187124?text=Quiero%20ver%20mi%20negocio%20automatizado" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">
+    ✆
+  </a>
+
+  <script>
+    const menuToggle = document.getElementById('menuToggle');
+    const mobilePanel = document.getElementById('mobilePanel');
+
+    if (menuToggle && mobilePanel) {
+      menuToggle.addEventListener('click', () => {
+        mobilePanel.classList.toggle('open');
+      });
+
+      mobilePanel.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => {
+          mobilePanel.classList.remove('open');
+        });
+      });
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function(e) {
+        const targetId = this.getAttribute('href');
+        if (targetId && targetId !== '#') {
+          const target = document.querySelector(targetId);
+          if (target) {
+            e.preventDefault();
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }
+      });
+    });
+
+    const reveals = document.querySelectorAll('[data-reveal]');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if(entry.isIntersecting){
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12 });
+
+    reveals.forEach(el => observer.observe(el));
+
+    const year = document.getElementById('year');
+    if (year) year.textContent = new Date().getFullYear();
+  </script>
 </body>
 </html>
