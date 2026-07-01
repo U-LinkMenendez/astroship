@@ -52,6 +52,9 @@
     .pedido-meta { font-size:13px; color:var(--gris); margin-top:2px; }
     .pedido-total { font-size:22px; font-weight:700; color:var(--cafe); white-space:nowrap; }
     .pedido-productos { margin-top:12px; padding:12px 14px; background:var(--cream); border-radius:10px; font-size:14px; line-height:1.7; color:var(--cafe-dark); }
+    .pedido-entrega { margin-top:12px; padding:12px 14px; background:#eef7f8; border:1px solid #cfe5e7; border-radius:10px; color:var(--cafe-dark); font-size:13px; line-height:1.55; }
+    .pedido-entrega-title { margin-bottom:6px; color:#007f86; font-size:12px; font-weight:800; text-transform:uppercase; }
+    .pedido-entrega a { display:inline-block; margin-top:7px; color:#007f86; font-weight:800; }
     .pedido-actions { margin-top:16px; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
     .estatus-badge { padding:5px 12px; border-radius:999px; font-size:12px; font-weight:700; letter-spacing:.5px; }
     .badge-Nuevo { background:#e3f0ff; color:var(--azul); }
@@ -1072,10 +1075,63 @@ cargarHistorial();
   }
 
   function esPedidoDomicilio(p){
+    const tipoEntrega =
+      String(p.tipo_entrega || "").toLowerCase();
+
     return (
+      tipoEntrega.includes("domicilio") ||
       Number(p.costo_envio_estimado || 0) > 0 ||
       Boolean(p.ubicacion_url)
     );
+  }
+
+  function escaparHtml(valor){
+    return String(valor == null ? "" : valor).replace(
+      /[&<>"']/g,
+      caracter => ({
+        "&":"&amp;", "<":"&lt;", ">":"&gt;",
+        '"':"&quot;", "'":"&#039;"
+      })[caracter]
+    );
+  }
+
+  function obtenerUrlUbicacionSegura(valor){
+    try{
+      const url = new URL(String(valor || ""));
+      return ["https:", "http:"].includes(url.protocol)
+        ? url.href
+        : "";
+    }catch(_){
+      return "";
+    }
+  }
+
+  function renderDatosEntrega(p){
+    if(!esPedidoDomicilio(p)) return "";
+
+    const receptor =
+      p.nombre_receptor || p.nombre_cliente || "Por confirmar";
+    const direccion =
+      p.direccion_entrega || "Dirección no disponible";
+    const ubicacion =
+      obtenerUrlUbicacionSegura(p.ubicacion_url);
+    const costo = Number(p.costo_envio_estimado || 0);
+    const distancia = Number(p.distancia_envio_km || 0);
+
+    return `
+      <div class="pedido-entrega">
+        <div class="pedido-entrega-title">Datos de entrega</div>
+        <div><strong>Recibe:</strong> ${escaparHtml(receptor)}</div>
+        <div><strong>Dirección:</strong> ${escaparHtml(direccion)}</div>
+        ${distancia > 0
+          ? `<div><strong>Distancia:</strong> ${distancia.toFixed(1)} km</div>`
+          : ""}
+        <div><strong>Envío:</strong> ${costo > 0 ? `$${costo}` : "Sujeto a confirmación"}</div>
+        ${ubicacion
+          ? `<a href="${escaparHtml(ubicacion)}" target="_blank" rel="noopener noreferrer">Abrir ubicación en el mapa</a>`
+          : ""}
+      </div>
+    `;
   }
 
   function etiquetaEntregaPedido(p){
@@ -1149,6 +1205,7 @@ cargarHistorial();
           <div class="pedido-total">$${p.total || 0}</div>
         </div>
         <div class="pedido-productos">${p.productos || "—"}</div>
+        ${renderDatosEntrega(p)}
         <div class="pedido-actions">
           <span class="estatus-badge badge-${estatus}">${estatus}</span>
           ${btnPago}
