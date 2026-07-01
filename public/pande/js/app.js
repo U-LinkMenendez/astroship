@@ -1755,7 +1755,6 @@ function abrirCheckout(){
 
 function cerrarCheckout(){
   checkoutModal.classList.remove("show");
-  limpiarFormulario();
 }
 
 document.querySelector(".checkout-btn")
@@ -2431,6 +2430,7 @@ function enviarPorWhatsapp(){
   carrito = [];
   actualizarCarrito();
   cerrarCheckout();
+  limpiarFormulario();
   cartDrawer.classList.remove("open");
   overlay.classList.remove("show");
 
