@@ -13,7 +13,11 @@
   />
   <link
     rel="stylesheet"
-    href="./css/styles.css"
+    href="./vendor/leaflet/leaflet.css?v=1.9.4"
+  />
+  <link
+    rel="stylesheet"
+    href="./css/styles.css?v=20260629-map"
   />
 </head>
 <body>
@@ -286,6 +290,27 @@
           Usar mi ubicaci&oacute;n para cotizar env&iacute;o
         </button>
 
+        <div id="delivery-map-wrap" class="delivery-map-wrap hidden">
+          <div
+            id="delivery-map"
+            class="delivery-map"
+            role="region"
+            aria-label="Ubicaci&oacute;n de entrega en el mapa"
+          ></div>
+          <div class="delivery-map-actions">
+            <p id="delivery-map-status">
+              Revisa el marcador. Puedes moverlo o tocar el mapa para corregirlo.
+            </p>
+            <button
+              type="button"
+              class="delivery-map-confirm-btn"
+              id="btn-confirm-delivery-map"
+            >
+              Confirmar esta ubicaci&oacute;n
+            </button>
+          </div>
+        </div>
+
         <div id="delivery-quote" class="delivery-quote hidden"></div>
       </div>
 
@@ -382,6 +407,9 @@
     </div>
   </div>
 
-  <script src="./js/app.js?v=20260619-sid-pedido"></script>
+  <script
+    src="./vendor/leaflet/leaflet.js?v=1.9.4"
+  ></script>
+  <script src="./js/app.js?v=20260629-map"></script>
 </body>
 </html>

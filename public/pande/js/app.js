@@ -80,6 +80,18 @@ const deliveryQuote =
 const btnDeliveryLocation =
   document.getElementById("btn-delivery-location");
 
+const deliveryMapWrap =
+  document.getElementById("delivery-map-wrap");
+
+const deliveryMapElement =
+  document.getElementById("delivery-map");
+
+const deliveryMapStatus =
+  document.getElementById("delivery-map-status");
+
+const btnConfirmDeliveryMap =
+  document.getElementById("btn-confirm-delivery-map");
+
 let busquedaProducto = "";
 
 const CARRITO_STORAGE_KEY = "pande_carrito";
@@ -93,6 +105,9 @@ let ubicacionGeneradaPorDireccion = false;
 let direccionTimer = null;
 let cotizacionDireccionEnProceso = false;
 let ultimaDireccionSinResultado = "";
+let deliveryMap = null;
+let deliveryMarker = null;
+let ubicacionEntregaConfirmada = false;
 
 cartBtn.addEventListener("click",()=>{
   cartDrawer.classList.add("open");
@@ -114,6 +129,8 @@ if(metodoPagoSelect){
 if(clienteUbicacion){
   clienteUbicacion.addEventListener("input",()=>{
     ubicacionGeneradaPorDireccion = false;
+    ubicacionEntregaConfirmada = false;
+    sincronizarMapaConUbicacion();
     actualizarCotizacionEnvio();
   });
 }
@@ -127,6 +144,12 @@ if(clienteDireccion){
 if(btnDeliveryLocation){
   btnDeliveryLocation.addEventListener("click",()=>{
     usarUbicacionParaEnvio();
+  });
+}
+
+if(btnConfirmDeliveryMap){
+  btnConfirmDeliveryMap.addEventListener("click",()=>{
+    confirmarUbicacionEntrega();
   });
 }
 
@@ -360,6 +383,157 @@ function obtenerDireccionParaGeocodificar(){
     : `${direccion}, Merida, Yucatan, Mexico`;
 }
 
+function marcarUbicacionEntregaPendiente(){
+
+  ubicacionEntregaConfirmada = false;
+
+  if(deliveryMapStatus){
+    deliveryMapStatus.textContent =
+      "Revisa el marcador. Puedes moverlo o tocar el mapa para corregirlo.";
+  }
+
+  if(btnConfirmDeliveryMap){
+    btnConfirmDeliveryMap.textContent =
+      "Confirmar esta ubicacion";
+    btnConfirmDeliveryMap.classList.remove("confirmed");
+  }
+}
+
+function ocultarMapaEntrega(){
+
+  ubicacionEntregaConfirmada = false;
+
+  if(deliveryMapWrap){
+    deliveryMapWrap.classList.add("hidden");
+  }
+}
+
+function actualizarUbicacionDesdeMapa(coords, generadaPorDireccion = false){
+
+  if(!clienteUbicacion || !coords) return;
+
+  const lat = Number(coords.lat);
+  const lng = Number(coords.lng);
+
+  if(!Number.isFinite(lat) || !Number.isFinite(lng)) return;
+
+  clienteUbicacion.value =
+    `https://maps.google.com/?q=${lat.toFixed(6)},${lng.toFixed(6)}`;
+
+  ubicacionGeneradaPorDireccion = generadaPorDireccion;
+  marcarUbicacionEntregaPendiente();
+  mostrarMapaEntrega({ lat, lng });
+  actualizarCotizacionEnvio();
+}
+
+function mostrarMapaEntrega(coords){
+
+  if(
+    !deliveryMapWrap ||
+    !deliveryMapElement ||
+    !coords ||
+    !window.L
+  ){
+    return;
+  }
+
+  const latLng = [Number(coords.lat), Number(coords.lng)];
+
+  if(!latLng.every(Number.isFinite)) return;
+
+  deliveryMapWrap.classList.remove("hidden");
+
+  if(!deliveryMap){
+    deliveryMap = window.L.map(deliveryMapElement, {
+      scrollWheelZoom: false
+    }).setView(latLng, 16);
+
+    window.L.tileLayer(
+      "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+      {
+        maxZoom: 19,
+        attribution: "&copy; OpenStreetMap contributors"
+      }
+    ).addTo(deliveryMap);
+
+    deliveryMarker = window.L.marker(latLng, {
+      draggable: true,
+      autoPan: true,
+      title: "Ubicacion de entrega"
+    }).addTo(deliveryMap);
+
+    deliveryMarker.on("dragstart",()=>{
+      marcarUbicacionEntregaPendiente();
+    });
+
+    deliveryMarker.on("dragend",()=>{
+      const nueva = deliveryMarker.getLatLng();
+      actualizarUbicacionDesdeMapa(
+        { lat: nueva.lat, lng: nueva.lng },
+        false
+      );
+    });
+
+    deliveryMap.on("click", e=>{
+      actualizarUbicacionDesdeMapa(
+        { lat: e.latlng.lat, lng: e.latlng.lng },
+        false
+      );
+    });
+  }else{
+    deliveryMap.setView(latLng, 16);
+    deliveryMarker.setLatLng(latLng);
+  }
+
+  setTimeout(()=>{
+    if(deliveryMap) deliveryMap.invalidateSize();
+  }, 0);
+}
+
+function sincronizarMapaConUbicacion(){
+
+  const entrega =
+    document.getElementById("tipo-entrega").value;
+
+  const coords =
+    extraerCoordenadasUbicacion(
+      clienteUbicacion ? clienteUbicacion.value : ""
+    );
+
+  if(entrega !== "domicilio" || !coords){
+    ocultarMapaEntrega();
+    return;
+  }
+
+  mostrarMapaEntrega(coords);
+}
+
+function confirmarUbicacionEntrega(){
+
+  const coords =
+    extraerCoordenadasUbicacion(
+      clienteUbicacion ? clienteUbicacion.value : ""
+    );
+
+  if(!coords){
+    alert("Primero escribe una direccion valida o comparte una ubicacion.");
+    return;
+  }
+
+  ubicacionEntregaConfirmada = true;
+
+  if(deliveryMapStatus){
+    deliveryMapStatus.textContent =
+      "Ubicacion confirmada para calcular el envio.";
+  }
+
+  if(btnConfirmDeliveryMap){
+    btnConfirmDeliveryMap.textContent =
+      "Ubicacion confirmada";
+    btnConfirmDeliveryMap.classList.add("confirmed");
+  }
+}
+
 function programarCotizacionPorDireccion(){
 
   if(direccionTimer){
@@ -373,6 +547,9 @@ function programarCotizacionPorDireccion(){
     clienteUbicacion.value = "";
     ubicacionGeneradaPorDireccion = false;
   }
+
+  marcarUbicacionEntregaPendiente();
+  sincronizarMapaConUbicacion();
 
   ultimaDireccionSinResultado = "";
   actualizarCotizacionEnvio();
@@ -461,9 +638,7 @@ async function cotizarEnvioPorDireccion(){
     }
 
     if(coords && clienteUbicacion){
-      clienteUbicacion.value =
-        `https://maps.google.com/?q=${coords.lat.toFixed(6)},${coords.lng.toFixed(6)}`;
-      ubicacionGeneradaPorDireccion = true;
+      actualizarUbicacionDesdeMapa(coords, true);
       ultimaDireccionSinResultado = "";
     }else{
       ultimaDireccionSinResultado = direccion;
@@ -518,13 +693,10 @@ function usarUbicacionParaEnvio(){
       const lat = pos.coords.latitude.toFixed(6);
       const lng = pos.coords.longitude.toFixed(6);
 
-      if(clienteUbicacion){
-        clienteUbicacion.value =
-          `https://maps.google.com/?q=${lat},${lng}`;
-        ubicacionGeneradaPorDireccion = false;
-      }
-
-      actualizarCotizacionEnvio();
+      actualizarUbicacionDesdeMapa(
+        { lat: Number(lat), lng: Number(lng) },
+        false
+      );
 
       if(btnDeliveryLocation){
         btnDeliveryLocation.disabled = false;
@@ -1768,10 +1940,12 @@ document.getElementById("tipo-entrega")
       }
 
       programarCotizacionPorDireccion();
+      sincronizarMapaConUbicacion();
 
     }else{
 
       wrapper.classList.add("hidden");
+      ocultarMapaEntrega();
 
       if(tiendaWrapper){
         tiendaWrapper.classList.remove("hidden");
@@ -1905,6 +2079,37 @@ async function validarPedido(){
     obtenerSubtotalCarrito();
 
   await asegurarCotizacionPorDireccion();
+
+  if(entrega === "domicilio"){
+    const coordsEntrega =
+      extraerCoordenadasUbicacion(
+        ubicacion ? ubicacion.value : ""
+      );
+
+    if(!coordsEntrega){
+      alert(
+        "No pudimos ubicar la direccion. Completa la direccion o usa el boton de ubicacion."
+      );
+      return;
+    }
+
+    mostrarMapaEntrega(coordsEntrega);
+
+    if(window.L && !ubicacionEntregaConfirmada){
+      alert(
+        "Revisa el marcador del mapa y confirma que corresponde al lugar de entrega."
+      );
+
+      if(deliveryMapWrap){
+        deliveryMapWrap.scrollIntoView({
+          behavior: "smooth",
+          block: "center"
+        });
+      }
+
+      return;
+    }
+  }
 
   const cotizacionEnvio =
     obtenerCotizacionEnvio();
@@ -2279,8 +2484,10 @@ function limpiarFormulario(){
   }
 
   ubicacionGeneradaPorDireccion = false;
+  ubicacionEntregaConfirmada = false;
   cotizacionDireccionEnProceso = false;
   ultimaDireccionSinResultado = "";
+  ocultarMapaEntrega();
 
   document.getElementById("direccion-wrapper")
     .classList.add("hidden");
