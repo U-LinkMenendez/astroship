@@ -1870,11 +1870,33 @@ async function submitHistNew() {
   const proc   = document.getElementById('an-procedimiento').value.trim();
 
   if (!nombre || !email || !proc) {
-    alert('Completa los campos requeridos: Doctor, Email y Cirugía');
-    return;
-  }
+  alert('Completa los campos requeridos: Doctor, Email y Cirugía');
+  return;
+}
 
-  _processing = true;
+if (!resSelection || !resSelection.slots.length) {
+  alert('La selección ya no es válida. Actualiza la agenda y vuelve a seleccionar el horario.');
+  return;
+}
+
+const [hh, mm] = resSelection.slots[0].split(':').map(Number);
+
+const startUTC = new Date(
+  `${currentDate}T${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}:00-06:00`
+);
+
+if (
+  Number.isNaN(startUTC.getTime()) ||
+  startUTC.getTime() <= Date.now() + 60000
+) {
+  alert('Ese horario ya venció. Actualiza la agenda y selecciona un horario futuro.');
+  closeAdmNew();
+  resSelection = null;
+  await loadData();
+  return;
+}
+
+_processing = true;
 
   const btn = document.getElementById('admNewConfirm');
   const cancelBtn = document.getElementById('admNewCancelBtn');
@@ -1898,11 +1920,6 @@ async function submitHistNew() {
   document.querySelectorAll('#admNewForm .adm-svc-item input').forEach(cb => {
     svcs[cb.name.replace('an-','')] = cb.checked;
   });
-
-  const hh = parseInt(resSelection.slots[0].split(':')[0]);
-  const mm = parseInt(resSelection.slots[0].split(':')[1]);
-  const d  = new Date(currentDate + 'T00:00:00');
-  const startUTC = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), hh + 6, mm));
 
   const qIdx = QUIROFANOS.indexOf(resSelection.quirofano);
   const acct = CAL_ACCOUNTS_ADM[qIdx];
@@ -2499,9 +2516,20 @@ async function saveUnblock() {
       const fecha = document.getElementById('ed-fecha').value;
       const hora  = document.getElementById('ed-hora').value;
       const dur = parseFloat(document.getElementById('ed-duracion').value);
-      const [hh,mm] = hora.split(':').map(Number);
-      const d = new Date(fecha+'T00:00:00');
-      const startUTC = new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate(),hh+6,mm));
+      const [hh, mm] = hora.split(':').map(Number);
+
+const startUTC = new Date(
+  `${fecha}T${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}:00-06:00`
+);
+
+if (
+  Number.isNaN(startUTC.getTime()) ||
+  startUTC.getTime() <= Date.now() + 60000
+) {
+  _processing = false;
+  alert('La nueva fecha y hora ya vencieron. Selecciona un horario futuro.');
+  return;
+}
       const url = getScriptUrl();
       try {
         const res = await fetch(url, { method:'POST', body: JSON.stringify(addSession({
