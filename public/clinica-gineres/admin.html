@@ -1089,7 +1089,7 @@
      function getScriptUrl() {
   return HARDCODED_URL;
 }
-    const HOURS = ['04:00','05:00','06:00','07:00','08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00'];
+    const HOURS = ['04:00','05:00','06:00','07:00','08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00','22:00','23:00'];
     const QUIROFANOS = ['Quirofano 1','Quirofano 2','Quirofano 3'];
     const LMP_CYCLE = {
       'Pendiente':'EnProceso',
@@ -1126,13 +1126,13 @@
     ];
     const RES_HOURS = [];
 
-    for (let h = 4; h <= 21; h++) {
+    for (let h = 4; h <= 23; h++) {
 
   RES_HOURS.push(
     `${String(h).padStart(2,'0')}:00`
   );
 
-  if (h < 21) {
+  if (h < 23) {
 
     RES_HOURS.push(
       `${String(h).padStart(2,'0')}:30`
