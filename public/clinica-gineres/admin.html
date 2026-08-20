@@ -2490,17 +2490,44 @@ async function saveUnblock() {
       const btn = document.getElementById('edDatosBtn');
       btn.disabled=true; btn.textContent='Guardando…';
       const url = getScriptUrl();
-      try {
-        const res = await fetch(url, { method:'POST', body: JSON.stringify(addSession({
-          action:'actualizarDatos',
-          bookingId: _editBooking.bookingId,
-          paciente:      document.getElementById('ed-paciente').value.trim(),
-          procedimiento: document.getElementById('ed-procedimiento').value.trim(),
-          anestesiologo: document.getElementById('ed-anestesiologo').value.trim(),
-          enfermeria:    document.getElementById('ed-enfermeria').value.trim(),
-          doctorEmail:   _editBooking.email||'',
-          doctorNombre:  _editBooking.doctor||'',
-        }))});
+
+const payload = _editOnlyAnestesiologo
+  ? {
+      action: 'actualizarAnestesiologo',
+      bookingId: _editBooking.bookingId,
+      anestesiologo:
+        document.getElementById('ed-anestesiologo')
+          .value
+          .trim()
+    }
+  : {
+      action: 'actualizarDatos',
+      bookingId: _editBooking.bookingId,
+      paciente:
+        document.getElementById('ed-paciente')
+          .value
+          .trim(),
+      procedimiento:
+        document.getElementById('ed-procedimiento')
+          .value
+          .trim(),
+      anestesiologo:
+        document.getElementById('ed-anestesiologo')
+          .value
+          .trim(),
+      enfermeria:
+        document.getElementById('ed-enfermeria')
+          .value
+          .trim(),
+      doctorEmail: _editBooking.email || '',
+      doctorNombre: _editBooking.doctor || ''
+    };
+
+try {
+  const res = await fetch(url, {
+    method: 'POST',
+    body: JSON.stringify(addSession(payload))
+  });
         const json = await res.json();
         
         if (handleSessionError(json)) return;
