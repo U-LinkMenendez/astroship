@@ -2073,6 +2073,12 @@ if (String(booking.estadoOperacion || '').trim() === 'Cirugia no realizada') {
       // Fill reschedule tab
       document.getElementById('ed-fecha').value = booking.fecha || '';
       document.getElementById('ed-motivo').value = '';
+      const motivoReagendar =
+      document.getElementById('ed-reagendar-motivo');
+
+      if (motivoReagendar) {
+      motivoReagendar.value = '';
+    }
 
 buildEditHourOptions(
   booking.fecha || currentDate,
