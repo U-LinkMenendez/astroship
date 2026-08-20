@@ -1312,10 +1312,10 @@ if (day === 0) {
               else if (isFinished) { statusClass = 'rs-finished'; }
             
             cell = `<div class="rslot-occ ${statusClass}" 
-             style="height:${o.height}px; box-sizing:border-box; overflow:hidden;${inProgress || esHistSlot ? 'cursor:not-allowed;opacity:0.7' : ''}"
-              ${inProgress ? 'title="Cirugía en curso"' : ''}
+             style="height:${o.height}px; box-sizing:border-box; overflow:hidden;${esHistSlot ? 'cursor:not-allowed;opacity:0.7' : ''}"
+              ${inProgress ? 'title="Cirugía en curso: solo puede actualizarse el anestesiólogo"' : ''}
                ${esHistSlot ? 'title="Captura histórica sin edición"' : ''}
-                ${(!inProgress && !esHistSlot) ? `onclick="openAdmEdit(${JSON.stringify(o.booking).replace(/"/g,'&quot;')})"` : ''}>
+                ${!esHistSlot ? `onclick="openAdmEdit(${JSON.stringify(o.booking).replace(/"/g,'&quot;')})"` : ''}>
 
   <div class="rs-time">
 
