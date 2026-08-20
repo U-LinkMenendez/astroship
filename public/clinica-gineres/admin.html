@@ -2134,16 +2134,25 @@ document.getElementById('ed-fecha').onchange = function() {
       [
         'ed-paciente',
         'ed-procedimiento',
-        'ed-anestesiologo',
         'ed-enfermeria',
         'ed-fecha',
         'ed-hora',
         'ed-duracion',
         'ed-motivo'
       ].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.disabled = isCancelled || isEnded;
+         const el = document.getElementById(id);
+
+         if (el) {
+           el.disabled = isLocked || isStarted;
+        }
       });
+
+      const anestesiologoInput =
+        document.getElementById('ed-anestesiologo');
+
+      if (anestesiologoInput) {
+        anestesiologoInput.disabled = isLocked;
+      }
 
       const saveBtn = document.getElementById('edSaveBtn');
 
