@@ -2147,6 +2147,13 @@ document.getElementById('ed-fecha').onchange = function() {
         }
       });
 
+      const duracionInput =
+       document.getElementById('ed-duracion');
+
+      if (duracionInput) {
+       duracionInput.disabled = true;
+      }
+      
       const anestesiologoInput =
         document.getElementById('ed-anestesiologo');
 
