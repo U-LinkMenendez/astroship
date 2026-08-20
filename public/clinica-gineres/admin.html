@@ -2154,38 +2154,29 @@ document.getElementById('ed-fecha').onchange = function() {
         anestesiologoInput.disabled = isLocked;
       }
 
-      const saveBtn = document.getElementById('edSaveBtn');
+      if (_editOnlyAnestesiologo) {
+  document.getElementById('admEditSub').textContent +=
+    isEnded ? ' · FINALIZADA' : ' · EN CURSO';
 
-      if (saveBtn) {
-        saveBtn.disabled = isCancelled || isEnded;
-      }
+  document.getElementById('admEditSummary').innerHTML += `
+    <div
+      class="op-incidence"
+      style="
+        background:#EFF6FF;
+        color:#1E3A8A;
+        border-color:#BFDBFE;
+      "
+    >
+      La cirugía ya inició. Solamente puede actualizarse
+      el anestesiólogo.
+    </div>
+  `;
+}
 
-      if (isCancelled) {
-
-        if (isEnded && !isCancelled) {
-
-        document.getElementById('admEditSub').textContent += ' · CIRUGÍA EN CURSO / FINALIZADA';
-
-        document.getElementById('admEditSummary').innerHTML += `
-          <div style="
-            margin-top:10px;
-            padding:10px;
-            border-radius:8px;
-            background:#FEF3C7;
-            color:#92400E;
-            font-size:0.78rem;
-            font-weight:600;
-            border:1px solid #F59E0B;
-          ">
-            Esta reserva ya no puede modificarse porque la cirugía está en curso o finalizó.
-          </div>
-        `;
-
-      }
-
-        document.getElementById('admEditSub').textContent += ' · RESERVA CANCELADA';
-
-      }
+if (isCancelled) {
+  document.getElementById('admEditSub').textContent +=
+    ' · RESERVA CANCELADA';
+}
       
       document.getElementById('admEditModal').classList.add('open');
     }
