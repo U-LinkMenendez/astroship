@@ -2121,9 +2121,15 @@ document.getElementById('ed-fecha').onchange = function() {
 
         _editOnlyAnestesiologo = isStarted && !isLocked;
 
-      document.getElementById('edDatosBtn').disabled  = isCancelled || isEnded;
-      document.getElementById('edHoraBtn').disabled   = isCancelled || isEnded;
-      document.getElementById('edCancelBtn').disabled = isCancelled || isEnded;
+      document.getElementById('edDatosBtn').disabled = isLocked;
+      document.getElementById('edHoraBtn').disabled =
+       isLocked || isStarted;
+      document.getElementById('edCancelBtn').disabled =
+       isLocked || isStarted;
+      document.getElementById('etabHora').disabled =
+       isLocked || isStarted;
+      document.getElementById('etabCancel').disabled =
+       isLocked || isStarted;
 
       [
         'ed-paciente',
