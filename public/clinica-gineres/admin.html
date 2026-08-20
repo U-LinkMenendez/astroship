@@ -2072,7 +2072,7 @@ if (String(booking.estadoOperacion || '').trim() === 'Cirugia no realizada') {
       document.getElementById('ed-enfermeria').value    = booking.enfermeria||'';
       // Fill reschedule tab
       document.getElementById('ed-fecha').value = booking.fecha || '';
-document.getElementById('ed-motivo').value = '';
+      document.getElementById('ed-motivo').value = '';
 
 buildEditHourOptions(
   booking.fecha || currentDate,
@@ -2112,7 +2112,14 @@ document.getElementById('ed-fecha').onchange = function() {
 
       const endDate = new Date(startDate.getTime() + durHours * 60 * 60 * 1000);
 
-      const isEnded = now > endDate;
+      const isStarted = now >= startDate;
+      const isEnded = now >= endDate;
+      const isNoRealizada =
+       String(booking.estadoOperacion || '').trim() ===
+       'Cirugia no realizada';
+      const isLocked = isCancelled || isNoRealizada;
+
+        _editOnlyAnestesiologo = isStarted && !isLocked;
 
       document.getElementById('edDatosBtn').disabled  = isCancelled || isEnded;
       document.getElementById('edHoraBtn').disabled   = isCancelled || isEnded;
