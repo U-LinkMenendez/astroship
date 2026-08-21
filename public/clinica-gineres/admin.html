@@ -1089,7 +1089,7 @@
      function getScriptUrl() {
   return HARDCODED_URL;
 }
-    const HOURS = ['04:00','05:00','06:00','07:00','08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00'];
+    const HOURS = ['04:00','05:00','06:00','07:00','08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00','22:00','23:00'];
     const QUIROFANOS = ['Quirofano 1','Quirofano 2','Quirofano 3'];
     const LMP_CYCLE = {
       'Pendiente':'EnProceso',
@@ -1126,13 +1126,13 @@
     ];
     const RES_HOURS = [];
 
-    for (let h = 4; h <= 21; h++) {
+    for (let h = 4; h <= 23; h++) {
 
   RES_HOURS.push(
     `${String(h).padStart(2,'0')}:00`
   );
 
-  if (h < 21) {
+  if (h < 23) {
 
     RES_HOURS.push(
       `${String(h).padStart(2,'0')}:30`
@@ -1145,6 +1145,7 @@
     let resSelection = null;   // { quirofano, slots[] }
     let _resOccMap   = {};
     let _editBooking = null;   // current booking being edited
+     let _editOnlyAnestesiologo = false;
 
     // ── RENDER RESERVATION TAB ───────────────────────────
     function renderRes() {
@@ -1311,10 +1312,10 @@ if (day === 0) {
               else if (isFinished) { statusClass = 'rs-finished'; }
             
             cell = `<div class="rslot-occ ${statusClass}" 
-             style="height:${o.height}px; box-sizing:border-box; overflow:hidden;${inProgress || esHistSlot ? 'cursor:not-allowed;opacity:0.7' : ''}"
-              ${inProgress ? 'title="Cirugía en curso"' : ''}
+             style="height:${o.height}px; box-sizing:border-box; overflow:hidden;${esHistSlot ? 'cursor:not-allowed;opacity:0.7' : ''}"
+              ${inProgress ? 'title="Cirugía en curso: solo puede actualizarse el anestesiólogo"' : ''}
                ${esHistSlot ? 'title="Captura histórica sin edición"' : ''}
-                ${(!inProgress && !esHistSlot) ? `onclick="openAdmEdit(${JSON.stringify(o.booking).replace(/"/g,'&quot;')})"` : ''}>
+                ${!esHistSlot ? `onclick="openAdmEdit(${JSON.stringify(o.booking).replace(/"/g,'&quot;')})"` : ''}>
 
   <div class="rs-time">
 
@@ -2071,7 +2072,13 @@ if (String(booking.estadoOperacion || '').trim() === 'Cirugia no realizada') {
       document.getElementById('ed-enfermeria').value    = booking.enfermeria||'';
       // Fill reschedule tab
       document.getElementById('ed-fecha').value = booking.fecha || '';
-document.getElementById('ed-motivo').value = '';
+      document.getElementById('ed-motivo').value = '';
+      const motivoReagendar =
+      document.getElementById('ed-reagendar-motivo');
+
+      if (motivoReagendar) {
+      motivoReagendar.value = '';
+    }
 
 buildEditHourOptions(
   booking.fecha || currentDate,
@@ -2111,58 +2118,78 @@ document.getElementById('ed-fecha').onchange = function() {
 
       const endDate = new Date(startDate.getTime() + durHours * 60 * 60 * 1000);
 
-      const isEnded = now > endDate;
+      const isStarted = now >= startDate;
+      const isEnded = now >= endDate;
+      const isNoRealizada =
+       String(booking.estadoOperacion || '').trim() ===
+       'Cirugia no realizada';
+      const isLocked = isCancelled || isNoRealizada;
 
-      document.getElementById('edDatosBtn').disabled  = isCancelled || isEnded;
-      document.getElementById('edHoraBtn').disabled   = isCancelled || isEnded;
-      document.getElementById('edCancelBtn').disabled = isCancelled || isEnded;
+        _editOnlyAnestesiologo = isStarted && !isLocked;
+
+      document.getElementById('edDatosBtn').disabled = isLocked;
+      document.getElementById('edHoraBtn').disabled =
+       isLocked || isStarted;
+      document.getElementById('edCancelBtn').disabled =
+       isLocked || isStarted;
+      document.getElementById('etabHora').disabled =
+       isLocked || isStarted;
+      document.getElementById('etabCancel').disabled =
+       isLocked || isStarted;
 
       [
         'ed-paciente',
         'ed-procedimiento',
-        'ed-anestesiologo',
         'ed-enfermeria',
         'ed-fecha',
         'ed-hora',
         'ed-duracion',
         'ed-motivo'
       ].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.disabled = isCancelled || isEnded;
+         const el = document.getElementById(id);
+
+         if (el) {
+           el.disabled = isLocked || isStarted;
+        }
       });
 
-      const saveBtn = document.getElementById('edSaveBtn');
+      const duracionInput =
+       document.getElementById('ed-duracion');
 
-      if (saveBtn) {
-        saveBtn.disabled = isCancelled || isEnded;
+      if (duracionInput) {
+       duracionInput.disabled = true;
+      }
+      
+      const anestesiologoInput =
+        document.getElementById('ed-anestesiologo');
+
+      if (anestesiologoInput) {
+        anestesiologoInput.disabled = isLocked;
       }
 
-      if (isCancelled) {
+      if (_editOnlyAnestesiologo) {
+  document.getElementById('admEditSub').textContent +=
+    isEnded ? ' · FINALIZADA' : ' · EN CURSO';
 
-        if (isEnded && !isCancelled) {
+  document.getElementById('admEditSummary').innerHTML += `
+    <div
+      class="op-incidence"
+      style="
+        background:#EFF6FF;
+        color:#1E3A8A;
+        border-color:#BFDBFE;
+      "
+    >
+      La cirugía ya inició. Solamente puede actualizarse
+      el anestesiólogo.
+    </div>
+  `;
+}
 
-        document.getElementById('admEditSub').textContent += ' · CIRUGÍA EN CURSO / FINALIZADA';
-
-        document.getElementById('admEditSummary').innerHTML += `
-          <div style="
-            margin-top:10px;
-            padding:10px;
-            border-radius:8px;
-            background:#FEF3C7;
-            color:#92400E;
-            font-size:0.78rem;
-            font-weight:600;
-            border:1px solid #F59E0B;
-          ">
-            Esta reserva ya no puede modificarse porque la cirugía está en curso o finalizó.
-          </div>
-        `;
-
-      }
-
-        document.getElementById('admEditSub').textContent += ' · RESERVA CANCELADA';
-
-      }
+if (isCancelled) {
+  document.getElementById('admEditSub').textContent +=
+    ' · RESERVA CANCELADA';
+}
       
       document.getElementById('admEditModal').classList.add('open');
     }
@@ -2476,17 +2503,44 @@ async function saveUnblock() {
       const btn = document.getElementById('edDatosBtn');
       btn.disabled=true; btn.textContent='Guardando…';
       const url = getScriptUrl();
-      try {
-        const res = await fetch(url, { method:'POST', body: JSON.stringify(addSession({
-          action:'actualizarDatos',
-          bookingId: _editBooking.bookingId,
-          paciente:      document.getElementById('ed-paciente').value.trim(),
-          procedimiento: document.getElementById('ed-procedimiento').value.trim(),
-          anestesiologo: document.getElementById('ed-anestesiologo').value.trim(),
-          enfermeria:    document.getElementById('ed-enfermeria').value.trim(),
-          doctorEmail:   _editBooking.email||'',
-          doctorNombre:  _editBooking.doctor||'',
-        }))});
+
+const payload = _editOnlyAnestesiologo
+  ? {
+      action: 'actualizarAnestesiologo',
+      bookingId: _editBooking.bookingId,
+      anestesiologo:
+        document.getElementById('ed-anestesiologo')
+          .value
+          .trim()
+    }
+  : {
+      action: 'actualizarDatos',
+      bookingId: _editBooking.bookingId,
+      paciente:
+        document.getElementById('ed-paciente')
+          .value
+          .trim(),
+      procedimiento:
+        document.getElementById('ed-procedimiento')
+          .value
+          .trim(),
+      anestesiologo:
+        document.getElementById('ed-anestesiologo')
+          .value
+          .trim(),
+      enfermeria:
+        document.getElementById('ed-enfermeria')
+          .value
+          .trim(),
+      doctorEmail: _editBooking.email || '',
+      doctorNombre: _editBooking.doctor || ''
+    };
+
+try {
+  const res = await fetch(url, {
+    method: 'POST',
+    body: JSON.stringify(addSession(payload))
+  });
         const json = await res.json();
         
         if (handleSessionError(json)) return;
@@ -2505,63 +2559,138 @@ async function saveUnblock() {
     }
 
     async function submitEditHora() {
-      if (_processing) return;
-        if (isHistoricaReserva(_editBooking)) {
-    alert('Esta captura histórica no se puede reagendar. Solo permite edición de textos.');
+  if (_processing) return;
+
+  if (!_editBooking) {
+    alert('No se encontró la reserva.');
     return;
   }
-        _processing = true;
-      const btn = document.getElementById('edHoraBtn');
-      btn.disabled=true; btn.textContent='Reagendando…';
-      const fecha = document.getElementById('ed-fecha').value;
-      const hora  = document.getElementById('ed-hora').value;
-      const dur = parseFloat(document.getElementById('ed-duracion').value);
-      const [hh, mm] = hora.split(':').map(Number);
 
-const startUTC = new Date(
-  `${fecha}T${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}:00-06:00`
-);
+  if (isHistoricaReserva(_editBooking)) {
+    alert(
+      'Esta captura histórica no se puede reagendar.'
+    );
+    return;
+  }
 
-if (
-  Number.isNaN(startUTC.getTime()) ||
-  startUTC.getTime() <= Date.now() + 60000
-) {
-  _processing = false;
-  alert('La nueva fecha y hora ya vencieron. Selecciona un horario futuro.');
-  return;
-}
-      const url = getScriptUrl();
-      try {
-        const res = await fetch(url, { method:'POST', body: JSON.stringify(addSession({
-          action:'reagendarReserva',
-          bookingId:      _editBooking.bookingId,
-          quirofano:      _editBooking.quirofano,
-          newStart:       startUTC.toISOString(),
-          lengthInMinutes: Math.round(dur * 60),
-          doctorEmail:    _editBooking.doctorEmail || '',
-          doctorNombre:   _editBooking.doctor || '',
-          attendee:       _editBooking.attendee,
-          procedimiento:  _editBooking.procedimiento||'',
-          fechaAnterior:  _editBooking.fecha,
-          horaAnterior:   _editBooking.horaInicio,
-        }))});
-        const json = await res.json();
-        
-        if (handleSessionError(json)) return;
-        
-        if (json.ok) {
-  _processing = false;
-  closeAdmEdit();
-  await loadData();
-  alert('Reserva reagendada correctamente.');
-} else {
-  _processing = false;
-  alert('Error: ' + (json.error || ''));
-}
-      } catch(e) {_processing = false; alert('Error de conexión'); }
-      _processing = false;
-      btn.disabled=false; btn.textContent='Reagendar';
+  const fecha =
+    document.getElementById('ed-fecha').value;
+
+  const hora =
+    document.getElementById('ed-hora').value;
+
+  const motivo =
+    document
+      .getElementById('ed-reagendar-motivo')
+      .value
+      .trim();
+
+  if (!fecha || !hora) {
+    alert('Selecciona la nueva fecha y hora.');
+    return;
+  }
+
+  if (motivo.length < 5) {
+    alert(
+      'Captura un motivo de al menos 5 caracteres.'
+    );
+    return;
+  }
+
+  const inicioLocal = new Date(
+    fecha + 'T' + hora + ':00-06:00'
+  );
+
+  if (
+    Number.isNaN(inicioLocal.getTime()) ||
+    inicioLocal.getTime() <= Date.now()
+  ) {
+    alert(
+      'Selecciona una fecha y hora futuras.'
+    );
+    return;
+  }
+
+  const confirmar = confirm(
+    'Confirmar reagendamiento\n\n' +
+    'Quirófano: ' +
+    (_editBooking.quirofano || '') +
+    '\n' +
+    'Horario anterior: ' +
+    (_editBooking.fecha || '') +
+    ' ' +
+    (_editBooking.horaInicio || '') +
+    '\n' +
+    'Horario nuevo: ' +
+    fecha +
+    ' ' +
+    hora +
+    '\n' +
+    'Duración conservada: ' +
+    (_editBooking.duracion || '') +
+    ' hora(s)\n\n' +
+    'Motivo: ' +
+    motivo
+  );
+
+  if (!confirmar) return;
+
+  const btn =
+    document.getElementById('edHoraBtn');
+
+  _processing = true;
+
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = 'Reagendando...';
+  }
+
+  try {
+    const response = await fetch(
+      getScriptUrl(),
+      {
+        method: 'POST',
+        body: JSON.stringify(
+          addSession({
+            action: 'reagendarReserva',
+            bookingId: _editBooking.bookingId,
+            nuevaFecha: fecha,
+            nuevaHora: hora,
+            motivo: motivo
+          })
+        )
+      }
+    );
+
+    const json = await response.json();
+
+    if (handleSessionError(json)) return;
+
+    if (!json.ok) {
+      throw new Error(
+        json.error ||
+        'No se pudo reagendar la reserva'
+      );
     }
+
+    closeAdmEdit();
+    await loadData();
+
+    alert('Reserva reagendada correctamente.');
+  } catch (error) {
+    alert(
+      'No se pudo reagendar: ' +
+      error.message
+    );
+  } finally {
+    _processing = false;
+
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = 'Reagendar';
+    }
+  }
+}
 
     async function submitCancelReserva() {
       if (_processing) return;
@@ -3773,8 +3902,16 @@ init();
       <div class="adm-field" style="margin-bottom:0.75rem"><label>Duración</label>
         <select id="ed-duracion"></select>
       </div>
+      <div class="adm-field" style="margin-bottom:0.75rem">
+  <label>Motivo del cambio *</label>
+  <input
+    type="text"
+    id="ed-reagendar-motivo"
+    placeholder="Ej: Solicitud del doctor"
+  />
+</div>
       <div style="font-size:0.78rem;color:var(--amber);background:var(--amber-bg);border-radius:6px;padding:0.5rem 0.75rem;margin-bottom:1rem;">
-        ⚠ Esta acción cancela la reserva actual en Cal.com y crea una nueva. Se notificará al doctor por correo.
+        ⚠ Esta acción reagenda la reserva directamente en Cal.com. El quirófano y la duración se conservarán, y se notificará al doctor por correo.
       </div>
       <div class="adm-actions">
         <button class="adm-btn adm-btn-ghost" onclick="closeAdmEdit()">Cancelar</button>
