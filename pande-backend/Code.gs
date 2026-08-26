@@ -2495,3 +2495,167 @@ function construirReporteMensual(mes) {
     por_sucursal_elegida: porSucursal
   };
 }
+
+// ════════════════════════════════════════════════════════════
+// MIGRACIÓN CONTROLADA DE ESTRUCTURA — OPERACIÓN V2
+// Ejecutar una sola vez desde el editor de Apps Script.
+// Primero crea una copia completa del archivo de Sheets en Drive.
+// ════════════════════════════════════════════════════════════
+
+function crearRespaldoDriveAntesMigracion() {
+  const archivo = DriveApp.getFileById(SS.getId());
+  const marca = Utilities.formatDate(new Date(), TZ, "yyyyMMdd-HHmmss");
+  const nombre = "Pande_Sheets_RESPALDO_PRE_MIGRACION_" + marca;
+  const padres = archivo.getParents();
+  const copia = padres.hasNext()
+    ? archivo.makeCopy(nombre, padres.next())
+    : archivo.makeCopy(nombre);
+
+  return {
+    id: copia.getId(),
+    nombre: copia.getName(),
+    url: copia.getUrl()
+  };
+}
+
+function asegurarHojaMigracion(nombre, filaEncabezados, encabezados) {
+  let sh = SS.getSheetByName(nombre);
+
+  if (!sh) sh = SS.insertSheet(nombre);
+
+  if (sh.getMaxColumns() < encabezados.length) {
+    sh.insertColumnsAfter(
+      sh.getMaxColumns(),
+      encabezados.length - sh.getMaxColumns()
+    );
+  }
+
+  sh.getRange(filaEncabezados, 1, 1, encabezados.length)
+    .setValues([encabezados])
+    .setFontWeight("bold")
+    .setBackground("#1f2937")
+    .setFontColor("#ffffff");
+  sh.setFrozenRows(filaEncabezados);
+
+  return sh;
+}
+
+function actualizarTiendaMigracion(idTienda, cambios) {
+  const sh = SH_TIE();
+  const data = sh.getDataRange().getValues();
+
+  for (let i = 1; i < data.length; i++) {
+    if (String(data[i][0]).trim().toUpperCase() !== idTienda) continue;
+
+    Object.keys(cambios).forEach(columna => {
+      sh.getRange(i + 1, Number(columna)).setValue(cambios[columna]);
+    });
+
+    return i + 1;
+  }
+
+  return 0;
+}
+
+function migrarEstructuraOperacionV2() {
+  const lock = LockService.getScriptLock();
+
+  if (!lock.tryLock(30000)) {
+    throw new Error("Otra operación está usando la hoja. Intenta nuevamente.");
+  }
+
+  try {
+    const respaldo = crearRespaldoDriveAntesMigracion();
+
+    const pedidos = [
+      "ID_Pedido", "Fecha_Pedido", "ID_Cliente", "Nombre_Cliente",
+      "Sucursal", "Tipo_Entrega", "Direccion_Entrega", "Productos_Resumen",
+      "Productos_JSON", "Subtotal", "Costo_Envio", "Total", "Metodo_Pago",
+      "Estatus_Pago", "Estatus_Pedido", "Comprobante_URL", "Aprobado_Por",
+      "Fecha_Aprobacion", "Dia_Semana", "Es_Pedido_Esp", "Notas_Pedido",
+      "ID_Kommo_Lead", "Categorias", "Cantidad_Items", "ID_Tienda",
+      "Nombre_Tienda", "Fecha_Entrega", "Hora_Entrega", "Es_Programado",
+      "Es_Personalizado", "Anticipo_Requerido", "Anticipo_Pagado",
+      "Costo_Envio_Estimado", "Ubicacion_URL", "Nombre_Receptor",
+      "Distancia_Envio_Km", "Envio_Sujeto_Confirmacion",
+      "ID_Tienda_Salida_Interna", "Nombre_Tienda_Salida_Interna",
+      "Anulado_Por", "Motivo_Anulacion", "Fecha_Anulacion",
+      "Usuario_Ultimo_Cambio"
+    ];
+
+    asegurarHojaMigracion("Pedidos", 2, pedidos);
+    asegurarHojaMigracion("Inventario", 1, [
+      "ID_Tienda", "ID_Producto", "Disponible", "Cantidad",
+      "Fecha_Actualizacion", "ID_Usuario", "Nombre_Usuario"
+    ]);
+    asegurarHojaMigracion("Tiendas", 1, [
+      "ID_Tienda", "Nombre", "Direccion", "Lat", "Lng", "WhatsApp",
+      "Activa", "Delivery_OK", "Comision_Porcentaje"
+    ]);
+    asegurarHojaMigracion("Usuarios", 1, [
+      "ID_Usuario", "Nombre", "Token_Hash", "Salt", "ID_Tienda",
+      "Nombre_Tienda", "Rol", "Activo", "Fecha_Alta", "Ultimo_Acceso"
+    ]);
+    asegurarHojaMigracion("Aperturas_Diarias", 1, [
+      "Fecha", "ID_Tienda", "Nombre_Tienda", "ID_Usuario",
+      "Nombre_Usuario", "Fecha_Hora_Confirmacion", "Productos_Capturados",
+      "Estado"
+    ]);
+    asegurarHojaMigracion("Reporte_Mensual", 1, [
+      "Mes", "Generado_En", "Ingresos_Productos",
+      "Pedidos_Entregados_Pagados", "Ticket_Promedio", "Unidades_Vendidas",
+      "Producto_Lider_Cantidad", "Producto_Lider_Ingresos",
+      "Horario_Mayores_Ventas", "Dia_Mayores_Ventas"
+    ]);
+
+    actualizarTiendaMigracion("LAVIN", {
+      6: "529995433776",
+      8: true
+    });
+    actualizarTiendaMigracion("DZITYA", {
+      6: "529994393976",
+      8: false
+    });
+
+    const temozon = actualizarTiendaMigracion("TEMOZON", {
+      2: "Temozón",
+      3: "Plaza comercial (ubicación aproximada pendiente de alta en Google Maps)",
+      4: 21.0612,
+      5: -89.6280271,
+      7: false,
+      8: true
+    });
+
+    if (!temozon) {
+      SH_TIE().appendRow([
+        "TEMOZON",
+        "Temozón",
+        "Plaza comercial (ubicación aproximada pendiente de alta en Google Maps)",
+        21.0612,
+        -89.6280271,
+        "",
+        false,
+        true,
+        ""
+      ]);
+    }
+
+    CacheService.getScriptCache().remove("catalogo_publico");
+    SpreadsheetApp.flush();
+    logEvent("MIGRACION_OPERACION_V2", {
+      respaldo_id: respaldo.id,
+      hojas: [
+        "Pedidos", "Inventario", "Tiendas", "Usuarios",
+        "Aperturas_Diarias", "Reporte_Mensual"
+      ]
+    });
+
+    return {
+      ok: true,
+      respaldo: respaldo,
+      mensaje: "Migración V2 completada"
+    };
+  } finally {
+    lock.releaseLock();
+  }
+}
