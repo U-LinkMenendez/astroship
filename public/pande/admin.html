@@ -410,7 +410,6 @@ body {
       Pedidos activos <span class="badge-count" id="badge-pedidos">0</span>
     </button>
     <button class="tab" onclick="cambiarTab('stock')" id="tab-stock">Stock</button>
-        <button class="tab" onclick="cambiarTab('historial')" id="tab-historial">Historial</button>
   </div>
   <div class="content">
     <div class="tab-panel active" id="panel-pedidos">
@@ -418,16 +417,14 @@ body {
       <div id="pedidos-lista"><div class="loading">Cargando pedidos...</div></div>
     </div>
     <div class="tab-panel" id="panel-stock">
-      <div class="section-header"><div class="section-title">Disponibilidad</div></div>
-      <div id="catalogo-lista"><div class="loading">Cargando stock...</div></div>
-    </div>
-        <div class="tab-panel" id="panel-historial">
       <div class="section-header">
-        <div class="section-title">Historial últimos 7 días</div>
+        <div>
+          <div class="section-title">Inventario de apertura</div>
+          <p>Captura la cantidad exacta de todos los productos al iniciar el día.</p>
+        </div>
+        <button class="refresh-btn" onclick="guardarInventarioDiario()">Confirmar inventario</button>
       </div>
-      <div id="historial-lista">
-        <div class="loading">Cargando historial...</div>
-      </div>
+      <div id="catalogo-lista"><div class="loading">Cargando stock...</div></div>
     </div>
   </div>
 </div>
@@ -443,13 +440,15 @@ body {
    const SIGUIENTE_ESTATUS = {
     "Nuevo": "Confirmado",
     "Confirmado": "Listo",
-    "Listo": "Entregado"
+    "Listo": "En camino",
+    "En camino": "Entregado"
   };
 
   const LABEL_SIGUIENTE = {
     "Nuevo": "Confirmar pedido",
     "Confirmado": "Marcar listo",
-    "Listo": "Marcar entregado"
+    "Listo": "Marcar en camino",
+    "En camino": "Marcar entregado"
   };
 
   document.getElementById("token-input")
@@ -485,7 +484,8 @@ body {
 
         pintarPedidos(data.pedidos || []);
         cargarCatalogo();
-        cargarHistorial();
+        cambiarTab("stock");
+        toast("Captura el inventario del día antes de comenzar");
            
       }else{
         mostrarError("Token incorrecto");
@@ -794,7 +794,6 @@ body {
           <span class="estatus-badge badge-${estatus}">${estatus}</span>
           ${btnSiguiente}
           ${btnAprobarPago}
-          <button class="btn-accion btn-cancelar" onclick="cancelarPedido('${p.id_pedido}')">Cancelar</button>
         </div>
       </div>
     `;
@@ -908,20 +907,15 @@ body {
     }
   }
 
-    function productoDisponibleEnSesion(idProducto, disponibleGlobal){
-
-    if(!SESION || SESION.rol !== "tienda"){
-      return disponibleGlobal === true;
-    }
-
+  function cantidadProductoEnSesion(idProducto){
     const item = INVENTARIO.find(inv =>
       inv.id_tienda === SESION.id_tienda &&
       inv.id_producto === idProducto
     );
 
-    if(!item) return false;
-
-    return item.disponible === true;
+    return item && item.cantidad !== null && item.cantidad !== undefined
+      ? Number(item.cantidad)
+      : 0;
   }
 
   function pintarCatalogo(productos){
@@ -935,7 +929,9 @@ body {
 
     const grupos = {};
 
-    productos.forEach(p => {
+    productos
+      .filter(p => p.pedido_especial !== true && p.categoria !== "PedEsp")
+      .forEach(p => {
       const cat = p.categoria || "Otros";
       if(!grupos[cat]) grupos[cat] = [];
       grupos[cat].push(p);
@@ -948,11 +944,7 @@ body {
       html += '<div class="catalogo-grid">';
 
       grupos[cat].forEach(p => {
-                const disponible =
-          productoDisponibleEnSesion(
-            p.id,
-            p.disponible
-          );
+        const cantidad = cantidadProductoEnSesion(p.id);
         html += `
         
           <div class="producto-card">
@@ -964,15 +956,17 @@ body {
               </div>
             </div>
             <div class="toggle-wrap">
-              <label class="toggle">
+              <label>
+                Cantidad
                 <input
-                  type="checkbox"
-                  ${disponible ? "checked" : ""}
-                  onchange="toggleDisponible('${p.id}', this.checked, this)"
+                  type="number"
+                  min="0"
+                  step="1"
+                  value="${cantidad}"
+                  data-stock-id="${p.id}"
+                  style="width:90px;padding:9px;margin-left:8px"
                 />
-                <span class="toggle-slider"></span>
               </label>
-              <span class="toggle-label">${disponible ? "ACTIVO" : "OFF"}</span>
             </div>
           </div>
         `;
@@ -1042,8 +1036,43 @@ body {
   function recargarTodo(){
     cargarPedidos();
     cargarCatalogo();
-    cargarHistorial();
     toast("Actualizado");
+  }
+
+  async function guardarInventarioDiario(){
+    const inputs = Array.from(document.querySelectorAll("[data-stock-id]"));
+    const productos = inputs.map(input => ({
+      id_producto: input.dataset.stockId,
+      cantidad: Math.max(0, Math.floor(Number(input.value || 0)))
+    }));
+
+    if(!productos.length){
+      toast("No hay productos para capturar");
+      return;
+    }
+
+    try{
+      const res = await fetch(SCRIPT_URL, {
+        method: "POST",
+        body: JSON.stringify({
+          action: "guardarInventarioDiario",
+          token: TOKEN,
+          productos
+        })
+      });
+      const data = await res.json();
+
+      if(!data.ok){
+        toast(data.error || "No se pudo guardar el inventario");
+        return;
+      }
+
+      toast("Inventario del día confirmado");
+      await cargarCatalogo();
+      cambiarTab("pedidos");
+    }catch(_){
+      toast("Error de conexión");
+    }
   }
 
   function toast(msg){

@@ -476,6 +476,8 @@ body {
     <button class="tab" onclick="cambiarTab('catalogo')" id="tab-catalogo">Catálogo</button>
     <button class="tab" onclick="cambiarTab('matriz')" id="tab-matriz">Matriz</button>
     <button class="tab" onclick="cambiarTab('tiendas')" id="tab-tiendas">Tiendas</button>
+    <button class="tab" onclick="cambiarTab('usuarios')" id="tab-usuarios">Usuarios</button>
+    <button class="tab" onclick="cambiarTab('reporte')" id="tab-reporte">Reporte mensual</button>
     <button class="tab" onclick="cambiarTab('nuevo')" id="tab-nuevo">Nuevo producto</button>
   </div>
   <div class="content">
@@ -485,7 +487,7 @@ body {
     </div>
     <div class="tab-panel" id="panel-historial">
   <div class="section-header">
-    <div class="section-title">Historial últimos 7 días</div>
+    <div class="section-title">Historial últimos 30 días</div>
   </div>
   <div id="historial-lista">
     <div class="loading">Cargando historial...</div>
@@ -571,6 +573,29 @@ body {
       <div id="tiendas-lista">
         <div class="loading">Cargando tiendas...</div>
       </div>
+    </div>
+
+    <div class="tab-panel" id="panel-usuarios">
+      <div class="section-header"><div class="section-title">Accesos individuales</div></div>
+      <div class="form-card">
+        <div class="form-grid">
+          <div class="field"><label>Nombre del empleado</label><input id="usuario-nombre" /></div>
+          <div class="field"><label>Sucursal</label><select id="usuario-tienda"></select></div>
+          <div class="field full"><button class="primary-btn" onclick="crearUsuario()">Crear acceso</button></div>
+        </div>
+      </div>
+      <div id="usuarios-lista"><div class="loading">Cargando usuarios...</div></div>
+    </div>
+
+    <div class="tab-panel" id="panel-reporte">
+      <div class="section-header">
+        <div class="section-title">Reporte mensual</div>
+        <div>
+          <input id="reporte-mes" type="month" />
+          <button class="refresh-btn" onclick="cargarReporteMensual()">Generar reporte</button>
+        </div>
+      </div>
+      <div id="reporte-contenido"><div class="empty-state"><p>Selecciona un mes.</p></div></div>
     </div>
     
     <div class="tab-panel" id="panel-nuevo">
@@ -674,6 +699,8 @@ cargarHistorial();
       .forEach(p => p.classList.remove("active"));
     document.getElementById(`tab-${tab}`).classList.add("active");
     document.getElementById(`panel-${tab}`).classList.add("active");
+    if(tab === "usuarios") cargarUsuarios();
+    if(tab === "reporte") cargarReporteMensual();
   }
 
   function pintarTiendas(){
@@ -753,6 +780,7 @@ cargarHistorial();
 
       pintarTiendas();
       pintarMatriz();
+      sincronizarSelectUsuarios();
 
     }catch(err){
       document.getElementById("matriz-stock").innerHTML =
@@ -995,7 +1023,7 @@ cargarHistorial();
 
     try{
       const res = await fetch(
-        `${SCRIPT_URL}?action=getHistorial7Dias&token=${TOKEN}`
+        `${SCRIPT_URL}?action=getHistorial30Dias&token=${TOKEN}`
       );
 
       const data = await res.json();
@@ -1183,7 +1211,10 @@ cargarHistorial();
     const btnPago = pagoPendiente
       ? `<button class="btn-accion btn-pago" onclick="aprobarPago('${p.id_pedido}')">Aprobar pago</button>`
       : "";
-    const btnEntregar = estatus === "Listo"
+    const btnEnCamino = estatus === "Listo"
+      ? `<button class="btn-accion btn-entregar" onclick="actualizarEstatus('${p.id_pedido}','En camino','Pedido en camino')">Marcar en camino</button>`
+      : "";
+    const btnEntregar = estatus === "En camino"
       ? `<button class="btn-accion btn-entregar" onclick="entregarPedido('${p.id_pedido}')">Marcar entregado</button>`
       : "";
 
@@ -1209,6 +1240,7 @@ cargarHistorial();
         <div class="pedido-actions">
           <span class="estatus-badge badge-${estatus}">${estatus}</span>
           ${btnPago}
+          ${btnEnCamino}
           ${btnEntregar}
           <button class="btn-accion btn-cancelar" onclick="cancelarPedido('${p.id_pedido}')">Cancelar</button>
         </div>
@@ -1243,11 +1275,17 @@ cargarHistorial();
   }
 
   async function cancelarPedido(idPedido){
-    if(!confirm(`Cancelar pedido ${idPedido}?`)) return;
-    await actualizarEstatus(idPedido, "Cancelado", "Pedido cancelado");
+    const motivo = prompt(`Motivo excepcional para anular ${idPedido}:`);
+    if(motivo === null || !motivo.trim()) return;
+    await actualizarEstatus(
+      idPedido,
+      "Cancelado",
+      "Pedido anulado",
+      { motivo_anulacion: motivo.trim() }
+    );
   }
 
-  async function actualizarEstatus(idPedido, estatus, mensaje){
+  async function actualizarEstatus(idPedido, estatus, mensaje, extra = {}){
     try{
       const res = await fetch(SCRIPT_URL, {
         method: "POST",
@@ -1255,7 +1293,8 @@ cargarHistorial();
           action: "actualizarEstatus",
           token: TOKEN,
           id_pedido: idPedido,
-          estatus_pedido: estatus
+          estatus_pedido: estatus,
+          ...extra
         })
       });
       const data = await res.json();
@@ -1465,6 +1504,148 @@ cargarHistorial();
     document.getElementById("nuevo-disponible").checked = true;
     document.getElementById("nuevo-delivery").checked = true;
     document.getElementById("nuevo-especial").checked = false;
+  }
+
+  function sincronizarSelectUsuarios(){
+    const select = document.getElementById("usuario-tienda");
+    if(!select) return;
+    select.innerHTML = TIENDAS.map(t =>
+      `<option value="${escaparHtml(t.id_tienda)}">${escaparHtml(t.nombre)}</option>`
+    ).join("");
+  }
+
+  async function cargarUsuarios(){
+    const cont = document.getElementById("usuarios-lista");
+    if(!cont || !TOKEN) return;
+    cont.innerHTML = '<div class="loading">Cargando usuarios...</div>';
+
+    try{
+      const res = await fetch(`${SCRIPT_URL}?action=getUsuarios&token=${TOKEN}`);
+      const data = await res.json();
+      if(!data.ok){
+        cont.innerHTML = '<div class="empty-state"><p>No se pudieron cargar los usuarios.</p></div>';
+        return;
+      }
+      pintarUsuarios(data.usuarios || []);
+    }catch(_){
+      cont.innerHTML = '<div class="empty-state"><p>Error de conexión.</p></div>';
+    }
+  }
+
+  function pintarUsuarios(usuarios){
+    const cont = document.getElementById("usuarios-lista");
+    if(!usuarios.length){
+      cont.innerHTML = '<div class="empty-state"><p>Aún no hay empleados registrados.</p></div>';
+      return;
+    }
+
+    cont.innerHTML = `<div class="catalogo-grid">${usuarios.map(u => `
+      <div class="producto-card">
+        <div class="producto-info">
+          <div class="producto-nombre">${escaparHtml(u.nombre)}</div>
+          <div class="producto-meta">${escaparHtml(u.nombre_tienda || "Sin sucursal")} · ${u.activo ? "Activo" : "Desactivado"}</div>
+        </div>
+        <div class="producto-actions">
+          <button class="small-btn edit-btn" onclick="transferirUsuario('${u.id_usuario}','${u.id_tienda || ""}')">Cambiar sucursal</button>
+          <button class="small-btn" onclick="cambiarEstadoUsuario('${u.id_usuario}',${!u.activo})">${u.activo ? "Desactivar" : "Activar"}</button>
+          <button class="small-btn" onclick="restablecerUsuario('${u.id_usuario}')">Nueva clave</button>
+        </div>
+      </div>
+    `).join("")}</div>`;
+  }
+
+  async function crearUsuario(){
+    const nombre = document.getElementById("usuario-nombre").value.trim();
+    const idTienda = document.getElementById("usuario-tienda").value;
+    if(!nombre || !idTienda){ toast("Completa nombre y sucursal"); return; }
+
+    const data = await postMaster({ action:"crearUsuario", nombre, id_tienda:idTienda, rol:"tienda" });
+    if(!data) return;
+    document.getElementById("usuario-nombre").value = "";
+    alert(`Acceso creado para ${nombre}.\n\nClave temporal: ${data.codigo_acceso}\n\nGuárdala ahora; no volverá a mostrarse.`);
+    cargarUsuarios();
+  }
+
+  async function transferirUsuario(idUsuario, actual){
+    const opciones = TIENDAS.map(t => `${t.id_tienda}: ${t.nombre}`).join("\n");
+    const idTienda = prompt(`Escribe el ID de la nueva sucursal:\n${opciones}`, actual || "");
+    if(idTienda === null) return;
+    const data = await postMaster({ action:"updateUsuario", id_usuario:idUsuario, id_tienda:idTienda.trim().toUpperCase() });
+    if(data){ toast("Sucursal actualizada"); cargarUsuarios(); }
+  }
+
+  async function cambiarEstadoUsuario(idUsuario, activo){
+    const data = await postMaster({ action:"updateUsuario", id_usuario:idUsuario, activo });
+    if(data){ toast(activo ? "Usuario activado" : "Usuario desactivado"); cargarUsuarios(); }
+  }
+
+  async function restablecerUsuario(idUsuario){
+    if(!confirm("¿Generar una nueva clave para este usuario?")) return;
+    const data = await postMaster({ action:"updateUsuario", id_usuario:idUsuario, restablecer_acceso:true });
+    if(data) alert(`Nueva clave temporal: ${data.codigo_acceso}\n\nGuárdala ahora; no volverá a mostrarse.`);
+  }
+
+  async function postMaster(payload){
+    try{
+      const res = await fetch(SCRIPT_URL, {
+        method:"POST",
+        body:JSON.stringify({ ...payload, token:TOKEN })
+      });
+      const data = await res.json();
+      if(!data.ok){ toast(data.error || "No se pudo completar"); return null; }
+      return data;
+    }catch(_){ toast("Error de conexión"); return null; }
+  }
+
+  function moneda(valor){
+    return Number(valor || 0).toLocaleString("es-MX", { style:"currency", currency:"MXN" });
+  }
+
+  async function cargarReporteMensual(){
+    const input = document.getElementById("reporte-mes");
+    const cont = document.getElementById("reporte-contenido");
+    if(!input || !cont || !TOKEN) return;
+    if(!input.value) input.value = new Date().toISOString().slice(0, 7);
+    cont.innerHTML = '<div class="loading">Generando reporte...</div>';
+
+    try{
+      const res = await fetch(`${SCRIPT_URL}?action=getReporteMensual&token=${TOKEN}&mes=${input.value}`);
+      const data = await res.json();
+      if(!data.ok){ cont.innerHTML = '<div class="empty-state"><p>No se pudo generar el reporte.</p></div>'; return; }
+      pintarReporteMensual(data.reporte);
+    }catch(_){
+      cont.innerHTML = '<div class="empty-state"><p>Error de conexión.</p></div>';
+    }
+  }
+
+  function pintarReporteMensual(reporte){
+    const r = reporte.resumen || {};
+    const liderCantidad = r.producto_lider_cantidad;
+    const liderIngresos = r.producto_lider_ingresos;
+    const horario = r.horario_mayores_ventas;
+    const dia = r.dia_mayores_ventas;
+    const cards = [
+      ["Ingresos por productos", moneda(r.ingresos_productos)],
+      ["Pedidos entregados y pagados", r.pedidos_entregados_pagados || 0],
+      ["Ticket promedio", moneda(r.ticket_promedio)],
+      ["Unidades vendidas", r.unidades_vendidas || 0],
+      ["Líder por cantidad", liderCantidad ? `${liderCantidad.nombre} · ${liderCantidad.cantidad}` : "—"],
+      ["Líder por ingresos", liderIngresos ? `${liderIngresos.nombre} · ${moneda(liderIngresos.ingresos)}` : "—"],
+      ["Mejor horario", horario ? `${horario.clave} · ${moneda(horario.ingresos)}` : "—"],
+      ["Mejor día", dia ? `${dia.clave} · ${moneda(dia.ingresos)}` : "—"]
+    ];
+
+    document.getElementById("reporte-contenido").innerHTML = `
+      <div class="catalogo-grid">${cards.map(c => `<div class="form-card"><div class="producto-meta">${c[0]}</div><div class="producto-nombre">${c[1]}</div></div>`).join("")}</div>
+      ${tablaReporte("Productos", ["Producto","Cantidad","Ingreso","Pedidos"], (reporte.por_producto || []).map(x => [x.nombre,x.cantidad,moneda(x.ingresos),x.pedidos]))}
+      ${tablaReporte("Ventas por horario", ["Horario","Pedidos","Unidades","Ingresos"], (reporte.por_horario || []).map(x => [x.clave,x.pedidos,x.unidades,moneda(x.ingresos)]))}
+      ${tablaReporte("Ventas por día de la semana", ["Día","Pedidos","Unidades","Ingresos"], (reporte.por_dia_semana || []).map(x => [x.clave,x.pedidos,x.unidades,moneda(x.ingresos)]))}
+      ${tablaReporte("Ventas por sucursal elegida", ["Sucursal","Pedidos","Unidades","Ingresos"], (reporte.por_sucursal_elegida || []).map(x => [x.clave,x.pedidos,x.unidades,moneda(x.ingresos)]))}
+    `;
+  }
+
+  function tablaReporte(titulo, encabezados, filas){
+    return `<div class="form-card"><h3 class="categoria-stock">${titulo}</h3><div class="matrix-wrap"><table class="matrix-table"><thead><tr>${encabezados.map(x => `<th>${x}</th>`).join("")}</tr></thead><tbody>${filas.length ? filas.map(f => `<tr>${f.map(x => `<td>${escaparHtml(x)}</td>`).join("")}</tr>`).join("") : `<tr><td colspan="${encabezados.length}">Sin datos</td></tr>`}</tbody></table></div></div>`;
   }
 
   function recargarTodo(){
