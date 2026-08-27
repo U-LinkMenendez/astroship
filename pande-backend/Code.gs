@@ -2518,6 +2518,22 @@ function crearRespaldoDriveAntesMigracion() {
   };
 }
 
+function verificarAccesosMigracionV2() {
+  const hoja = SpreadsheetApp.getActiveSpreadsheet();
+
+  if (!hoja) {
+    throw new Error("El proyecto no está vinculado a una hoja de cálculo");
+  }
+
+  const archivo = DriveApp.getFileById(hoja.getId());
+
+  return {
+    ok: true,
+    spreadsheet_id: hoja.getId(),
+    nombre_archivo: archivo.getName()
+  };
+}
+
 function asegurarHojaMigracion(nombre, filaEncabezados, encabezados) {
   let sh = SS.getSheetByName(nombre);
 
