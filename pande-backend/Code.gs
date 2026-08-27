@@ -656,6 +656,32 @@ function descontarInventarioPedido(productos, idTienda) {
   });
 }
 
+function restaurarInventarioPedido(productos, idTienda) {
+  const sh = SH_INV();
+  const data = sh.getDataRange().getValues();
+
+  productos.forEach(producto => {
+    for (let i = 1; i < data.length; i++) {
+      if (data[i][0] !== idTienda || data[i][1] !== producto.id) continue;
+
+      if (data[i][3] === "" || data[i][3] === null) return;
+
+      const nuevaCantidad =
+        safeNumber(data[i][3]) + Math.max(0, safeNumber(producto.qty));
+
+      sh.getRange(i + 1, 3, 1, 3).setValues([[
+        nuevaCantidad > 0,
+        nuevaCantidad,
+        new Date()
+      ]]);
+
+      data[i][2] = nuevaCantidad > 0;
+      data[i][3] = nuevaCantidad;
+      return;
+    }
+  });
+}
+
 function registrarPedido(b) {
 
   const lock = LockService.getScriptLock();
@@ -969,6 +995,15 @@ function actualizarEstatus(b) {
     const estatusActual = String(row[14] || "Nuevo");
     const nuevoEstatus = String(b.estatus_pedido || "");
     const idTiendaPedido = String(row[24] || "");
+    let productosParaRestaurar = [];
+
+    if (nuevoEstatus === "Cancelado" && estatusActual !== "Cancelado") {
+      try {
+        productosParaRestaurar = JSON.parse(String(row[8] || "[]"));
+      } catch (_) {
+        productosParaRestaurar = [];
+      }
+    }
 
     if (sesion.rol !== "master" && idTiendaPedido !== sesion.id_tienda) {
       return err("El pedido pertenece a otra sucursal");
@@ -1005,6 +1040,13 @@ function actualizarEstatus(b) {
           String(b.motivo_anulacion).trim(),
           new Date()
         ]]);
+
+        if (productosParaRestaurar.length) {
+          restaurarInventarioPedido(
+            productosParaRestaurar,
+            idTiendaPedido
+          );
+        }
       }
     }
 
