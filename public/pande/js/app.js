@@ -1197,11 +1197,9 @@ async function cargarCatalogo(){
       }catch(_){}
     }
     
-    const tiendasRes = await fetch(
+    const tiendasData = await fetchJsonConReintento(
       `${SCRIPT_URL}?action=getTiendas&key=${FRONTEND_KEY}`
     );
-
-    const tiendasData = await tiendasRes.json();
 
     tiendas = tiendasData.tiendas || [];
 
@@ -1243,8 +1241,47 @@ async function cargarCatalogo(){
 
   }catch(err){
     console.error(err);
-    alert("Error cargando catalogo");
+
+    if(storeNote){
+      storeNote.textContent = productos.length
+        ? "Mostrando la ultima informacion guardada. Intentaremos actualizarla nuevamente."
+        : "No pudimos cargar el catalogo. Revisa tu conexion y recarga la pagina.";
+    }
   }
+}
+
+function esperar(ms){
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function fetchJsonConReintento(url, intentos = 3){
+  let ultimoError = null;
+
+  for(let intento = 1; intento <= intentos; intento++){
+    try{
+      const respuesta = await fetch(url, { cache: "no-store" });
+
+      if(!respuesta.ok){
+        throw new Error(`Respuesta HTTP ${respuesta.status}`);
+      }
+
+      const data = await respuesta.json();
+
+      if(data.ok === false){
+        throw new Error(data.error || "Respuesta invalida del servidor");
+      }
+
+      return data;
+    }catch(error){
+      ultimoError = error;
+
+      if(intento < intentos){
+        await esperar(700 * intento);
+      }
+    }
+  }
+
+  throw ultimoError || new Error("No se pudo consultar el servidor");
 }
 
 function pintarSelectTiendas(){
@@ -1325,27 +1362,36 @@ async function cargarCatalogoPorTienda(idTienda){
   const cache =
     localStorage.getItem(cacheKey);
 
+  let cacheCargado = false;
+
   if(cache){
     try{
       productos = JSON.parse(cache);
+      cacheCargado = Array.isArray(productos) && productos.length > 0;
       render();
     }catch(_){}
   }
 
-  const res = await fetch(
-    `${SCRIPT_URL}?action=getCatalogoPorTienda&key=${FRONTEND_KEY}&id_tienda=${idTienda}`
-  );
+  try{
+    const data = await fetchJsonConReintento(
+      `${SCRIPT_URL}?action=getCatalogoPorTienda&key=${FRONTEND_KEY}&id_tienda=${idTienda}`
+    );
 
-  const data = await res.json();
+    productos = data.productos || [];
 
-  productos = data.productos || [];
+    localStorage.setItem(
+      cacheKey,
+      JSON.stringify(productos)
+    );
 
-  localStorage.setItem(
-    cacheKey,
-    JSON.stringify(productos)
-  );
+    render();
+  }catch(error){
+    if(!cacheCargado){
+      throw error;
+    }
 
-  render();
+    console.warn("Catalogo sin actualizar; se usa cache local", error);
+  }
 }
 
 function detectarTiendaCercana(){
