@@ -19,6 +19,8 @@ const SH_TIE = () => SS.getSheetByName("Tiendas");
 const SH_INV = () => SS.getSheetByName("Inventario");
 const SH_USU = () => SS.getSheetByName("Usuarios");
 const SH_APE = () => SS.getSheetByName("Aperturas_Diarias");
+const SH_REV = () => SS.getSheetByName("Revisiones_Inventario");
+const SH_INC = () => SS.getSheetByName("Incidencias_Inventario");
 const SH_REP = () => SS.getSheetByName("Reporte_Mensual");
 
 const DATA_ROW = 4;
@@ -428,11 +430,17 @@ return ok({
       if (action === "getInventario") {
         const sesion = obtenerSesionAdmin(params.token);
         const inventario = leerInventario();
+        const idTienda = sesion.rol === "master"
+          ? String(params.id_tienda || "")
+          : sesion.id_tienda;
 
         return ok({
           inventario: sesion.rol === "master"
             ? inventario
             : inventario.filter(item => item.id_tienda === sesion.id_tienda),
+          estado_inventario: idTienda
+            ? construirEstadoInventarioDiario(idTienda, sesion)
+            : null,
           sesion
         });
       }
@@ -497,7 +505,9 @@ function doPost(e) {
     const empleadoActions = [
       "actualizarEstatus",
       "updateDisponible",
-      "guardarInventarioDiario"
+      "guardarInventarioDiario",
+      "confirmarRevisionInventario",
+      "reportarInconsistenciaInventario"
     ];
 
     const masterActions = [
@@ -552,6 +562,12 @@ function doPost(e) {
 
       case "guardarInventarioDiario":
         return guardarInventarioDiario(body);
+
+      case "confirmarRevisionInventario":
+        return confirmarRevisionInventario(body);
+
+      case "reportarInconsistenciaInventario":
+        return reportarInconsistenciaInventario(body);
 
       case "updateProducto":
         return updateProducto(body);
@@ -1298,8 +1314,139 @@ function updateDisponible(b) {
   }
 }
 
+function fechaLocalInventario(valor) {
+  if (!valor) return "";
+
+  if (Object.prototype.toString.call(valor) === "[object Date]") {
+    return Utilities.formatDate(valor, TZ, "yyyy-MM-dd");
+  }
+
+  const texto = String(valor).trim();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(texto)) return texto;
+
+  const fecha = new Date(valor);
+  return isNaN(fecha.getTime())
+    ? texto
+    : Utilities.formatDate(fecha, TZ, "yyyy-MM-dd");
+}
+
+function asegurarHojasInventarioTurnos() {
+  if (!SH_REV()) {
+    asegurarHojaMigracion("Revisiones_Inventario", 1, [
+      "Fecha", "ID_Tienda", "Nombre_Tienda", "ID_Usuario",
+      "Nombre_Usuario", "Fecha_Hora_Revision", "Productos_Verificados",
+      "Observaciones", "Estado"
+    ]);
+  }
+
+  if (!SH_INC()) {
+    asegurarHojaMigracion("Incidencias_Inventario", 1, [
+      "ID_Incidencia", "Fecha", "ID_Tienda", "Nombre_Tienda",
+      "ID_Usuario", "Nombre_Usuario", "ID_Producto", "Nombre_Producto",
+      "Cantidad_Sistema", "Cantidad_Observada", "Diferencia",
+      "Observaciones", "Fecha_Hora_Reporte", "Estado"
+    ]);
+  }
+}
+
+function leerAperturaInventarioHoy(idTienda) {
+  const sh = SH_APE();
+  if (!sh) return null;
+
+  const hoy = Utilities.formatDate(new Date(), TZ, "yyyy-MM-dd");
+  const data = sh.getDataRange().getValues();
+
+  for (let i = data.length - 1; i >= 1; i--) {
+    const row = data[i];
+    if (
+      fechaLocalInventario(row[0]) === hoy &&
+      String(row[1] || "") === String(idTienda)
+    ) {
+      return {
+        fecha: hoy,
+        id_tienda: String(row[1] || ""),
+        nombre_tienda: String(row[2] || ""),
+        id_usuario: String(row[3] || ""),
+        nombre_usuario: String(row[4] || ""),
+        fecha_hora_confirmacion: row[5] || "",
+        productos_capturados: safeNumber(row[6]),
+        estado: String(row[7] || "Completa")
+      };
+    }
+  }
+
+  return null;
+}
+
+function leerRevisionesInventarioHoy(idTienda) {
+  asegurarHojasInventarioTurnos();
+  const hoy = Utilities.formatDate(new Date(), TZ, "yyyy-MM-dd");
+  const data = SH_REV().getDataRange().getValues();
+
+  return data.slice(1).filter(row =>
+    fechaLocalInventario(row[0]) === hoy &&
+    String(row[1] || "") === String(idTienda)
+  ).map(row => ({
+    fecha: hoy,
+    id_tienda: String(row[1] || ""),
+    nombre_tienda: String(row[2] || ""),
+    id_usuario: String(row[3] || ""),
+    nombre_usuario: String(row[4] || ""),
+    fecha_hora_revision: row[5] || "",
+    productos_verificados: safeNumber(row[6]),
+    observaciones: String(row[7] || ""),
+    estado: String(row[8] || "Confirmada")
+  }));
+}
+
+function leerIncidenciasInventarioHoy(idTienda) {
+  asegurarHojasInventarioTurnos();
+  const hoy = Utilities.formatDate(new Date(), TZ, "yyyy-MM-dd");
+  const data = SH_INC().getDataRange().getValues();
+
+  return data.slice(1).filter(row =>
+    fechaLocalInventario(row[1]) === hoy &&
+    String(row[2] || "") === String(idTienda)
+  ).map(row => ({
+    id_incidencia: String(row[0] || ""),
+    fecha: hoy,
+    id_tienda: String(row[2] || ""),
+    nombre_tienda: String(row[3] || ""),
+    id_usuario: String(row[4] || ""),
+    nombre_usuario: String(row[5] || ""),
+    id_producto: String(row[6] || ""),
+    nombre_producto: String(row[7] || ""),
+    cantidad_sistema: safeNumber(row[8]),
+    cantidad_observada: safeNumber(row[9]),
+    diferencia: safeNumber(row[10]),
+    observaciones: String(row[11] || ""),
+    fecha_hora_reporte: row[12] || "",
+    estado: String(row[13] || "Pendiente")
+  }));
+}
+
+function construirEstadoInventarioDiario(idTienda, sesion) {
+  const revisiones = leerRevisionesInventarioHoy(idTienda);
+
+  return {
+    fecha: Utilities.formatDate(new Date(), TZ, "yyyy-MM-dd"),
+    apertura_hoy: leerAperturaInventarioHoy(idTienda),
+    revisiones_hoy: revisiones,
+    revision_usuario_hoy: revisiones.some(item =>
+      item.id_usuario === String(sesion.id_usuario || "")
+    ),
+    incidencias_hoy: leerIncidenciasInventarioHoy(idTienda)
+  };
+}
+
 function guardarInventarioDiario(b) {
+  const lock = LockService.getScriptLock();
+
   try {
+    if (!lock.tryLock(10000)) {
+      return err("Otra empleada está actualizando el inventario. Intenta nuevamente.");
+    }
+
     const sesion = obtenerSesionAdmin(b.token);
     const idTienda = sesion.rol === "master"
       ? String(b.id_tienda || "")
@@ -1308,6 +1455,14 @@ function guardarInventarioDiario(b) {
 
     if (!idTienda || !productos.length) {
       return err("Sucursal e inventario requeridos");
+    }
+
+    const aperturaExistente = leerAperturaInventarioHoy(idTienda);
+    if (aperturaExistente) {
+      return err("El inventario de apertura ya fue confirmado hoy", {
+        codigo: "APERTURA_YA_CONFIRMADA",
+        apertura: aperturaExistente
+      });
     }
 
     const catalogo = leerCatalogo();
@@ -1386,6 +1541,131 @@ function guardarInventarioDiario(b) {
   } catch (error) {
     logEvent("ERROR_INVENTARIO_DIARIO", b, error.toString());
     return err("Error guardando inventario diario", { detail: error.toString() });
+  } finally {
+    try { lock.releaseLock(); } catch (_) {}
+  }
+}
+
+function confirmarRevisionInventario(b) {
+  try {
+    asegurarHojasInventarioTurnos();
+    const sesion = obtenerSesionAdmin(b.token);
+    const idTienda = sesion.rol === "master"
+      ? String(b.id_tienda || "")
+      : sesion.id_tienda;
+
+    if (!idTienda) return err("Sucursal requerida");
+    if (!leerAperturaInventarioHoy(idTienda)) {
+      return err("Primero debe confirmarse el inventario de apertura");
+    }
+
+    const revisiones = leerRevisionesInventarioHoy(idTienda);
+    const existente = revisiones.find(item =>
+      item.id_usuario === String(sesion.id_usuario || "")
+    );
+
+    if (existente) {
+      return ok({ revision: existente, ya_confirmada: true });
+    }
+
+    const ahora = new Date();
+    const tienda = leerTiendas().find(t => t.id_tienda === idTienda);
+    const productosVerificados = leerCatalogo().filter(p =>
+      p.disponible === true &&
+      p.pedido_especial !== true &&
+      p.categoria !== "PedEsp"
+    ).length;
+
+    SH_REV().appendRow([
+      Utilities.formatDate(ahora, TZ, "yyyy-MM-dd"),
+      idTienda,
+      tienda ? tienda.nombre : idTienda,
+      sesion.id_usuario || "MASTER",
+      sesion.nombre_usuario || "Karla",
+      ahora,
+      productosVerificados,
+      String(b.observaciones || "").trim().slice(0, 500),
+      "Confirmada"
+    ]);
+
+    logEvent("REVISION_INVENTARIO", {
+      id_tienda: idTienda,
+      id_usuario: sesion.id_usuario,
+      productos: productosVerificados
+    });
+
+    return ok({ revision_confirmada: true });
+  } catch (error) {
+    logEvent("ERROR_REVISION_INVENTARIO", b, error.toString());
+    return err("Error registrando la revisión", { detail: error.toString() });
+  }
+}
+
+function reportarInconsistenciaInventario(b) {
+  try {
+    asegurarHojasInventarioTurnos();
+    const sesion = obtenerSesionAdmin(b.token);
+    const idTienda = sesion.rol === "master"
+      ? String(b.id_tienda || "")
+      : sesion.id_tienda;
+    const idProducto = String(b.id_producto || "").trim();
+    const cantidadObservada = Math.max(0, Math.floor(safeNumber(b.cantidad_observada)));
+
+    if (!idTienda || !idProducto) {
+      return err("Sucursal y producto requeridos");
+    }
+
+    if (!leerAperturaInventarioHoy(idTienda)) {
+      return err("Primero debe confirmarse el inventario de apertura");
+    }
+
+    const producto = leerCatalogo().find(p => p.id === idProducto);
+    const inventario = leerInventario().find(item =>
+      item.id_tienda === idTienda && item.id_producto === idProducto
+    );
+
+    if (!producto || !inventario) {
+      return err("Producto no encontrado en el inventario de la sucursal");
+    }
+
+    const cantidadSistema = Math.max(0, Math.floor(safeNumber(inventario.cantidad)));
+    const ahora = new Date();
+    const tienda = leerTiendas().find(t => t.id_tienda === idTienda);
+    const idIncidencia = "INC-" + Utilities.getUuid().slice(0, 8).toUpperCase();
+
+    SH_INC().appendRow([
+      idIncidencia,
+      Utilities.formatDate(ahora, TZ, "yyyy-MM-dd"),
+      idTienda,
+      tienda ? tienda.nombre : idTienda,
+      sesion.id_usuario || "MASTER",
+      sesion.nombre_usuario || "Karla",
+      idProducto,
+      producto.nombre,
+      cantidadSistema,
+      cantidadObservada,
+      cantidadObservada - cantidadSistema,
+      String(b.observaciones || "").trim().slice(0, 500),
+      ahora,
+      "Pendiente"
+    ]);
+
+    logEvent("INCIDENCIA_INVENTARIO", {
+      id_incidencia: idIncidencia,
+      id_tienda: idTienda,
+      id_usuario: sesion.id_usuario,
+      id_producto: idProducto,
+      cantidad_sistema: cantidadSistema,
+      cantidad_observada: cantidadObservada
+    });
+
+    return ok({
+      id_incidencia: idIncidencia,
+      diferencia: cantidadObservada - cantidadSistema
+    });
+  } catch (error) {
+    logEvent("ERROR_INCIDENCIA_INVENTARIO", b, error.toString());
+    return err("Error registrando la inconsistencia", { detail: error.toString() });
   }
 }
 
@@ -2663,6 +2943,17 @@ function migrarEstructuraOperacionV2() {
       "Nombre_Usuario", "Fecha_Hora_Confirmacion", "Productos_Capturados",
       "Estado"
     ]);
+    asegurarHojaMigracion("Revisiones_Inventario", 1, [
+      "Fecha", "ID_Tienda", "Nombre_Tienda", "ID_Usuario",
+      "Nombre_Usuario", "Fecha_Hora_Revision", "Productos_Verificados",
+      "Observaciones", "Estado"
+    ]);
+    asegurarHojaMigracion("Incidencias_Inventario", 1, [
+      "ID_Incidencia", "Fecha", "ID_Tienda", "Nombre_Tienda",
+      "ID_Usuario", "Nombre_Usuario", "ID_Producto", "Nombre_Producto",
+      "Cantidad_Sistema", "Cantidad_Observada", "Diferencia",
+      "Observaciones", "Fecha_Hora_Reporte", "Estado"
+    ]);
     asegurarHojaMigracion("Logs", 1, [
       "Fecha", "Tipo", "Payload", "Respuesta"
     ]);
@@ -2711,7 +3002,8 @@ function migrarEstructuraOperacionV2() {
       respaldo_id: respaldo.id,
       hojas: [
         "Pedidos", "Inventario", "Tiendas", "Usuarios",
-        "Aperturas_Diarias", "Logs", "Reporte_Mensual"
+        "Aperturas_Diarias", "Revisiones_Inventario",
+        "Incidencias_Inventario", "Logs", "Reporte_Mensual"
       ]
     });
 

@@ -82,6 +82,32 @@
     .toggle input:checked + .toggle-slider { background:var(--verde); }
     .toggle input:checked + .toggle-slider:before { transform:translateX(20px); }
     .toggle-label { font-size:10px; font-weight:700; color:var(--gris); }
+    .inventory-status { margin-bottom:20px; padding:18px 20px; border-radius:var(--radius); border:1px solid #e0d6c9; background:var(--white); box-shadow:var(--shadow); }
+    .inventory-status.open { border-left:5px solid var(--verde); background:#f6fbf6; }
+    .inventory-status.pending { border-left:5px solid var(--naranja); background:#fffaf5; }
+    .inventory-status h3 { color:var(--cafe-dark); font-size:16px; margin-bottom:6px; }
+    .inventory-status p { color:var(--gris); font-size:13px; line-height:1.55; }
+    .review-box { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:12px; align-items:end; margin-top:14px; }
+    .review-box textarea { width:100%; min-height:66px; resize:vertical; padding:11px 12px; border:1px solid #d8cec2; border-radius:10px; font:inherit; }
+    .primary-btn { background:var(--cafe); color:white; border:none; padding:11px 16px; border-radius:999px; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit; }
+    .primary-btn:disabled { opacity:.55; cursor:not-allowed; }
+    .inventory-activity { margin:0 0 20px; display:grid; gap:10px; }
+    .activity-item { padding:12px 14px; border-radius:10px; background:#fff; border:1px solid #e5ddd3; font-size:13px; line-height:1.45; }
+    .activity-item strong { color:var(--cafe-dark); }
+    .activity-item.incident { border-left:4px solid var(--naranja); background:#fffaf5; }
+    .stock-current { text-align:right; font-size:12px; color:var(--gris); }
+    .stock-current strong { display:block; font-size:22px; color:var(--cafe-dark); }
+    .report-btn { margin-top:7px; padding:7px 10px; border-radius:999px; border:1px solid #d39b71; background:#fff7f0; color:#8b4b1e; font:inherit; font-size:12px; font-weight:700; cursor:pointer; }
+    .modal-overlay { position:fixed; inset:0; z-index:10000; display:none; align-items:center; justify-content:center; padding:20px; background:rgba(13,13,13,.65); }
+    .modal-overlay.show { display:flex; }
+    .modal-card { width:100%; max-width:470px; background:white; border-radius:20px; padding:26px; box-shadow:0 22px 70px rgba(0,0,0,.3); }
+    .modal-card h2 { font-family:'Playfair Display',serif; color:var(--cafe); margin-bottom:8px; }
+    .modal-card > p { color:var(--gris); font-size:13px; line-height:1.5; margin-bottom:18px; }
+    .modal-field { display:block; margin-bottom:14px; color:var(--cafe-dark); font-size:13px; font-weight:700; }
+    .modal-field input, .modal-field textarea { width:100%; margin-top:6px; padding:11px 12px; border:1px solid #d8cec2; border-radius:10px; font:inherit; }
+    .modal-field textarea { min-height:82px; resize:vertical; }
+    .modal-actions { display:flex; justify-content:flex-end; gap:10px; margin-top:18px; }
+    .secondary-btn { background:#eee8df; color:var(--cafe-dark); border:none; padding:11px 16px; border-radius:999px; font:inherit; font-size:13px; font-weight:700; cursor:pointer; }
     .empty-state, .loading { text-align:center; padding:60px 20px; color:var(--gris); }
     .toast { position:fixed; bottom:24px; right:24px; background:var(--cafe-dark); color:white; padding:14px 20px; border-radius:var(--radius); font-size:14px; font-weight:500; box-shadow:0 8px 24px rgba(0,0,0,.2); opacity:0; transform:translateY(10px); transition:.3s; z-index:9999; pointer-events:none; }
     .toast.show { opacity:1; transform:translateY(0); }
@@ -92,6 +118,10 @@
       .tabs { padding:0 16px; }
       .tab { padding:14px 16px; font-size:13px; }
       .pedido-card { padding:16px; }
+      .section-header { align-items:flex-start; gap:12px; }
+      .review-box { grid-template-columns:1fr; }
+      .review-box .primary-btn { width:100%; }
+      .producto-card { align-items:flex-start; }
     }
     @media (max-width:480px) {
       .topbar { padding:12px 16px; }
@@ -419,12 +449,42 @@ body {
     <div class="tab-panel" id="panel-stock">
       <div class="section-header">
         <div>
-          <div class="section-title">Inventario de apertura</div>
-          <p>Captura la cantidad exacta de todos los productos al iniciar el día.</p>
+          <div class="section-title" id="inventario-titulo">Inventario de apertura</div>
+          <p id="inventario-instruccion">Captura la cantidad exacta de todos los productos al iniciar el día.</p>
         </div>
-        <button class="refresh-btn" onclick="guardarInventarioDiario()">Confirmar inventario</button>
+        <button class="primary-btn" id="inventario-accion" onclick="guardarInventarioDiario()">Confirmar inventario</button>
       </div>
+      <div id="inventario-estado" class="inventory-status pending">
+        <h3>Consultando la apertura de hoy…</h3>
+      </div>
+      <div id="inventario-actividad" class="inventory-activity"></div>
       <div id="catalogo-lista"><div class="loading">Cargando stock...</div></div>
+    </div>
+  </div>
+</div>
+<div class="modal-overlay" id="incidencia-modal" role="dialog" aria-modal="true" aria-labelledby="incidencia-titulo">
+  <div class="modal-card">
+    <h2 id="incidencia-titulo">Reportar diferencia</h2>
+    <p>Este reporte no modifica la existencia. Deja constancia para que se revise antes de hacer un ajuste.</p>
+    <label class="modal-field">
+      Producto
+      <input id="incidencia-producto" type="text" readonly />
+    </label>
+    <label class="modal-field">
+      Cantidad que muestra el sistema
+      <input id="incidencia-sistema" type="number" readonly />
+    </label>
+    <label class="modal-field">
+      Cantidad observada físicamente
+      <input id="incidencia-observada" type="number" min="0" step="1" inputmode="numeric" />
+    </label>
+    <label class="modal-field">
+      Explicación breve
+      <textarea id="incidencia-observaciones" placeholder="Ejemplo: una pieza dañada o diferencia al contar"></textarea>
+    </label>
+    <div class="modal-actions">
+      <button class="secondary-btn" onclick="cerrarReporteInconsistencia()">Cancelar</button>
+      <button class="primary-btn" onclick="guardarReporteInconsistencia()">Guardar reporte</button>
     </div>
   </div>
 </div>
@@ -436,6 +496,9 @@ body {
   let TOKEN = "";
   let SESION = null;
   let INVENTARIO = [];
+  let CATALOGO = [];
+  let ESTADO_INVENTARIO = null;
+  let PRODUCTO_INCIDENCIA = null;
   
    const SIGUIENTE_ESTATUS = {
     "Nuevo": "Confirmado",
@@ -483,9 +546,15 @@ body {
         actualizarTituloAdmin();
 
         pintarPedidos(data.pedidos || []);
-        cargarCatalogo();
-        cambiarTab("stock");
-        toast("Captura el inventario del día antes de comenzar");
+        await cargarCatalogo();
+
+        if(ESTADO_INVENTARIO && ESTADO_INVENTARIO.apertura_hoy){
+          cambiarTab("pedidos");
+          toast("Inventario abierto. Puedes continuar con la operación");
+        }else{
+          cambiarTab("stock");
+          toast("Confirma el inventario de apertura antes de comenzar");
+        }
            
       }else{
         mostrarError("Token incorrecto");
@@ -898,13 +967,85 @@ body {
       }
 
       INVENTARIO = inventarioData.inventario || [];
+      CATALOGO = catalogoData.productos || [];
+      ESTADO_INVENTARIO = inventarioData.estado_inventario || null;
 
-      pintarCatalogo(catalogoData.productos || []);
+      pintarEstadoInventario();
+      pintarCatalogo(CATALOGO);
 
     }catch(err){
       lista.innerHTML =
         '<div class="empty-state"><p>Error de conexion</p></div>';
     }
+  }
+
+  function fechaHoraLegible(valor){
+    if(!valor) return "";
+    const fecha = new Date(valor);
+    if(Number.isNaN(fecha.getTime())) return String(valor);
+    return fecha.toLocaleString("es-MX", {
+      day:"numeric", month:"short", hour:"2-digit", minute:"2-digit"
+    });
+  }
+
+  function pintarEstadoInventario(){
+    const estado = document.getElementById("inventario-estado");
+    const actividad = document.getElementById("inventario-actividad");
+    const titulo = document.getElementById("inventario-titulo");
+    const instruccion = document.getElementById("inventario-instruccion");
+    const accion = document.getElementById("inventario-accion");
+    const apertura = ESTADO_INVENTARIO && ESTADO_INVENTARIO.apertura_hoy;
+    const revisiones = ESTADO_INVENTARIO && ESTADO_INVENTARIO.revisiones_hoy || [];
+    const incidencias = ESTADO_INVENTARIO && ESTADO_INVENTARIO.incidencias_hoy || [];
+
+    if(!apertura){
+      titulo.textContent = "Inventario de apertura";
+      instruccion.textContent = "Captura una sola vez las cantidades exactas al iniciar el día.";
+      accion.textContent = "Confirmar inventario";
+      accion.disabled = false;
+      accion.onclick = guardarInventarioDiario;
+      estado.className = "inventory-status pending";
+      estado.innerHTML = `
+        <h3>Apertura pendiente</h3>
+        <p>La primera empleada del día debe contar todos los productos y confirmar. Después de guardar, nadie tendrá que capturar nuevamente la apertura.</p>
+      `;
+      actividad.innerHTML = "";
+      return;
+    }
+
+    titulo.textContent = "Revisión de existencias";
+    instruccion.textContent = "Comprueba las cantidades vigentes. Si algo no coincide, reporta la diferencia sin sobrescribir el inventario.";
+    accion.textContent = ESTADO_INVENTARIO.revision_usuario_hoy
+      ? "Revisión ya registrada"
+      : "Confirmar mi revisión";
+    accion.disabled = Boolean(ESTADO_INVENTARIO.revision_usuario_hoy);
+    accion.onclick = confirmarRevisionTurno;
+    estado.className = "inventory-status open";
+    estado.innerHTML = `
+      <h3>Apertura confirmada por ${escaparHtml(apertura.nombre_usuario || "una empleada")}</h3>
+      <p>${fechaHoraLegible(apertura.fecha_hora_confirmacion)} · ${Number(apertura.productos_capturados || 0)} productos capturados. Las cantidades de abajo ya consideran los pedidos registrados.</p>
+      ${ESTADO_INVENTARIO.revision_usuario_hoy ? "" : `
+        <div class="review-box">
+          <textarea id="revision-observaciones" placeholder="Observaciones generales del turno (opcional)"></textarea>
+          <button class="primary-btn" onclick="confirmarRevisionTurno()">Confirmar mi revisión</button>
+        </div>
+      `}
+    `;
+
+    actividad.innerHTML = [
+      ...revisiones.map(item => `
+        <div class="activity-item">
+          <strong>Revisión confirmada:</strong> ${escaparHtml(item.nombre_usuario || "Empleada")} · ${fechaHoraLegible(item.fecha_hora_revision)}
+          ${item.observaciones ? `<br>${escaparHtml(item.observaciones)}` : ""}
+        </div>
+      `),
+      ...incidencias.map(item => `
+        <div class="activity-item incident">
+          <strong>Diferencia reportada:</strong> ${escaparHtml(item.nombre_producto)} — sistema ${Number(item.cantidad_sistema)}, conteo ${Number(item.cantidad_observada)} (${Number(item.diferencia) >= 0 ? "+" : ""}${Number(item.diferencia)})
+          <br>${escaparHtml(item.nombre_usuario || "Empleada")}${item.observaciones ? ` · ${escaparHtml(item.observaciones)}` : ""}
+        </div>
+      `)
+    ].join("");
   }
 
   function cantidadProductoEnSesion(idProducto){
@@ -920,6 +1061,9 @@ body {
 
   function pintarCatalogo(productos){
     const lista = document.getElementById("catalogo-lista");
+    const aperturaConfirmada = Boolean(
+      ESTADO_INVENTARIO && ESTADO_INVENTARIO.apertura_hoy
+    );
 
     if(productos.length === 0){
       lista.innerHTML =
@@ -946,28 +1090,35 @@ body {
       grupos[cat].forEach(p => {
         const cantidad = cantidadProductoEnSesion(p.id);
         html += `
-        
           <div class="producto-card">
             <div class="producto-info">
-              <div class="producto-nombre">${p.nombre}</div>
+              <div class="producto-nombre">${escaparHtml(p.nombre)}</div>
               <div class="producto-meta">
-                ${p.linea || ""} ·
+                ${escaparHtml(p.linea || "")} ·
                 <span class="producto-precio">$${p.precio}</span>
               </div>
             </div>
-            <div class="toggle-wrap">
-              <label>
-                Cantidad
-                <input
-                  type="number"
-                  min="0"
-                  step="1"
-                  value="${cantidad}"
-                  data-stock-id="${p.id}"
-                  style="width:90px;padding:9px;margin-left:8px"
-                />
-              </label>
-            </div>
+            ${aperturaConfirmada ? `
+              <div class="stock-current">
+                Existencia en sistema
+                <strong>${cantidad}</strong>
+                <button class="report-btn" onclick="abrirReporteInconsistencia('${escaparHtml(p.id)}')">Reportar diferencia</button>
+              </div>
+            ` : `
+              <div class="toggle-wrap">
+                <label>
+                  Cantidad
+                  <input
+                    type="number"
+                    min="0"
+                    step="1"
+                    value="${cantidad}"
+                    data-stock-id="${escaparHtml(p.id)}"
+                    style="width:90px;padding:9px;margin-left:8px"
+                  />
+                </label>
+              </div>
+            `}
           </div>
         `;
       });
@@ -1040,6 +1191,11 @@ body {
   }
 
   async function guardarInventarioDiario(){
+    if(ESTADO_INVENTARIO && ESTADO_INVENTARIO.apertura_hoy){
+      toast("La apertura de hoy ya fue confirmada");
+      return;
+    }
+
     const inputs = Array.from(document.querySelectorAll("[data-stock-id]"));
     const productos = inputs.map(input => ({
       id_producto: input.dataset.stockId,
@@ -1070,6 +1226,98 @@ body {
       toast("Inventario del día confirmado");
       await cargarCatalogo();
       cambiarTab("pedidos");
+    }catch(_){
+      toast("Error de conexión");
+    }
+  }
+
+  async function confirmarRevisionTurno(){
+    if(!ESTADO_INVENTARIO || !ESTADO_INVENTARIO.apertura_hoy){
+      toast("Primero debe confirmarse la apertura");
+      return;
+    }
+
+    if(ESTADO_INVENTARIO.revision_usuario_hoy){
+      toast("Tu revisión de hoy ya está registrada");
+      return;
+    }
+
+    const observaciones = document.getElementById("revision-observaciones");
+
+    try{
+      const res = await fetch(SCRIPT_URL, {
+        method:"POST",
+        body:JSON.stringify({
+          action:"confirmarRevisionInventario",
+          token:TOKEN,
+          observaciones:observaciones ? observaciones.value.trim() : ""
+        })
+      });
+      const data = await res.json();
+
+      if(!data.ok){
+        toast(data.error || "No se pudo registrar la revisión");
+        return;
+      }
+
+      toast(data.ya_confirmada ? "Tu revisión ya estaba registrada" : "Revisión del turno registrada");
+      await cargarCatalogo();
+    }catch(_){
+      toast("Error de conexión");
+    }
+  }
+
+  function abrirReporteInconsistencia(idProducto){
+    const producto = CATALOGO.find(item => item.id === idProducto);
+    if(!producto) return;
+
+    PRODUCTO_INCIDENCIA = producto;
+    const cantidad = cantidadProductoEnSesion(idProducto);
+    document.getElementById("incidencia-producto").value = producto.nombre || idProducto;
+    document.getElementById("incidencia-sistema").value = cantidad;
+    document.getElementById("incidencia-observada").value = cantidad;
+    document.getElementById("incidencia-observaciones").value = "";
+    document.getElementById("incidencia-modal").classList.add("show");
+    document.getElementById("incidencia-observada").focus();
+  }
+
+  function cerrarReporteInconsistencia(){
+    PRODUCTO_INCIDENCIA = null;
+    document.getElementById("incidencia-modal").classList.remove("show");
+  }
+
+  async function guardarReporteInconsistencia(){
+    if(!PRODUCTO_INCIDENCIA) return;
+
+    const observada = Number(document.getElementById("incidencia-observada").value);
+    const observaciones = document.getElementById("incidencia-observaciones").value.trim();
+
+    if(!Number.isFinite(observada) || observada < 0 || !Number.isInteger(observada)){
+      toast("Ingresa una cantidad observada válida");
+      return;
+    }
+
+    try{
+      const res = await fetch(SCRIPT_URL, {
+        method:"POST",
+        body:JSON.stringify({
+          action:"reportarInconsistenciaInventario",
+          token:TOKEN,
+          id_producto:PRODUCTO_INCIDENCIA.id,
+          cantidad_observada:observada,
+          observaciones
+        })
+      });
+      const data = await res.json();
+
+      if(!data.ok){
+        toast(data.error || "No se pudo guardar el reporte");
+        return;
+      }
+
+      cerrarReporteInconsistencia();
+      toast(`Diferencia registrada: ${Number(data.diferencia) >= 0 ? "+" : ""}${Number(data.diferencia)}`);
+      await cargarCatalogo();
     }catch(_){
       toast("Error de conexión");
     }
