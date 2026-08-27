@@ -2372,6 +2372,10 @@ function cotizarRuta(params) {
       return err("Sucursal y destino válidos son requeridos");
     }
 
+    if (tienda.delivery_ok !== true) {
+      return err("La sucursal elegida no está habilitada para entregas");
+    }
+
     const directions = Maps.newDirectionFinder()
       .setOrigin(tienda.lat + "," + tienda.lng)
       .setDestination(lat + "," + lng)
