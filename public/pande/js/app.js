@@ -2,7 +2,6 @@ const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwGxnv1CbQvLTF9fnQwa
 
 const FRONTEND_KEY = "PANDE_PUBLIC_2026";
 const IMAGE_VERSION = "20260624d";
-const SPECIAL_ORDERS_WHATSAPP = "529933732602";
 const STORE_WHATSAPP_FALLBACKS = {
   LAVIN: "529995433776",
   DZITYA: "529994393976"
@@ -214,29 +213,72 @@ function vaciarCarrito(){
   actualizarCarrito();
 }
 
+function normalizarWhatsapp(valor){
+
+  const digitos = String(valor || "").replace(/\D/g, "");
+
+  if(digitos.length === 10){
+    return `52${digitos}`;
+  }
+
+  return digitos;
+}
+
+function obtenerWhatsappTienda(tienda){
+
+  if(!tienda) return "";
+
+  const whatsappConfigurado =
+    normalizarWhatsapp(tienda.whatsapp);
+
+  if(whatsappConfigurado){
+    return whatsappConfigurado;
+  }
+
+  return STORE_WHATSAPP_FALLBACKS[tienda.id_tienda] || "";
+}
+
 function obtenerWhatsappDestino(){
 
   const tienda =
     tiendaSeleccionada || tiendas[0];
 
-  if(tienda && tienda.whatsapp){
-    return String(tienda.whatsapp).replace(/\D/g, "");
-  }
+  const whatsappTienda = obtenerWhatsappTienda(tienda);
 
-  if(tienda && STORE_WHATSAPP_FALLBACKS[tienda.id_tienda]){
-    return STORE_WHATSAPP_FALLBACKS[tienda.id_tienda];
-  }
+  if(whatsappTienda) return whatsappTienda;
 
   return "529991373216";
 }
 
 function abrirWhatsAppPedidoEspecial(){
-  const mensaje =
-    "Hola Pande, quiero solicitar información para hacer un pedido especial.";
+
+  const tienda = tiendaSeleccionada || tiendas[0];
+  const whatsappTienda = obtenerWhatsappTienda(tienda);
+
+  if(!tienda){
+    alert(
+      "Todavia no pudimos identificar una sucursal. Espera unos segundos o elige una sucursal e intentalo nuevamente."
+    );
+    return;
+  }
+
+  if(!whatsappTienda){
+    alert(
+      `El WhatsApp de ${tienda.nombre} aun esta pendiente de activacion. ` +
+      "Por favor elige otra sucursal para solicitar tu pedido especial."
+    );
+    return;
+  }
+
+  const mensaje = [
+    "Hola Pande, quiero solicitar informacion para hacer un pedido especial.",
+    `Mi sucursal seleccionada es ${tienda.nombre}.`
+  ].join("\n");
 
   window.open(
-    `https://wa.me/${SPECIAL_ORDERS_WHATSAPP}?text=${encodeURIComponent(mensaje)}`,
-    "_blank"
+    `https://wa.me/${whatsappTienda}?text=${encodeURIComponent(mensaje)}`,
+    "_blank",
+    "noopener,noreferrer"
   );
 }
 
@@ -1351,6 +1393,15 @@ function actualizarVistaTienda(nota){
   if(checkoutTienda){
     checkoutTienda.value =
       tiendaSeleccionada.id_tienda;
+  }
+
+  if(specialOrderBtn){
+    specialOrderBtn.textContent =
+      `Pedido especial · ${tiendaSeleccionada.nombre}`;
+    specialOrderBtn.setAttribute(
+      "aria-label",
+      `Solicitar pedido especial por WhatsApp a ${tiendaSeleccionada.nombre}`
+    );
   }
 }
 
