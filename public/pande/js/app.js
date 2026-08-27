@@ -2,6 +2,11 @@ const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwGxnv1CbQvLTF9fnQwa
 
 const FRONTEND_KEY = "PANDE_PUBLIC_2026";
 const IMAGE_VERSION = "20260624d";
+const SPECIAL_ORDERS_WHATSAPP = "529933732602";
+const STORE_WHATSAPP_FALLBACKS = {
+  LAVIN: "529995433776",
+  DZITYA: "529994393976"
+};
 
 const PRODUCT_IMAGE_OVERRIDES = {
   T09: "./img/panque-de-naranja-cero-azucar.jpg"
@@ -105,6 +110,10 @@ let ubicacionGeneradaPorDireccion = false;
 let direccionTimer = null;
 let cotizacionDireccionEnProceso = false;
 let ultimaDireccionSinResultado = "";
+let cotizacionRutaActual = null;
+let cotizacionRutaClave = "";
+let cotizacionRutaPromesa = null;
+let cotizacionRutaError = "";
 let deliveryMap = null;
 let deliveryMarker = null;
 let ubicacionEntregaConfirmada = false;
@@ -214,21 +223,19 @@ function obtenerWhatsappDestino(){
     return String(tienda.whatsapp).replace(/\D/g, "");
   }
 
-  return "529992175116";
+  if(tienda && STORE_WHATSAPP_FALLBACKS[tienda.id_tienda]){
+    return STORE_WHATSAPP_FALLBACKS[tienda.id_tienda];
+  }
+
+  return "529991373216";
 }
 
 function abrirWhatsAppPedidoEspecial(){
-
-  const tienda =
-    tiendaSeleccionada || tiendas[0];
-
   const mensaje =
-    `Hola Pande, quiero hacer un pedido especial.${
-      tienda ? `\nSucursal sugerida: ${tienda.nombre}` : ""
-    }`;
+    "Hola Pande, quiero solicitar información para hacer un pedido especial.";
 
   window.open(
-    `https://wa.me/${obtenerWhatsappDestino()}?text=${encodeURIComponent(mensaje)}`,
+    `https://wa.me/${SPECIAL_ORDERS_WHATSAPP}?text=${encodeURIComponent(mensaje)}`,
     "_blank"
   );
 }
@@ -247,9 +254,8 @@ function obtenerOpcionesPago(){
   if(entrega === "domicilio"){
     return [
       "Efectivo al recibir",
-      "Tarjeta al recibir (terminal)",
       "Transferencia",
-      "Tarjeta en linea (BBVA)"
+      "Tarjeta en linea (Santander)"
     ];
   }
 
@@ -257,7 +263,7 @@ function obtenerOpcionesPago(){
     "Efectivo en tienda",
     "Tarjeta en tienda (terminal)",
     "Transferencia",
-    "Tarjeta en linea (BBVA)"
+    "Tarjeta en linea (Santander)"
   ];
 }
 
@@ -315,13 +321,12 @@ function obtenerSubtotalCarrito(){
 }
 
 function obtenerCoordenadasTiendaDelivery(){
-
-  const lavin =
-    tiendas.find(t => t.id_tienda === "LAVIN");
+  const tienda =
+    tiendaSeleccionada || tiendas[0];
 
   return {
-    lat: Number(lavin && lavin.lat) || LAVIN_COORDS.lat,
-    lng: Number(lavin && lavin.lng) || LAVIN_COORDS.lng
+    lat: Number(tienda && tienda.lat) || LAVIN_COORDS.lat,
+    lng: Number(tienda && tienda.lng) || LAVIN_COORDS.lng
   };
 }
 
@@ -732,15 +737,6 @@ function calcularCostoEnvioPorKm(distanciaKm){
     };
   }
 
-  if(distanciaKm > 20){
-    return {
-      costo: 0,
-      distanciaKm,
-      sujetoConfirmacion: true,
-      faltaUbicacion: false
-    };
-  }
-
   const costo =
     distanciaKm <= 5.5
       ? 40
@@ -752,6 +748,76 @@ function calcularCostoEnvioPorKm(distanciaKm){
     sujetoConfirmacion: false,
     faltaUbicacion: false
   };
+}
+
+function crearClaveRuta(coordsCliente){
+  return [
+    tiendaSeleccionada ? tiendaSeleccionada.id_tienda : "",
+    Number(coordsCliente.lat).toFixed(6),
+    Number(coordsCliente.lng).toFixed(6)
+  ].join("|");
+}
+
+async function solicitarCotizacionRuta(coordsCliente){
+  const clave = crearClaveRuta(coordsCliente);
+
+  if(cotizacionRutaActual && cotizacionRutaClave === clave){
+    return cotizacionRutaActual;
+  }
+
+  if(cotizacionRutaPromesa && cotizacionRutaClave === clave){
+    return cotizacionRutaPromesa;
+  }
+
+  cotizacionRutaClave = clave;
+  cotizacionRutaActual = null;
+  cotizacionRutaError = "";
+
+  const url = new URL(SCRIPT_URL);
+  url.searchParams.set("action", "cotizarRuta");
+  url.searchParams.set("key", FRONTEND_KEY);
+  url.searchParams.set("id_tienda", tiendaSeleccionada ? tiendaSeleccionada.id_tienda : "");
+  url.searchParams.set("lat", coordsCliente.lat);
+  url.searchParams.set("lng", coordsCliente.lng);
+
+  cotizacionRutaPromesa = fetch(url.toString())
+    .then(res => res.json())
+    .then(data => {
+      if(!data.ok) throw new Error(data.error || "No se pudo cotizar");
+      cotizacionRutaActual = {
+        costo: Number(data.costo_envio),
+        distanciaKm: Number(data.distancia_km),
+        sujetoConfirmacion: false,
+        faltaUbicacion: false,
+        metodo: "recorrido_en_calles"
+      };
+      return cotizacionRutaActual;
+    })
+    .catch(error => {
+      cotizacionRutaError = error.message || "No se pudo cotizar el recorrido";
+      cotizacionRutaActual = null;
+      return null;
+    })
+    .finally(() => {
+      cotizacionRutaPromesa = null;
+      actualizarCotizacionEnvio();
+    });
+
+  actualizarCotizacionEnvio();
+  return cotizacionRutaPromesa;
+}
+
+async function asegurarCotizacionRuta(){
+  if(document.getElementById("tipo-entrega").value !== "domicilio") return true;
+
+  const coordsCliente = extraerCoordenadasUbicacion(
+    clienteUbicacion ? clienteUbicacion.value : ""
+  );
+
+  if(!coordsCliente) return false;
+
+  const resultado = await solicitarCotizacionRuta(coordsCliente);
+  return Boolean(resultado);
 }
 
 function obtenerCotizacionEnvio(){
@@ -777,18 +843,35 @@ function obtenerCotizacionEnvio(){
     return calcularCostoEnvioPorKm(NaN);
   }
 
-  const coordsTienda =
-    obtenerCoordenadasTiendaDelivery();
+  const clave = crearClaveRuta(coordsCliente);
 
-  const distanciaKm =
-    calcularDistanciaKm(
-      coordsTienda.lat,
-      coordsTienda.lng,
-      coordsCliente.lat,
-      coordsCliente.lng
-    );
+  if(cotizacionRutaActual && cotizacionRutaClave === clave){
+    return cotizacionRutaActual;
+  }
 
-  return calcularCostoEnvioPorKm(distanciaKm);
+  if(cotizacionRutaError && cotizacionRutaClave === clave){
+    return {
+      costo: 0,
+      distanciaKm: null,
+      sujetoConfirmacion: true,
+      faltaUbicacion: false,
+      cotizandoRuta: false,
+      errorRuta: cotizacionRutaError
+    };
+  }
+
+  if(!cotizacionRutaPromesa || cotizacionRutaClave !== clave){
+    solicitarCotizacionRuta(coordsCliente);
+  }
+
+  return {
+    costo: 0,
+    distanciaKm: null,
+    sujetoConfirmacion: true,
+    faltaUbicacion: false,
+    cotizandoRuta: Boolean(cotizacionRutaPromesa),
+    errorRuta: cotizacionRutaError
+  };
 }
 
 function actualizarCotizacionEnvio(){
@@ -821,6 +904,24 @@ function actualizarCotizacionEnvio(){
       <strong>Cotizando envio...</strong>
       <span>Estamos ubicando la direccion escrita para calcular el envio.</span>
       <span>Productos: $${subtotal}</span>
+    `;
+    return;
+  }
+
+  if(cotizacion.cotizandoRuta){
+    deliveryQuote.classList.remove("warning");
+    deliveryQuote.innerHTML = `
+      <strong>Calculando recorrido...</strong>
+      <span>Estamos midiendo la ruta por calles desde ${tiendaSeleccionada ? tiendaSeleccionada.nombre : "la sucursal"}.</span>
+      <span>Productos: $${subtotal}</span>
+    `;
+    return;
+  }
+
+  if(cotizacion.errorRuta){
+    deliveryQuote.innerHTML = `
+      <strong>No pudimos calcular el recorrido</strong>
+      <span>${cotizacion.errorRuta}. Revisa la ubicación e intenta nuevamente.</span>
     `;
     return;
   }
@@ -1928,14 +2029,12 @@ document.getElementById("tipo-entrega")
       wrapper.classList.remove("hidden");
 
       if(tiendaWrapper){
-        tiendaWrapper.classList.add("hidden");
+        tiendaWrapper.classList.remove("hidden");
       }
-
-      seleccionarTienda("LAVIN");
 
       if(checkoutTiendaHelp){
         checkoutTiendaHelp.textContent =
-          "El servicio a domicilio solo esta disponible desde Garcia Lavin.";
+          "El envío se cotiza desde la sucursal que elijas. Pandé puede reasignar internamente la preparación sin cambiarte el precio.";
       }
 
       programarCotizacionPorDireccion();
@@ -2062,7 +2161,7 @@ async function validarPedido(){
 
   if(esPagoTarjetaEnLinea(pago)){
     alert(
-      "El pago con tarjeta en linea por BBVA todavia esta en configuracion. Por ahora elige efectivo, terminal o transferencia."
+      "El pago con tarjeta en linea por Santander todavia esta en configuracion. Por ahora elige efectivo o transferencia."
     );
     return;
   }
@@ -2106,6 +2205,15 @@ async function validarPedido(){
         });
       }
 
+      return;
+    }
+
+    const rutaCalculada = await asegurarCotizacionRuta();
+
+    if(!rutaCalculada){
+      alert(
+        "No pudimos calcular el recorrido por calles. Revisa la ubicación e intenta nuevamente."
+      );
       return;
     }
   }
