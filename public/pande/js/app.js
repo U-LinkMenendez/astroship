@@ -1254,14 +1254,7 @@ function pintarSelectTiendas(){
   storeSelect.innerHTML = "";
   checkoutTienda.innerHTML = "";
 
-  const tipoEntrega =
-    document.getElementById("tipo-entrega")?.value;
-  const tiendasDisponibles =
-    tipoEntrega === "domicilio"
-      ? tiendas.filter(tienda => tienda.delivery_ok === true)
-      : tiendas;
-
-  tiendasDisponibles.forEach(tienda=>{
+  tiendas.forEach(tienda=>{
 
     const option = document.createElement("option");
     option.value = tienda.id_tienda;
@@ -1361,17 +1354,6 @@ function detectarTiendaCercana(){
     return;
   }
 
-  const tipoEntrega =
-    document.getElementById("tipo-entrega")?.value;
-  const tiendasDisponibles =
-    tipoEntrega === "domicilio"
-      ? tiendas.filter(tienda => tienda.delivery_ok === true)
-      : tiendas;
-
-  if(!tiendasDisponibles.length){
-    return;
-  }
-
   navigator.geolocation.getCurrentPosition(
     pos => {
 
@@ -1381,7 +1363,7 @@ function detectarTiendaCercana(){
       let mejor = null;
       let mejorDistancia = Infinity;
 
-      tiendasDisponibles.forEach(tienda=>{
+      tiendas.forEach(tienda=>{
 
         const distancia = calcularDistanciaKm(
           lat,
@@ -2034,31 +2016,13 @@ document.getElementById("tipo-fecha")
   });
 
 document.getElementById("tipo-entrega")
-  .addEventListener("change", async (e)=>{
+  .addEventListener("change",(e)=>{
 
     const wrapper =
       document.getElementById("direccion-wrapper");
 
     const tiendaWrapper =
       document.getElementById("checkout-tienda-wrapper");
-
-    pintarSelectTiendas();
-
-    const tiendasDisponibles =
-      e.target.value === "domicilio"
-        ? tiendas.filter(tienda => tienda.delivery_ok === true)
-        : tiendas;
-
-    if(
-      tiendasDisponibles.length &&
-      !tiendasDisponibles.some(tienda =>
-        tienda.id_tienda === tiendaSeleccionada?.id_tienda
-      )
-    ){
-      await seleccionarTienda(
-        tiendasDisponibles[0].id_tienda
-      );
-    }
 
     if(e.target.value === "domicilio"){
 
