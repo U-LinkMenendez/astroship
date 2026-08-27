@@ -2601,6 +2601,9 @@ function migrarEstructuraOperacionV2() {
       "Nombre_Usuario", "Fecha_Hora_Confirmacion", "Productos_Capturados",
       "Estado"
     ]);
+    asegurarHojaMigracion("Logs", 1, [
+      "Fecha", "Tipo", "Payload", "Respuesta"
+    ]);
     asegurarHojaMigracion("Reporte_Mensual", 1, [
       "Mes", "Generado_En", "Ingresos_Productos",
       "Pedidos_Entregados_Pagados", "Ticket_Promedio", "Unidades_Vendidas",
@@ -2646,7 +2649,7 @@ function migrarEstructuraOperacionV2() {
       respaldo_id: respaldo.id,
       hojas: [
         "Pedidos", "Inventario", "Tiendas", "Usuarios",
-        "Aperturas_Diarias", "Reporte_Mensual"
+        "Aperturas_Diarias", "Logs", "Reporte_Mensual"
       ]
     });
 
