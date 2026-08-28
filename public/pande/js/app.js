@@ -113,6 +113,9 @@ let cotizacionRutaActual = null;
 let cotizacionRutaClave = "";
 let cotizacionRutaPromesa = null;
 let cotizacionRutaError = "";
+let cotizacionRutaSecuencia = 0;
+let cotizacionPedidoConfirmada = null;
+let validacionPedidoEnProceso = false;
 let deliveryMap = null;
 let deliveryMarker = null;
 let ubicacionEntregaConfirmada = false;
@@ -138,6 +141,7 @@ if(clienteUbicacion){
   clienteUbicacion.addEventListener("input",()=>{
     ubicacionGeneradaPorDireccion = false;
     ubicacionEntregaConfirmada = false;
+    invalidarCotizacionRuta();
     sincronizarMapaConUbicacion();
     actualizarCotizacionEnvio();
   });
@@ -433,6 +437,7 @@ function obtenerDireccionParaGeocodificar(){
 function marcarUbicacionEntregaPendiente(){
 
   ubicacionEntregaConfirmada = false;
+  invalidarCotizacionRuta();
 
   if(deliveryMapStatus){
     deliveryMapStatus.textContent =
@@ -792,18 +797,70 @@ function calcularCostoEnvioPorKm(distanciaKm){
   };
 }
 
-function crearClaveRuta(coordsCliente){
+function obtenerTiendaCotizacion(){
+  return tiendaSeleccionada || tiendas[0] || null;
+}
+
+function crearClaveRuta(coordsCliente, tienda = obtenerTiendaCotizacion()){
   return [
-    tiendaSeleccionada ? tiendaSeleccionada.id_tienda : "",
+    tienda ? tienda.id_tienda : "",
     Number(coordsCliente.lat).toFixed(6),
     Number(coordsCliente.lng).toFixed(6)
   ].join("|");
 }
 
-async function solicitarCotizacionRuta(coordsCliente){
-  const clave = crearClaveRuta(coordsCliente);
+function ocultarResumenPedidoPorCambio(){
+  cotizacionPedidoConfirmada = null;
 
-  if(cotizacionRutaActual && cotizacionRutaClave === clave){
+  const resumen = document.getElementById("resumen-pedido");
+  const btnWhatsapp = document.getElementById("btn-whatsapp");
+  const btnConfirmar = document.getElementById("btn-confirmar");
+
+  if(resumen) resumen.classList.add("hidden");
+  if(btnWhatsapp) btnWhatsapp.classList.add("hidden");
+  if(btnConfirmar) btnConfirmar.classList.remove("hidden");
+}
+
+function invalidarCotizacionRuta(){
+  cotizacionRutaSecuencia += 1;
+  cotizacionRutaActual = null;
+  cotizacionRutaClave = "";
+  cotizacionRutaPromesa = null;
+  cotizacionRutaError = "";
+  ocultarResumenPedidoPorCambio();
+  actualizarEstadoBotonesCotizacion();
+}
+
+function actualizarEstadoBotonesCotizacion(){
+  const btnConfirmar = document.getElementById("btn-confirmar");
+  const btnWhatsapp = document.getElementById("btn-whatsapp");
+  const entrega = document.getElementById("tipo-entrega");
+  const cotizando = Boolean(
+    validacionPedidoEnProceso ||
+    cotizacionDireccionEnProceso ||
+    (entrega && entrega.value === "domicilio" && cotizacionRutaPromesa)
+  );
+
+  if(btnConfirmar){
+    btnConfirmar.disabled = cotizando;
+    btnConfirmar.textContent = cotizando
+      ? "Calculando envio..."
+      : "Revisar pedido";
+  }
+
+  if(btnWhatsapp){
+    btnWhatsapp.disabled = cotizando || !cotizacionPedidoConfirmada;
+  }
+}
+
+async function solicitarCotizacionRuta(coordsCliente){
+  const tienda = obtenerTiendaCotizacion();
+
+  if(!tienda) return null;
+
+  const clave = crearClaveRuta(coordsCliente, tienda);
+
+  if(cotizacionRutaActual && cotizacionRutaActual.clave === clave){
     return cotizacionRutaActual;
   }
 
@@ -814,39 +871,94 @@ async function solicitarCotizacionRuta(coordsCliente){
   cotizacionRutaClave = clave;
   cotizacionRutaActual = null;
   cotizacionRutaError = "";
+  cotizacionPedidoConfirmada = null;
+
+  const solicitudId = ++cotizacionRutaSecuencia;
+  const idTienda = String(tienda.id_tienda || "");
+  const nombreTienda = String(tienda.nombre || "");
+  const destino = {
+    lat: Number(coordsCliente.lat),
+    lng: Number(coordsCliente.lng)
+  };
 
   const url = new URL(SCRIPT_URL);
   url.searchParams.set("action", "cotizarRuta");
   url.searchParams.set("key", FRONTEND_KEY);
-  url.searchParams.set("id_tienda", tiendaSeleccionada ? tiendaSeleccionada.id_tienda : "");
-  url.searchParams.set("lat", coordsCliente.lat);
-  url.searchParams.set("lng", coordsCliente.lng);
+  url.searchParams.set("id_tienda", idTienda);
+  url.searchParams.set("lat", destino.lat);
+  url.searchParams.set("lng", destino.lng);
 
-  cotizacionRutaPromesa = fetch(url.toString())
+  const promesa = fetch(url.toString(), { cache: "no-store" })
     .then(res => res.json())
     .then(data => {
       if(!data.ok) throw new Error(data.error || "No se pudo cotizar");
-      cotizacionRutaActual = {
+
+      if(
+        solicitudId !== cotizacionRutaSecuencia ||
+        cotizacionRutaClave !== clave
+      ){
+        return null;
+      }
+
+      if(String(data.id_tienda || "") !== idTienda){
+        throw new Error("La cotizacion corresponde a otra sucursal");
+      }
+
+      const resultado = {
+        clave,
+        idTienda,
+        nombreTienda,
+        tiendaLat: Number(tienda.lat),
+        tiendaLng: Number(tienda.lng),
+        destinoLat: destino.lat,
+        destinoLng: destino.lng,
         costo: Number(data.costo_envio),
         distanciaKm: Number(data.distancia_km),
         sujetoConfirmacion: false,
         faltaUbicacion: false,
-        metodo: "recorrido_en_calles"
+        metodo: data.metodo || "recorrido_en_calles",
+        generadoEn: new Date().toISOString()
       };
-      return cotizacionRutaActual;
+
+      if(
+        !Number.isFinite(resultado.costo) ||
+        !Number.isFinite(resultado.distanciaKm)
+      ){
+        throw new Error("La cotizacion recibida no es valida");
+      }
+
+      cotizacionRutaActual = resultado;
+      return resultado;
     })
     .catch(error => {
+      if(
+        solicitudId !== cotizacionRutaSecuencia ||
+        cotizacionRutaClave !== clave
+      ){
+        return null;
+      }
+
       cotizacionRutaError = error.message || "No se pudo cotizar el recorrido";
       cotizacionRutaActual = null;
       return null;
     })
     .finally(() => {
-      cotizacionRutaPromesa = null;
-      actualizarCotizacionEnvio();
+      if(
+        solicitudId === cotizacionRutaSecuencia &&
+        cotizacionRutaPromesa === promesa
+      ){
+        cotizacionRutaPromesa = null;
+        actualizarCotizacionEnvio();
+      }
+
+      actualizarEstadoBotonesCotizacion();
     });
 
+  cotizacionRutaPromesa = promesa;
+
   actualizarCotizacionEnvio();
-  return cotizacionRutaPromesa;
+  actualizarEstadoBotonesCotizacion();
+  return promesa;
 }
 
 async function asegurarCotizacionRuta(){
@@ -858,8 +970,14 @@ async function asegurarCotizacionRuta(){
 
   if(!coordsCliente) return false;
 
+  const claveEsperada = crearClaveRuta(coordsCliente);
   const resultado = await solicitarCotizacionRuta(coordsCliente);
-  return Boolean(resultado);
+
+  if(!resultado || resultado.clave !== claveEsperada){
+    return null;
+  }
+
+  return resultado;
 }
 
 function obtenerCotizacionEnvio(){
@@ -887,7 +1005,7 @@ function obtenerCotizacionEnvio(){
 
   const clave = crearClaveRuta(coordsCliente);
 
-  if(cotizacionRutaActual && cotizacionRutaClave === clave){
+  if(cotizacionRutaActual && cotizacionRutaActual.clave === clave){
     return cotizacionRutaActual;
   }
 
@@ -917,6 +1035,8 @@ function obtenerCotizacionEnvio(){
 }
 
 function actualizarCotizacionEnvio(){
+
+  actualizarEstadoBotonesCotizacion();
 
   if(!deliveryQuote) return;
 
@@ -1356,6 +1476,13 @@ async function seleccionarTienda(idTienda, guardar = true){
 
   if(!tienda) return;
 
+  if(
+    !tiendaSeleccionada ||
+    tiendaSeleccionada.id_tienda !== tienda.id_tienda
+  ){
+    invalidarCotizacionRuta();
+  }
+
   tiendaSeleccionada = tienda;
 
   if(guardar){
@@ -1368,6 +1495,8 @@ async function seleccionarTienda(idTienda, guardar = true){
   actualizarVistaTienda(
     "Puedes cambiarla si prefieres otra sucursal."
   );
+
+  actualizarCotizacionEnvio();
 
   await cargarCatalogoPorTienda(tienda.id_tienda);
 }
@@ -1476,6 +1605,13 @@ function detectarTiendaCercana(){
       });
 
       if(mejor){
+        if(
+          !tiendaSeleccionada ||
+          tiendaSeleccionada.id_tienda !== mejor.id_tienda
+        ){
+          invalidarCotizacionRuta();
+        }
+
         tiendaSeleccionada = mejor;
 
         localStorage.setItem(
@@ -1486,6 +1622,8 @@ function detectarTiendaCercana(){
         actualizarVistaTienda(
           "Es la sucursal mas cercana segun tu ubicacion."
         );
+
+        actualizarCotizacionEnvio();
 
         cargarCatalogoPorTienda(mejor.id_tienda);
       }
@@ -2115,6 +2253,8 @@ document.getElementById("tipo-fecha")
 document.getElementById("tipo-entrega")
   .addEventListener("change",(e)=>{
 
+    invalidarCotizacionRuta();
+
     const wrapper =
       document.getElementById("direccion-wrapper");
 
@@ -2266,57 +2406,88 @@ async function validarPedido(){
   const notas =
     document.getElementById("cliente-notas").value;
 
-  const tienda =
+  let tienda =
     tiendaSeleccionada ||
     tiendas.find(t => t.id_tienda === checkoutTienda.value);
 
   const total =
     obtenerSubtotalCarrito();
 
-  await asegurarCotizacionPorDireccion();
+  let cotizacionEnvio = null;
 
-  if(entrega === "domicilio"){
-    const coordsEntrega =
-      extraerCoordenadasUbicacion(
-        ubicacion ? ubicacion.value : ""
-      );
+  validacionPedidoEnProceso = true;
+  actualizarEstadoBotonesCotizacion();
 
-    if(!coordsEntrega){
-      alert(
-        "No pudimos ubicar la direccion. Completa la direccion o usa el boton de ubicacion."
-      );
-      return;
-    }
+  try{
+    await asegurarCotizacionPorDireccion();
 
-    mostrarMapaEntrega(coordsEntrega);
+    if(entrega === "domicilio"){
+      const coordsEntrega =
+        extraerCoordenadasUbicacion(
+          ubicacion ? ubicacion.value : ""
+        );
 
-    if(window.L && !ubicacionEntregaConfirmada){
-      alert(
-        "Revisa el marcador del mapa y confirma que corresponde al lugar de entrega."
-      );
-
-      if(deliveryMapWrap){
-        deliveryMapWrap.scrollIntoView({
-          behavior: "smooth",
-          block: "center"
-        });
+      if(!coordsEntrega){
+        alert(
+          "No pudimos ubicar la direccion. Completa la direccion o usa el boton de ubicacion."
+        );
+        return;
       }
 
-      return;
-    }
+      mostrarMapaEntrega(coordsEntrega);
 
-    const rutaCalculada = await asegurarCotizacionRuta();
+      if(window.L && !ubicacionEntregaConfirmada){
+        alert(
+          "Revisa el marcador del mapa y confirma que corresponde al lugar de entrega."
+        );
 
-    if(!rutaCalculada){
-      alert(
-        "No pudimos calcular el recorrido por calles. Revisa la ubicación e intenta nuevamente."
-      );
-      return;
+        if(deliveryMapWrap){
+          deliveryMapWrap.scrollIntoView({
+            behavior: "smooth",
+            block: "center"
+          });
+        }
+
+        return;
+      }
+
+      const rutaCalculada = await asegurarCotizacionRuta();
+
+      if(!rutaCalculada){
+        alert(
+          "La cotizacion cambio o no pudo terminar. Revisa la sucursal y la ubicación antes de continuar."
+        );
+        return;
+      }
+
+      cotizacionEnvio = rutaCalculada;
+      tienda = tiendas.find(
+        item => item.id_tienda === rutaCalculada.idTienda
+      ) || tienda;
+    }else{
+      tienda = obtenerTiendaCotizacion();
+      cotizacionEnvio = {
+        clave: `pickup|${tienda ? tienda.id_tienda : ""}`,
+        idTienda: tienda ? tienda.id_tienda : "",
+        nombreTienda: tienda ? tienda.nombre : "",
+        costo: 0,
+        distanciaKm: null,
+        sujetoConfirmacion: false,
+        faltaUbicacion: false,
+        metodo: "recoger_en_tienda",
+        generadoEn: new Date().toISOString()
+      };
     }
+  }finally{
+    validacionPedidoEnProceso = false;
+    actualizarEstadoBotonesCotizacion();
   }
 
-  const cotizacionEnvio =
-    obtenerCotizacionEnvio();
+  if(!cotizacionEnvio) return;
+
+  cotizacionPedidoConfirmada = Object.freeze({
+    ...cotizacionEnvio
+  });
 
   const costoEnvio =
     entrega === "domicilio" &&
@@ -2433,9 +2604,11 @@ async function validarPedido(){
 
   document.getElementById("btn-confirmar")
     .classList.add("hidden");
+
+  actualizarEstadoBotonesCotizacion();
 }
 
-function enviarPorWhatsapp(){
+async function enviarPorWhatsapp(){
 
   const nombre =
     document.getElementById("cliente-nombre")
@@ -2472,9 +2645,45 @@ function enviarPorWhatsapp(){
     document.getElementById("receptor-nombre")
       .value.trim();
 
-  const tienda =
-    tiendaSeleccionada ||
-    tiendas.find(t => t.id_tienda === checkoutTienda.value);
+  const tiendaActual = obtenerTiendaCotizacion();
+
+  const coordsActuales = entrega === "domicilio"
+    ? extraerCoordenadasUbicacion(ubicacion)
+    : null;
+
+  const claveActual = entrega === "domicilio"
+    ? (coordsActuales && tiendaActual
+        ? crearClaveRuta(coordsActuales, tiendaActual)
+        : "")
+    : `pickup|${tiendaActual ? tiendaActual.id_tienda : ""}`;
+
+  const cotizacionEnvio = cotizacionPedidoConfirmada;
+
+  if(
+    !cotizacionEnvio ||
+    !claveActual ||
+    cotizacionEnvio.clave !== claveActual ||
+    !tiendaActual ||
+    cotizacionEnvio.idTienda !== tiendaActual.id_tienda
+  ){
+    invalidarCotizacionRuta();
+    actualizarCotizacionEnvio();
+    alert(
+      "La sucursal o la ubicación cambió después de revisar el pedido. Vuelve a calcular y revisar antes de enviarlo."
+    );
+    return;
+  }
+
+  const tienda = tiendas.find(
+    item => item.id_tienda === cotizacionEnvio.idTienda
+  ) || tiendaActual;
+
+  const whatsappDestino = obtenerWhatsappTienda(tienda);
+
+  if(!whatsappDestino){
+    alert("La sucursal seleccionada todavía no tiene un WhatsApp configurado.");
+    return;
+  }
 
   const pago =
     document.getElementById("metodo-pago").value;
@@ -2482,9 +2691,6 @@ function enviarPorWhatsapp(){
   const notas =
     document.getElementById("cliente-notas")
       .value.trim();
-
-  const cotizacionEnvio =
-    obtenerCotizacionEnvio();
 
   const clientePersonalizado =
     obtenerClientePersonalizado();
@@ -2587,8 +2793,17 @@ function enviarPorWhatsapp(){
       : ""
   ].filter(Boolean).join(" | ");
 
+  const btnWhatsapp = document.getElementById("btn-whatsapp");
+
+  if(btnWhatsapp){
+    btnWhatsapp.disabled = true;
+    btnWhatsapp.textContent = "Registrando pedido...";
+  }
+
+  let pedidoRegistrado = null;
+
   try{
-    fetch(SCRIPT_URL, {
+    const respuesta = await fetch(SCRIPT_URL, {
       method: "POST",
       body: JSON.stringify({
         action: "registrarPedido",
@@ -2607,6 +2822,15 @@ function enviarPorWhatsapp(){
         nombre_tienda: tienda ? tienda.nombre : "",
         ubicacion_url: ubicacion,
         distancia_envio_km: cotizacionEnvio.distanciaKm,
+        cotizacion_clave: cotizacionEnvio.clave,
+        cotizacion_generada_en: cotizacionEnvio.generadoEn,
+        cotizacion_metodo: cotizacionEnvio.metodo,
+        cotizacion_id_tienda: cotizacionEnvio.idTienda,
+        cotizacion_nombre_tienda: cotizacionEnvio.nombreTienda,
+        cotizacion_origen_lat: cotizacionEnvio.tiendaLat,
+        cotizacion_origen_lng: cotizacionEnvio.tiendaLng,
+        cotizacion_destino_lat: cotizacionEnvio.destinoLat,
+        cotizacion_destino_lng: cotizacionEnvio.destinoLng,
         envio_sujeto_confirmacion: envioPorConfirmar,
         fecha_entrega: fechaEntrega,
         hora_entrega: horaEntrega,
@@ -2625,10 +2849,43 @@ function enviarPorWhatsapp(){
         }))
       })
     });
-  }catch(_){}
+
+    pedidoRegistrado = await respuesta.json();
+
+    if(!respuesta.ok || !pedidoRegistrado.ok){
+      throw new Error(
+        pedidoRegistrado.error || "No se pudo registrar el pedido"
+      );
+    }
+
+    const totalEsperado = total + costoEnvio;
+
+    if(
+      Number.isFinite(Number(pedidoRegistrado.total)) &&
+      Math.abs(Number(pedidoRegistrado.total) - totalEsperado) > 0.01
+    ){
+      throw new Error(
+        "El total registrado no coincide con el total mostrado"
+      );
+    }
+  }catch(error){
+    if(btnWhatsapp){
+      btnWhatsapp.disabled = false;
+      btnWhatsapp.textContent = "Enviar por WhatsApp";
+    }
+
+    alert(
+      `${error.message || "No se pudo registrar el pedido"}. No se abrió WhatsApp para evitar diferencias.`
+    );
+    return;
+  }
+
+  mensaje =
+    `*Pedido: ${pedidoRegistrado.id_pedido}*\n` +
+    mensaje;
 
   window.open(
-    `https://wa.me/${obtenerWhatsappDestino()}?text=${encodeURIComponent(mensaje)}`,
+    `https://wa.me/${whatsappDestino}?text=${encodeURIComponent(mensaje)}`,
     "_blank"
   );
 
@@ -2638,6 +2895,11 @@ function enviarPorWhatsapp(){
   limpiarFormulario();
   cartDrawer.classList.remove("open");
   overlay.classList.remove("show");
+
+  if(btnWhatsapp){
+    btnWhatsapp.disabled = false;
+    btnWhatsapp.textContent = "Enviar por WhatsApp";
+  }
 
 }
 
@@ -2692,6 +2954,7 @@ function limpiarFormulario(){
   ubicacionEntregaConfirmada = false;
   cotizacionDireccionEnProceso = false;
   ultimaDireccionSinResultado = "";
+  invalidarCotizacionRuta();
   ocultarMapaEntrega();
 
   document.getElementById("direccion-wrapper")

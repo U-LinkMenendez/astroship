@@ -742,6 +742,37 @@ function registrarPedido(b) {
       0
     );
     const envio = safeNumber(b.costo_envio);
+    const distanciaEnvioKm = Number(b.distancia_envio_km);
+    const esEntregaDomicilio =
+      String(b.tipo_entrega || "").toLowerCase() === "domicilio";
+    const envioSujetoConfirmacion =
+      safeBoolean(b.envio_sujeto_confirmacion);
+
+    if (
+      b.cotizacion_id_tienda &&
+      String(b.cotizacion_id_tienda) !== String(b.id_tienda)
+    ) {
+      return err("La cotización corresponde a otra sucursal");
+    }
+
+    if (esEntregaDomicilio && !envioSujetoConfirmacion) {
+      if (!isFinite(distanciaEnvioKm) || distanciaEnvioKm <= 0) {
+        return err("Distancia de envío inválida");
+      }
+
+      const costoEnvioEsperado =
+        calcularCostoEnvioPorDistancia(distanciaEnvioKm);
+
+      if (Math.abs(envio - costoEnvioEsperado) > 0.01) {
+        return err("El costo de envío no coincide con la distancia cotizada", {
+          costo_recibido: envio,
+          costo_esperado: costoEnvioEsperado,
+          distancia_km: distanciaEnvioKm,
+          id_tienda: b.id_tienda
+        });
+      }
+    }
+
     const total = subtotal + envio;
 
     if (total <= 0) {
@@ -871,8 +902,8 @@ const notasConAcceso = [
       envio,                            // AG
       b.ubicacion_url || "",            // AH
       b.nombre_receptor || "",          // AI
-      safeNumber(b.distancia_envio_km), // AJ
-      safeBoolean(b.envio_sujeto_confirmacion), // AK
+      isFinite(distanciaEnvioKm) ? distanciaEnvioKm : 0, // AJ
+      envioSujetoConfirmacion,            // AK
       "",                               // AL ID tienda salida interna
       "",                               // AM Nombre tienda salida interna
       "",                               // AN Anulado por
@@ -889,10 +920,36 @@ const notasConAcceso = [
       idPedido
     });
 
+    logEvent("COTIZACION_ENVIO_APLICADA", {
+      id_pedido: idPedido,
+      id_tienda: b.id_tienda || "",
+      nombre_tienda: b.nombre_tienda || "",
+      distancia_envio_km: isFinite(distanciaEnvioKm)
+        ? distanciaEnvioKm
+        : null,
+      costo_envio: envio,
+      cotizacion_clave: b.cotizacion_clave || "",
+      cotizacion_generada_en: b.cotizacion_generada_en || "",
+      cotizacion_metodo: b.cotizacion_metodo || "",
+      origen: {
+        lat: safeNumber(b.cotizacion_origen_lat),
+        lng: safeNumber(b.cotizacion_origen_lng)
+      },
+      destino: {
+        lat: safeNumber(b.cotizacion_destino_lat),
+        lng: safeNumber(b.cotizacion_destino_lng)
+      }
+    });
+
     return ok({
       id_pedido: idPedido,
       id_cliente: idCliente,
-      total
+      total,
+      id_tienda: b.id_tienda || "",
+      distancia_envio_km: isFinite(distanciaEnvioKm)
+        ? distanciaEnvioKm
+        : null,
+      costo_envio: envio
     });
 
   } catch (error) {
@@ -2687,6 +2744,12 @@ function asignarSucursalSalida(b) {
   });
 }
 
+function calcularCostoEnvioPorDistancia(distanciaKm) {
+  return distanciaKm <= 5.5
+    ? 40
+    : 40 + Math.ceil((distanciaKm - 5.5) / 0.5) * 5;
+}
+
 function cotizarRuta(params) {
   try {
     const idTienda = String(params.id_tienda || "");
@@ -2705,9 +2768,7 @@ function cotizarRuta(params) {
       .getDirections();
     const leg = directions.routes[0].legs[0];
     const distanciaKm = leg.distance.value / 1000;
-    const costo = distanciaKm <= 5.5
-      ? 40
-      : 40 + Math.ceil((distanciaKm - 5.5) / 0.5) * 5;
+    const costo = calcularCostoEnvioPorDistancia(distanciaKm);
 
     return ok({
       id_tienda: tienda.id_tienda,
