@@ -17,7 +17,7 @@
   />
   <link
     rel="stylesheet"
-    href="./css/styles.css?v=20260629-map"
+    href="./css/styles.css?v=20260901-avisos2"
   />
 </head>
 <body>
@@ -409,9 +409,76 @@
     </div>
   </div>
 
+  <div
+    class="notify-modal"
+    id="notify-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="notify-title"
+    aria-hidden="true"
+  >
+    <div class="notify-content">
+      <button
+        id="close-notify"
+        class="close-notify"
+        type="button"
+        aria-label="Cerrar"
+      >
+        &times;
+      </button>
+      <p class="notify-eyebrow">Aviso de reposici&oacute;n</p>
+      <h2 id="notify-title">Te avisamos cuando regrese</h2>
+      <p class="notify-description">
+        Registraremos este aviso solamente para el producto y la sucursal elegidos.
+      </p>
+
+      <div class="notify-selection">
+        <strong id="notify-product-name"></strong>
+        <span id="notify-store-name"></span>
+      </div>
+
+      <label class="notify-field">
+        Nombre
+        <input
+          id="notify-name"
+          type="text"
+          maxlength="80"
+          autocomplete="name"
+          placeholder="Tu nombre"
+        >
+      </label>
+
+      <label class="notify-field">
+        WhatsApp
+        <input
+          id="notify-phone"
+          type="tel"
+          maxlength="15"
+          inputmode="tel"
+          autocomplete="tel"
+          placeholder="10 d&iacute;gitos"
+        >
+      </label>
+
+      <label class="notify-consent">
+        <input id="notify-consent" type="checkbox">
+        <span>
+          Acepto recibir un mensaje de WhatsApp &uacute;nicamente cuando este
+          producto vuelva a estar disponible en esta sucursal.
+        </span>
+      </label>
+
+      <div id="notify-status" class="notify-status" aria-live="polite"></div>
+
+      <button id="notify-submit" class="notify-submit" type="button">
+        Registrar aviso
+      </button>
+    </div>
+  </div>
+
   <script
     src="./vendor/leaflet/leaflet.js?v=1.9.4"
   ></script>
-  <script src="./js/app.js?v=20260827-hotfix-cotizacion-envio"></script>
+  <script src="./js/app.js?v=20260901-avisos2"></script>
 </body>
 </html>

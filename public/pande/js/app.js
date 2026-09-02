@@ -1,7 +1,7 @@
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwGxnv1CbQvLTF9fnQwa3kg6aICwHLWM4n05kGT6x5P7Osjt16-BIe2_AXZ0L-5MmR0/exec";
 
 const FRONTEND_KEY = "PANDE_PUBLIC_2026";
-const IMAGE_VERSION = "20260624d";
+const IMAGE_VERSION = "20260901b";
 const STORE_WHATSAPP_FALLBACKS = {
   LAVIN: "529995433776",
   DZITYA: "529994393976"
@@ -35,6 +35,33 @@ const checkoutModal =
 
 const closeCheckout =
   document.getElementById("close-checkout");
+
+const notifyModal =
+  document.getElementById("notify-modal");
+
+const closeNotify =
+  document.getElementById("close-notify");
+
+const notifyProductName =
+  document.getElementById("notify-product-name");
+
+const notifyStoreName =
+  document.getElementById("notify-store-name");
+
+const notifyName =
+  document.getElementById("notify-name");
+
+const notifyPhone =
+  document.getElementById("notify-phone");
+
+const notifyConsent =
+  document.getElementById("notify-consent");
+
+const notifyStatus =
+  document.getElementById("notify-status");
+
+const notifySubmit =
+  document.getElementById("notify-submit");
 
 const storeName =
   document.getElementById("store-name");
@@ -97,6 +124,7 @@ const btnConfirmDeliveryMap =
   document.getElementById("btn-confirm-delivery-map");
 
 let busquedaProducto = "";
+let productoAvisoSeleccionado = null;
 
 const CARRITO_STORAGE_KEY = "pande_carrito";
 
@@ -1534,6 +1562,35 @@ function actualizarVistaTienda(nota){
   }
 }
 
+function sincronizarCarritoConCatalogo(){
+  if(!carrito.length) return;
+
+  let removidos = 0;
+  carrito = carrito.reduce((resultado, item) => {
+    const productoActual = productos.find(p => p.id === item.id);
+
+    if(!productoActual || productoActual.disponible_en_tienda === false){
+      removidos++;
+      return resultado;
+    }
+
+    resultado.push({
+      id: item.id,
+      cantidad: item.cantidad,
+      producto: productoActual
+    });
+    return resultado;
+  }, []);
+
+  if(removidos){
+    actualizarCarrito();
+    if(storeNote){
+      storeNote.textContent =
+        "Actualizamos tu carrito porque algunos productos están agotados en esta sucursal.";
+    }
+  }
+}
+
 async function cargarCatalogoPorTienda(idTienda){
 
   const cacheKey =
@@ -1548,6 +1605,7 @@ async function cargarCatalogoPorTienda(idTienda){
     try{
       productos = JSON.parse(cache);
       cacheCargado = Array.isArray(productos) && productos.length > 0;
+      sincronizarCarritoConCatalogo();
       render();
     }catch(_){}
   }
@@ -1558,6 +1616,8 @@ async function cargarCatalogoPorTienda(idTienda){
     );
 
     productos = data.productos || [];
+
+    sincronizarCarritoConCatalogo();
 
     localStorage.setItem(
       cacheKey,
@@ -1780,8 +1840,6 @@ function render(){
 
   categoryNav.innerHTML = "";
 
-  const categorias = {};
-
   const productosVisibles =
     productos.filter(p=>{
       if(!busquedaProducto) return true;
@@ -1807,7 +1865,17 @@ function render(){
     return;
   }
 
-  productosVisibles.forEach(p=>{
+  const productosDisponibles = productosVisibles.filter(p =>
+    p.disponible_en_tienda !== false
+  );
+
+  const productosAgotados = productosVisibles.filter(p =>
+    p.disponible_en_tienda === false
+  );
+
+  const categorias = {};
+
+  productosDisponibles.forEach(p=>{
 
     const categoria =
       normalizarCategoria(p.categoria);
@@ -1895,20 +1963,23 @@ function render(){
 
     categorias[cat].forEach(p=>{
 
+      const idSeguro = escapeHtml(p.id);
+
       grid.innerHTML += `
         <div class="card">
           <img
-            src="${obtenerImagenProducto(p)}"
+            src="${escapeHtml(obtenerImagenProducto(p))}"
+            alt="${escapeHtml(p.nombre)}"
             loading="lazy"
             decoding="async"
           >
           <div class="info">
-            <div class="nombre">${p.nombre}</div>
-            <div class="desc">${p.descripcion || ''}</div>
-            <div class="precio">$${p.precio}</div>
+            <div class="nombre">${escapeHtml(p.nombre)}</div>
+            <div class="desc">${escapeHtml(p.descripcion || '')}</div>
+            <div class="precio">$${escapeHtml(p.precio)}</div>
             <button
               type="button"
-              onclick="agregarCarrito('${p.id}')"
+              onclick="agregarCarrito('${idSeguro}')"
             >
               Agregar
             </button>
@@ -1919,6 +1990,62 @@ function render(){
     });
 
   });
+
+  if(productosAgotados.length){
+    categoryNav.innerHTML += `
+      <button
+        class="category-link"
+        data-target="cat-agotados"
+      >
+        Agotados
+      </button>
+    `;
+
+    cont.innerHTML += `
+      <section
+        class="categoria-section agotados-section"
+        id="cat-agotados"
+      >
+        <h2 class="categoria-title">Temporalmente agotados</h2>
+        <p class="agotados-intro">
+          Estos productos volver&aacute;n pronto. Elige uno y d&eacute;janos tu WhatsApp;
+          te enviaremos un solo aviso cuando regrese a la sucursal seleccionada.
+        </p>
+        <div class="categoria-grid"></div>
+      </section>
+    `;
+
+    const gridAgotados = cont.querySelector(
+      "#cat-agotados .categoria-grid"
+    );
+
+    productosAgotados.forEach(p => {
+      const idSeguro = escapeHtml(p.id);
+      gridAgotados.innerHTML += `
+        <div class="card card-agotado">
+          <span class="stock-badge">Temporalmente agotado</span>
+          <img
+            src="${escapeHtml(obtenerImagenProducto(p))}"
+            alt="${escapeHtml(p.nombre)}"
+            loading="lazy"
+            decoding="async"
+          >
+          <div class="info">
+            <div class="nombre">${escapeHtml(p.nombre)}</div>
+            <div class="desc">${escapeHtml(p.descripcion || '')}</div>
+            <div class="precio">$${escapeHtml(p.precio)}</div>
+            <button
+              class="notify-product-btn"
+              type="button"
+              onclick="abrirAvisoReposicion('${idSeguro}')"
+            >
+              Av&iacute;same cuando regrese
+            </button>
+          </div>
+        </div>
+      `;
+    });
+  }
 
   categoryNav.innerHTML += `
     <button
@@ -1937,6 +2064,11 @@ function agregarCarrito(id){
     productos.find(p => p.id === id);
 
   if(!producto) return;
+
+  if(producto.disponible_en_tienda === false){
+    abrirAvisoReposicion(id);
+    return;
+  }
 
   const existente =
     carrito.find(item => item.id === id);
@@ -1966,6 +2098,127 @@ function agregarCarrito(id){
     }, 1000);
   });
 
+}
+
+function abrirAvisoReposicion(id){
+  const producto = productos.find(p => p.id === id);
+
+  if(!producto || !tiendaSeleccionada || !notifyModal) return;
+
+  productoAvisoSeleccionado = producto;
+  const cliente = obtenerClientePersonalizado();
+  const nombreCheckout = document.getElementById("cliente-nombre");
+  const telefonoCheckout = document.getElementById("cliente-telefono");
+
+  notifyProductName.textContent = producto.nombre || id;
+  notifyStoreName.textContent = `Sucursal ${tiendaSeleccionada.nombre}`;
+  notifyName.value =
+    (nombreCheckout && nombreCheckout.value.trim()) ||
+    cliente.nombre_completo ||
+    cliente.nombre ||
+    "";
+  notifyPhone.value = String(
+    (telefonoCheckout && telefonoCheckout.value.trim()) ||
+    cliente.telefono ||
+    ""
+  ).replace(/\D/g, "").slice(-10);
+  notifyConsent.checked = false;
+  notifyStatus.textContent = "";
+  notifyStatus.className = "notify-status";
+  notifySubmit.textContent = "Registrar aviso";
+  notifySubmit.disabled = false;
+  notifySubmit.dataset.completed = "false";
+  notifyName.disabled = false;
+  notifyPhone.disabled = false;
+  notifyConsent.disabled = false;
+  notifyModal.classList.add("show");
+  notifyModal.setAttribute("aria-hidden", "false");
+
+  setTimeout(() => {
+    (notifyName.value ? notifyPhone : notifyName).focus();
+  }, 50);
+}
+
+function cerrarAvisoReposicion(){
+  if(!notifyModal) return;
+  notifyModal.classList.remove("show");
+  notifyModal.setAttribute("aria-hidden", "true");
+  productoAvisoSeleccionado = null;
+}
+
+async function registrarAvisoReposicion(){
+  if(notifySubmit.dataset.completed === "true"){
+    cerrarAvisoReposicion();
+    return;
+  }
+
+  if(!productoAvisoSeleccionado || !tiendaSeleccionada) return;
+
+  const nombre = notifyName.value.trim();
+  const telefono = notifyPhone.value.replace(/\D/g, "");
+
+  notifyStatus.className = "notify-status";
+
+  if(nombre.length < 2){
+    notifyStatus.textContent = "Ingresa tu nombre.";
+    notifyName.focus();
+    return;
+  }
+
+  if(telefono.length !== 10 && (telefono.length < 11 || telefono.length > 15)){
+    notifyStatus.textContent = "Ingresa un número de WhatsApp válido.";
+    notifyPhone.focus();
+    return;
+  }
+
+  if(!notifyConsent.checked){
+    notifyStatus.textContent = "Marca la autorización para poder enviarte el aviso.";
+    notifyConsent.focus();
+    return;
+  }
+
+  notifySubmit.disabled = true;
+  notifySubmit.textContent = "Registrando...";
+  notifyStatus.textContent = "";
+
+  try{
+    const respuesta = await fetch(SCRIPT_URL, {
+      method: "POST",
+      body: JSON.stringify({
+        action: "registrarAvisoReposicion",
+        key: FRONTEND_KEY,
+        id_tienda: tiendaSeleccionada.id_tienda,
+        id_producto: productoAvisoSeleccionado.id,
+        nombre,
+        whatsapp: telefono,
+        consentimiento: true
+      })
+    });
+    const data = await respuesta.json();
+
+    if(!data.ok){
+      notifyStatus.textContent = data.error || "No pudimos registrar el aviso.";
+      notifySubmit.disabled = false;
+      notifySubmit.textContent = "Registrar aviso";
+      return;
+    }
+
+    notifyStatus.textContent = data.ya_registrado
+      ? "Ya teníamos registrado este aviso. Te contactaremos cuando regrese."
+      : "¡Listo! Te enviaremos un mensaje cuando este producto regrese a esta sucursal.";
+    notifyStatus.className = "notify-status success";
+    notifySubmit.textContent = "Entendido";
+    notifySubmit.disabled = false;
+    notifySubmit.dataset.completed = "true";
+    notifyName.disabled = true;
+    notifyPhone.disabled = true;
+    notifyConsent.disabled = true;
+  }catch(error){
+    console.error(error);
+    notifyStatus.textContent = "No pudimos conectar. Intenta nuevamente.";
+    notifySubmit.disabled = false;
+    notifySubmit.textContent = "Registrar aviso";
+  }
 }
 
 function cambiarCantidad(index, delta){
@@ -2100,6 +2353,32 @@ closeCheckout.addEventListener(
   "click",
   cerrarCheckout
 );
+
+if(closeNotify){
+  closeNotify.addEventListener(
+    "click",
+    cerrarAvisoReposicion
+  );
+}
+
+if(notifySubmit){
+  notifySubmit.addEventListener(
+    "click",
+    registrarAvisoReposicion
+  );
+}
+
+if(notifyModal){
+  notifyModal.addEventListener("click", e => {
+    if(e.target === notifyModal) cerrarAvisoReposicion();
+  });
+}
+
+document.addEventListener("keydown", e => {
+  if(e.key === "Escape" && notifyModal && notifyModal.classList.contains("show")){
+    cerrarAvisoReposicion();
+  }
+});
 
 if(storeSelect){
   storeSelect.addEventListener("change", e=>{
