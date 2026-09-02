@@ -22,6 +22,7 @@ const SH_APE = () => SS.getSheetByName("Aperturas_Diarias");
 const SH_REV = () => SS.getSheetByName("Revisiones_Inventario");
 const SH_INC = () => SS.getSheetByName("Incidencias_Inventario");
 const SH_REP = () => SS.getSheetByName("Reporte_Mensual");
+const SH_AVI = () => SS.getSheetByName("Avisos_Reposicion");
 
 const DATA_ROW = 4;
 const TZ = "America/Merida";
@@ -415,7 +416,8 @@ return ok({
     if (
       action === "getCatalogo" ||
       action === "getInventario" ||
-      action === "getTiendasAdmin"
+      action === "getTiendasAdmin" ||
+      action === "getAvisosReposicion"
     ) {
       if (!validarTokenEmpleado(params.token)) {
         return err("Token inválido");
@@ -441,6 +443,14 @@ return ok({
           estado_inventario: idTienda
             ? construirEstadoInventarioDiario(idTienda, sesion)
             : null,
+          sesion
+        });
+      }
+
+      if (action === "getAvisosReposicion") {
+        const sesion = obtenerSesionAdmin(params.token);
+        return ok({
+          avisos: leerAvisosReposicion(sesion),
           sesion
         });
       }
@@ -497,9 +507,10 @@ function doPost(e) {
 
     const action = body.action || "";
 
-       const publicActions = [
+    const publicActions = [
       "registrarPedido",
-      "registrarLead"
+      "registrarLead",
+      "registrarAvisoReposicion"
     ];
 
     const empleadoActions = [
@@ -507,7 +518,8 @@ function doPost(e) {
       "updateDisponible",
       "guardarInventarioDiario",
       "confirmarRevisionInventario",
-      "reportarInconsistenciaInventario"
+      "reportarInconsistenciaInventario",
+      "marcarAvisoReposicionEnviado"
     ];
 
     const masterActions = [
@@ -545,6 +557,9 @@ function doPost(e) {
       case "registrarLead":
         return registrarLead(body);
 
+      case "registrarAvisoReposicion":
+        return registrarAvisoReposicion(body);
+
             case "actualizarEstatus":
         return actualizarEstatus(body);
 
@@ -568,6 +583,9 @@ function doPost(e) {
 
       case "reportarInconsistenciaInventario":
         return reportarInconsistenciaInventario(body);
+
+      case "marcarAvisoReposicionEnviado":
+        return marcarAvisoReposicionEnviado(body);
 
       case "updateProducto":
         return updateProducto(body);
@@ -670,6 +688,7 @@ function descontarInventarioPedido(productos, idTienda) {
       return;
     }
   });
+
 }
 
 function restaurarInventarioPedido(productos, idTienda) {
@@ -696,6 +715,9 @@ function restaurarInventarioPedido(productos, idTienda) {
       return;
     }
   });
+
+  SpreadsheetApp.flush();
+  marcarAvisosListosPorInventario(idTienda);
 }
 
 function registrarPedido(b) {
@@ -1282,6 +1304,245 @@ function actualizarPerfil(b) {
 // DISPONIBILIDAD CATÁLOGO
 // ════════════════════════════════════════════════════════════
 
+const AVISOS_REPOSICION_HEADERS = [
+  "ID_Aviso", "Fecha_Solicitud", "ID_Tienda", "Nombre_Tienda",
+  "ID_Producto", "Nombre_Producto", "Nombre_Cliente", "WhatsApp",
+  "Consentimiento", "Estado", "Fecha_Listo", "Fecha_Envio",
+  "ID_Usuario_Envio", "Nombre_Usuario_Envio", "Ultima_Actualizacion"
+];
+
+function asegurarHojaAvisosReposicion() {
+  const existente = SH_AVI();
+  if (existente) return existente;
+
+  return asegurarHojaMigracion(
+    "Avisos_Reposicion",
+    1,
+    AVISOS_REPOSICION_HEADERS
+  );
+}
+
+function normalizarTelefonoAviso(valor) {
+  let telefono = String(valor || "").replace(/\D/g, "");
+
+  if (telefono.indexOf("00") === 0) telefono = telefono.slice(2);
+  if (telefono.length === 10) telefono = "52" + telefono;
+
+  return telefono;
+}
+
+function filaAAvisoReposicion(row) {
+  return {
+    id_aviso: String(row[0] || ""),
+    fecha_solicitud: row[1] || "",
+    id_tienda: String(row[2] || ""),
+    nombre_tienda: String(row[3] || ""),
+    id_producto: String(row[4] || ""),
+    nombre_producto: String(row[5] || ""),
+    nombre_cliente: String(row[6] || ""),
+    whatsapp: String(row[7] || ""),
+    consentimiento: safeBoolean(row[8]),
+    estado: String(row[9] || "PENDIENTE").toUpperCase(),
+    fecha_listo: row[10] || "",
+    fecha_envio: row[11] || "",
+    id_usuario_envio: String(row[12] || ""),
+    nombre_usuario_envio: String(row[13] || ""),
+    ultima_actualizacion: row[14] || ""
+  };
+}
+
+function registrarAvisoReposicion(b) {
+  const lock = LockService.getScriptLock();
+
+  try {
+    if (b.key !== FRONTEND_KEY) return err("Frontend key inválida");
+    if (!lock.tryLock(10000)) {
+      return err("Estamos registrando otra solicitud. Intenta nuevamente.");
+    }
+
+    const idTienda = String(b.id_tienda || "").trim().toUpperCase();
+    const idProducto = String(b.id_producto || "").trim();
+    const nombreCliente = String(b.nombre || "").trim().slice(0, 80);
+    const whatsapp = normalizarTelefonoAviso(b.whatsapp);
+
+    if (!idTienda || !idProducto) return err("Sucursal y producto requeridos");
+    if (nombreCliente.length < 2) return err("Ingresa tu nombre");
+    if (!/^\d{11,15}$/.test(whatsapp)) return err("WhatsApp inválido");
+    if (b.consentimiento !== true) {
+      return err("Necesitamos tu autorización para enviarte el aviso");
+    }
+
+    const tienda = leerTiendas().find(item =>
+      String(item.id_tienda).toUpperCase() === idTienda
+    );
+    const producto = leerCatalogoPublico().find(item =>
+      String(item.id) === idProducto &&
+      item.pedido_especial !== true &&
+      item.categoria !== "PedEsp"
+    );
+
+    if (!tienda) return err("Sucursal no disponible");
+    if (!producto) return err("Producto no disponible para avisos");
+    if (productoDisponibleEnTienda(idTienda, idProducto)) {
+      return err("Este producto ya está disponible en la sucursal elegida");
+    }
+
+    const sh = asegurarHojaAvisosReposicion();
+    const data = sh.getDataRange().getValues();
+
+    for (let i = 1; i < data.length; i++) {
+      const aviso = filaAAvisoReposicion(data[i]);
+      if (
+        aviso.id_tienda === idTienda &&
+        aviso.id_producto === idProducto &&
+        aviso.whatsapp === whatsapp &&
+        ["PENDIENTE", "LISTO"].includes(aviso.estado)
+      ) {
+        return ok({ aviso, ya_registrado: true });
+      }
+    }
+
+    const ahora = new Date();
+    const idAviso = "AVI-" +
+      Utilities.formatDate(ahora, TZ, "yyyyMMdd-HHmmss") + "-" +
+      Utilities.getUuid().slice(0, 8).toUpperCase();
+
+    const fila = [
+      idAviso, ahora, idTienda, tienda.nombre, idProducto, producto.nombre,
+      nombreCliente, whatsapp, true, "PENDIENTE", "", "", "", "", ahora
+    ];
+
+    sh.appendRow(fila);
+    const aviso = filaAAvisoReposicion(fila);
+
+    logEvent("AVISO_REPOSICION_SOLICITADO", {
+      id_aviso: idAviso,
+      id_tienda: idTienda,
+      id_producto: idProducto,
+      whatsapp
+    });
+
+    return ok({ aviso, ya_registrado: false });
+  } catch (error) {
+    logEvent("ERROR_AVISO_REPOSICION", b, error.toString());
+    return err("No pudimos registrar el aviso", { detail: error.toString() });
+  } finally {
+    try { lock.releaseLock(); } catch (_) {}
+  }
+}
+
+function leerAvisosReposicion(sesion) {
+  const sh = asegurarHojaAvisosReposicion();
+  const data = sh.getDataRange().getValues();
+  const avisos = [];
+
+  for (let i = 1; i < data.length; i++) {
+    if (!data[i][0]) continue;
+    const aviso = filaAAvisoReposicion(data[i]);
+
+    if (
+      sesion.rol !== "master" &&
+      aviso.id_tienda !== String(sesion.id_tienda || "")
+    ) continue;
+
+    avisos.push(aviso);
+  }
+
+  const prioridad = { LISTO: 0, PENDIENTE: 1, ENVIADO: 2 };
+  return avisos.sort((a, b) => {
+    const porEstado = (prioridad[a.estado] ?? 9) - (prioridad[b.estado] ?? 9);
+    if (porEstado !== 0) return porEstado;
+    return new Date(b.fecha_solicitud || 0) - new Date(a.fecha_solicitud || 0);
+  });
+}
+
+function marcarAvisosListosPorInventario(idTienda, idProducto) {
+  const sh = asegurarHojaAvisosReposicion();
+  const data = sh.getDataRange().getValues();
+  const tienda = String(idTienda || "");
+  const producto = String(idProducto || "");
+  const ahora = new Date();
+  let actualizados = 0;
+
+  for (let i = 1; i < data.length; i++) {
+    const aviso = filaAAvisoReposicion(data[i]);
+    if (aviso.estado !== "PENDIENTE") continue;
+    if (aviso.id_tienda !== tienda) continue;
+    if (producto && aviso.id_producto !== producto) continue;
+    if (!productoDisponibleEnTienda(tienda, aviso.id_producto)) continue;
+
+    sh.getRange(i + 1, 10, 1, 6).setValues([[
+      "LISTO", ahora, "", "", "", ahora
+    ]]);
+    actualizados++;
+  }
+
+  if (actualizados) {
+    logEvent("AVISOS_REPOSICION_LISTOS", {
+      id_tienda: tienda,
+      id_producto: producto,
+      cantidad: actualizados
+    });
+  }
+
+  return actualizados;
+}
+
+function marcarAvisoReposicionEnviado(b) {
+  try {
+    const sesion = obtenerSesionAdmin(b.token);
+    const idAviso = String(b.id_aviso || "").trim();
+    const sh = asegurarHojaAvisosReposicion();
+    const data = sh.getDataRange().getValues();
+
+    if (!idAviso) return err("Aviso requerido");
+
+    for (let i = 1; i < data.length; i++) {
+      const aviso = filaAAvisoReposicion(data[i]);
+      if (aviso.id_aviso !== idAviso) continue;
+
+      if (
+        sesion.rol !== "master" &&
+        aviso.id_tienda !== String(sesion.id_tienda || "")
+      ) return err("No puedes administrar avisos de otra sucursal");
+
+      if (aviso.estado === "ENVIADO") {
+        return ok({ aviso, ya_enviado: true });
+      }
+
+      if (aviso.estado !== "LISTO") {
+        return err("El producto todavía no está disponible");
+      }
+
+      const ahora = new Date();
+      sh.getRange(i + 1, 10, 1, 6).setValues([[
+        "ENVIADO",
+        aviso.fecha_listo || ahora,
+        ahora,
+        sesion.id_usuario || "MASTER",
+        sesion.nombre_usuario || "Karla",
+        ahora
+      ]]);
+
+      const actualizado = filaAAvisoReposicion(
+        sh.getRange(i + 1, 1, 1, 15).getValues()[0]
+      );
+
+      logEvent("AVISO_REPOSICION_ENVIADO", {
+        id_aviso: idAviso,
+        id_usuario: sesion.id_usuario || "MASTER"
+      });
+
+      return ok({ aviso: actualizado, ya_enviado: false });
+    }
+
+    return err("Aviso no encontrado");
+  } catch (error) {
+    logEvent("ERROR_MARCAR_AVISO_ENVIADO", b, error.toString());
+    return err("No pudimos actualizar el aviso", { detail: error.toString() });
+  }
+}
+
 function updateDisponible(b) {
 
   try {
@@ -1308,12 +1569,33 @@ function updateDisponible(b) {
           data[i][1] === b.id_producto
         ) {
 
-          sh.getRange(i + 1, 3)
-            .setValue(Boolean(b.disponible));
+          const tieneCantidad = data[i][3] !== "" && data[i][3] !== null;
+          const disponible = Boolean(b.disponible);
+
+          if (tieneCantidad) {
+            const cantidadActual = Math.max(0, Math.floor(safeNumber(data[i][3])));
+            sh.getRange(i + 1, 3, 1, 3).setValues([[
+              disponible,
+              disponible ? Math.max(1, cantidadActual) : 0,
+              new Date()
+            ]]);
+          } else {
+            sh.getRange(i + 1, 3, 1, 3).setValues([[
+              disponible,
+              "",
+              new Date()
+            ]]);
+          }
 
           CacheService
             .getScriptCache()
             .remove("catalogo_publico");
+
+          SpreadsheetApp.flush();
+          marcarAvisosListosPorInventario(
+            String(b.id_tienda),
+            String(b.id_producto)
+          );
 
           return ok({
             id_tienda: b.id_tienda,
@@ -1326,12 +1608,22 @@ function updateDisponible(b) {
       sh.appendRow([
         b.id_tienda,
         b.id_producto,
-        Boolean(b.disponible)
+        Boolean(b.disponible),
+        Boolean(b.disponible) ? 1 : 0,
+        new Date(),
+        sesion.id_usuario || "MASTER",
+        sesion.nombre_usuario || "Karla"
       ]);
 
       CacheService
         .getScriptCache()
         .remove("catalogo_publico");
+
+      SpreadsheetApp.flush();
+      marcarAvisosListosPorInventario(
+        String(b.id_tienda),
+        String(b.id_producto)
+      );
 
       return ok({
         id_tienda: b.id_tienda,
@@ -1584,6 +1876,8 @@ function guardarInventarioDiario(b) {
     ]);
 
     CacheService.getScriptCache().remove("catalogo_publico");
+    SpreadsheetApp.flush();
+    marcarAvisosListosPorInventario(idTienda);
     logEvent("INVENTARIO_DIARIO", {
       id_tienda: idTienda,
       id_usuario: sesion.id_usuario,
@@ -2103,12 +2397,23 @@ function productoDisponibleEnTienda(idTienda, idProducto) {
 function leerCatalogoPorTienda(idTienda) {
 
   const catalogo = leerCatalogoPublico();
+  const inventario = leerInventario();
 
-  return catalogo.filter(p =>
-    p.pedido_especial !== true &&
-    p.categoria !== "PedEsp" &&
-    productoDisponibleEnTienda(idTienda, p.id)
-  );
+  return catalogo
+    .filter(p =>
+      p.pedido_especial !== true &&
+      p.categoria !== "PedEsp"
+    )
+    .map(p => {
+      const stock = inventario.find(item =>
+        String(item.id_tienda) === String(idTienda) &&
+        String(item.id_producto) === String(p.id)
+      );
+
+      return Object.assign({}, p, {
+        disponible_en_tienda: Boolean(stock && stock.disponible === true)
+      });
+    });
 }
 
 function leerCatalogoPublico() {
@@ -3024,6 +3329,7 @@ function migrarEstructuraOperacionV2() {
       "Producto_Lider_Cantidad", "Producto_Lider_Ingresos",
       "Horario_Mayores_Ventas", "Dia_Mayores_Ventas"
     ]);
+    asegurarHojaAvisosReposicion();
 
     actualizarTiendaMigracion("LAVIN", {
       6: "529995433776",
@@ -3064,7 +3370,8 @@ function migrarEstructuraOperacionV2() {
       hojas: [
         "Pedidos", "Inventario", "Tiendas", "Usuarios",
         "Aperturas_Diarias", "Revisiones_Inventario",
-        "Incidencias_Inventario", "Logs", "Reporte_Mensual"
+        "Incidencias_Inventario", "Avisos_Reposicion", "Logs",
+        "Reporte_Mensual"
       ]
     });
 

@@ -415,6 +415,17 @@ body {
   }
 }
     
+    .avisos-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(285px,1fr)); gap:14px; }
+    .aviso-card { padding:18px; border:1px solid #e5ddd4; border-radius:16px; background:#fff; box-shadow:0 8px 24px rgba(45,29,20,.06); }
+    .aviso-card h3 { margin:8px 0 5px; color:var(--cafe); font-size:17px; }
+    .aviso-card p { margin:4px 0; color:var(--gris); font-size:13px; line-height:1.45; }
+    .aviso-badge { display:inline-flex; padding:5px 9px; border-radius:999px; background:#eee8e2; color:var(--cafe); font-size:11px; font-weight:800; }
+    .aviso-badge.listo { background:#e4f5e8; color:#1f6d32; }
+    .aviso-badge.enviado { background:#e7edf7; color:#2e4f7d; }
+    .aviso-actions { display:flex; gap:8px; flex-wrap:wrap; margin-top:13px; }
+    .aviso-actions a, .aviso-actions button { min-height:38px; padding:0 12px; border:0; border-radius:10px; font:inherit; font-size:12px; font-weight:800; text-decoration:none; cursor:pointer; }
+    .aviso-actions a { display:inline-flex; align-items:center; background:#25d366; color:#083e1e; }
+    .aviso-actions button { background:var(--cafe); color:#fff; }
   </style>
 </head>
 <body>
@@ -440,6 +451,9 @@ body {
       Pedidos activos <span class="badge-count" id="badge-pedidos">0</span>
     </button>
     <button class="tab" onclick="cambiarTab('stock')" id="tab-stock">Stock</button>
+    <button class="tab" onclick="cambiarTab('avisos')" id="tab-avisos">
+      Avisos <span class="badge-count" id="badge-avisos">0</span>
+    </button>
   </div>
   <div class="content">
     <div class="tab-panel active" id="panel-pedidos">
@@ -459,6 +473,16 @@ body {
       </div>
       <div id="inventario-actividad" class="inventory-activity"></div>
       <div id="catalogo-lista"><div class="loading">Cargando stock...</div></div>
+    </div>
+    <div class="tab-panel" id="panel-avisos">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Avisos de reposici&oacute;n</div>
+          <p>Esta lista contiene solamente solicitudes de tu sucursal.</p>
+        </div>
+        <button class="refresh-btn" onclick="cargarAvisosReposicion()">Actualizar</button>
+      </div>
+      <div id="avisos-lista"><div class="loading">Cargando avisos...</div></div>
     </div>
   </div>
 </div>
@@ -499,6 +523,7 @@ body {
   let CATALOGO = [];
   let ESTADO_INVENTARIO = null;
   let PRODUCTO_INCIDENCIA = null;
+  let AVISOS_REPOSICION = [];
   
    const SIGUIENTE_ESTATUS = {
     "Nuevo": "Confirmado",
@@ -547,6 +572,7 @@ body {
 
         pintarPedidos(data.pedidos || []);
         await cargarCatalogo();
+        cargarAvisosReposicion();
 
         if(ESTADO_INVENTARIO && ESTADO_INVENTARIO.apertura_hoy){
           cambiarTab("pedidos");
@@ -601,6 +627,7 @@ body {
       .forEach(p => p.classList.remove("active"));
     document.getElementById(`tab-${tab}`).classList.add("active");
     document.getElementById(`panel-${tab}`).classList.add("active");
+    if(tab === "avisos") cargarAvisosReposicion();
   }
 
   function pintarPedidos(pedidos){
@@ -1172,6 +1199,7 @@ body {
 
         label.textContent = disponible ? "ACTIVO" : "OFF";
         toast(disponible ? "Producto activado" : "Producto desactivado");
+        if(disponible) cargarAvisosReposicion();
       }else{
         input.checked = !disponible;
         toast("Error al actualizar");
@@ -1184,9 +1212,99 @@ body {
     input.disabled = false;
   }
 
+  function mensajeAvisoReposicion(aviso){
+    return `Hola, ${aviso.nombre_cliente} 😊 Ya volvió a estar disponible ${aviso.nombre_producto} en Pandé ${aviso.nombre_tienda}. Puedes solicitarlo aquí: https://pande.vinculo.lat/pande/ Sujeto a disponibilidad.`;
+  }
+
+  function urlWhatsAppAviso(aviso){
+    const telefono = String(aviso.whatsapp || "").replace(/\D/g, "");
+    return `https://wa.me/${telefono}?text=${encodeURIComponent(mensajeAvisoReposicion(aviso))}`;
+  }
+
+  function fechaHoraAviso(valor){
+    if(!valor) return "";
+    const fecha = new Date(valor);
+    return Number.isNaN(fecha.getTime())
+      ? escaparHtml(valor)
+      : fecha.toLocaleString("es-MX", { day:"numeric", month:"short", hour:"2-digit", minute:"2-digit" });
+  }
+
+  async function cargarAvisosReposicion(){
+    const lista = document.getElementById("avisos-lista");
+    if(!lista || !TOKEN) return;
+    lista.innerHTML = '<div class="loading">Cargando avisos...</div>';
+
+    try{
+      const res = await fetch(
+        `${SCRIPT_URL}?action=getAvisosReposicion&token=${TOKEN}`
+      );
+      const data = await res.json();
+      if(!data.ok){
+        lista.innerHTML = '<div class="empty-state"><p>Error cargando avisos</p></div>';
+        return;
+      }
+      AVISOS_REPOSICION = data.avisos || [];
+      pintarAvisosReposicion();
+    }catch(_){
+      lista.innerHTML = '<div class="empty-state"><p>Error de conexi&oacute;n</p></div>';
+    }
+  }
+
+  function pintarAvisosReposicion(){
+    const lista = document.getElementById("avisos-lista");
+    if(!lista) return;
+
+    const activos = AVISOS_REPOSICION.filter(a => a.estado !== "ENVIADO");
+    document.getElementById("badge-avisos").textContent = activos.length;
+
+    if(!AVISOS_REPOSICION.length){
+      lista.innerHTML = '<div class="empty-state"><p>No hay avisos para esta sucursal.</p></div>';
+      return;
+    }
+
+    lista.innerHTML = `<div class="avisos-grid">${AVISOS_REPOSICION.map(aviso => `
+      <article class="aviso-card">
+        <span class="aviso-badge ${String(aviso.estado || "").toLowerCase()}">${escaparHtml(aviso.estado)}</span>
+        <h3>${escaparHtml(aviso.nombre_producto)}</h3>
+        <p><strong>${escaparHtml(aviso.nombre_cliente)}</strong> · ${escaparHtml(aviso.whatsapp)}</p>
+        <p>Solicitado ${fechaHoraAviso(aviso.fecha_solicitud)}</p>
+        ${aviso.fecha_envio ? `<p>Enviado ${fechaHoraAviso(aviso.fecha_envio)} por ${escaparHtml(aviso.nombre_usuario_envio)}</p>` : ""}
+        ${aviso.estado === "LISTO" ? `
+          <div class="aviso-actions">
+            <a href="${urlWhatsAppAviso(aviso)}" target="_blank" rel="noopener">Abrir WhatsApp</a>
+            <button onclick="marcarAvisoEnviado('${escaparHtml(aviso.id_aviso)}')">Marcar como enviado</button>
+          </div>
+        ` : ""}
+      </article>
+    `).join("")}</div>`;
+  }
+
+  async function marcarAvisoEnviado(idAviso){
+    try{
+      const res = await fetch(SCRIPT_URL, {
+        method:"POST",
+        body:JSON.stringify({
+          action:"marcarAvisoReposicionEnviado",
+          token:TOKEN,
+          id_aviso:idAviso
+        })
+      });
+      const data = await res.json();
+      if(!data.ok){
+        toast(data.error || "No se pudo actualizar el aviso");
+        return;
+      }
+      toast(data.ya_enviado ? "El aviso ya estaba marcado" : "Aviso marcado como enviado");
+      cargarAvisosReposicion();
+    }catch(_){
+      toast("Error de conexión");
+    }
+  }
+
   function recargarTodo(){
     cargarPedidos();
     cargarCatalogo();
+    cargarAvisosReposicion();
     toast("Actualizado");
   }
 
@@ -1225,6 +1343,7 @@ body {
 
       toast("Inventario del día confirmado");
       await cargarCatalogo();
+      await cargarAvisosReposicion();
       cambiarTab("pedidos");
     }catch(_){
       toast("Error de conexión");
