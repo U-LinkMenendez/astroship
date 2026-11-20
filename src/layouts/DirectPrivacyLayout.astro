@@ -1,0 +1,30 @@
+---
+const { frontmatter } = Astro.props;
+const canonical = new URL("/aviso-de-privacidad", Astro.site);
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>{frontmatter.title}</title>
+    <meta name="description" content="Consulta cómo U Link Systems trata tus datos cuando usas su chat web." />
+    <meta name="ulink-direct-notice-sha256" content={frontmatter.sourceSha256} />
+    <link rel="canonical" href={canonical.href} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="stylesheet" href="/direct-privacy.css" />
+  </head>
+  <body>
+    <header>
+      <nav aria-label="Navegación principal">
+        <a href="/">U Link Systems</a>
+      </nav>
+    </header>
+    <main>
+      <article>
+        <slot />
+      </article>
+    </main>
+  </body>
+</html>
