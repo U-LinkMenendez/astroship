@@ -39,7 +39,7 @@ export async function onRequest({ request, env }) {
   ].join("\n");
   return new Response(request.method === "HEAD" ? null : html, { headers: {
     "Content-Type": "text/html; charset=utf-8",
-    "Cache-Control": "no-store",
+    "Cache-Control": "no-store, no-transform",
     "Content-Security-Policy": "default-src 'none'; style-src 'self'; img-src 'self'; base-uri 'none'; frame-ancestors 'none'",
     "X-Content-Type-Options": "nosniff",
   } });
