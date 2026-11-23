@@ -1,0 +1,57 @@
+---
+import { Icon } from "astro-icon/components";
+import Layout from "@/layouts/Layout.astro";
+import "@/styles/ulink-site.css";
+
+interface Props {
+  title: string;
+  description: string;
+  socialImage?: { src: string; alt: string };
+}
+
+const { title, description, socialImage } = Astro.props;
+const path = Astro.url.pathname.replace(/\/$/, "") || "/";
+const home = path === "/" ? "" : "/";
+const footerLinks = [
+  { href: "/pricing", label: "Planes de chatbots" },
+  { href: "/contact", label: "Contacto" },
+  { href: "/aviso-de-privacidad", label: "Aviso de privacidad" },
+];
+---
+
+<Layout {title} {description} {socialImage} brand="U Link Systems" siteChrome={false}>
+  <div class="ulink-site">
+    <a class="skip-link" href="#contenido">Ir al contenido</a>
+    <header class="ulink-header">
+      <div class="frame header-inner">
+        <a class="wordmark" href="/" aria-label="U Link Systems, inicio">
+          <span class="brand-symbol"><Icon name="bx:link-alt" aria-hidden="true" /></span>
+          <span>U Link <strong>Systems</strong></span>
+        </a>
+        <nav aria-label="Navegación principal">
+          <a href={home + "#planes"}>Planes</a>
+          <a href={home + "#soluciones"}>Soluciones</a>
+          <a href={home + "#como-trabajamos"}>Cómo trabajamos</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="contenido" tabindex="-1">
+      <slot />
+    </main>
+
+    <footer class="ulink-footer">
+      <div class="frame footer-inner">
+        <div>
+          <p class="footer-brand">U Link Systems</p>
+          <p>Mérida, Yucatán · México</p>
+        </div>
+        <nav aria-label="Enlaces de pie de página">
+          {footerLinks.map(({ href, label }) => (
+            <a href={href} aria-current={path === href ? "page" : undefined}>{label}</a>
+          ))}
+        </nav>
+      </div>
+    </footer>
+  </div>
+</Layout>

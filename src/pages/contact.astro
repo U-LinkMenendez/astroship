@@ -1,40 +1,132 @@
 ---
+import { Icon } from "astro-icon/components";
 import Contactform from "@/components/contactform.astro";
-import Container from "@/components/container.astro";
-import Sectionhead from "@/components/sectionhead.astro";
-import Layout from "@/layouts/Layout.astro";
+import { directUrl } from "@/data/ulink-contact";
+import ULinkLayout from "@/layouts/ULinkLayout.astro";
 ---
-<Layout title="Contacto">
-  <Container>
-    <Sectionhead>
-      <Fragment slot="title">Contáctanos</Fragment>
-      <Fragment slot="desc">Cuéntanos sobre tu negocio y te decimos cómo podemos automatizarlo.</Fragment>
-    </Sectionhead>
-    <div class="grid md:grid-cols-2 gap-10 mx-auto max-w-4xl mt-16">
-      <div>
-        <h2 class="font-medium text-2xl text-gray-800">Habla con U Link Chatbots</h2>
-        <p class="text-lg leading-relaxed text-slate-500 mt-3">
-          ¿Tienes dudas o quieres saber si la automatización es para tu negocio? Escríbenos, llámanos o llena el formulario y te respondemos a la brevedad.
-        </p>
-        <div class="mt-5">
-          <div class="flex items-center mt-2 space-x-2 text-gray-600">
-            📍
-            <span>Mérida, Yucatán, México</span>
-          </div><div class="flex items-center mt-2 space-x-2 text-gray-600">
-            ✉️<a
-              href="mailto:contacto@menendez.lat"
-              >contacto@menendez.lat</a
-            >
-          </div><div class="flex items-center mt-2 space-x-2 text-gray-600">
-            📞<a
-              href="tel:+529996690192">+52 (999) 669 0192</a
-            >
-          </div>
-        </div>
-      </div>
-      <div>
-        <Contactform />
-      </div>
+
+<ULinkLayout title="Contacto" description="Habla con U Link Systems por Direct, WhatsApp, correo o teléfono.">
+  <section class="page-intro" aria-labelledby="contact-title">
+    <div class="frame">
+      <h1 id="contact-title">Contacto</h1>
+      <p>Cuéntanos qué quieres mejorar en tu negocio y revisamos cómo ayudarte.</p>
     </div>
-  </Container>
-</Layout>
+  </section>
+
+  <div class="contact-grid frame">
+    <div class="contact-methods">
+      <section class="contact-card direct-card" aria-labelledby="direct-title">
+        <span class="contact-icon"><Icon name="bx:message-rounded-dots" aria-hidden="true" /></span>
+        <h2 id="direct-title">Chatea con U Link</h2>
+        <p>Abre Vínculo Direct para hablar con un asesor desde tu navegador.</p>
+        <a class="button button-primary" href={directUrl}>
+          Chatear
+          <Icon name="bx:right-arrow-alt" aria-hidden="true" />
+        </a>
+      </section>
+
+      <section class="contact-card contact-details" aria-labelledby="details-title">
+        <h2 id="details-title">Correo y teléfono</h2>
+        <ul>
+          <li><a href="mailto:contacto@menendez.lat"><Icon name="bx:envelope" aria-hidden="true" /> contacto@menendez.lat</a></li>
+          <li><a href="tel:+529996690192"><Icon name="bx:phone" aria-hidden="true" /> +52 (999) 669 0192</a></li>
+          <li><Icon name="bx:map" aria-hidden="true" /><span>Mérida, Yucatán, México</span></li>
+        </ul>
+      </section>
+    </div>
+
+    <section class="contact-card contact-form-card" aria-labelledby="whatsapp-title">
+      <h2 id="whatsapp-title">Escríbenos por WhatsApp</h2>
+      <p>Prepara tu consulta y revísala en WhatsApp antes de enviarla.</p>
+      <Contactform />
+    </section>
+  </div>
+</ULinkLayout>
+
+<style>
+  .contact-grid {
+    display: grid;
+    grid-template-columns: minmax(0, .84fr) minmax(0, 1fr);
+    align-items: start;
+    gap: 1rem;
+    padding-block: clamp(2rem, 5vw, 4rem);
+  }
+
+  .contact-methods {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .contact-card {
+    padding: clamp(1.2rem, 3vw, 2.15rem);
+    border: 1px solid var(--line);
+    border-radius: .9rem;
+  }
+
+  .direct-card {
+    border-color: #c4d7f0;
+    background: var(--tint);
+  }
+
+  .contact-icon {
+    display: inline-grid;
+    place-items: center;
+    width: 2.65rem;
+    height: 2.65rem;
+    margin-bottom: .65rem;
+    border-radius: .62rem;
+    color: #fff;
+    background: var(--accent);
+  }
+
+  .contact-card svg {
+    flex: none;
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  .contact-card h2 {
+    font-size: clamp(1.35rem, 2.7vw, 1.85rem);
+    font-weight: 710;
+    line-height: 1.2;
+    letter-spacing: -.04em;
+  }
+
+  .contact-card > p {
+    max-width: 29rem;
+    margin-top: .55rem;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  .direct-card .button {
+    margin-top: 1.15rem;
+  }
+
+  .contact-details ul {
+    display: grid;
+    gap: .2rem;
+    margin-top: .6rem;
+  }
+
+  .contact-details li:last-child,
+  .contact-details a {
+    display: inline-flex;
+    align-items: center;
+    gap: .6rem;
+    min-height: 2.75rem;
+    overflow-wrap: anywhere;
+  }
+
+  .contact-details a {
+    color: var(--accent-dark);
+    text-decoration: underline;
+    text-underline-offset: .22em;
+  }
+
+  @media (max-width: 760px) {
+    .contact-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
