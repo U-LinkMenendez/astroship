@@ -1,0 +1,246 @@
+.ulink-site {
+  --ink: #10223b;
+  --muted: #4b6078;
+  --accent: #1949b5;
+  --accent-dark: #143a90;
+  --tint: #e8f0ff;
+  --paper: #f4f7fb;
+  --line: #d6e0ec;
+  --navy: #0b182b;
+  --night-border: #304762;
+  --pale: #f3f7ff;
+  --on-dark: #c8d7ed;
+  --blue-light: #a8d6ff;
+  --scroll-offset: 5rem;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  color: var(--ink);
+  background: #fff;
+  font-family: "Inter Variable", system-ui, sans-serif;
+}
+
+.ulink-site #contenido {
+  flex: 1;
+  scroll-margin-top: var(--scroll-offset);
+}
+
+.ulink-site :is(a, button, input, textarea, #contenido):focus-visible {
+  outline: 2px solid #638df1;
+  outline-offset: 4px;
+}
+
+.ulink-site .frame {
+  width: min(100% - 3.5rem, 74rem);
+  margin-inline: auto;
+}
+
+.ulink-site .skip-link {
+  position: fixed;
+  z-index: 3;
+  top: .75rem;
+  left: .75rem;
+  transform: translateY(-200%);
+  padding: .7rem 1rem;
+  border-radius: .5rem;
+  color: #fff;
+  background: var(--accent-dark);
+}
+
+.ulink-site .skip-link:focus {
+  transform: translateY(0);
+}
+
+.ulink-header {
+  position: sticky;
+  z-index: 2;
+  top: 0;
+  border-bottom: 1px solid var(--night-border);
+  background: var(--navy);
+  color: var(--pale);
+}
+
+.ulink-site .header-inner,
+.ulink-site .footer-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem 2rem;
+  min-height: 4.3rem;
+}
+
+.ulink-site .wordmark {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  gap: .65rem;
+  font-size: 1.14rem;
+  font-weight: 720;
+  letter-spacing: -.03em;
+  white-space: nowrap;
+}
+
+.ulink-site .wordmark strong {
+  color: var(--blue-light);
+  font-weight: inherit;
+}
+
+.ulink-site .brand-symbol {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: .55rem;
+  color: #fff;
+  background: #285bc0;
+}
+
+.ulink-site .brand-symbol svg {
+  width: 1.28rem;
+  height: 1.28rem;
+}
+
+.ulink-header nav,
+.ulink-footer nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 1.65rem;
+}
+
+.ulink-header nav a,
+.ulink-footer nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  font-size: .88rem;
+  font-weight: 560;
+}
+
+.ulink-header nav a {
+  color: var(--on-dark);
+}
+
+.ulink-header nav a:hover,
+.ulink-footer nav a:is(:hover, [aria-current="page"]) {
+  text-decoration: underline;
+  text-underline-offset: .2em;
+}
+
+.ulink-header nav a:hover {
+  color: var(--pale);
+}
+
+.ulink-footer {
+  border-top: 1px solid var(--line);
+  background: #fff;
+}
+
+.ulink-site .footer-inner {
+  min-height: 6.1rem;
+  padding-block: .85rem;
+  color: var(--muted);
+  font-size: .87rem;
+}
+
+.ulink-site .footer-brand {
+  margin-bottom: .15rem;
+  color: var(--ink);
+  font-size: 1.08rem;
+  font-weight: 710;
+  letter-spacing: -.025em;
+}
+
+.ulink-site .button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 3rem;
+  gap: .52rem;
+  padding: .6rem 1.1rem;
+  border: 1px solid transparent;
+  border-radius: .57rem;
+  font-size: .91rem;
+  font-weight: 680;
+  line-height: 1.35;
+  text-align: center;
+}
+
+.ulink-site .button svg {
+  flex: none;
+  width: 1.23rem;
+  height: 1.23rem;
+}
+
+.ulink-site .button-primary {
+  color: #fff;
+  background: var(--accent);
+}
+
+.ulink-site .button-primary:hover {
+  background: var(--accent-dark);
+}
+
+.ulink-site .button-outline {
+  border-color: #8298b6;
+  color: var(--ink);
+}
+
+.ulink-site .button-outline:hover {
+  border-color: var(--accent);
+  background: var(--tint);
+}
+
+.ulink-site .page-intro {
+  padding-block: clamp(2.55rem, 5.5vw, 4.2rem);
+  color: var(--pale);
+  background: radial-gradient(ellipse at 86% 36%, #28518285, transparent 63%), var(--navy);
+}
+
+.ulink-site .page-intro h1 {
+  font-size: clamp(2.3rem, 5.25vw, 4rem);
+  font-weight: 730;
+  letter-spacing: -.055em;
+  line-height: 1.06;
+}
+
+.ulink-site .page-intro p {
+  max-width: 40rem;
+  margin-top: .8rem;
+  color: var(--on-dark);
+  line-height: 1.65;
+}
+
+@media (max-width: 820px) {
+  .ulink-site .frame {
+    width: calc(100% - 2.25rem);
+  }
+
+  .ulink-site .footer-inner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 570px) {
+  .ulink-site {
+    --scroll-offset: 6.4rem;
+  }
+
+  .ulink-site .header-inner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+    padding-top: .4rem;
+  }
+
+  .ulink-header nav,
+  .ulink-footer nav {
+    gap: 0 1.12rem;
+  }
+
+  .ulink-header nav a {
+    font-size: .83rem;
+  }
+}

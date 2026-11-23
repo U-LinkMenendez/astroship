@@ -1,224 +1,383 @@
 ---
-import Container from "@/components/container.astro";
-import Layout from "@/layouts/Layout.astro";
+import { Icon } from "astro-icon/components";
+import { contactWhatsapp, directUrl, salesWhatsapp, whatsappDraft } from "@/data/ulink-contact";
+import ULinkLayout from "@/layouts/ULinkLayout.astro";
+
+const plans = [
+  {
+    name: "Semilla",
+    description: "Para negocios que quieren orden",
+    setup: "$1,500",
+    monthly: "$799",
+    includes: ["Pipeline de 3 etapas en CRM", "Chatbot básico", "Recordatorios automáticos", "WhatsApp o Instagram", "Reporte semanal"],
+    action: "Empezar por WhatsApp",
+    message: "Hola Ulises, me interesa el Plan Semilla",
+  },
+  {
+    name: "Profesional",
+    description: "Para negocios en crecimiento",
+    setup: "$3,500",
+    monthly: "$1,499",
+    includes: ["Todo el Plan Semilla", "2 canales simultáneos", "Agenda automática", "Bot ampliado"],
+    action: "Elegir Profesional",
+    message: "Hola Ulises, me interesa el Plan Profesional",
+    featured: true,
+  },
+  {
+    name: "Total",
+    description: "Para equipos y negocios consolidados",
+    setup: "$6,500",
+    monthly: "$2,499",
+    includes: ["Todo el Plan Profesional", "3 canales activos", "Usuarios adicionales", "Reportes mensuales"],
+    action: "Solicitar Total",
+    message: "Hola Ulises, me interesa el Plan Total",
+  },
+  {
+    name: "Empresa",
+    description: "A la medida de tu operación",
+    includes: ["Integraciones complejas", "Flujos a la medida", "Equipo dedicado", "Soporte prioritario"],
+    action: "Hablar con Ulises",
+    message: "Hola Ulises, me interesa el Plan Empresa, ¿podemos hablar?",
+  },
+];
+
+const extras = [
+  { name: "Reporte semanal automático", price: "+ $400 MXN al mes", description: "Resumen de prospectos, cierres y actividad del bot entregado cada lunes por WhatsApp o correo." },
+  { name: "Secuencia posterior a la consulta", price: "+ $500 MXN al mes", description: "Entre 3 y 5 mensajes automáticos después de cada cita para pedir una reseña o fomentar la recompra." },
+  { name: "Calificación de prospectos", price: "+ $300 MXN al mes", description: "El bot califica a cada prospecto y lo mueve a la etapa correspondiente en tu CRM." },
+  { name: "Página de campaña", price: "$2,000 MXN de instalación", description: "Página para promociones, temporadas o lanzamientos, con botón a WhatsApp y alojamiento incluido." },
+  { name: "Bienvenida automática", price: "+ $400 MXN al mes", description: "Envía documentos, instrucciones y datos de la primera cita a nuevos clientes por WhatsApp." },
+  { name: "Recordatorios de pago", price: "+ $350 MXN al mes", description: "Avisos tres días antes, un día antes y el mismo día del vencimiento, con enlace de pago." },
+];
+
+const paymentTerms = [
+  "Tarjeta de crédito, efectivo o transferencia bancaria",
+  "Facturación disponible",
+  "Contratación sin permanencia forzosa",
+  "Puesta en marcha en 3 meses sin intereses",
+];
+
+const eventFeatures = [
+  "Información del evento las 24 horas (horarios, sede, ponentes y código de vestimenta)",
+  "Venta o reservación de boletos con enlace de pago",
+  "Confirmación automática por WhatsApp con QR o código único",
+  "Recordatorios un día antes y el día del evento",
+  "Lista de espera automática cuando se agotan los lugares",
+  "Base de contactos propia",
+];
 ---
 
-<Layout title="Paquetes y precios — U Link">
-  <Container>
-    <!-- Header -->
-    <section class="py-12 md:py-16">
-      <div class="max-w-3xl mx-auto px-4 text-center">
-        <h1 class="text-4xl md:text-5xl font-bold tracking-tight">Paquetes y precios</h1>
-        <p class="mt-3 text-slate-600">Precios claros, sin sorpresas. Elige el plan que mejor se adapta a tu operación.</p>
-      </div>
-    </section>
-
-    <!-- Incluye siempre -->
-    <section class="pb-6">
-      <div class="max-w-5xl mx-auto px-4">
-        <div class="rounded-2xl border border-slate-200 bg-slate-50 p-5">
-          <div class="font-semibold text-slate-700">📦 Nuestros planes incluyen siempre:</div>
-          <ul class="mt-3 grid sm:grid-cols-3 gap-2 text-slate-700 list-none text-sm">
-            <li>✅ Diseño e implementación del chatbot</li>
-            <li>✅ Conexión a tus canales activos</li>
-            <li>✅ Soporte continuo + ajustes incluidos</li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <!-- Planes -->
-    <section class="py-6 md:py-10">
-      <div class="max-w-5xl mx-auto px-4 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-
-        <!-- Plan Semilla -->
-        <div class="rounded-2xl border border-slate-200 p-6 flex flex-col">
-          <div class="text-xs uppercase tracking-wide text-slate-400 font-semibold">🌱 Plan Semilla</div>
-          <h3 class="mt-1 text-lg font-semibold leading-snug">Para negocios que quieren orden</h3>
-          <div class="mt-4">
-            <div class="text-2xl font-bold">$1,500 <span class="text-sm font-medium text-slate-400">MXN setup</span></div>
-            <div class="text-slate-600 text-sm mt-0.5">+ $799 MXN / mes</div>
-          </div>
-          <ul class="mt-4 space-y-1.5 text-slate-600 list-none text-sm flex-1">
-            <li>• Pipeline 3 etapas en CRM</li>
-            <li>• Chatbot básico</li>
-            <li>• Recordatorios automáticos</li>
-            <li>• WhatsApp o Instagram</li>
-            <li>• Reporte semanal</li>
-          </ul>
-          <a href="https://wa.me/5219996690192?text=Hola%20Ulises%2C%20me%20interesa%20el%20Plan%20Semilla"
-             class="mt-6 inline-flex justify-center rounded-xl border border-slate-300 px-4 py-2 text-sm font-medium hover:bg-slate-50">
-            Empezar por WhatsApp
-          </a>
-        </div>
-
-        <!-- Plan Profesional (destacado) -->
-        <div class="rounded-2xl border-2 border-slate-900 p-6 flex flex-col shadow-sm relative">
-          <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-xs font-semibold px-3 py-1 rounded-full">Más popular</div>
-          <div class="text-xs uppercase tracking-wide text-slate-400 font-semibold">🥈 Plan Profesional</div>
-          <h3 class="mt-1 text-lg font-semibold leading-snug">Para negocios en crecimiento</h3>
-          <div class="mt-4">
-            <div class="text-2xl font-bold">$3,500 <span class="text-sm font-medium text-slate-400">MXN setup</span></div>
-            <div class="text-slate-600 text-sm mt-0.5">+ $1,499 MXN / mes</div>
-          </div>
-          <ul class="mt-4 space-y-1.5 text-slate-600 list-none text-sm flex-1">
-            <li>• Todo Plan Semilla</li>
-            <li>• 2 canales simultáneos</li>
-            <li>• Agenda automática</li>
-            <li>• Bot ampliado</li>
-          </ul>
-          <a href="https://wa.me/5219996690192?text=Hola%20Ulises%2C%20me%20interesa%20el%20Plan%20Profesional"
-             class="mt-6 inline-flex justify-center rounded-xl bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:opacity-90">
-            Elegir Profesional
-          </a>
-        </div>
-
-        <!-- Plan Total -->
-        <div class="rounded-2xl border border-slate-200 p-6 flex flex-col">
-          <div class="text-xs uppercase tracking-wide text-slate-400 font-semibold">🥇 Plan Total</div>
-          <h3 class="mt-1 text-lg font-semibold leading-snug">Para equipos y negocios consolidados</h3>
-          <div class="mt-4">
-            <div class="text-2xl font-bold">$6,500 <span class="text-sm font-medium text-slate-400">MXN setup</span></div>
-            <div class="text-slate-600 text-sm mt-0.5">+ $2,499 MXN / mes</div>
-          </div>
-          <ul class="mt-4 space-y-1.5 text-slate-600 list-none text-sm flex-1">
-            <li>• Todo Plan Profesional</li>
-            <li>• 3 canales activos</li>
-            <li>• Usuarios adicionales</li>
-            <li>• Reportes mensuales</li>
-          </ul>
-          <a href="https://wa.me/5219996690192?text=Hola%20Ulises%2C%20me%20interesa%20el%20Plan%20Total"
-             class="mt-6 inline-flex justify-center rounded-xl border border-slate-300 px-4 py-2 text-sm font-medium hover:bg-slate-50">
-            Solicitar Total
-          </a>
-        </div>
-
-        <!-- Plan Empresa -->
-        <div class="rounded-2xl border border-slate-200 bg-slate-900 text-white p-6 flex flex-col">
-          <div class="text-xs uppercase tracking-wide text-slate-400 font-semibold">🏢 Plan Empresa</div>
-          <h3 class="mt-1 text-lg font-semibold leading-snug">A la medida de tu operación</h3>
-          <div class="mt-4">
-            <div class="text-2xl font-bold">Según diagnóstico</div>
-            <div class="text-slate-400 text-sm mt-0.5">Setup y mensualidad personalizada</div>
-          </div>
-          <ul class="mt-4 space-y-1.5 text-slate-300 list-none text-sm flex-1">
-            <li>• Integraciones complejas</li>
-            <li>• Flujos a la medida</li>
-            <li>• Equipo dedicado</li>
-            <li>• Soporte prioritario</li>
-          </ul>
-          <a href="https://wa.me/5219996690192?text=Hola%20Ulises%2C%20me%20interesa%20el%20Plan%20Empresa%2C%20%C2%BFpodemos%20hablar%3F"
-             class="mt-6 inline-flex justify-center rounded-xl bg-white text-slate-900 px-4 py-2 text-sm font-medium hover:opacity-90">
-            Hablar con Ulises
-          </a>
-        </div>
-
-      </div>
-    </section>
-
-    <!-- Condiciones de pago -->
-    <section class="py-8">
-      <div class="max-w-5xl mx-auto px-4">
-        <div class="rounded-2xl border border-slate-200 p-5">
-          <ul class="grid sm:grid-cols-2 gap-2 text-slate-700 list-none text-sm">
-            <li>💵 Pagos: TDC, efectivo o transferencia bancaria</li>
-            <li>📄 Facturación disponible</li>
-            <li>🔓 Sin contratos de permanencia forzosa</li>
-            <li>💳 Setup en 3 meses sin intereses</li>
-          </ul>
-          <p class="mt-3 text-xs text-slate-500">⚠️ Precios más IVA. Se desglosa en factura.</p>
-        </div>
-
-        <div class="mt-8 text-center">
-          <a href="https://wa.me/5219996187124?text=Hola%2C%20quiero%20agendar%20una%20demo%20de%20U%20Link%20Chatbots"
-             class="inline-flex items-center justify-center rounded-xl bg-slate-900 px-5 py-3 text-white font-medium hover:opacity-90">
-            Agendar una demo gratuita
-          </a>
-        </div>
-      </div>
-    </section>
-
-  </Container>
-</Layout>
-
-<!-- Servicios adicionales / Add-ons -->
-<section class="py-8 border-t border-slate-100">
-  <div class="max-w-5xl mx-auto px-4">
-    <h2 class="text-2xl font-bold tracking-tight text-center mb-2">Servicios adicionales</h2>
-    <p class="text-center text-slate-500 text-sm mb-8">Complementa cualquier plan con automatizaciones específicas para tu negocio.</p>
-    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-
-      <div class="rounded-xl border border-slate-200 p-5">
-        <div class="text-lg font-semibold">📊 Reporte semanal automático</div>
-        <p class="text-sm text-slate-500 mt-1">Resumen de prospectos, cierres y actividad del bot entregado cada lunes por WhatsApp o correo.</p>
-        <div class="mt-3 text-slate-700 font-medium text-sm">+ $400 MXN / mes</div>
-      </div>
-
-      <div class="rounded-xl border border-slate-200 p-5">
-        <div class="text-lg font-semibold">🔁 Secuencia post-consulta</div>
-        <p class="text-sm text-slate-500 mt-1">3–5 mensajes automáticos después de cada cita para fidelizar, pedir reseña o activar recompra.</p>
-        <div class="mt-3 text-slate-700 font-medium text-sm">+ $500 MXN / mes</div>
-      </div>
-
-      <div class="rounded-xl border border-slate-200 p-5">
-        <div class="text-lg font-semibold">🎯 Scoring de prospectos</div>
-        <p class="text-sm text-slate-500 mt-1">El bot califica automáticamente (Caliente / Tibio / Frío) y mueve la tarjeta en tu CRM.</p>
-        <div class="mt-3 text-slate-700 font-medium text-sm">+ $300 MXN / mes</div>
-      </div>
-
-      <div class="rounded-xl border border-slate-200 p-5">
-        <div class="text-lg font-semibold">🌐 Landing page de campaña</div>
-        <p class="text-sm text-slate-500 mt-1">Página de aterrizaje para promo, temporada o lanzamiento, con CTA directo a WhatsApp. Hosting incluido.</p>
-        <div class="mt-3 text-slate-700 font-medium text-sm">$2,000 MXN setup</div>
-      </div>
-
-      <div class="rounded-xl border border-slate-200 p-5">
-        <div class="text-lg font-semibold">🤝 Onboarding automático</div>
-        <p class="text-sm text-slate-500 mt-1">Secuencia de bienvenida para nuevos clientes: documentos, instrucciones y primera cita, todo por WhatsApp.</p>
-        <div class="mt-3 text-slate-700 font-medium text-sm">+ $400 MXN / mes</div>
-      </div>
-
-      <div class="rounded-xl border border-slate-200 p-5">
-        <div class="text-lg font-semibold">📅 Recordatorios de pago</div>
-        <p class="text-sm text-slate-500 mt-1">Flujo automático de cobro: aviso D-3, D-1 y el día de vencimiento con link de pago incluido.</p>
-        <div class="mt-3 text-slate-700 font-medium text-sm">+ $350 MXN / mes</div>
-      </div>
-
+<ULinkLayout title="Planes de chatbots" description="Compara los planes de chatbot de U Link Systems, los cargos de instalación y los servicios adicionales.">
+  <section class="page-intro" aria-labelledby="pricing-title">
+    <div class="frame">
+      <h1 id="pricing-title">Planes de chatbots</h1>
+      <p>Elige cómo automatizar la atención de tu negocio. Los planes incluyen diseño del chatbot, conexión a tus canales activos y soporte con ajustes.</p>
+      <a class="button chat-link" href={directUrl}>
+        Chatear con un asesor
+        <Icon name="bx:right-arrow-alt" aria-hidden="true" />
+      </a>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- Bot de Evento -->
-<section class="py-10 border-t border-slate-100">
-  <div class="max-w-5xl mx-auto px-4">
-    <div class="rounded-2xl bg-gradient-to-br from-slate-900 to-slate-800 text-white p-8 md:p-10">
-      <div class="md:flex items-start gap-10">
-        <div class="flex-1">
-          <div class="inline-block text-xs font-semibold uppercase tracking-widest bg-white/10 rounded-full px-3 py-1 mb-4">Servicio por proyecto</div>
-          <h2 class="text-2xl md:text-3xl font-bold">🎟️ Bot de Evento</h2>
-          <p class="mt-3 text-slate-300">Expo, feria, congreso, concierto o festival — tu evento vende entradas y atiende a los asistentes directamente desde WhatsApp, sin intermediarios.</p>
-          <ul class="mt-5 space-y-2 text-slate-300 text-sm list-none">
-            <li>✅ Información del evento 24/7 (horarios, sede, ponentes, dress code)</li>
-            <li>✅ Venta o reserva de tickets con link de pago integrado</li>
-            <li>✅ Confirmación automática con QR o código único por WhatsApp</li>
-            <li>✅ Recordatorio D-1 y día del evento al comprador</li>
-            <li>✅ Lista de espera automática si se agotan lugares</li>
-            <li>✅ Base de contactos propia — sin ceder datos a Ticketmaster</li>
+  <section class="pricing-section frame" aria-labelledby="comparison-title">
+    <h2 id="comparison-title">Compara los planes</h2>
+    <div class="chat-plans">
+      {plans.map((plan) => (
+        <article class:list={["chat-plan", plan.featured && "chat-plan-featured"]}>
+          <div class="plan-heading">
+            <h3>Plan {plan.name}</h3>
+            <p class="plan-description">{plan.description}</p>
+          </div>
+          <div class="plan-rate">
+            {plan.setup ? (
+              <>
+                <p><strong>{plan.setup}</strong> MXN de instalación</p>
+                <p>+ {plan.monthly} MXN al mes</p>
+              </>
+            ) : (
+              <>
+                <p class="custom-rate">Según diagnóstico</p>
+                <p>Instalación y mensualidad personalizadas</p>
+              </>
+            )}
+          </div>
+          <ul class="included">
+            {plan.includes.map((item) => (
+              <li><Icon name="bx:check" aria-hidden="true" /><span>{item}</span></li>
+            ))}
           </ul>
-        </div>
-        <div class="mt-8 md:mt-0 md:min-w-[220px] flex flex-col items-center justify-center bg-white/5 rounded-2xl p-6 text-center">
-          <div class="text-sm text-slate-400 uppercase tracking-wide font-semibold">Desde</div>
-          <div class="text-4xl font-bold mt-1">$3,500</div>
-          <div class="text-slate-400 text-sm">MXN por evento</div>
-          <div class="text-xs text-slate-500 mt-2">Precio final según alcance</div>
-          <a href="https://wa.me/5219996690192?text=Hola%20Ulises%2C%20tengo%20un%20evento%20y%20me%20interesa%20el%20Bot%20de%20Evento%20de%20U%20Link"
-             class="mt-5 w-full inline-flex justify-center rounded-xl bg-white text-slate-900 px-4 py-2.5 font-semibold text-sm hover:opacity-90">
-            Cotizar mi evento
+          <a
+            class:list={["button", plan.featured ? "button-primary" : "button-outline"]}
+            href={whatsappDraft(salesWhatsapp, plan.message)}
+            aria-label={plan.action + " · Plan " + plan.name}>
+            {plan.action}
           </a>
-          <p class="text-xs text-slate-500 mt-2">Hablas directo con Ulises</p>
-          <p class="text-xs text-amber-600 mt-3 bg-amber-50 rounded-lg px-3 py-2 text-left">⚠️ La validación de QR en puerta (escáner en tiempo real) es un componente adicional — se cotiza según el evento.</p>
-        </div>
+        </article>
+      ))}
+    </div>
+
+    <aside class="payment" aria-labelledby="payment-title">
+      <div>
+        <h3 id="payment-title">Condiciones de pago</h3>
+        <ul>{paymentTerms.map((item) => <li>{item}</li>)}</ul>
+        <p>Precios más IVA. Se desglosa en factura.</p>
+      </div>
+      <a class="button button-outline" href={whatsappDraft(contactWhatsapp,"Hola, quiero agendar una demo de U Link Chatbots")}>
+        Agendar una demo gratuita
+        <Icon name="bx:right-arrow-alt" aria-hidden="true" />
+      </a>
+    </aside>
+  </section>
+
+  <section class="extras-section" aria-labelledby="extras-title">
+    <div class="frame pricing-section">
+      <h2 id="extras-title">Servicios adicionales</h2>
+      <p class="section-copy">Agrega automatizaciones específicas al plan de tu negocio.</p>
+      <div class="extras-grid">
+        {extras.map(({ name, price, description }) => (
+          <article class="extra">
+            <h3>{name}</h3>
+            <p>{description}</p>
+            <strong>{price}</strong>
+          </article>
+        ))}
       </div>
     </div>
-  </div>
-</section>
+  </section>
+
+  <section class="frame pricing-section">
+    <div class="event" aria-labelledby="event-title">
+      <div>
+        <h2 id="event-title">Bot de Evento</h2>
+        <p>Atiende a los asistentes y vende boletos de tu expo, feria o congreso por WhatsApp.</p>
+        <ul class="included">
+          {eventFeatures.map((feature) => (
+            <li><Icon name="bx:check" aria-hidden="true" /><span>{feature}</span></li>
+          ))}
+        </ul>
+      </div>
+      <div class="event-price">
+        <p>Desde <strong>$3,500 MXN</strong> por evento</p>
+        <p>El precio final depende del alcance. La validación de códigos QR en el acceso se cotiza por separado.</p>
+        <a class="button button-primary" href={whatsappDraft(salesWhatsapp,"Hola Ulises, tengo un evento y me interesa el Bot de Evento de U Link")}>
+          Cotizar mi evento
+          <Icon name="bx:right-arrow-alt" aria-hidden="true" />
+        </a>
+      </div>
+    </div>
+  </section>
+</ULinkLayout>
+
+<style>
+  .chat-link {
+    margin-top: 1.15rem;
+    color: #0b254c;
+    background: var(--blue-light);
+  }
+
+  .chat-link:hover {
+    background: #c5e4ff;
+  }
+
+  .pricing-section {
+    padding-block: clamp(2.15rem, 5vw, 4rem);
+  }
+
+  .pricing-section h2 {
+    margin-bottom: 1.05rem;
+    font-size: clamp(1.75rem, 3.35vw, 2.75rem);
+    font-weight: 720;
+    line-height: 1.1;
+    letter-spacing: -.05em;
+  }
+
+  .chat-plans,
+  .extras-grid {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .chat-plans {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .chat-plan,
+  .extra,
+  .payment,
+  .event {
+    padding: clamp(1.1rem, 2.15vw, 1.65rem);
+    border: 1px solid var(--line);
+    border-radius: .85rem;
+  }
+
+  .chat-plan,
+  .extra {
+    display: flex;
+    flex-direction: column;
+    gap: .8rem;
+    background: #fff;
+  }
+
+  .chat-plan-featured {
+    border-color: #9ebbf1;
+    background: var(--tint);
+  }
+
+  .pricing-section h3 {
+    font-size: 1.17rem;
+    font-weight: 710;
+    letter-spacing: -.03em;
+    line-height: 1.25;
+  }
+
+  .plan-description,
+  .plan-rate,
+  .included,
+  .extra p,
+  .payment,
+  .section-copy,
+  .event p {
+    color: var(--muted);
+    font-size: .92rem;
+    line-height: 1.57;
+  }
+
+  .plan-description {
+    margin-top: .33rem;
+  }
+
+  .plan-heading {
+    min-height: 4.6rem;
+  }
+
+  .plan-rate {
+    min-height: 4.2rem;
+  }
+
+  .plan-rate strong,
+  .custom-rate {
+    color: var(--accent-dark);
+    font-size: 1.45rem;
+    font-weight: 730;
+  }
+
+  .included {
+    display: grid;
+    gap: .53rem;
+    margin-bottom: auto;
+    padding-top: .8rem;
+    border-top: 1px solid var(--line);
+  }
+
+  .included li {
+    display: flex;
+    align-items: flex-start;
+    gap: .45rem;
+  }
+
+  .included svg {
+    flex: none;
+    width: 1.1rem;
+    height: 1.1rem;
+    color: var(--accent-dark);
+  }
+
+  .payment {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem 2rem;
+    margin-top: 1rem;
+    background: var(--paper);
+  }
+
+  .payment h3 {
+    color: var(--ink);
+  }
+
+  .payment ul {
+    display: grid;
+    gap: .35rem 1.6rem;
+    margin: .8rem 0;
+    padding-inline-start: 1.15rem;
+    list-style: disc;
+  }
+
+  .extras-section {
+    border-block: 1px solid var(--line);
+    background: var(--paper);
+  }
+
+  .section-copy {
+    margin: -.4rem 0 1.2rem;
+  }
+
+  .extras-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .extra strong {
+    margin-top: auto;
+    color: var(--accent-dark);
+    font-size: .94rem;
+  }
+
+  .event {
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, .7fr);
+    align-items: center;
+    gap: 1.3rem 2.5rem;
+    background: var(--tint);
+  }
+
+  .event .included {
+    margin-top: .9rem;
+  }
+
+  .event-price {
+    display: grid;
+    gap: .75rem;
+    align-items: start;
+    padding: 1.15rem;
+    border: 1px solid #c0d1eb;
+    border-radius: .72rem;
+    background: #fff;
+  }
+
+  .event-price strong {
+    display: block;
+    color: var(--accent-dark);
+    font-size: 1.65rem;
+    letter-spacing: -.04em;
+  }
+
+  @media (max-width: 1040px) {
+    .chat-plans,
+    .extras-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 740px) {
+    .event {
+      grid-template-columns: 1fr;
+    }
+
+    .payment {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+  }
+
+  @media (max-width: 535px) {
+    .chat-plans,
+    .extras-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .plan-heading,
+    .plan-rate {
+      min-height: 0;
+    }
+  }
+</style>

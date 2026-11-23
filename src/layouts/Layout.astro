@@ -8,19 +8,28 @@ import "../styles/global.css";
 
 export interface Props {
   title: string;
+  brand?: string;
+  description?: string;
+  socialImage?: { src: string; alt: string };
+  siteChrome?: boolean;
 }
 
+const {
+  title,
+  brand = "U Link Chatbots",
+  description = "Automatiza tu WhatsApp, Facebook e Instagram para no perder más prospectos. Chatbots, CRM y agendamiento para PYMEs en México sin contratar más personal.",
+  socialImage,
+  siteChrome = true,
+} = Astro.props;
 const canonicalURL = new URL(Astro.url.pathname, Astro.site).toString();
 
 const resolvedImageWithDomain = new URL(
-  "/opengraph.jpg",
+  socialImage?.src ?? "/opengraph.jpg",
   Astro.site
 ).toString();
 
-const { title } = Astro.props;
-
 const makeTitle = title
-  ? title + " | " + "U Link Chatbots"
+  ? `${title} | ${brand}`
   : "U Link Chatbots — Automatiza WhatsApp, Facebook e Instagram";
 ---
 
@@ -35,7 +44,7 @@ const makeTitle = title
     <!-- <link rel="preload" as="image" href={src} alt="Hero" /> -->
     <SEO
       title={makeTitle}
-      description="Automatiza tu WhatsApp, Facebook e Instagram para no perder más prospectos. Chatbots, CRM y agendamiento para PYMEs en México sin contratar más personal."
+      description={description}
       canonical={canonicalURL}
       twitter={{
         creator: "@ulinkmenendez",
@@ -46,19 +55,21 @@ const makeTitle = title
         basic: {
           url: canonicalURL,
           type: "website",
-          title: `U Link Chatbots — Automatiza WhatsApp, Facebook e Instagram`,
+          title: brand === "U Link Chatbots" && !socialImage
+            ? "U Link Chatbots — Automatiza WhatsApp, Facebook e Instagram"
+            : makeTitle,
           image: resolvedImageWithDomain,
         },
         image: {
-          alt: "U Link Chatbots",
+          alt: socialImage?.alt ?? brand,
         },
       }}
     />
   </head>
   <body>
-    <Navbar />
+    {siteChrome && <Navbar />}
     <slot />
-    <Footer />
+    {siteChrome && <Footer />}
 
   </body>
 </html>

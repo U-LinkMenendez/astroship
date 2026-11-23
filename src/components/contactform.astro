@@ -1,42 +1,86 @@
-<form
-  action="https://wa.me/5219996187124"
-  method="get"
-  target="_blank"
-  class="needs-validation"
-  novalidate>
-  <input type="hidden" name="text" value="Hola, me interesa una demo de U Link Chatbots" />
+---
+import { Icon } from "astro-icon/components";
+import { contactWhatsapp } from "@/data/ulink-contact";
+---
 
-  <div class="mb-5">
-    <input
-      type="text"
-      placeholder="Nombre completo"
-      autocomplete="name"
-      class="w-full px-4 py-3 border-2 placeholder:text-gray-800 rounded-md outline-none focus:ring-4 border-gray-300 focus:border-gray-600 ring-gray-100"
-      name="name"
-    />
-  </div>
-  <div class="mb-5">
-    <input
-      type="tel"
-      placeholder="WhatsApp (con lada)"
-      autocomplete="tel"
-      class="w-full px-4 py-3 border-2 placeholder:text-gray-800 rounded-md outline-none focus:ring-4 border-gray-300 focus:border-gray-600 ring-gray-100"
-      name="phone"
-    />
-  </div>
-  <div class="mb-5">
-    <textarea
-      placeholder="¿Qué automatizarías primero en tu negocio?"
-      class="w-full px-4 py-3 border-2 placeholder:text-gray-800 rounded-md outline-none h-36 focus:ring-4 border-gray-300 focus:border-gray-600 ring-gray-100"
-      name="message"
-    ></textarea>
-  </div>
-  <button
-    type="submit"
-    class="w-full px-4 py-4 font-semibold text-white bg-slate-900 rounded-md hover:opacity-90 focus:outline-none focus:ring-offset-2 focus:ring focus:ring-slate-500">
-    Enviar por WhatsApp
+<form action={contactWhatsapp} method="get" target="_blank" rel="noopener noreferrer" id="consulta-whatsapp">
+  <input type="hidden" name="text" value="Hola, quiero información de U Link Systems." />
+
+  <label>
+    Nombre
+    <input type="text" autocomplete="name" maxlength="100" data-field-label="Nombre" />
+  </label>
+
+  <label>
+    WhatsApp con lada
+    <input type="tel" autocomplete="tel" maxlength="35" data-field-label="WhatsApp" />
+  </label>
+
+  <label>
+    ¿En qué podemos ayudarte?
+    <textarea rows="4" maxlength="1200" data-field-label="Consulta"></textarea>
+  </label>
+
+  <button type="submit" class="button button-primary">
+    Abrir WhatsApp
+    <Icon name="bx:right-arrow-alt" aria-hidden="true" />
   </button>
-  <p class="text-xs text-slate-500 mt-3 text-center">
-    Te abre WhatsApp con tu mensaje listo. Sin spam.
-  </p>
+  <noscript><p>Puedes completar tu consulta al abrir WhatsApp.</p></noscript>
 </form>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>("#consulta-whatsapp");
+  const textInput = form?.elements.namedItem("text");
+  if (form && textInput instanceof HTMLInputElement) {
+    form.addEventListener("submit", () => {
+      const lines = [textInput.defaultValue];
+      const fields = form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>("[data-field-label]");
+      for (const field of fields) {
+        const value = field.value.trim();
+        if (value) lines.push(field.dataset.fieldLabel + ": " + value);
+      }
+      textInput.value = lines.join("\n");
+    });
+  }
+</script>
+
+<style>
+  form {
+    display: grid;
+    gap: .95rem;
+    margin-top: 1.4rem;
+  }
+
+  label {
+    display: grid;
+    gap: .38rem;
+    font-size: .93rem;
+    font-weight: 650;
+  }
+
+  input:not([type="hidden"]),
+  textarea {
+    min-width: 0;
+    width: 100%;
+    padding: .72rem .8rem;
+    border: 1px solid #9eb0c8;
+    border-radius: .5rem;
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 1rem;
+    font-weight: 450;
+  }
+
+  textarea {
+    resize: vertical;
+  }
+
+  .button {
+    justify-self: start;
+  }
+
+  noscript p {
+    color: var(--muted);
+    font-size: .9rem;
+  }
+</style>

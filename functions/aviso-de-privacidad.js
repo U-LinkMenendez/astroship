@@ -34,8 +34,16 @@ export async function onRequest({ request, env }) {
     '<link rel="canonical" href="' + canonical + '">',
     '<link rel="icon" type="image/svg+xml" href="/favicon.svg">',
     '<link rel="stylesheet" href="/direct-privacy.css"></head><body>',
-    '<header><nav aria-label="Navegación principal"><a href="/">U Link Systems</a></nav></header>',
-    '<main><article>' + notice.article + '</article></main></body></html>',
+    '<a class="skip-link" href="#contenido">Ir al contenido</a>',
+    '<header class="notice-header"><div class="notice-frame notice-nav">',
+    '<a class="notice-brand" href="/" aria-label="U Link Systems, inicio">U Link <strong>Systems</strong></a>',
+    '<nav aria-label="Navegación principal"><a href="/">Inicio</a><a href="/pricing">Planes de chatbots</a><a href="/contact">Contacto</a></nav>',
+    '</div></header>',
+    '<main id="contenido" class="notice-main" tabindex="-1"><article>' + notice.article + '</article></main>',
+    '<footer class="notice-footer"><div class="notice-frame notice-nav"><p>U Link Systems</p>',
+    '<nav aria-label="Enlaces de pie de página"><a href="/pricing">Planes de chatbots</a><a href="/contact">Contacto</a>',
+    '<a href="/aviso-de-privacidad" aria-current="page">Aviso de privacidad</a></nav>',
+    '</div></footer></body></html>',
   ].join("\n");
   return new Response(request.method === "HEAD" ? null : html, { headers: {
     "Content-Type": "text/html; charset=utf-8",
