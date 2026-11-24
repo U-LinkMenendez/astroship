@@ -1,7 +1,7 @@
 ---
 import { Icon } from "astro-icon/components";
 import Contactform from "@/components/contactform.astro";
-import { directUrl } from "@/data/ulink-contact";
+import { directLink } from "@/data/ulink-contact";
 import ULinkLayout from "@/layouts/ULinkLayout.astro";
 ---
 
@@ -19,7 +19,7 @@ import ULinkLayout from "@/layouts/ULinkLayout.astro";
         <span class="contact-icon"><Icon name="bx:message-rounded-dots" aria-hidden="true" /></span>
         <h2 id="direct-title">Chatea con U Link</h2>
         <p>Abre Vínculo Direct para hablar con un asesor desde tu navegador.</p>
-        <a class="button button-primary" href={directUrl}>
+        <a class="button button-primary" {...directLink}>
           Chatear
           <Icon name="bx:right-arrow-alt" aria-hidden="true" />
         </a>

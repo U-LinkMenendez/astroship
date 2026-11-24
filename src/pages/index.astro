@@ -3,7 +3,7 @@ import { Image, getImage } from "astro:assets";
 import { Icon } from "astro-icon/components";
 import operationPhoto from "@/assets/ulink-operacion.webp";
 import HomeDirectPreview from "@/components/home-direct-preview.astro";
-import { directUrl } from "@/data/ulink-contact";
+import { directLink } from "@/data/ulink-contact";
 import ULinkLayout from "@/layouts/ULinkLayout.astro";
 
 const description = "U Link Systems crea y mantiene el sitio web de tu negocio. Suma un sistema para organizar tu agenda, pedidos o cobranza con una mensualidad.";
@@ -98,7 +98,7 @@ const steps = [
           El alojamiento y el mantenimiento están incluidos en la mensualidad.
         </p>
         <div class="actions">
-          <a class="button button-primary" href={directUrl}>
+          <a class="button button-primary" {...directLink}>
             <Icon name="bx:message-rounded-dots" aria-hidden="true" />
             Chatear
           </a>
@@ -135,7 +135,7 @@ const steps = [
                 <li><Icon name="bx:check" aria-hidden="true" /><span>{item}</span></li>
               ))}
             </ul>
-            <a class:list={["button", plan.featured ? "button-primary" : "button-outline"]} href={directUrl}>
+            <a class:list={["button", plan.featured ? "button-primary" : "button-outline"]} {...directLink}>
               {plan.action}
               <Icon name="bx:right-arrow-alt" aria-hidden="true" />
             </a>
@@ -153,7 +153,7 @@ const steps = [
             <li><Icon name="bx:check" aria-hidden="true" /><span>Migración de datos o conexión con otras herramientas</span></li>
             <li><Icon name="bx:check" aria-hidden="true" /><span>Propuesta de implementación y mensualidad según el alcance</span></li>
           </ul>
-          <a class="button button-outline" href={directUrl}>
+          <a class="button button-outline" {...directLink}>
             Platicar mi proyecto
             <Icon name="bx:right-arrow-alt" aria-hidden="true" />
           </a>
@@ -216,7 +216,7 @@ const steps = [
           <h2>Cuéntanos cómo funciona tu negocio</h2>
           <p>Un asesor puede ayudarte a elegir un plan o revisar tu proyecto.</p>
         </div>
-        <a class="button button-primary" href={directUrl}>
+        <a class="button button-primary" {...directLink}>
           Hablar con un asesor
           <Icon name="bx:right-arrow-alt" aria-hidden="true" />
         </a>
